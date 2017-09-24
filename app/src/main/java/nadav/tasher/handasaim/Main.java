@@ -5,17 +5,25 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -124,6 +132,7 @@ public class Main extends Activity {
     }
     private void view(ArrayList<Class> classes){
         getWindow().setStatusBarColor(color + 0x333333);
+        final LinearLayout sall = new LinearLayout(this);
         final LinearLayout all = new LinearLayout(this);
         final LinearLayout navbarAll = new LinearLayout(this);
         final ImageView nutIcon = new ImageView(this);
@@ -136,6 +145,9 @@ public class Main extends Activity {
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.START);
         all.setBackgroundColor(color);
+        sall.setOrientation(LinearLayout.VERTICAL);
+        sall.setGravity(Gravity.START);
+        sall.setBackgroundColor(color);
         navbarAll.setBackgroundColor(color + 0x333333);
         navbarAll.setOrientation(LinearLayout.HORIZONTAL);
         navbarAll.setGravity(Gravity.CENTER);
@@ -148,8 +160,67 @@ public class Main extends Activity {
         navbarAll.addView(nutIcon);
         navParms.gravity = Gravity.START;
         navbarAll.setLayoutParams(navParms);
-        all.addView(navbarAll);
-        setContentView(all);
+        sall.addView(navbarAll);
+        final SharedPreferences sp=getPreferences(Context.MODE_PRIVATE);
+        int selectedClass=0;
+        if(sp.getString("favorite_class",null)!=null){
+            for(int fc=0;fc<classes.size();fc++){
+                if(sp.getString("favorite_class",null).equals(classes.get(fc).name)){
+                    selectedClass=fc;
+                    break;
+                }
+            }
+        }
+        all.addView(hourSystemForClass(classes.get(selectedClass)));
+        final ArrayList<String> classNames=new ArrayList<>();
+        for(int i=0;i<classes.size();i++){
+            classNames.add(classes.get(i).name);
+        }
+        Spinner chooser=new Spinner(this);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, classNames);
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        chooser.setAdapter(spinnerArrayAdapter);
+        chooser.setSelection(selectedClass);
+        final int selectedFinal=selectedClass;
+        chooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if(i!=selectedFinal){
+                    sp.edit().putString("favorite_class",classNames.get(i)).commit();
+                    startApp();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+        ScrollView sv=new ScrollView(this);
+        sv.addView(all);
+        sall.addView(sv);
+        all.addView(chooser);
+
+        setContentView(sall);
+    }
+    private LinearLayout hourSystemForClass(Class fclass){
+        LinearLayout all=new LinearLayout(this);
+        all.setGravity(Gravity.START|Gravity.CENTER_HORIZONTAL);
+        all.setOrientation(LinearLayout.VERTICAL);
+        TextView className=new TextView(this);
+        className.setTextSize((float)35);
+        className.setGravity(Gravity.CENTER);
+        className.setText(fclass.name);
+        all.addView(className);
+        for(int s=0;s<fclass.classes.size();s++){
+            TextView subj=new TextView(this);
+            subj.setText(fclass.classes.get(s).hour+". "+fclass.classes.get(s).name);
+            subj.setGravity(Gravity.START);
+            subj.setTextSize((float)30);
+            if(fclass.classes.get(s).name!=null&& !fclass.classes.get(s).name.equals("")) {
+                all.addView(subj);
+            }
+        }
+        return all;
     }
     private void openApp() {
 
@@ -193,7 +264,7 @@ public class Main extends Activity {
             Sheet mySheet = myWorkBook.getSheetAt(0);
             int rows=mySheet.getLastRowNum();
             int cols=mySheet.getRow(1).getLastCellNum();
-            for(int c=2;c<cols;c++){
+            for(int c=1;c<cols;c++){
                 ArrayList<Subject> subs=new ArrayList<>();
                 for(int r=2;r<rows;r++){
                     Row row=mySheet.getRow(r);
