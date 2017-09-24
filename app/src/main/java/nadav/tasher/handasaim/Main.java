@@ -3,6 +3,7 @@ package nadav.tasher.handasaim;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -22,6 +23,9 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,6 +33,10 @@ import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -36,6 +44,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 
@@ -149,7 +158,26 @@ public class Main extends Activity {
             public void onLinkGet(String link) {
                 try {
                     String s = new getStringURL().execute(link).get();
-                    readExcelFile(s);
+
+                    new Light.Net.NetFile.FileDownloader(link, new File(getApplicationContext().getFilesDir(), "hs.xls"), new Light.Net.NetFile.FileDownloader.OnDownload() {
+                        @Override
+                        public void onFinish(File file, boolean b) {
+                            if(b){
+                                ArrayList<Class> classes=readExcelFile(file);
+                                if(classes!=null) {
+                                    for (int cl = 0; cl < classes.size(); cl++) {
+                                        for (int su = 0; su < classes.get(cl).classes.size(); su++) {
+                                            Log.i(classes.get(cl).name, classes.get(cl).classes.get(su).name);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onProgressChanged(File file, int i) {
+                        }
+                    }).execute();
                 } catch (InterruptedException e) {
                     popup("Failed, Press OK To Retry");
                 } catch (ExecutionException e) {
@@ -164,27 +192,45 @@ public class Main extends Activity {
         }).execute();
     }
 
-    private static void readExcelFile(String s) {
+    private ArrayList<Class> readExcelFile(File f) {
         try {
-
-            InputStream stream = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8.name()));
-            POIFSFileSystem myFileSystem = new POIFSFileSystem(stream);
-            HSSFWorkbook myWorkBook = new HSSFWorkbook(myFileSystem);
-            HSSFSheet mySheet = myWorkBook.getSheetAt(0);
-            Iterator rowIter = mySheet.rowIterator();
-            while (rowIter.hasNext()) {
-                HSSFRow myRow = (HSSFRow) rowIter.next();
-                Iterator cellIter = myRow.cellIterator();
-                while (cellIter.hasNext()) {
-                    HSSFCell myCell = (HSSFCell) cellIter.next();
-                    Log.d("CELLS", "Cell Value: " + myCell.toString());
+            ArrayList<Class> classes=new ArrayList<>();
+            POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
+            Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+            int rows=mySheet.getLastRowNum();
+            int cols=mySheet.getRow(2).getLastCellNum();
+            for(int c=2;c<cols;c++){
+                ArrayList<Subject> subs=new ArrayList<>();
+                for(int r=3;r<rows;r++){
+                    Row row=mySheet.getRow(r);
+                    subs.add(new Subject(r-3,row.getCell(c).getStringCellValue().split("\\r?\\n")[0],row.getCell(c).getStringCellValue()));
                 }
+                classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(),subs));
             }
+            return classes;
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
     }
-
+class Class{
+    public String name;
+    public ArrayList<Subject> classes;
+    public Class(String name, ArrayList<Subject> classes){
+        this.name=name;
+        this.classes=classes;
+    }
+}
+    class Subject{
+        public int hour;
+        public String name,fullName;
+        public Subject(int hour,String name,String fullName){
+            this.hour=hour;
+            this.name=name;
+            this.fullName=fullName;
+        }
+    }
 }
 class GetLink extends AsyncTask<String, String, String> {
     private String ser;
