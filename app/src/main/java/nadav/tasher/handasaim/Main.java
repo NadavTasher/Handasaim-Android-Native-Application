@@ -167,7 +167,7 @@ public class Main extends Activity {
                                 if(classes!=null) {
                                     for (int cl = 0; cl < classes.size(); cl++) {
                                         for (int su = 0; su < classes.get(cl).classes.size(); su++) {
-                                            Log.i(classes.get(cl).name, classes.get(cl).classes.get(su).name);
+                                            Log.i(classes.get(cl).name+" "+classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
                                         }
                                     }
                                 }
@@ -199,12 +199,12 @@ public class Main extends Activity {
             Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
             Sheet mySheet = myWorkBook.getSheetAt(0);
             int rows=mySheet.getLastRowNum();
-            int cols=mySheet.getRow(2).getLastCellNum();
+            int cols=mySheet.getRow(1).getLastCellNum();
             for(int c=2;c<cols;c++){
                 ArrayList<Subject> subs=new ArrayList<>();
-                for(int r=3;r<rows;r++){
+                for(int r=2;r<rows;r++){
                     Row row=mySheet.getRow(r);
-                    subs.add(new Subject(r-3,row.getCell(c).getStringCellValue().split("\\r?\\n")[0],row.getCell(c).getStringCellValue()));
+                    subs.add(new Subject(r-2,row.getCell(c).getStringCellValue().split("\\r?\\n")[0],row.getCell(c).getStringCellValue()));
                 }
                 classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(),subs));
             }
