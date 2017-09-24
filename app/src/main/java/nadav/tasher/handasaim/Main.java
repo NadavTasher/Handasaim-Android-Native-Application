@@ -122,8 +122,7 @@ public class Main extends Activity {
         });
         pop.show();
     }
-
-    private void openApp() {
+    private void view(ArrayList<Class> classes){
         getWindow().setStatusBarColor(color + 0x333333);
         final LinearLayout all = new LinearLayout(this);
         final LinearLayout navbarAll = new LinearLayout(this);
@@ -150,39 +149,33 @@ public class Main extends Activity {
         navParms.gravity = Gravity.START;
         navbarAll.setLayoutParams(navParms);
         all.addView(navbarAll);
-
         setContentView(all);
+    }
+    private void openApp() {
 
         new GetLink(service, new GetLink.GotLink() {
             @Override
             public void onLinkGet(String link) {
-                try {
-                    String s = new getStringURL().execute(link).get();
-
-                    new Light.Net.NetFile.FileDownloader(link, new File(getApplicationContext().getFilesDir(), "hs.xls"), new Light.Net.NetFile.FileDownloader.OnDownload() {
-                        @Override
-                        public void onFinish(File file, boolean b) {
-                            if(b){
-                                ArrayList<Class> classes=readExcelFile(file);
-                                if(classes!=null) {
-                                    for (int cl = 0; cl < classes.size(); cl++) {
-                                        for (int su = 0; su < classes.get(cl).classes.size(); su++) {
-                                            Log.i(classes.get(cl).name+" "+classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
-                                        }
+                new Light.Net.NetFile.FileDownloader(link, new File(getApplicationContext().getFilesDir(), "hs.xls"), new Light.Net.NetFile.FileDownloader.OnDownload() {
+                    @Override
+                    public void onFinish(File file, boolean b) {
+                        if(b){
+                            ArrayList<Class> classes=readExcelFile(file);
+                            if(classes!=null) {
+                                for (int cl = 0; cl < classes.size(); cl++) {
+                                    for (int su = 0; su < classes.get(cl).classes.size(); su++) {
+                                        Log.i(classes.get(cl).name+" "+classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
                                     }
                                 }
                             }
+                            view(classes);
                         }
+                    }
 
-                        @Override
-                        public void onProgressChanged(File file, int i) {
-                        }
-                    }).execute();
-                } catch (InterruptedException e) {
-                    popup("Failed, Press OK To Retry");
-                } catch (ExecutionException e) {
-                    popup("Fatal Error, Press OK To Retry");
-                }
+                    @Override
+                    public void onProgressChanged(File file, int i) {
+                    }
+                }).execute();
             }
 
             @Override
