@@ -11,28 +11,18 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Row;
@@ -40,25 +30,16 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.concurrent.ExecutionException;
 
 import nadav.tasher.lightool.Light;
 
@@ -134,7 +115,8 @@ public class Main extends Activity {
         });
         pop.show();
     }
-    private void view(ArrayList<Class> classes){
+
+    private void view(ArrayList<Class> classes) {
         getWindow().setStatusBarColor(color + 0x333333);
         final LinearLayout sall = new LinearLayout(this);
         final LinearLayout all = new LinearLayout(this);
@@ -142,22 +124,22 @@ public class Main extends Activity {
         final ImageView nutIcon = new ImageView(this);
         final int screenY = Light.Device.screenY(this);
         final int nutSize = (screenY / 8) - screenY / 30;
-        final ObjectAnimator anim = ObjectAnimator.ofFloat(nutIcon, View.TRANSLATION_X, Light.Animations.VIBRATE_SMALL);
+        final ObjectAnimator anim = ObjectAnimator.ofFloat(nutIcon, View.TRANSLATION_Y, Light.Animations.JUMP_SMALL);
         final int navY = screenY / 8;
         final LinearLayout.LayoutParams nutParms = new LinearLayout.LayoutParams(nutSize, nutSize);
         final LinearLayout.LayoutParams navParms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, navY);
         all.setOrientation(LinearLayout.VERTICAL);
-        all.setGravity(Gravity.START|Gravity.CENTER_HORIZONTAL);
+        all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setBackgroundColor(color);
         sall.setOrientation(LinearLayout.VERTICAL);
-        sall.setGravity(Gravity.START|Gravity.CENTER_HORIZONTAL);
+        sall.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         sall.setBackgroundColor(color);
         navbarAll.setBackgroundColor(color + 0x333333);
         navbarAll.setOrientation(LinearLayout.HORIZONTAL);
         navbarAll.setGravity(Gravity.CENTER);
         nutIcon.setLayoutParams(nutParms);
         nutIcon.setImageDrawable(getDrawable(R.drawable.ic_icon));
-        anim.setDuration(1500);
+        anim.setDuration(750);
         anim.setRepeatMode(ObjectAnimator.RESTART);
         anim.setRepeatCount(ObjectAnimator.INFINITE);
         anim.start();
@@ -165,97 +147,66 @@ public class Main extends Activity {
         navParms.gravity = Gravity.START;
         navbarAll.setLayoutParams(navParms);
         sall.addView(navbarAll);
-        final SharedPreferences sp=getPreferences(Context.MODE_PRIVATE);
-        int selectedClass=0;
-        if(sp.getString("favorite_class",null)!=null){
-            for(int fc=0;fc<classes.size();fc++){
-                if(sp.getString("favorite_class","").equals(classes.get(fc).name)){
-                    selectedClass=fc;
+        final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+        int selectedClass = 0;
+        if (sp.getString("favorite_class", null) != null) {
+            for (int fc = 0; fc < classes.size(); fc++) {
+                if (sp.getString("favorite_class", "").equals(classes.get(fc).name)) {
+                    selectedClass = fc;
                     break;
                 }
             }
         }
-//        Spinner chooser=new Spinner(this);
-//        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this, R.layout.spinner_item, classNames){
-//            @Override
-//            public View getView(int position, View convertView, ViewGroup parent) {
-//                View v =super.getDropDownView(position, convertView, parent);
-//
-//                Typeface externalFont=Typeface.createFromAsset(getAssets(), "gisha.ttf");
-//                ((TextView) v).setTypeface(externalFont);
-//                ((TextView) v).setTextColor(Color.WHITE);
-//                ((TextView) v).setTextSize((float)30);
-//                ((TextView) v).setGravity(Gravity.START);
-//                v.setLayoutDirection(TextView.LAYOUT_DIRECTION_RTL);
-//                return v;
-//            }
-//        };
-//        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-//        chooser.setAdapter(spinnerArrayAdapter);
-//        chooser.setSelection(selectedClass);
-//        final int selectedFinal=selectedClass;
-//        chooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                if(i!=selectedFinal){
-//                    sp.edit().putString("favorite_class",classNames.get(i)).commit();
-//                    startApp();
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> adapterView) {
-//            }
-//        });
-        ScrollView sv=new ScrollView(this);
+        ScrollView sv = new ScrollView(this);
         sv.addView(all);
         sall.addView(sv);
-//        all.addView(chooser);
-        LinearLayout hsplace=new LinearLayout(this);
+        LinearLayout hsplace = new LinearLayout(this);
         hsplace.setGravity(Gravity.CENTER);
         hsplace.setOrientation(LinearLayout.VERTICAL);
         all.addView(hsplace);
-        showHS(classes.get(selectedClass),hsplace,classes);
+        showHS(classes.get(selectedClass), hsplace, classes);
         setContentView(sall);
     }
-    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes){
+
+    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes) {
         hsplace.removeAllViews();
-        final Typeface custom_font = Typeface.createFromAsset(getAssets(),  "gisha.ttf");
-        final Button className=new Button(this);
-        className.setTextSize((float)35);
+        final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+        final Button className = new Button(this);
+        className.setTextSize((float) 35);
+        className.setBackgroundColor(Color.TRANSPARENT);
         className.setGravity(Gravity.CENTER);
         className.setText(c.name);
+        className.setTextColor(Color.WHITE);
         className.setTypeface(custom_font);
-        final ArrayList<String> classNames=new ArrayList<>();
-        for(int i=0;i<classes.size();i++){
-            classNames.add(classes.get(i).name);
-        }
         className.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LinearLayout classesll=new LinearLayout(getApplicationContext());
+                LinearLayout classesll = new LinearLayout(getApplicationContext());
                 classesll.setGravity(Gravity.CENTER);
                 classesll.setOrientation(LinearLayout.VERTICAL);
-                final Dialog dialog=new Dialog(Main.this);
+                final Dialog dialog = new Dialog(Main.this);
                 dialog.setCancelable(true);
-                ScrollView classesllss=new ScrollView(getApplicationContext());
+                ScrollView classesllss = new ScrollView(getApplicationContext());
                 classesllss.addView(classesll);
                 dialog.setContentView(classesllss);
-                for(int cs=0;cs<classes.size();cs++){
-                    if(classes.get(cs)!=c){
-                        Button cls=new Button(getApplicationContext());
-                        cls.setTextSize((float)35);
+                for (int cs = 0; cs < classes.size(); cs++) {
+                    if (classes.get(cs) != c) {
+                        Button cls = new Button(getApplicationContext());
+                        cls.setTextSize((float) 32);
                         cls.setGravity(Gravity.CENTER);
                         cls.setText(classes.get(cs).name);
+                        cls.setTextColor(Color.WHITE);
+                        cls.setBackgroundColor(Color.TRANSPARENT);
                         cls.setTypeface(custom_font);
+                        cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
                         classesll.addView(cls);
                         final int finalCs = cs;
                         cls.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                final SharedPreferences sp=getPreferences(Context.MODE_PRIVATE);
-                                sp.edit().putString("favorite_class",classes.get(finalCs).name).commit();
-                                showHS(classes.get(finalCs),hsplace,classes);
+                                final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+                                sp.edit().putString("favorite_class", classes.get(finalCs).name).commit();
+                                showHS(classes.get(finalCs), hsplace, classes);
                                 dialog.dismiss();
                             }
                         });
@@ -267,50 +218,81 @@ public class Main extends Activity {
         hsplace.addView(className);
         hsplace.addView(hourSystemForClass(c));
     }
-    private LinearLayout hourSystemForClass(Class fclass){
-        LinearLayout all=new LinearLayout(this);
-        all.setGravity(Gravity.START|Gravity.CENTER_HORIZONTAL);
+
+    private LinearLayout hourSystemForClass(Class fclass) {
+        LinearLayout all = new LinearLayout(this);
+        all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
-        Typeface custom_font = Typeface.createFromAsset(getAssets(),  "gisha.ttf");
-        for(int s=0;s<fclass.classes.size();s++){
-            TextView subj=new TextView(this);
-            subj.setText(fclass.classes.get(s).hour+". "+fclass.classes.get(s).name);
+        Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+        for (int s = 0; s < fclass.classes.size(); s++) {
+            TextView subj = new TextView(this);
+            subj.setText("("+getRealTimeForHourNumber(fclass.classes.get(s).hour)+") "+fclass.classes.get(s).hour + ". "+ fclass.classes.get(s).name);
             subj.setGravity(Gravity.START);
-            subj.setTextSize((float)35);
+            subj.setTextSize((float) 30);
             subj.setTextColor(Color.WHITE);
             subj.setTypeface(custom_font);
-            if(fclass.classes.get(s).name!=null&& !fclass.classes.get(s).name.equals("")) {
+            if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
                 all.addView(subj);
             }
         }
         return all;
     }
+    private String getRealTimeForHourNumber(int hour){
+        switch(hour){
+            case 0:
+                return "07:45";
+            case 1:
+                return "08:30";
+            case 2:
+                return "09:15";
+            case 3:
+                return "10:15";
+            case 4:
+                return "11:00";
+            case 5:
+                return "12:10";
+            case 6:
+                return "12:55";
+            case 7:
+                return "13:50";
+            case 8:
+                return "14:35";
+            case 9:
+                return "15:25";
+        }
+        return null;
+    }
     private void openApp() {
-
         new GetLink(service, new GetLink.GotLink() {
             @Override
             public void onLinkGet(String link) {
-                Log.i("LINK",link);
-                new Light.Net.NetFile.FileDownloader(link, new File(getApplicationContext().getFilesDir(), "hs.xls"), new Light.Net.NetFile.FileDownloader.OnDownload() {
-                    @Override
-                    public void onFinish(File file, boolean b) {
-                        if(b){
-                            ArrayList<Class> classes=readExcelFile(file);
-                            if(classes!=null) {
-                                for (int cl = 0; cl < classes.size(); cl++) {
-                                    for (int su = 0; su < classes.get(cl).classes.size(); su++) {
-                                        Log.i(classes.get(cl).name+" "+classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
+                if(link!=null) {
+                    Log.i("LINK", link);
+                    new Light.Net.NetFile.FileDownloader(link, new File(getApplicationContext().getFilesDir(), "hs.xls"), new Light.Net.NetFile.FileDownloader.OnDownload() {
+                        @Override
+                        public void onFinish(File file, boolean b) {
+                            if (b) {
+                                ArrayList<Class> classes = readExcelFile(file);
+                                if (classes != null) {
+                                    for (int cl = 0; cl < classes.size(); cl++) {
+                                        for (int su = 0; su < classes.get(cl).classes.size(); su++) {
+                                            Log.i(classes.get(cl).name + " " + classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
+                                        }
                                     }
                                 }
+                                view(classes);
+                            }else{
+                                popup("Failed To Download Excel File");
                             }
-                            view(classes);
                         }
-                    }
 
-                    @Override
-                    public void onProgressChanged(File file, int i) {
-                    }
-                }).execute();
+                        @Override
+                        public void onProgressChanged(File file, int i) {
+                        }
+                    }).execute();
+                }else{
+                    popup("Could Not Connect To Server");
+                }
             }
 
             @Override
@@ -322,19 +304,19 @@ public class Main extends Activity {
 
     private ArrayList<Class> readExcelFile(File f) {
         try {
-            ArrayList<Class> classes=new ArrayList<>();
+            ArrayList<Class> classes = new ArrayList<>();
             POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
             Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
             Sheet mySheet = myWorkBook.getSheetAt(0);
-            int rows=mySheet.getLastRowNum();
-            int cols=mySheet.getRow(1).getLastCellNum();
-            for(int c=1;c<cols;c++){
-                ArrayList<Subject> subs=new ArrayList<>();
-                for(int r=2;r<rows;r++){
-                    Row row=mySheet.getRow(r);
-                    subs.add(new Subject(r-2,row.getCell(c).getStringCellValue().split("\\r?\\n")[0],row.getCell(c).getStringCellValue()));
+            int rows = mySheet.getLastRowNum();
+            int cols = mySheet.getRow(1).getLastCellNum();
+            for (int c = 1; c < cols; c++) {
+                ArrayList<Subject> subs = new ArrayList<>();
+                for (int r = 2; r < rows; r++) {
+                    Row row = mySheet.getRow(r);
+                    subs.add(new Subject(r - 2, row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
                 }
-                classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(),subs));
+                classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(), subs));
             }
             return classes;
         } catch (Exception e) {
@@ -342,21 +324,24 @@ public class Main extends Activity {
             return null;
         }
     }
-class Class{
-    public String name;
-    public ArrayList<Subject> classes;
-    public Class(String name, ArrayList<Subject> classes){
-        this.name=name;
-        this.classes=classes;
+
+    class Class {
+        public String name;
+        public ArrayList<Subject> classes;
+
+        public Class(String name, ArrayList<Subject> classes) {
+            this.name = name;
+            this.classes = classes;
+        }
     }
-}
-    class Subject{
+    class Subject {
         public int hour;
-        public String name,fullName;
-        public Subject(int hour,String name,String fullName){
-            this.hour=hour;
-            this.name=name;
-            this.fullName=fullName;
+        public String name, fullName;
+
+        public Subject(int hour, String name, String fullName) {
+            this.hour = hour;
+            this.name = name;
+            this.fullName = fullName;
         }
     }
 }
