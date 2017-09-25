@@ -7,12 +7,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -177,8 +179,21 @@ public class Main extends Activity {
             classNames.add(classes.get(i).name);
         }
         Spinner chooser=new Spinner(this);
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, classNames);
-        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this, R.layout.spinner_item, classNames){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View v =super.getDropDownView(position, convertView, parent);
+
+                Typeface externalFont=Typeface.createFromAsset(getAssets(), "gisha.ttf");
+                ((TextView) v).setTypeface(externalFont);
+                ((TextView) v).setTextColor(Color.WHITE);
+                ((TextView) v).setTextSize((float)30);
+                ((TextView) v).setGravity(Gravity.START);
+                v.setLayoutDirection(TextView.LAYOUT_DIRECTION_RTL);
+                return v;
+            }
+        };
+        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         chooser.setAdapter(spinnerArrayAdapter);
         chooser.setSelection(selectedClass);
         final int selectedFinal=selectedClass;
@@ -206,16 +221,19 @@ public class Main extends Activity {
         LinearLayout all=new LinearLayout(this);
         all.setGravity(Gravity.START|Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
+        Typeface custom_font = Typeface.createFromAsset(getAssets(),  "gisha.ttf");
         TextView className=new TextView(this);
         className.setTextSize((float)35);
         className.setGravity(Gravity.CENTER);
         className.setText(fclass.name);
+        className.setTypeface(custom_font);
         all.addView(className);
         for(int s=0;s<fclass.classes.size();s++){
             TextView subj=new TextView(this);
             subj.setText(fclass.classes.get(s).hour+". "+fclass.classes.get(s).name);
             subj.setGravity(Gravity.START);
             subj.setTextSize((float)30);
+            subj.setTypeface(custom_font);
             if(fclass.classes.get(s).name!=null&& !fclass.classes.get(s).name.equals("")) {
                 all.addView(subj);
             }
