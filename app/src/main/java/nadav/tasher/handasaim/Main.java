@@ -3,6 +3,7 @@ package nadav.tasher.handasaim;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -19,6 +20,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -145,10 +147,10 @@ public class Main extends Activity {
         final LinearLayout.LayoutParams nutParms = new LinearLayout.LayoutParams(nutSize, nutSize);
         final LinearLayout.LayoutParams navParms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, navY);
         all.setOrientation(LinearLayout.VERTICAL);
-        all.setGravity(Gravity.START);
+        all.setGravity(Gravity.START|Gravity.CENTER_HORIZONTAL);
         all.setBackgroundColor(color);
         sall.setOrientation(LinearLayout.VERTICAL);
-        sall.setGravity(Gravity.START);
+        sall.setGravity(Gravity.START|Gravity.CENTER_HORIZONTAL);
         sall.setBackgroundColor(color);
         navbarAll.setBackgroundColor(color + 0x333333);
         navbarAll.setOrientation(LinearLayout.HORIZONTAL);
@@ -167,72 +169,115 @@ public class Main extends Activity {
         int selectedClass=0;
         if(sp.getString("favorite_class",null)!=null){
             for(int fc=0;fc<classes.size();fc++){
-                if(sp.getString("favorite_class",null).equals(classes.get(fc).name)){
+                if(sp.getString("favorite_class","").equals(classes.get(fc).name)){
                     selectedClass=fc;
                     break;
                 }
             }
         }
-        all.addView(hourSystemForClass(classes.get(selectedClass)));
+//        Spinner chooser=new Spinner(this);
+//        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this, R.layout.spinner_item, classNames){
+//            @Override
+//            public View getView(int position, View convertView, ViewGroup parent) {
+//                View v =super.getDropDownView(position, convertView, parent);
+//
+//                Typeface externalFont=Typeface.createFromAsset(getAssets(), "gisha.ttf");
+//                ((TextView) v).setTypeface(externalFont);
+//                ((TextView) v).setTextColor(Color.WHITE);
+//                ((TextView) v).setTextSize((float)30);
+//                ((TextView) v).setGravity(Gravity.START);
+//                v.setLayoutDirection(TextView.LAYOUT_DIRECTION_RTL);
+//                return v;
+//            }
+//        };
+//        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+//        chooser.setAdapter(spinnerArrayAdapter);
+//        chooser.setSelection(selectedClass);
+//        final int selectedFinal=selectedClass;
+//        chooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                if(i!=selectedFinal){
+//                    sp.edit().putString("favorite_class",classNames.get(i)).commit();
+//                    startApp();
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//            }
+//        });
+        ScrollView sv=new ScrollView(this);
+        sv.addView(all);
+        sall.addView(sv);
+//        all.addView(chooser);
+        LinearLayout hsplace=new LinearLayout(this);
+        hsplace.setGravity(Gravity.CENTER);
+        hsplace.setOrientation(LinearLayout.VERTICAL);
+        all.addView(hsplace);
+        showHS(classes.get(selectedClass),hsplace,classes);
+        setContentView(sall);
+    }
+    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes){
+        hsplace.removeAllViews();
+        final Typeface custom_font = Typeface.createFromAsset(getAssets(),  "gisha.ttf");
+        final Button className=new Button(this);
+        className.setTextSize((float)35);
+        className.setGravity(Gravity.CENTER);
+        className.setText(c.name);
+        className.setTypeface(custom_font);
         final ArrayList<String> classNames=new ArrayList<>();
         for(int i=0;i<classes.size();i++){
             classNames.add(classes.get(i).name);
         }
-        Spinner chooser=new Spinner(this);
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this, R.layout.spinner_item, classNames){
+        className.setOnClickListener(new View.OnClickListener() {
             @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View v =super.getDropDownView(position, convertView, parent);
-
-                Typeface externalFont=Typeface.createFromAsset(getAssets(), "gisha.ttf");
-                ((TextView) v).setTypeface(externalFont);
-                ((TextView) v).setTextColor(Color.WHITE);
-                ((TextView) v).setTextSize((float)30);
-                ((TextView) v).setGravity(Gravity.START);
-                v.setLayoutDirection(TextView.LAYOUT_DIRECTION_RTL);
-                return v;
-            }
-        };
-        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        chooser.setAdapter(spinnerArrayAdapter);
-        chooser.setSelection(selectedClass);
-        final int selectedFinal=selectedClass;
-        chooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if(i!=selectedFinal){
-                    sp.edit().putString("favorite_class",classNames.get(i)).commit();
-                    startApp();
+            public void onClick(View view) {
+                LinearLayout classesll=new LinearLayout(getApplicationContext());
+                classesll.setGravity(Gravity.CENTER);
+                classesll.setOrientation(LinearLayout.VERTICAL);
+                final Dialog dialog=new Dialog(Main.this);
+                dialog.setCancelable(true);
+                ScrollView classesllss=new ScrollView(getApplicationContext());
+                classesllss.addView(classesll);
+                dialog.setContentView(classesllss);
+                for(int cs=0;cs<classes.size();cs++){
+                    if(classes.get(cs)!=c){
+                        Button cls=new Button(getApplicationContext());
+                        cls.setTextSize((float)35);
+                        cls.setGravity(Gravity.CENTER);
+                        cls.setText(classes.get(cs).name);
+                        cls.setTypeface(custom_font);
+                        classesll.addView(cls);
+                        final int finalCs = cs;
+                        cls.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                final SharedPreferences sp=getPreferences(Context.MODE_PRIVATE);
+                                sp.edit().putString("favorite_class",classes.get(finalCs).name).commit();
+                                showHS(classes.get(finalCs),hsplace,classes);
+                                dialog.dismiss();
+                            }
+                        });
+                    }
                 }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+                dialog.show();
             }
         });
-        ScrollView sv=new ScrollView(this);
-        sv.addView(all);
-        sall.addView(sv);
-        all.addView(chooser);
-
-        setContentView(sall);
+        hsplace.addView(className);
+        hsplace.addView(hourSystemForClass(c));
     }
     private LinearLayout hourSystemForClass(Class fclass){
         LinearLayout all=new LinearLayout(this);
         all.setGravity(Gravity.START|Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
         Typeface custom_font = Typeface.createFromAsset(getAssets(),  "gisha.ttf");
-        TextView className=new TextView(this);
-        className.setTextSize((float)35);
-        className.setGravity(Gravity.CENTER);
-        className.setText(fclass.name);
-        className.setTypeface(custom_font);
-        all.addView(className);
         for(int s=0;s<fclass.classes.size();s++){
             TextView subj=new TextView(this);
             subj.setText(fclass.classes.get(s).hour+". "+fclass.classes.get(s).name);
             subj.setGravity(Gravity.START);
-            subj.setTextSize((float)30);
+            subj.setTextSize((float)35);
+            subj.setTextColor(Color.WHITE);
             subj.setTypeface(custom_font);
             if(fclass.classes.get(s).name!=null&& !fclass.classes.get(s).name.equals("")) {
                 all.addView(subj);
@@ -245,6 +290,7 @@ public class Main extends Activity {
         new GetLink(service, new GetLink.GotLink() {
             @Override
             public void onLinkGet(String link) {
+                Log.i("LINK",link);
                 new Light.Net.NetFile.FileDownloader(link, new File(getApplicationContext().getFilesDir(), "hs.xls"), new Light.Net.NetFile.FileDownloader.OnDownload() {
                     @Override
                     public void onFinish(File file, boolean b) {

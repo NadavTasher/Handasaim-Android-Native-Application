@@ -5,10 +5,10 @@ android {
     buildToolsVersion "26.0.1"
     defaultConfig {
         applicationId "nadav.tasher.handasaim"
-        minSdkVersion 22
+        minSdkVersion 19
         targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName '1.2'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -26,6 +26,8 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/notice.txt'
         exclude 'META-INF/ASL2.0'
+    }
+    productFlavors {
     }
 }
 
