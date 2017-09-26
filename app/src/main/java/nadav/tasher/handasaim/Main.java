@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -14,13 +15,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -116,7 +122,8 @@ public class Main extends Activity {
         pop.show();
     }
 
-    private void view(ArrayList<Class> classes) {
+    private void view(final ArrayList<Class> classes) {
+        final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
         getWindow().setStatusBarColor(color + 0x333333);
         final LinearLayout sall = new LinearLayout(this);
         final LinearLayout all = new LinearLayout(this);
@@ -136,7 +143,7 @@ public class Main extends Activity {
         sall.setBackgroundColor(color);
         navbarAll.setBackgroundColor(color + 0x333333);
         navbarAll.setOrientation(LinearLayout.HORIZONTAL);
-        navbarAll.setGravity(Gravity.CENTER);
+        navbarAll.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);
         nutIcon.setLayoutParams(nutParms);
         nutIcon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         anim.setDuration(750);
@@ -147,7 +154,45 @@ public class Main extends Activity {
         navParms.gravity = Gravity.START;
         navbarAll.setLayoutParams(navParms);
         sall.addView(navbarAll);
-        final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+        LinearLayout navSliderview=new LinearLayout(this);
+        navSliderview.setGravity(Gravity.START);
+        navSliderview.setOrientation(LinearLayout.HORIZONTAL);
+        HorizontalScrollView navSliderviewscroll=new HorizontalScrollView(this);
+        navSliderviewscroll.addView(navSliderview);
+        navbarAll.addView(navSliderviewscroll);
+        LinearLayout timeswitch=new LinearLayout(this);
+        timeswitch.setBackground(getDrawable(R.drawable.back));
+        timeswitch.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext())/4, Light.Device.screenY(getApplicationContext())/12));
+        ImageView clock_ic=new ImageView(getApplicationContext());
+        clock_ic.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext())/20,Light.Device.screenY(getApplicationContext())/20));
+        clock_ic.setImageDrawable(getDrawable(R.drawable.ic_clock));
+        timeswitch.addView(clock_ic);
+        timeswitch.setPadding(20,20,20,20);
+        Switch sw=new Switch(this);
+        sw.setText(null);
+        sw.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        timeswitch.setGravity(Gravity.CENTER);
+        timeswitch.setOrientation(LinearLayout.HORIZONTAL);
+        timeswitch.addView(sw);
+
+        navSliderview.addView(timeswitch);
+        LinearLayout share=new LinearLayout(this);
+        share.setOrientation(LinearLayout.HORIZONTAL);
+        share.setGravity(Gravity.CENTER);
+        ImageButton sr=new ImageButton(this);
+        sr.setImageDrawable(getDrawable(android.R.drawable.ic_menu_share));
+        sr.setBackgroundColor(Color.TRANSPARENT);
+        share.setBackground(getDrawable(R.drawable.back));
+        sr.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext())/20,Light.Device.screenY(getApplicationContext())/20));
+        share.addView(sr);
+        sr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                share(currentClass.name+"\n"+hourSystemForClassString(currentClass,sp.getBoolean("show_time",true)));
+            }
+        });
+        share.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext())/4, Light.Device.screenY(getApplicationContext())/12));
+        navSliderview.addView(share);
         int selectedClass = 0;
         if (sp.getString("favorite_class", null) != null) {
             if(classes!=null) {
@@ -164,22 +209,40 @@ public class Main extends Activity {
         ScrollView sv = new ScrollView(this);
         sv.addView(all);
         sall.addView(sv);
-        LinearLayout hsplace = new LinearLayout(this);
+        final LinearLayout hsplace = new LinearLayout(this);
         hsplace.setGravity(Gravity.CENTER);
         hsplace.setOrientation(LinearLayout.VERTICAL);
+        hsplace.setPadding(20,20,20,20);
         all.addView(hsplace);
+        sw.setChecked(sp.getBoolean("show_time",true));
+        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                sp.edit().putBoolean("show_time",b).commit();
+                showHS(currentClass,hsplace,classes,b);
+            }
+        });
         if(classes!=null)
-        showHS(classes.get(selectedClass), hsplace, classes);
+        showHS(classes.get(selectedClass), hsplace, classes,sp.getBoolean("show_time",true));
         setContentView(sall);
     }
-
-    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes) {
+    private void share(String st) {
+        Intent s=new Intent(Intent.ACTION_SEND);
+        s.putExtra(Intent.EXTRA_TEXT, st);
+        s.setType("text/plain");
+        s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(Intent.createChooser(s, "Share With"));
+    }
+    private Class currentClass;
+    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes, final boolean showTime) {
+        currentClass=c;
         hsplace.removeAllViews();
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
         final Button className = new Button(this);
         className.setTextSize((float) 35);
-        className.setBackgroundColor(Color.TRANSPARENT);
+//        className.setBackgroundColor(Color.TRANSPARENT);
         className.setGravity(Gravity.CENTER);
+        className.setBackground(getDrawable(R.drawable.back));
         className.setText(c.name);
         className.setTextColor(Color.WHITE);
         className.setTypeface(custom_font);
@@ -211,7 +274,7 @@ public class Main extends Activity {
                             public void onClick(View view) {
                                 final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
                                 sp.edit().putString("favorite_class", classes.get(finalCs).name).commit();
-                                showHS(classes.get(finalCs), hsplace, classes);
+                                showHS(classes.get(finalCs), hsplace, classes,showTime);
                                 dialog.dismiss();
                             }
                         });
@@ -221,17 +284,24 @@ public class Main extends Activity {
             }
         });
         hsplace.addView(className);
-        hsplace.addView(hourSystemForClass(c));
+        hsplace.addView(hourSystemForClass(c,showTime));
     }
 
-    private LinearLayout hourSystemForClass(Class fclass) {
+    private LinearLayout hourSystemForClass(Class fclass,boolean showTime) {
         LinearLayout all = new LinearLayout(this);
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
         Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
         for (int s = 0; s < fclass.classes.size(); s++) {
             TextView subj = new TextView(this);
-            subj.setText("("+getRealTimeForHourNumber(fclass.classes.get(s).hour)+") "+fclass.classes.get(s).hour + ". "+ fclass.classes.get(s).name);
+            String before;
+            if(showTime){
+                before="("+getRealTimeForHourNumber(fclass.classes.get(s).hour)+") "+fclass.classes.get(s).hour + ". ";
+            }else{
+                before=fclass.classes.get(s).hour + ". ";
+            }
+            String total=before+ fclass.classes.get(s).name;
+            subj.setText(total);
             subj.setGravity(Gravity.START);
             subj.setTextSize((float) 30);
             subj.setTextColor(Color.WHITE);
@@ -241,6 +311,22 @@ public class Main extends Activity {
             }
         }
         return all;
+    }
+    private String hourSystemForClassString(Class fclass,boolean showTime) {
+        String allsubj="";
+        for (int s = 0; s < fclass.classes.size(); s++) {
+            String before;
+            if(showTime){
+                before="("+getRealTimeForHourNumber(fclass.classes.get(s).hour)+") "+fclass.classes.get(s).hour + ". ";
+            }else{
+                before=fclass.classes.get(s).hour + ". ";
+            }
+            String total=before+ fclass.classes.get(s).name;
+            if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
+                allsubj+=total+"\n";
+            }
+        }
+        return allsubj;
     }
     private String getRealTimeForHourNumber(int hour){
         switch(hour){
@@ -264,6 +350,12 @@ public class Main extends Activity {
                 return "14:35";
             case 9:
                 return "15:25";
+            case 10:
+                return "16:10";
+            case 11:
+                return "17:00";
+            case 12:
+                return "17:45";
         }
         return null;
     }
