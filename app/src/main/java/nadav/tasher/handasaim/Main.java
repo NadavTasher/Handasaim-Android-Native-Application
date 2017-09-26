@@ -26,6 +26,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -82,10 +84,11 @@ public class Main extends Activity {
         ll.addView(pb);
         setContentView(ll);
     }
-    private void welcome(ArrayList<Class> classes){
+    private void welcome(final ArrayList<Class> classes){
+        final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
         LinearLayout part1=new LinearLayout(this);
         final LinearLayout part2=new LinearLayout(this);
-        LinearLayout part3=new LinearLayout(this);
+        final LinearLayout part3=new LinearLayout(this);
         part1.setGravity(Gravity.CENTER);
         part2.setGravity(Gravity.CENTER);
         part3.setGravity(Gravity.CENTER);
@@ -152,7 +155,90 @@ public class Main extends Activity {
             }
         });
         //part2
-
+        TextView selClas=new TextView(this);
+        ScrollView clascroll=new ScrollView(this);
+        final RadioGroup classs=new RadioGroup(this);
+        clascroll.addView(classs);
+        Button next=new Button(this);
+        next.setTypeface(custom_font);
+        selClas.setTypeface(custom_font);
+        next.setBackgroundColor(Color.TRANSPARENT);
+        next.setTextSize((float)30);
+        selClas.setGravity(Gravity.CENTER);
+        selClas.setTextSize((float)29);
+        selClas.setTextColor(Color.WHITE);
+        selClas.setText(R.string.scla);
+        next.setText(R.string.nxt);
+        part2.addView(selClas);
+        part2.addView(clascroll);
+        part2.addView(next);
+        classs.setGravity(Gravity.CENTER);
+        clascroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext())/3));
+        for(int c=0;c<classes.size();c++){
+            RadioButton rb=new RadioButton(this);
+            rb.setText(classes.get(c).name);
+            rb.setTextSize((float)30);
+            rb.setTypeface(custom_font);
+            rb.setGravity(Gravity.CENTER);
+            rb.setId(c);
+            rb.setLayoutParams(new RadioGroup.LayoutParams(Light.Device.screenX(getApplicationContext())/10*8, ViewGroup.LayoutParams.WRAP_CONTENT));
+            classs.addView(rb);
+        }
+        classs.check(0);
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sp.edit().putString("favorite_class",classes.get(classs.getCheckedRadioButtonId()).name).commit();
+                setContentView(part3);
+            }
+        });
+        //part3
+        TextView spclSet=new TextView(this);
+        Button done=new Button(this);
+        done.setTypeface(custom_font);
+        spclSet.setTypeface(custom_font);
+        done.setBackgroundColor(Color.TRANSPARENT);
+        done.setTextSize((float)30);
+        spclSet.setGravity(Gravity.CENTER);
+        spclSet.setTextSize((float)29);
+        spclSet.setTextColor(Color.WHITE);
+        spclSet.setText(R.string.spclstt);
+        done.setText(R.string.dn);
+        final Switch showTimes=new Switch(this);
+        showTimes.setChecked(false);
+        showTimes.setText(R.string.sct);
+        showTimes.setTextSize((float)30);
+        showTimes.setTypeface(custom_font);
+        showTimes.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext())/10*8, ViewGroup.LayoutParams.WRAP_CONTENT));
+        part3.addView(spclSet);
+        part3.addView(showTimes);
+        part3.addView(done);
+        done.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sp.edit().putBoolean("show_time",showTimes.isChecked()).commit();
+                sp.edit().putBoolean("first",false).commit();
+                new Light.Net.Pinger(2000, new Light.Net.Pinger.OnEnd() {
+                    @Override
+                    public void onPing(String s, boolean b) {
+                        if(b){
+                            ArrayList<Light.Net.PHP.Post.PHPParameter> parms= new ArrayList<>();
+                            parms.add(new Light.Net.PHP.Post.PHPParameter("install","true"));
+                            new Light.Net.PHP.Post("http://handasaim.thepuzik.com/install.php", parms, new Light.Net.PHP.Post.OnPost() {
+                                @Override
+                                public void onPost(String s) {
+                                    Log.i("COUNT",s);
+                                    view(classes);
+                                }
+                            }).execute();
+                        }else{
+                            view(classes);
+                        }
+                    }
+                }).execute("http://handasaim.thepuzik.com");
+//                view(classes);
+            }
+        });
     }
     private void checkInternet() {
         if (Light.Device.isOnline(getApplicationContext())) {

@@ -1,6 +1,11 @@
 <resources>
-    <string name="app_name">Handasaim 2017+</string>
+    <string name="app_name">Handasaim+</string>
     <string name="close">Close</string>
     <string name="set">Setup</string>
     <string name="wlc">Welcome To Handasaim+</string>
+    <string name="nxt">Next</string>
+    <string name="scla">Select Class</string>
+    <string name="dn">Done</string>
+    <string name="spclstt">Special Settings</string>
+    <string name="sct">Show Class Times</string>
 </resources>
