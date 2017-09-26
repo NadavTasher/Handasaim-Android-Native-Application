@@ -150,11 +150,15 @@ public class Main extends Activity {
         final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
         int selectedClass = 0;
         if (sp.getString("favorite_class", null) != null) {
-            for (int fc = 0; fc < classes.size(); fc++) {
-                if (sp.getString("favorite_class", "").equals(classes.get(fc).name)) {
-                    selectedClass = fc;
-                    break;
+            if(classes!=null) {
+                for (int fc = 0; fc < classes.size(); fc++) {
+                    if (sp.getString("favorite_class", "").equals(classes.get(fc).name)) {
+                        selectedClass = fc;
+                        break;
+                    }
                 }
+            }else{
+                popup("Downloaded Excel File Is Corrupted");
             }
         }
         ScrollView sv = new ScrollView(this);
@@ -164,6 +168,7 @@ public class Main extends Activity {
         hsplace.setGravity(Gravity.CENTER);
         hsplace.setOrientation(LinearLayout.VERTICAL);
         all.addView(hsplace);
+        if(classes!=null)
         showHS(classes.get(selectedClass), hsplace, classes);
         setContentView(sall);
     }
@@ -273,14 +278,15 @@ public class Main extends Activity {
                         public void onFinish(File file, boolean b) {
                             if (b) {
                                 ArrayList<Class> classes = readExcelFile(file);
+
                                 if (classes != null) {
                                     for (int cl = 0; cl < classes.size(); cl++) {
                                         for (int su = 0; su < classes.get(cl).classes.size(); su++) {
                                             Log.i(classes.get(cl).name + " " + classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
                                         }
                                     }
+                                    view(classes);
                                 }
-                                view(classes);
                             }else{
                                 popup("Failed To Download Excel File");
                             }
@@ -291,7 +297,7 @@ public class Main extends Activity {
                         }
                     }).execute();
                 }else{
-                    popup("Could Not Connect To Server");
+                    popup("Could Not Fetch Link, Please Try Disconnecting From Wi-Fi");
                 }
             }
 
@@ -302,7 +308,7 @@ public class Main extends Activity {
         }).execute();
     }
 
-    private ArrayList<Class> readExcelFile(File f) {
+    private ArrayList<Class> readExcelFile(File f){
         try {
             ArrayList<Class> classes = new ArrayList<>();
             POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
@@ -320,7 +326,6 @@ public class Main extends Activity {
             }
             return classes;
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }
@@ -362,7 +367,7 @@ class GetLink extends AsyncTask<String, String, String> {
             Elements doc = docu.select("a");
             String file = null;
             for (int i = 0; i < doc.size(); i++) {
-                if (doc.get(i).attr("href").contains(".xsls") || doc.get(i).attr("href").contains(".xls")) {
+                if (doc.get(i).attr("href").endsWith(".xls")) {
                     file = doc.get(i).attr("href");
                     break;
                 }
