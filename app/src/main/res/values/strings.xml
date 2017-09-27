@@ -8,4 +8,6 @@
     <string name="dn">Done</string>
     <string name="spclstt">Special Settings</string>
     <string name="sct">Show Class Times</string>
+    <string name="white">White Text</string>
+    <string name="black">Black Text</string>
 </resources>

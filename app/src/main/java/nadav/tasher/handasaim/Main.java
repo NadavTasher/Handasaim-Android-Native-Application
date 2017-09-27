@@ -56,7 +56,9 @@ public class Main extends Activity {
     private final int color = Color.parseColor("#336699");
     private final String serviceProvider = "http://handasaim.co.il";
     private final String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/";
+    String day;
     private Class currentClass;
+    private int textColor = Color.WHITE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,11 +86,12 @@ public class Main extends Activity {
         ll.addView(pb);
         setContentView(ll);
     }
-    private void welcome(final ArrayList<Class> classes){
+
+    private void welcome(final ArrayList<Class> classes) {
         final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
-        LinearLayout part1=new LinearLayout(this);
-        final LinearLayout part2=new LinearLayout(this);
-        final LinearLayout part3=new LinearLayout(this);
+        LinearLayout part1 = new LinearLayout(this);
+        final LinearLayout part2 = new LinearLayout(this);
+        final LinearLayout part3 = new LinearLayout(this);
         part1.setGravity(Gravity.CENTER);
         part2.setGravity(Gravity.CENTER);
         part3.setGravity(Gravity.CENTER);
@@ -100,24 +103,24 @@ public class Main extends Activity {
         part3.setBackgroundColor(color);
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
         //part1
-        ImageView icon=new ImageView(this);
-        final Button setup=new Button(this);
-        final TextView welcome=new TextView(this);
+        ImageView icon = new ImageView(this);
+        final Button setup = new Button(this);
+        final TextView welcome = new TextView(this);
         setup.setTypeface(custom_font);
         welcome.setTypeface(custom_font);
         setup.setText(R.string.set);
         setup.setAlpha(0);
         setup.setBackgroundColor(Color.TRANSPARENT);
-        setup.setTextSize((float)30);
+        setup.setTextSize((float) 30);
         welcome.setAlpha(0);
         welcome.setGravity(Gravity.CENTER);
-        welcome.setTextSize((float)29);
+        welcome.setTextSize((float) 29);
         welcome.setTextColor(Color.WHITE);
         welcome.setText(R.string.wlc);
         icon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         int is = (int) (Light.Device.screenX(getApplicationContext()) * 0.8);
-        icon.setLayoutParams(new LinearLayout.LayoutParams(is,is));
-        ObjectAnimator iconSlide=ObjectAnimator.ofFloat(icon,View.TRANSLATION_X, -Light.Device.screenX(getApplicationContext()),0);
+        icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
+        ObjectAnimator iconSlide = ObjectAnimator.ofFloat(icon, View.TRANSLATION_X, -Light.Device.screenX(getApplicationContext()), 0);
         iconSlide.setDuration(1000);
         iconSlide.addListener(new Animator.AnimatorListener() {
             @Override
@@ -126,10 +129,10 @@ public class Main extends Activity {
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                ObjectAnimator buttonAn=ObjectAnimator.ofFloat(setup,View.ALPHA, Light.Animations.INVISIBLE_TO_VISIBLE);
+                ObjectAnimator buttonAn = ObjectAnimator.ofFloat(setup, View.ALPHA, Light.Animations.INVISIBLE_TO_VISIBLE);
                 buttonAn.setDuration(500);
                 buttonAn.start();
-                ObjectAnimator welAn=ObjectAnimator.ofFloat(welcome,View.ALPHA, Light.Animations.INVISIBLE_TO_VISIBLE);
+                ObjectAnimator welAn = ObjectAnimator.ofFloat(welcome, View.ALPHA, Light.Animations.INVISIBLE_TO_VISIBLE);
                 welAn.setDuration(500);
                 welAn.start();
 
@@ -155,17 +158,17 @@ public class Main extends Activity {
             }
         });
         //part2
-        TextView selClas=new TextView(this);
-        ScrollView clascroll=new ScrollView(this);
-        final RadioGroup classs=new RadioGroup(this);
+        TextView selClas = new TextView(this);
+        ScrollView clascroll = new ScrollView(this);
+        final RadioGroup classs = new RadioGroup(this);
         clascroll.addView(classs);
-        Button next=new Button(this);
+        Button next = new Button(this);
         next.setTypeface(custom_font);
         selClas.setTypeface(custom_font);
         next.setBackgroundColor(Color.TRANSPARENT);
-        next.setTextSize((float)30);
+        next.setTextSize((float) 30);
         selClas.setGravity(Gravity.CENTER);
-        selClas.setTextSize((float)29);
+        selClas.setTextSize((float) 29);
         selClas.setTextColor(Color.WHITE);
         selClas.setText(R.string.scla);
         next.setText(R.string.nxt);
@@ -173,73 +176,94 @@ public class Main extends Activity {
         part2.addView(clascroll);
         part2.addView(next);
         classs.setGravity(Gravity.CENTER);
-        clascroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext())/2));
-        for(int c=0;c<classes.size();c++){
-            RadioButton rb=new RadioButton(this);
+        clascroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 2));
+        for (int c = 0; c < classes.size(); c++) {
+            RadioButton rb = new RadioButton(this);
             rb.setText(classes.get(c).name);
-            rb.setTextSize((float)30);
+            rb.setTextSize((float) 30);
             rb.setTypeface(custom_font);
             rb.setGravity(Gravity.CENTER);
             rb.setId(c);
-            rb.setLayoutParams(new RadioGroup.LayoutParams(Light.Device.screenX(getApplicationContext())/10*8, ViewGroup.LayoutParams.WRAP_CONTENT));
+            rb.setLayoutParams(new RadioGroup.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
             classs.addView(rb);
         }
         classs.check(0);
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sp.edit().putString("favorite_class",classes.get(classs.getCheckedRadioButtonId()).name).commit();
+                sp.edit().putString("favorite_class", classes.get(classs.getCheckedRadioButtonId()).name).commit();
                 setContentView(part3);
             }
         });
         //part3
-        TextView spclSet=new TextView(this);
-        Button done=new Button(this);
+        TextView spclSet = new TextView(this);
+        Button done = new Button(this);
         done.setTypeface(custom_font);
         spclSet.setTypeface(custom_font);
         done.setBackgroundColor(Color.TRANSPARENT);
-        done.setTextSize((float)30);
+        done.setTextSize((float) 30);
         spclSet.setGravity(Gravity.CENTER);
-        spclSet.setTextSize((float)29);
+        spclSet.setTextSize((float) 29);
         spclSet.setTextColor(Color.WHITE);
         spclSet.setText(R.string.spclstt);
         done.setText(R.string.dn);
-        final Switch showTimes=new Switch(this);
+        final Switch showTimes = new Switch(this);
         showTimes.setChecked(false);
         showTimes.setText(R.string.sct);
-        showTimes.setTextSize((float)30);
+        showTimes.setTextSize((float) 30);
         showTimes.setTypeface(custom_font);
-        showTimes.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext())/10*8, ViewGroup.LayoutParams.WRAP_CONTENT));
+        showTimes.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
+        final Switch textCo = new Switch(this);
+        textCo.setChecked(true);
+        textCo.setText(R.string.white);
+        textCo.setTextSize((float) 30);
+        textCo.setTypeface(custom_font);
+        textCo.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
+        textCo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    textCo.setText(R.string.white);
+                    textCo.setTextColor(Color.WHITE);
+                } else {
+                    textCo.setText(R.string.black);
+                    textCo.setTextColor(Color.BLACK);
+                }
+            }
+        });
         part3.addView(spclSet);
         part3.addView(showTimes);
+        part3.addView(textCo);
         part3.addView(done);
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sp.edit().putBoolean("show_time",showTimes.isChecked()).commit();
-                sp.edit().putBoolean("first",false).commit();
+                sp.edit().putBoolean("show_time", showTimes.isChecked()).commit();
+                sp.edit().putBoolean("fontWhite", textCo.isChecked()).commit();
+                sp.edit().putBoolean("first", false).commit();
                 new Light.Net.Pinger(2000, new Light.Net.Pinger.OnEnd() {
                     @Override
                     public void onPing(String s, boolean b) {
-                        if(b){
-                            ArrayList<Light.Net.PHP.Post.PHPParameter> parms= new ArrayList<>();
-                            parms.add(new Light.Net.PHP.Post.PHPParameter("install","true"));
+                        if (b) {
+                            ArrayList<Light.Net.PHP.Post.PHPParameter> parms = new ArrayList<>();
+                            parms.add(new Light.Net.PHP.Post.PHPParameter("install", "true"));
                             new Light.Net.PHP.Post("http://handasaim.thepuzik.com/install.php", parms, new Light.Net.PHP.Post.OnPost() {
                                 @Override
                                 public void onPost(String s) {
-                                    Log.i("COUNT",s);
+                                    Log.i("COUNT", s);
                                     view(classes);
                                 }
                             }).execute();
-                        }else{
+                        } else {
                             view(classes);
                         }
                     }
                 }).execute("http://handasaim.thepuzik.com");
-//                view(classes);
+                //                view(classes);
             }
         });
     }
+
     private void checkInternet() {
         if (Light.Device.isOnline(getApplicationContext())) {
             new Light.Net.Pinger(5000, new Light.Net.Pinger.OnEnd() {
@@ -356,25 +380,41 @@ public class Main extends Activity {
         fontS.setGravity(Gravity.CENTER);
         fontS.setBackground(getDrawable(R.drawable.back));
         fontS.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 4, Light.Device.screenY(getApplicationContext()) / 12));
-        ImageButton minus=new ImageButton(this);
-        final TextView size=new TextView(this);
-        ImageButton plus=new ImageButton(this);
+        ImageButton minus = new ImageButton(this);
+        final TextView size = new TextView(this);
+        ImageButton plus = new ImageButton(this);
         size.setTextColor(Color.WHITE);
-        size.setText(String.valueOf(sp.getInt("font",32)));
+        size.setText(String.valueOf(sp.getInt("font", 32)));
         plus.setImageDrawable(getDrawable(R.drawable.ic_plus));
         minus.setImageDrawable(getDrawable(R.drawable.ic_minus));
         plus.setBackgroundColor(Color.TRANSPARENT);
         minus.setBackgroundColor(Color.TRANSPARENT);
-        LinearLayout.LayoutParams buttonp=new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 25,Light.Device.screenY(getApplicationContext()) / 25);
-        plus.setPadding(10,10,10,10);
+        LinearLayout.LayoutParams buttonp = new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 25, Light.Device.screenY(getApplicationContext()) / 25);
         plus.setLayoutParams(buttonp);
         minus.setLayoutParams(buttonp);
-
-        size.setTextSize((float)25);
+        size.setTextSize((float) 25);
         fontS.addView(minus);
         fontS.addView(size);
         fontS.addView(plus);
         navSliderview.addView(fontS);
+        LinearLayout colorText = new LinearLayout(this);
+        colorText.setOrientation(LinearLayout.HORIZONTAL);
+        colorText.setGravity(Gravity.CENTER);
+        colorText.setBackground(getDrawable(R.drawable.back));
+        colorText.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 4, Light.Device.screenY(getApplicationContext()) / 12));
+        final ImageButton switchc = new ImageButton(this);
+        switchc.setBackgroundColor(Color.TRANSPARENT);
+        LinearLayout.LayoutParams colorTextp = new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 15, Light.Device.screenY(getApplicationContext()) / 15);
+        switchc.setLayoutParams(colorTextp);
+        if (sp.getBoolean("fontWhite", true)) {
+            switchc.setImageDrawable(getDrawable(R.drawable.ic_white));
+            textColor = Color.WHITE;
+        } else {
+            switchc.setImageDrawable(getDrawable(R.drawable.ic_black));
+            textColor = Color.BLACK;
+        }
+        colorText.addView(switchc);
+        navSliderview.addView(colorText);
         int selectedClass = 0;
         if (sp.getString("favorite_class", null) != null) {
             if (classes != null) {
@@ -401,15 +441,29 @@ public class Main extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 sp.edit().putBoolean("show_time", b).commit();
-                showHS(currentClass, hsplace, classes, b,sp.getInt("font",32));
+                showHS(currentClass, hsplace, classes, b, sp.getInt("font", 32));
+            }
+        });
+        switchc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sp.edit().putBoolean("fontWhite", !sp.getBoolean("fontWhite", true)).commit();
+                if (sp.getBoolean("fontWhite", true)) {
+                    switchc.setImageDrawable(getDrawable(R.drawable.ic_white));
+                    textColor = Color.WHITE;
+                } else {
+                    switchc.setImageDrawable(getDrawable(R.drawable.ic_black));
+                    textColor = Color.BLACK;
+                }
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32));
             }
         });
         plus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int fontSize=sp.getInt("font",32);
+                int fontSize = sp.getInt("font", 32);
                 fontSize++;
-                if(fontSize<=50) {
+                if (fontSize <= 50) {
                     sp.edit().putInt("font", fontSize).commit();
                     showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize);
                     size.setText(String.valueOf(fontSize));
@@ -419,9 +473,9 @@ public class Main extends Activity {
         minus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int fontSize=sp.getInt("font",32);
+                int fontSize = sp.getInt("font", 32);
                 fontSize--;
-                if(fontSize>=1) {
+                if (fontSize >= 1) {
                     sp.edit().putInt("font", fontSize).commit();
                     showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize);
                     size.setText(String.valueOf(fontSize));
@@ -429,7 +483,7 @@ public class Main extends Activity {
             }
         });
         if (classes != null)
-            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true),sp.getInt("font", 32));
+            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32));
         setContentView(sall);
     }
 
@@ -441,7 +495,7 @@ public class Main extends Activity {
         startActivity(Intent.createChooser(s, "Share With"));
     }
 
-    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes, final boolean showTime,final int fontSize) {
+    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes, final boolean showTime, final int fontSize) {
         currentClass = c;
         hsplace.removeAllViews();
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
@@ -450,8 +504,8 @@ public class Main extends Activity {
         //        className.setBackgroundColor(Color.TRANSPARENT);
         className.setGravity(Gravity.CENTER);
         className.setBackground(getDrawable(R.drawable.back));
-        className.setText(c.name+" ("+day+")");
-        className.setTextColor(Color.WHITE);
+        className.setText(c.name + " (" + day + ")");
+        className.setTextColor(textColor);
         className.setTypeface(custom_font);
         className.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -470,7 +524,7 @@ public class Main extends Activity {
                         cls.setTextSize((float) fontSize);
                         cls.setGravity(Gravity.CENTER);
                         cls.setText(classes.get(cs).name);
-                        cls.setTextColor(Color.WHITE);
+                        cls.setTextColor(textColor);
                         cls.setBackgroundColor(Color.TRANSPARENT);
                         cls.setTypeface(custom_font);
                         cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
@@ -481,7 +535,7 @@ public class Main extends Activity {
                             public void onClick(View view) {
                                 final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
                                 sp.edit().putString("favorite_class", classes.get(finalCs).name).commit();
-                                showHS(classes.get(finalCs), hsplace, classes, showTime,fontSize);
+                                showHS(classes.get(finalCs), hsplace, classes, showTime, fontSize);
                                 dialog.dismiss();
                             }
                         });
@@ -491,10 +545,10 @@ public class Main extends Activity {
             }
         });
         hsplace.addView(className);
-        hsplace.addView(hourSystemForClass(c, showTime,fontSize));
+        hsplace.addView(hourSystemForClass(c, showTime, fontSize));
     }
 
-    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime,int fontSize) {
+    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize) {
         LinearLayout all = new LinearLayout(this);
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
@@ -511,8 +565,8 @@ public class Main extends Activity {
             String total = before + fclass.classes.get(s).name;
             subj.setText(total);
             subj.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-            subj.setTextSize((float) fontSize-2);
-            subj.setTextColor(Color.WHITE);
+            subj.setTextSize((float) fontSize - 2);
+            subj.setTextColor(textColor);
             subj.setBackground(getDrawable(R.drawable.button));
             subj.setPadding(20, 20, 20, 20);
             subj.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
@@ -536,9 +590,9 @@ public class Main extends Activity {
                     di.addView(subjName);
                     di.addView(hours);
                     di.addView(fullInfo);
-                    subjName.setTextColor(Color.WHITE);
-                    hours.setTextColor(Color.WHITE);
-                    fullInfo.setTextColor(Color.WHITE);
+                    subjName.setTextColor(textColor);
+                    hours.setTextColor(textColor);
+                    fullInfo.setTextColor(textColor);
                     subjName.setTextSize((float) 30);
                     hours.setTextSize((float) 30);
                     fullInfo.setTextSize((float) 30);
@@ -557,7 +611,7 @@ public class Main extends Activity {
                         }
                     });
                     close.setBackgroundColor(Color.TRANSPARENT);
-                    close.setTextColor(Color.WHITE);
+                    close.setTextColor(textColor);
                     di.addView(close);
                     dialog.setContentView(di);
                     dialog.show();
@@ -650,7 +704,7 @@ public class Main extends Activity {
         }
         return null;
     }
-    String day;
+
     private void openApp() {
         final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
         new GetLink(service, new GetLink.GotLink() {
@@ -663,16 +717,16 @@ public class Main extends Activity {
                         public void onFinish(File file, boolean b) {
                             if (b) {
                                 ArrayList<Class> classes = readExcelFile(file);
-                                day=readExcelDay(file);
+                                day = readExcelDay(file);
                                 if (classes != null) {
                                     for (int cl = 0; cl < classes.size(); cl++) {
                                         for (int su = 0; su < classes.get(cl).classes.size(); su++) {
                                             Log.i(classes.get(cl).name + " " + classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
                                         }
                                     }
-                                    if(!sp.getBoolean("first",true)) {
+                                    if (!sp.getBoolean("first", true)) {
                                         view(classes);
-                                    }else{
+                                    } else {
                                         welcome(classes);
                                     }
                                 }
@@ -718,13 +772,14 @@ public class Main extends Activity {
             return null;
         }
     }
+
     private String readExcelDay(File f) {
         try {
             POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
             Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
             Sheet mySheet = myWorkBook.getSheetAt(0);
             int rows = mySheet.getLastRowNum();
-            String day=mySheet.getRow(0).getCell(0).getStringCellValue();
+            String day = mySheet.getRow(0).getCell(0).getStringCellValue();
             return day;
         } catch (Exception e) {
             return null;
