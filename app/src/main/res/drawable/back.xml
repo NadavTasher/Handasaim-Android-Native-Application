@@ -4,34 +4,14 @@
     <!-- Bottom 2dp Shadow -->
     <item>
         <shape android:shape="rectangle">
-
-            <solid android:color="#d8d8d8"/>
-            <corners android:radius="7dp"/>
+            <solid android:color="#8890ddb7"/>
+            <corners android:radius="15px"/>
             <stroke
                 android:dashGap="10px"
                 android:dashWidth="10px"
                 android:width="3dp"
                 android:color="@android:color/transparent" />
-
         </shape>
     </item>
-
-    <!-- White Top color -->
-    <item android:bottom="5px">
-
-        <shape android:shape="rectangle">
-
-            <solid android:color="#325793"/>
-            <corners android:radius="7dp"/>
-            <stroke
-                android:dashGap="10px"
-                android:dashWidth="10px"
-                android:width="4dp"
-                android:color="@android:color/transparent" />
-
-        </shape>
-
-    </item>
-
 
 </layer-list>

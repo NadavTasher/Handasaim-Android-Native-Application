@@ -173,7 +173,7 @@ public class Main extends Activity {
         part2.addView(clascroll);
         part2.addView(next);
         classs.setGravity(Gravity.CENTER);
-        clascroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext())/3));
+        clascroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext())/2));
         for(int c=0;c<classes.size();c++){
             RadioButton rb=new RadioButton(this);
             rb.setText(classes.get(c).name);
@@ -351,6 +351,30 @@ public class Main extends Activity {
         });
         share.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 4, Light.Device.screenY(getApplicationContext()) / 12));
         navSliderview.addView(share);
+        LinearLayout fontS = new LinearLayout(this);
+        fontS.setOrientation(LinearLayout.HORIZONTAL);
+        fontS.setGravity(Gravity.CENTER);
+        fontS.setBackground(getDrawable(R.drawable.back));
+        fontS.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 4, Light.Device.screenY(getApplicationContext()) / 12));
+        ImageButton minus=new ImageButton(this);
+        final TextView size=new TextView(this);
+        ImageButton plus=new ImageButton(this);
+        size.setTextColor(Color.WHITE);
+        size.setText(String.valueOf(sp.getInt("font",32)));
+        plus.setImageDrawable(getDrawable(R.drawable.ic_plus));
+        minus.setImageDrawable(getDrawable(R.drawable.ic_minus));
+        plus.setBackgroundColor(Color.TRANSPARENT);
+        minus.setBackgroundColor(Color.TRANSPARENT);
+        LinearLayout.LayoutParams buttonp=new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 25,Light.Device.screenY(getApplicationContext()) / 25);
+        plus.setPadding(10,10,10,10);
+        plus.setLayoutParams(buttonp);
+        minus.setLayoutParams(buttonp);
+
+        size.setTextSize((float)25);
+        fontS.addView(minus);
+        fontS.addView(size);
+        fontS.addView(plus);
+        navSliderview.addView(fontS);
         int selectedClass = 0;
         if (sp.getString("favorite_class", null) != null) {
             if (classes != null) {
@@ -372,16 +396,40 @@ public class Main extends Activity {
         hsplace.setOrientation(LinearLayout.VERTICAL);
         hsplace.setPadding(20, 20, 20, 20);
         all.addView(hsplace);
-        sw.setChecked(sp.getBoolean("show_time", true));
+        sw.setChecked(sp.getBoolean("show_time", false));
         sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 sp.edit().putBoolean("show_time", b).commit();
-                showHS(currentClass, hsplace, classes, b);
+                showHS(currentClass, hsplace, classes, b,sp.getInt("font",32));
+            }
+        });
+        plus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int fontSize=sp.getInt("font",32);
+                fontSize++;
+                if(fontSize<=50) {
+                    sp.edit().putInt("font", fontSize).commit();
+                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize);
+                    size.setText(String.valueOf(fontSize));
+                }
+            }
+        });
+        minus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int fontSize=sp.getInt("font",32);
+                fontSize--;
+                if(fontSize>=1) {
+                    sp.edit().putInt("font", fontSize).commit();
+                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize);
+                    size.setText(String.valueOf(fontSize));
+                }
             }
         });
         if (classes != null)
-            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true));
+            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true),sp.getInt("font", 32));
         setContentView(sall);
     }
 
@@ -393,16 +441,16 @@ public class Main extends Activity {
         startActivity(Intent.createChooser(s, "Share With"));
     }
 
-    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes, final boolean showTime) {
+    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes, final boolean showTime,final int fontSize) {
         currentClass = c;
         hsplace.removeAllViews();
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
         final Button className = new Button(this);
-        className.setTextSize((float) 35);
+        className.setTextSize((float) fontSize);
         //        className.setBackgroundColor(Color.TRANSPARENT);
         className.setGravity(Gravity.CENTER);
         className.setBackground(getDrawable(R.drawable.back));
-        className.setText(c.name);
+        className.setText(c.name+" ("+day+")");
         className.setTextColor(Color.WHITE);
         className.setTypeface(custom_font);
         className.setOnClickListener(new View.OnClickListener() {
@@ -419,7 +467,7 @@ public class Main extends Activity {
                 for (int cs = 0; cs < classes.size(); cs++) {
                     if (classes.get(cs) != c) {
                         Button cls = new Button(getApplicationContext());
-                        cls.setTextSize((float) 32);
+                        cls.setTextSize((float) fontSize);
                         cls.setGravity(Gravity.CENTER);
                         cls.setText(classes.get(cs).name);
                         cls.setTextColor(Color.WHITE);
@@ -433,7 +481,7 @@ public class Main extends Activity {
                             public void onClick(View view) {
                                 final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
                                 sp.edit().putString("favorite_class", classes.get(finalCs).name).commit();
-                                showHS(classes.get(finalCs), hsplace, classes, showTime);
+                                showHS(classes.get(finalCs), hsplace, classes, showTime,fontSize);
                                 dialog.dismiss();
                             }
                         });
@@ -443,10 +491,10 @@ public class Main extends Activity {
             }
         });
         hsplace.addView(className);
-        hsplace.addView(hourSystemForClass(c, showTime));
+        hsplace.addView(hourSystemForClass(c, showTime,fontSize));
     }
 
-    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime) {
+    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime,int fontSize) {
         LinearLayout all = new LinearLayout(this);
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
@@ -463,7 +511,7 @@ public class Main extends Activity {
             String total = before + fclass.classes.get(s).name;
             subj.setText(total);
             subj.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-            subj.setTextSize((float) 30);
+            subj.setTextSize((float) fontSize-2);
             subj.setTextColor(Color.WHITE);
             subj.setBackground(getDrawable(R.drawable.button));
             subj.setPadding(20, 20, 20, 20);
@@ -602,7 +650,7 @@ public class Main extends Activity {
         }
         return null;
     }
-
+    String day;
     private void openApp() {
         final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
         new GetLink(service, new GetLink.GotLink() {
@@ -615,6 +663,7 @@ public class Main extends Activity {
                         public void onFinish(File file, boolean b) {
                             if (b) {
                                 ArrayList<Class> classes = readExcelFile(file);
+                                day=readExcelDay(file);
                                 if (classes != null) {
                                     for (int cl = 0; cl < classes.size(); cl++) {
                                         for (int su = 0; su < classes.get(cl).classes.size(); su++) {
@@ -665,6 +714,18 @@ public class Main extends Activity {
                 classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(), subs));
             }
             return classes;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    private String readExcelDay(File f) {
+        try {
+            POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
+            Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+            int rows = mySheet.getLastRowNum();
+            String day=mySheet.getRow(0).getCell(0).getStringCellValue();
+            return day;
         } catch (Exception e) {
             return null;
         }
