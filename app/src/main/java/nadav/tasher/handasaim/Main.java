@@ -329,6 +329,17 @@ public class Main extends Activity {
         navbarAll.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         nutIcon.setLayoutParams(nutParms);
         nutIcon.setImageDrawable(getDrawable(R.drawable.ic_icon));
+        nutIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder ab=new AlertDialog.Builder(Main.this);
+                ab.setTitle(R.string.app_name);
+                ab.setMessage("This App Was Made By NadavTasher, Sept. 2017\nVersion: "+ Light.Device.getVersionName(getApplicationContext(),getPackageName())+"\nBuild: "+ Light.Device.getVersionCode(getApplicationContext(),getPackageName()));
+                ab.setCancelable(true);
+                ab.setPositiveButton("Close",null);
+                ab.show();
+            }
+        });
         anim.setDuration(750);
         anim.setRepeatMode(ObjectAnimator.RESTART);
         anim.setRepeatCount(ObjectAnimator.INFINITE);
