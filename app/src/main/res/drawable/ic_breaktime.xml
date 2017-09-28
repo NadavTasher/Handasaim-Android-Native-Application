@@ -4,11 +4,7 @@
         android:pathData="M67.73,67.73m-54.73,0a54.73,54.73 0,1 1,109.45 0a54.73,54.73 0,1 1,-109.45 0"
         android:strokeAlpha="1" android:strokeColor="#000000" android:strokeWidth="13"/>
     <path android:fillColor="#00000000"
-        android:pathData="M67.54,68.12 L80.77,32.59"
+        android:pathData="m32.51,24.34 l69.17,86.18"
         android:strokeAlpha="1" android:strokeColor="#000000"
-        android:strokeLineCap="round" android:strokeLineJoin="miter" android:strokeWidth="6"/>
-    <path android:fillColor="#00000000"
-        android:pathData="m67.54,68.12 l16.25,18.9"
-        android:strokeAlpha="1" android:strokeColor="#000000"
-        android:strokeLineCap="round" android:strokeLineJoin="miter" android:strokeWidth="6"/>
+        android:strokeLineCap="butt" android:strokeLineJoin="miter" android:strokeWidth="13"/>
 </vector>

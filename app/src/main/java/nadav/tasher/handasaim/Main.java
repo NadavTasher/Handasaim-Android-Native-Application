@@ -369,6 +369,24 @@ public class Main extends Activity {
         timeswitch.setOrientation(LinearLayout.HORIZONTAL);
         timeswitch.addView(sw);
         navSliderview.addView(timeswitch);
+
+
+        LinearLayout breakswitch = new LinearLayout(this);
+        breakswitch.setBackground(getDrawable(R.drawable.back));
+        breakswitch.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 4, Light.Device.screenY(getApplicationContext()) / 12));
+        ImageView breakswitch_ic = new ImageView(getApplicationContext());
+        breakswitch_ic.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
+        breakswitch_ic.setImageDrawable(getDrawable(R.drawable.ic_breaktime));
+        breakswitch.addView(breakswitch_ic);
+        breakswitch.setPadding(20, 20, 20, 20);
+        Switch swb = new Switch(this);
+        swb.setText(null);
+        swb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        breakswitch.setGravity(Gravity.CENTER);
+        breakswitch.setOrientation(LinearLayout.HORIZONTAL);
+        breakswitch.addView(swb);
+        navSliderview.addView(breakswitch);
+
         LinearLayout share = new LinearLayout(this);
         share.setOrientation(LinearLayout.HORIZONTAL);
         share.setGravity(Gravity.CENTER);
@@ -453,6 +471,14 @@ public class Main extends Activity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 sp.edit().putBoolean("show_time", b).commit();
                 showHS(currentClass, hsplace, classes, b, sp.getInt("font", 32),sp.getBoolean("breaks", true));
+            }
+        });
+        swb.setChecked(sp.getBoolean("breaks", true));
+        swb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                sp.edit().putBoolean("breaks", b).commit();
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32),b);
             }
         });
         switchc.setOnClickListener(new View.OnClickListener() {
