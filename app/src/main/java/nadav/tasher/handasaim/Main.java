@@ -452,7 +452,7 @@ public class Main extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 sp.edit().putBoolean("show_time", b).commit();
-                showHS(currentClass, hsplace, classes, b, sp.getInt("font", 32));
+                showHS(currentClass, hsplace, classes, b, sp.getInt("font", 32),sp.getBoolean("breaks", true));
             }
         });
         switchc.setOnClickListener(new View.OnClickListener() {
@@ -466,7 +466,7 @@ public class Main extends Activity {
                     switchc.setImageDrawable(getDrawable(R.drawable.ic_black));
                     textColor = Color.BLACK;
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32),sp.getBoolean("breaks", true));
             }
         });
         plus.setOnClickListener(new View.OnClickListener() {
@@ -476,7 +476,7 @@ public class Main extends Activity {
                 fontSize++;
                 if (fontSize <= 50) {
                     sp.edit().putInt("font", fontSize).commit();
-                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize);
+                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize,sp.getBoolean("breaks", true));
                     size.setText(String.valueOf(fontSize));
                 }
             }
@@ -488,13 +488,13 @@ public class Main extends Activity {
                 fontSize--;
                 if (fontSize >= 1) {
                     sp.edit().putInt("font", fontSize).commit();
-                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize);
+                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize,sp.getBoolean("breaks", true));
                     size.setText(String.valueOf(fontSize));
                 }
             }
         });
         if (classes != null)
-            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32));
+            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32),sp.getBoolean("breaks", true));
         setContentView(sall);
     }
 
@@ -506,7 +506,7 @@ public class Main extends Activity {
         startActivity(Intent.createChooser(s, "Share With"));
     }
 
-    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes, final boolean showTime, final int fontSize) {
+    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes, final boolean showTime, final int fontSize, final boolean breakTimes) {
         currentClass = c;
         hsplace.removeAllViews();
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
@@ -546,7 +546,7 @@ public class Main extends Activity {
                             public void onClick(View view) {
                                 final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
                                 sp.edit().putString("favorite_class", classes.get(finalCs).name).commit();
-                                showHS(classes.get(finalCs), hsplace, classes, showTime, fontSize);
+                                showHS(classes.get(finalCs), hsplace, classes, showTime, fontSize,breakTimes);
                                 dialog.dismiss();
                             }
                         });
@@ -556,16 +556,78 @@ public class Main extends Activity {
             }
         });
         hsplace.addView(className);
-        hsplace.addView(hourSystemForClass(c, showTime, fontSize));
+        hsplace.addView(hourSystemForClass(c, showTime, fontSize,breakTimes));
     }
 
-    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize) {
+    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize,boolean breakTimes) {
         LinearLayout all = new LinearLayout(this);
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
         all.setPadding(10, 10, 10, 10);
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
         for (int s = 0; s < fclass.classes.size(); s++) {
+            if(getBreak(fclass.classes.get(s).hour-1)!=-1&&breakTimes){
+                Button breakt = new Button(this);
+                breakt.setText("הפסקה, "+getBreak(fclass.classes.get(s).hour-1)+" דקות");
+                breakt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                breakt.setTextSize((float) fontSize - 2);
+                breakt.setTextColor(textColor);
+                breakt.setBackground(getDrawable(R.drawable.button));
+                breakt.setPadding(20, 20, 20, 20);
+                breakt.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
+                breakt.setTypeface(custom_font);
+                breakt.setAllCaps(false);
+                if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
+                    all.addView(breakt);
+                }
+                final int finalS1 = s;
+                breakt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        final Dialog dialog = new Dialog(Main.this);
+                        dialog.setCancelable(true);
+                        LinearLayout di = new LinearLayout(getApplicationContext());
+                        TextView subjName = new TextView(getApplicationContext());
+                        TextView hours = new TextView(getApplicationContext());
+                        TextView fullInfo = new TextView(getApplicationContext());
+                        subjName.setText(R.string.brkk);
+                        //fclass.classes.get(s)
+                        hours.setText(getRealEndTimeForHourNumber(fclass.classes.get(finalS1).hour-1) + "-" + getRealTimeForHourNumber(fclass.classes.get(finalS1).hour));
+                        String fulltext=getBreak(fclass.classes.get(finalS1).hour-1)+" Minutes";
+                        fullInfo.setText(fulltext);
+                        di.setGravity(Gravity.CENTER);
+                        di.setOrientation(LinearLayout.VERTICAL);
+                        di.addView(subjName);
+                        di.addView(hours);
+                        di.addView(fullInfo);
+                        subjName.setTextColor(textColor);
+                        hours.setTextColor(textColor);
+                        fullInfo.setTextColor(textColor);
+                        subjName.setTextSize((float) 30);
+                        hours.setTextSize((float) 30);
+                        fullInfo.setTextSize((float) 30);
+                        subjName.setGravity(Gravity.CENTER);
+                        hours.setGravity(Gravity.CENTER);
+                        fullInfo.setGravity(Gravity.CENTER);
+                        subjName.setTypeface(custom_font, Typeface.BOLD);
+                        hours.setTypeface(custom_font);
+                        fullInfo.setTypeface(custom_font);
+                        Button close = new Button(getApplicationContext());
+                        close.setText(R.string.close);
+                        close.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.dismiss();
+                            }
+                        });
+                        close.setBackgroundColor(Color.TRANSPARENT);
+                        close.setTextColor(textColor);
+                        di.addView(close);
+                        dialog.setContentView(di);
+                        dialog.show();
+                    }
+                });
+            }
             Button subj = new Button(this);
             String before;
             if (showTime) {
@@ -715,6 +777,21 @@ public class Main extends Activity {
         }
         return null;
     }
+    private int getBreak(int washour){
+        switch (washour){
+            case 2:
+                return 15;
+            case 4:
+                return 25;
+            case 6:
+                return 10;
+            case 8:
+                return 5;
+            case 10:
+                return 5;
+        }
+        return -1;
+    }
 
     private void openApp() {
         final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
@@ -860,31 +937,5 @@ class GetLink extends AsyncTask<String, String, String> {
         void onLinkGet(String link);
 
         void onFail(String e);
-    }
-}
-class getStringURL extends AsyncTask<String, Integer, String> {
-
-    @Override
-    protected String doInBackground(String... params) {
-        String result = "";
-        try {
-            URL url = new URL(params[0]);
-            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-            String line;
-            while ((line = in.readLine()) != null) {
-                result += line;
-            }
-            in.close();
-        } catch (MalformedURLException e) {
-            return null;
-        } catch (IOException e) {
-            return null;
-        }
-        return result;
-    }
-
-    @Override
-    protected void onPostExecute(String result) {
-        super.onPostExecute(result);
     }
 }
