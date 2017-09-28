@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -53,13 +54,14 @@ import java.util.ArrayList;
 import nadav.tasher.lightool.Light;
 
 public class Main extends Activity {
-    private final int color = Color.parseColor("#336699");
+    private final int color = Color.parseColor("#445566");
+    private final int secolor = color+0x333333;
     private final String serviceProvider = "http://handasaim.co.il";
     private final String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/";
-    String day;
+    private String day;
     private Class currentClass;
     private int textColor = Color.WHITE;
-
+    private ProgressBar pb;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,13 +83,13 @@ public class Main extends Activity {
         int is = (int) (Light.Device.screenX(getApplicationContext()) * 0.8);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
         ll.addView(icon);
-        ProgressBar pb = new ProgressBar(this);
+        pb = new ProgressBar(this);
         pb.setIndeterminate(true);
         ll.addView(pb);
         setContentView(ll);
     }
 
-    private void welcome(final ArrayList<Class> classes) {
+    private void welcome(final ArrayList<Class> classes, final boolean renew) {
         final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
         LinearLayout part1 = new LinearLayout(this);
         final LinearLayout part2 = new LinearLayout(this);
@@ -150,6 +152,7 @@ public class Main extends Activity {
         part1.addView(welcome);
         part1.addView(icon);
         part1.addView(setup);
+        if(!renew)
         setContentView(part1);
         setup.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,8 +234,15 @@ public class Main extends Activity {
                 }
             }
         });
+        final Switch showBreaks = new Switch(this);
+        showBreaks.setChecked(true);
+        showBreaks.setText(R.string.showbrk);
+        showBreaks.setTextSize((float) 30);
+        showBreaks.setTypeface(custom_font);
+        showBreaks.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         part3.addView(spclSet);
         part3.addView(showTimes);
+        part3.addView(showBreaks);
         part3.addView(textCo);
         part3.addView(done);
         done.setOnClickListener(new View.OnClickListener() {
@@ -240,28 +250,38 @@ public class Main extends Activity {
             public void onClick(View view) {
                 sp.edit().putBoolean("show_time", showTimes.isChecked()).commit();
                 sp.edit().putBoolean("fontWhite", textCo.isChecked()).commit();
+                sp.edit().putBoolean("breaks", textCo.isChecked()).commit();
+                sp.edit().putInt("last_recorded_version_code", Light.Device.getVersionCode(getApplicationContext(),getPackageName())).commit();
                 sp.edit().putBoolean("first", false).commit();
-                new Light.Net.Pinger(2000, new Light.Net.Pinger.OnEnd() {
-                    @Override
-                    public void onPing(String s, boolean b) {
-                        if (b) {
-                            ArrayList<Light.Net.PHP.Post.PHPParameter> parms = new ArrayList<>();
-                            parms.add(new Light.Net.PHP.Post.PHPParameter("install", "true"));
-                            new Light.Net.PHP.Post("http://handasaim.thepuzik.com/install.php", parms, new Light.Net.PHP.Post.OnPost() {
-                                @Override
-                                public void onPost(String s) {
-                                    Log.i("COUNT", s);
-                                    view(classes);
-                                }
-                            }).execute();
-                        } else {
-                            view(classes);
+                if(!renew) {
+                    new Light.Net.Pinger(2000, new Light.Net.Pinger.OnEnd() {
+                        @Override
+                        public void onPing(String s, boolean b) {
+                            if (b) {
+                                ArrayList<Light.Net.PHP.Post.PHPParameter> parms = new ArrayList<>();
+                                parms.add(new Light.Net.PHP.Post.PHPParameter("install", "true"));
+                                new Light.Net.PHP.Post("http://handasaim.thepuzik.com/install.php", parms, new Light.Net.PHP.Post.OnPost() {
+                                    @Override
+                                    public void onPost(String s) {
+                                        Log.i("COUNT", s);
+                                        view(classes);
+                                    }
+                                }).execute();
+                            } else {
+                                view(classes);
+                            }
                         }
-                    }
-                }).execute("http://handasaim.thepuzik.com");
+                    }).execute("http://handasaim.thepuzik.com");
+                }else{
+                    view(classes);
+                }
                 //                view(classes);
             }
         });
+        if(renew){
+            spclSet.setText(R.string.rnew);
+            setContentView(part3);
+        }
     }
 
     private void checkInternet() {
@@ -307,7 +327,7 @@ public class Main extends Activity {
 
     private void view(final ArrayList<Class> classes) {
         final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
-        getWindow().setStatusBarColor(color + 0x333333);
+        getWindow().setStatusBarColor(secolor);
         final LinearLayout sall = new LinearLayout(this);
         final LinearLayout all = new LinearLayout(this);
         final LinearLayout navbarAll = new LinearLayout(this);
@@ -324,7 +344,7 @@ public class Main extends Activity {
         sall.setOrientation(LinearLayout.VERTICAL);
         sall.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         sall.setBackgroundColor(color);
-        navbarAll.setBackgroundColor(color + 0x333333);
+        navbarAll.setBackgroundColor(secolor);
         navbarAll.setOrientation(LinearLayout.HORIZONTAL);
         navbarAll.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         nutIcon.setLayoutParams(nutParms);
@@ -391,7 +411,7 @@ public class Main extends Activity {
         share.setOrientation(LinearLayout.HORIZONTAL);
         share.setGravity(Gravity.CENTER);
         ImageButton sr = new ImageButton(this);
-        sr.setImageDrawable(getDrawable(android.R.drawable.ic_menu_share));
+        sr.setImageDrawable(getDrawable(R.drawable.ic_share));
         sr.setBackgroundColor(Color.TRANSPARENT);
         share.setBackground(getDrawable(R.drawable.back));
         sr.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
@@ -839,9 +859,13 @@ public class Main extends Activity {
                                         }
                                     }
                                     if (!sp.getBoolean("first", true)) {
-                                        view(classes);
+                                        if(sp.getInt("last_recorded_version_code",0)!= Light.Device.getVersionCode(getApplicationContext(),getPackageName())){
+                                            welcome(classes,true);
+                                        }else {
+                                            view(classes);
+                                        }
                                     } else {
-                                        welcome(classes);
+                                        welcome(classes,false);
                                     }
                                 }
                             } else {
@@ -851,6 +875,10 @@ public class Main extends Activity {
 
                         @Override
                         public void onProgressChanged(File file, int i) {
+                            Log.i("Downloader","Progress "+i);
+                            pb.setIndeterminate(false);
+                            pb.setMax(100);
+                            pb.setProgress(i);
                         }
                     }).execute();
                 } else {

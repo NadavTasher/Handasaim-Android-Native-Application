@@ -11,4 +11,6 @@
     <string name="white">White Text</string>
     <string name="black">Black Text</string>
     <string name="brkk">Break</string>
+    <string name="showbrk">Show Break Times</string>
+    <string name="rnew">Renew Special Settings:</string>
 </resources>
