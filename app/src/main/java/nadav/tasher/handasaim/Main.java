@@ -15,7 +15,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -32,6 +31,7 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -42,26 +42,23 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import nadav.tasher.lightool.Light;
 
 public class Main extends Activity {
     private final int color = Color.parseColor("#445566");
-    private final int secolor = color+0x333333;
+    private final int secolor = color + 0x333333;
     private final String serviceProvider = "http://handasaim.co.il";
     private final String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/";
     private String day;
     private Class currentClass;
     private int textColor = Color.WHITE;
     private ProgressBar pb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,8 +149,7 @@ public class Main extends Activity {
         part1.addView(welcome);
         part1.addView(icon);
         part1.addView(setup);
-        if(!renew)
-        setContentView(part1);
+        if (!renew) setContentView(part1);
         setup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -251,9 +247,9 @@ public class Main extends Activity {
                 sp.edit().putBoolean("show_time", showTimes.isChecked()).commit();
                 sp.edit().putBoolean("fontWhite", textCo.isChecked()).commit();
                 sp.edit().putBoolean("breaks", textCo.isChecked()).commit();
-                sp.edit().putInt("last_recorded_version_code", Light.Device.getVersionCode(getApplicationContext(),getPackageName())).commit();
+                sp.edit().putInt("last_recorded_version_code", Light.Device.getVersionCode(getApplicationContext(), getPackageName())).commit();
                 sp.edit().putBoolean("first", false).commit();
-                if(!renew) {
+                if (!renew) {
                     new Light.Net.Pinger(2000, new Light.Net.Pinger.OnEnd() {
                         @Override
                         public void onPing(String s, boolean b) {
@@ -272,13 +268,13 @@ public class Main extends Activity {
                             }
                         }
                     }).execute("http://handasaim.thepuzik.com");
-                }else{
+                } else {
                     view(classes);
                 }
                 //                view(classes);
             }
         });
-        if(renew){
+        if (renew) {
             spclSet.setText(R.string.rnew);
             setContentView(part3);
         }
@@ -352,11 +348,11 @@ public class Main extends Activity {
         nutIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder ab=new AlertDialog.Builder(Main.this);
+                AlertDialog.Builder ab = new AlertDialog.Builder(Main.this);
                 ab.setTitle(R.string.app_name);
-                ab.setMessage("This App Was Made By NadavTasher, Sept. 2017\nVersion: "+ Light.Device.getVersionName(getApplicationContext(),getPackageName())+"\nBuild: "+ Light.Device.getVersionCode(getApplicationContext(),getPackageName()));
+                ab.setMessage("This App Was Made By NadavTasher, Sept. 2017\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
                 ab.setCancelable(true);
-                ab.setPositiveButton("Close",null);
+                ab.setPositiveButton("Close", null);
                 ab.show();
             }
         });
@@ -389,8 +385,6 @@ public class Main extends Activity {
         timeswitch.setOrientation(LinearLayout.HORIZONTAL);
         timeswitch.addView(sw);
         navSliderview.addView(timeswitch);
-
-
         LinearLayout breakswitch = new LinearLayout(this);
         breakswitch.setBackground(getDrawable(R.drawable.back));
         breakswitch.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 4, Light.Device.screenY(getApplicationContext()) / 12));
@@ -406,7 +400,6 @@ public class Main extends Activity {
         breakswitch.setOrientation(LinearLayout.HORIZONTAL);
         breakswitch.addView(swb);
         navSliderview.addView(breakswitch);
-
         LinearLayout share = new LinearLayout(this);
         share.setOrientation(LinearLayout.HORIZONTAL);
         share.setGravity(Gravity.CENTER);
@@ -490,7 +483,7 @@ public class Main extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 sp.edit().putBoolean("show_time", b).commit();
-                showHS(currentClass, hsplace, classes, b, sp.getInt("font", 32),sp.getBoolean("breaks", true));
+                showHS(currentClass, hsplace, classes, b, sp.getInt("font", 32), sp.getBoolean("breaks", true));
             }
         });
         swb.setChecked(sp.getBoolean("breaks", true));
@@ -498,7 +491,7 @@ public class Main extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 sp.edit().putBoolean("breaks", b).commit();
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32),b);
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32), b);
             }
         });
         switchc.setOnClickListener(new View.OnClickListener() {
@@ -512,7 +505,7 @@ public class Main extends Activity {
                     switchc.setImageDrawable(getDrawable(R.drawable.ic_black));
                     textColor = Color.BLACK;
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32),sp.getBoolean("breaks", true));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true));
             }
         });
         plus.setOnClickListener(new View.OnClickListener() {
@@ -522,7 +515,7 @@ public class Main extends Activity {
                 fontSize++;
                 if (fontSize <= 50) {
                     sp.edit().putInt("font", fontSize).commit();
-                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize,sp.getBoolean("breaks", true));
+                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize, sp.getBoolean("breaks", true));
                     size.setText(String.valueOf(fontSize));
                 }
             }
@@ -534,13 +527,13 @@ public class Main extends Activity {
                 fontSize--;
                 if (fontSize >= 1) {
                     sp.edit().putInt("font", fontSize).commit();
-                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize,sp.getBoolean("breaks", true));
+                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize, sp.getBoolean("breaks", true));
                     size.setText(String.valueOf(fontSize));
                 }
             }
         });
         if (classes != null)
-            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32),sp.getBoolean("breaks", true));
+            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32), sp.getBoolean("breaks", true));
         setContentView(sall);
     }
 
@@ -592,7 +585,7 @@ public class Main extends Activity {
                             public void onClick(View view) {
                                 final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
                                 sp.edit().putString("favorite_class", classes.get(finalCs).name).commit();
-                                showHS(classes.get(finalCs), hsplace, classes, showTime, fontSize,breakTimes);
+                                showHS(classes.get(finalCs), hsplace, classes, showTime, fontSize, breakTimes);
                                 dialog.dismiss();
                             }
                         });
@@ -602,19 +595,19 @@ public class Main extends Activity {
             }
         });
         hsplace.addView(className);
-        hsplace.addView(hourSystemForClass(c, showTime, fontSize,breakTimes));
+        hsplace.addView(hourSystemForClass(c, showTime, fontSize, breakTimes));
     }
 
-    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize,boolean breakTimes) {
+    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize, boolean breakTimes) {
         LinearLayout all = new LinearLayout(this);
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
         all.setPadding(10, 10, 10, 10);
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
         for (int s = 0; s < fclass.classes.size(); s++) {
-            if(getBreak(fclass.classes.get(s).hour-1)!=-1&&breakTimes){
+            if (getBreak(fclass.classes.get(s).hour - 1) != -1 && breakTimes) {
                 Button breakt = new Button(this);
-                breakt.setText("הפסקה, "+getBreak(fclass.classes.get(s).hour-1)+" דקות");
+                breakt.setText("הפסקה, " + getBreak(fclass.classes.get(s).hour - 1) + " דקות");
                 breakt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                 breakt.setTextSize((float) fontSize - 2);
                 breakt.setTextColor(textColor);
@@ -638,8 +631,8 @@ public class Main extends Activity {
                         TextView fullInfo = new TextView(getApplicationContext());
                         subjName.setText(R.string.brkk);
                         //fclass.classes.get(s)
-                        hours.setText(getRealEndTimeForHourNumber(fclass.classes.get(finalS1).hour-1) + "-" + getRealTimeForHourNumber(fclass.classes.get(finalS1).hour));
-                        String fulltext=getBreak(fclass.classes.get(finalS1).hour-1)+" Minutes";
+                        hours.setText(getRealEndTimeForHourNumber(fclass.classes.get(finalS1).hour - 1) + "-" + getRealTimeForHourNumber(fclass.classes.get(finalS1).hour));
+                        String fulltext = getBreak(fclass.classes.get(finalS1).hour - 1) + " Minutes";
                         fullInfo.setText(fulltext);
                         di.setGravity(Gravity.CENTER);
                         di.setOrientation(LinearLayout.VERTICAL);
@@ -736,6 +729,13 @@ public class Main extends Activity {
                     dialog.show();
                 }
             });
+            subj.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    Toast.makeText(getApplicationContext(), getRealTimeForHourNumber(fclass.classes.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.classes.get(finalS).hour), Toast.LENGTH_LONG).show();
+                    return true;
+                }
+            });
             if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
                 all.addView(subj);
             }
@@ -823,8 +823,9 @@ public class Main extends Activity {
         }
         return null;
     }
-    private int getBreak(int washour){
-        switch (washour){
+
+    private int getBreak(int washour) {
+        switch (washour) {
             case 2:
                 return 15;
             case 4:
@@ -859,13 +860,13 @@ public class Main extends Activity {
                                         }
                                     }
                                     if (!sp.getBoolean("first", true)) {
-                                        if(sp.getInt("last_recorded_version_code",0)!= Light.Device.getVersionCode(getApplicationContext(),getPackageName())){
-                                            welcome(classes,true);
-                                        }else {
+                                        if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
+                                            welcome(classes, true);
+                                        } else {
                                             view(classes);
                                         }
                                     } else {
-                                        welcome(classes,false);
+                                        welcome(classes, false);
                                     }
                                 }
                             } else {
@@ -875,10 +876,10 @@ public class Main extends Activity {
 
                         @Override
                         public void onProgressChanged(File file, int i) {
-                            Log.i("Downloader","Progress "+i);
-                            pb.setIndeterminate(false);
-                            pb.setMax(100);
-                            pb.setProgress(i);
+                            //                            Log.i("Downloader","Progress "+i);
+                            //                            pb.setIndeterminate(false);
+                            //                            pb.setMax(100);
+                            //                            pb.setProgress(i);
                         }
                     }).execute();
                 } else {
@@ -888,7 +889,7 @@ public class Main extends Activity {
 
             @Override
             public void onFail(String e) {
-                popup(e);
+                popup("Failed");
             }
         }).execute();
     }
