@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 import nadav.tasher.lightool.Light;
 
@@ -328,11 +329,15 @@ public class Main extends Activity {
         final LinearLayout all = new LinearLayout(this);
         final LinearLayout navbarAll = new LinearLayout(this);
         final ImageView nutIcon = new ImageView(this);
+        final ImageView newsIcon = new ImageView(this);
         final int screenY = Light.Device.screenY(this);
         final int nutSize = (screenY / 8) - screenY / 30;
-        final ObjectAnimator anim = ObjectAnimator.ofFloat(nutIcon, View.TRANSLATION_Y, Light.Animations.JUMP_SMALL);
+        final int newsSize = (screenY / 9) - screenY / 30;
+        final ObjectAnimator anim = ObjectAnimator.ofFloat(nutIcon, View.TRANSLATION_Y, reversedValue(Light.Animations.JUMP_SMALL));
+        final ObjectAnimator anim2 = ObjectAnimator.ofFloat(newsIcon, View.TRANSLATION_X, Light.Animations.VIBRATE_SMALL);
         final int navY = screenY / 8;
         final LinearLayout.LayoutParams nutParms = new LinearLayout.LayoutParams(nutSize, nutSize);
+        final LinearLayout.LayoutParams newsParms = new LinearLayout.LayoutParams(newsSize, newsSize);
         final LinearLayout.LayoutParams navParms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, navY);
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
@@ -343,6 +348,8 @@ public class Main extends Activity {
         navbarAll.setBackgroundColor(secolor);
         navbarAll.setOrientation(LinearLayout.HORIZONTAL);
         navbarAll.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        newsIcon.setLayoutParams(newsParms);
+        newsIcon.setImageDrawable(getDrawable(R.drawable.ic_world_3_res));
         nutIcon.setLayoutParams(nutParms);
         nutIcon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         nutIcon.setOnClickListener(new View.OnClickListener() {
@@ -356,11 +363,17 @@ public class Main extends Activity {
                 ab.show();
             }
         });
-        anim.setDuration(750);
+        anim.setDuration(1500);
         anim.setRepeatMode(ObjectAnimator.RESTART);
         anim.setRepeatCount(ObjectAnimator.INFINITE);
         anim.start();
+        anim2.setDuration(6000);
+        anim2.setRepeatMode(ObjectAnimator.RESTART);
+        anim2.setRepeatCount(ObjectAnimator.INFINITE);
+        anim2.start();
         navbarAll.addView(nutIcon);
+        navbarAll.addView(newsIcon);
+        navbarAll.setPadding(10,10,10,10);
         navParms.gravity = Gravity.START;
         navbarAll.setLayoutParams(navParms);
         sall.addView(navbarAll);
@@ -530,6 +543,46 @@ public class Main extends Activity {
                     showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize, sp.getBoolean("breaks", true));
                     size.setText(String.valueOf(fontSize));
                 }
+            }
+        });
+        newsIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+                int fontSize = sp.getInt("font", 32);
+                LinearLayout newsll = new LinearLayout(getApplicationContext());
+                newsll.setGravity(Gravity.CENTER);
+                newsll.setOrientation(LinearLayout.VERTICAL);
+                final Dialog dialog = new Dialog(Main.this);
+                dialog.setCancelable(true);
+                ScrollView news = new ScrollView(getApplicationContext());
+                news.addView(newsll);
+                ProgressBar lding=new ProgressBar(getApplicationContext());
+                lding.setIndeterminate(true);
+                dialog.setContentView(lding);
+                try {
+                    ArrayList<Link> nws=new GetNews(serviceProvider,null).execute("").get();
+                for(int i=0;i<nws.size();i++){
+                    Log.i("LINKSONNEWS",nws.get(i).name+" "+nws.get(i).url);
+                }
+
+                } catch (InterruptedException e) {
+                } catch (ExecutionException e) {
+                }
+                for (int cs = 0; cs < classes.size(); cs++) {
+                        Button cls = new Button(getApplicationContext());
+                        cls.setTextSize((float) fontSize);
+                        cls.setGravity(Gravity.CENTER);
+                        cls.setText(classes.get(cs).name);
+                        cls.setTextColor(textColor);
+                        cls.setBackgroundColor(Color.TRANSPARENT);
+                        cls.setTypeface(custom_font);
+                        cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
+                        newsll.addView(cls);
+                        final int finalCs = cs;
+
+                }
+                dialog.show();
             }
         });
         if (classes != null)
@@ -929,6 +982,12 @@ public class Main extends Activity {
         }
     }
 
+    private float[] reversedValue(float[] a){
+        for(int o=0;o<a.length;o++){
+            a[o]=-a[o];
+        }
+        return a;
+    }
     class Class {
         public String name;
         public ArrayList<Subject> classes;
@@ -947,6 +1006,9 @@ public class Main extends Activity {
             this.name = name;
             this.fullName = fullName;
         }
+    }
+    static class Link{
+        public String url,name;
     }
 }
 class GetLink extends AsyncTask<String, String, String> {
@@ -992,5 +1054,54 @@ class GetLink extends AsyncTask<String, String, String> {
         void onLinkGet(String link);
 
         void onFail(String e);
+    }
+}
+
+class GetNews extends AsyncTask<String, String, ArrayList<Main.Link>> {
+    private String ser;
+    private GotNews gotlink;
+    private boolean success;
+
+    public GetNews(String service, GotNews gl) {
+        ser = service;
+        gotlink = gl;
+    }
+
+    @Override
+    protected ArrayList<Main.Link> doInBackground(String... strings) {
+        try {
+            ArrayList<Main.Link> file = new ArrayList<>();
+            Document docu = Jsoup.connect(ser).get();
+            Elements ahs=docu.getAllElements().select("div.carousel-inner").select("div.item").select("a");
+            for(int in=0;in<ahs.size();in++){
+                Main.Link link=new Main.Link();
+                link.name=ahs.get(in).text();
+                link.url=ahs.get(in).attr("href");
+                if(!link.name.equals(""))
+                file.add(link);
+            }
+            success = true;
+            return file;
+        } catch (IOException e) {
+            success = false;
+            return null;
+        }
+    }
+
+    @Override
+    protected void onPostExecute(ArrayList<Main.Link> s) {
+        if (success) {
+            if(gotlink!=null)
+            gotlink.onNewsGet(s);
+        } else {
+            if(gotlink!=null)
+                gotlink.onFail(s);
+        }
+    }
+
+    public interface GotNews {
+        void onNewsGet(ArrayList<Main.Link> link);
+
+        void onFail(ArrayList<Main.Link> e);
     }
 }
