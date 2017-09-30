@@ -13,4 +13,5 @@
     <string name="brkk">Break</string>
     <string name="showbrk">Show Break Times</string>
     <string name="rnew">Renew Special Settings:</string>
+    <string name="cls">Close</string>
 </resources>

@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.HorizontalScrollView;
@@ -46,7 +49,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 import nadav.tasher.lightool.Light;
 
@@ -54,11 +56,9 @@ public class Main extends Activity {
     private final int color = Color.parseColor("#445566");
     private final int secolor = color + 0x333333;
     private final String serviceProvider = "http://handasaim.co.il";
-    private final String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/";
     private String day;
     private Class currentClass;
     private int textColor = Color.WHITE;
-    private ProgressBar pb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +81,7 @@ public class Main extends Activity {
         int is = (int) (Light.Device.screenX(getApplicationContext()) * 0.8);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
         ll.addView(icon);
-        pb = new ProgressBar(this);
+        ProgressBar pb = new ProgressBar(this);
         pb.setIndeterminate(true);
         ll.addView(pb);
         setContentView(ll);
@@ -334,7 +334,6 @@ public class Main extends Activity {
         final int nutSize = (screenY / 8) - screenY / 30;
         final int newsSize = (screenY / 9) - screenY / 30;
         final ObjectAnimator anim = ObjectAnimator.ofFloat(nutIcon, View.TRANSLATION_Y, reversedValue(Light.Animations.JUMP_SMALL));
-        final ObjectAnimator anim2 = ObjectAnimator.ofFloat(newsIcon, View.TRANSLATION_X, Light.Animations.VIBRATE_SMALL);
         final int navY = screenY / 8;
         final LinearLayout.LayoutParams nutParms = new LinearLayout.LayoutParams(nutSize, nutSize);
         final LinearLayout.LayoutParams newsParms = new LinearLayout.LayoutParams(newsSize, newsSize);
@@ -349,7 +348,7 @@ public class Main extends Activity {
         navbarAll.setOrientation(LinearLayout.HORIZONTAL);
         navbarAll.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         newsIcon.setLayoutParams(newsParms);
-        newsIcon.setImageDrawable(getDrawable(R.drawable.ic_world_3_res));
+        newsIcon.setImageDrawable(getDrawable(R.drawable.ic_news));
         nutIcon.setLayoutParams(nutParms);
         nutIcon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         nutIcon.setOnClickListener(new View.OnClickListener() {
@@ -367,13 +366,9 @@ public class Main extends Activity {
         anim.setRepeatMode(ObjectAnimator.RESTART);
         anim.setRepeatCount(ObjectAnimator.INFINITE);
         anim.start();
-        anim2.setDuration(6000);
-        anim2.setRepeatMode(ObjectAnimator.RESTART);
-        anim2.setRepeatCount(ObjectAnimator.INFINITE);
-        anim2.start();
         navbarAll.addView(nutIcon);
         navbarAll.addView(newsIcon);
-        navbarAll.setPadding(10,10,10,10);
+        navbarAll.setPadding(10, 10, 10, 10);
         navParms.gravity = Gravity.START;
         navbarAll.setLayoutParams(navParms);
         sall.addView(navbarAll);
@@ -413,23 +408,31 @@ public class Main extends Activity {
         breakswitch.setOrientation(LinearLayout.HORIZONTAL);
         breakswitch.addView(swb);
         navSliderview.addView(breakswitch);
-        LinearLayout share = new LinearLayout(this);
-        share.setOrientation(LinearLayout.HORIZONTAL);
-        share.setGravity(Gravity.CENTER);
-        ImageButton sr = new ImageButton(this);
-        sr.setImageDrawable(getDrawable(R.drawable.ic_share));
-        sr.setBackgroundColor(Color.TRANSPARENT);
-        share.setBackground(getDrawable(R.drawable.back));
-        sr.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
-        share.addView(sr);
-        sr.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                share(currentClass.name + "\n" + hourSystemForClassString(currentClass, sp.getBoolean("show_time", true)));
-            }
-        });
-        share.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 4, Light.Device.screenY(getApplicationContext()) / 12));
-        navSliderview.addView(share);
+        LinearLayout colorText = new LinearLayout(this);
+        colorText.setOrientation(LinearLayout.HORIZONTAL);
+        colorText.setGravity(Gravity.CENTER);
+        colorText.setBackground(getDrawable(R.drawable.back));
+        colorText.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 4, Light.Device.screenY(getApplicationContext()) / 12));
+        Switch col = new Switch(this);
+        colorText.setPadding(20, 20, 20, 20);
+        col.setText(null);
+        col.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        final ImageButton switchc = new ImageButton(this);
+        switchc.setBackgroundColor(Color.TRANSPARENT);
+        LinearLayout.LayoutParams colorTextp = new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20);
+        switchc.setLayoutParams(colorTextp);
+        if (sp.getBoolean("fontWhite", true)) {
+            switchc.setImageDrawable(getDrawable(R.drawable.ic_white));
+            col.setChecked(sp.getBoolean("fontWhite", true));
+            textColor = Color.WHITE;
+        } else {
+            switchc.setImageDrawable(getDrawable(R.drawable.ic_black));
+            col.setChecked(sp.getBoolean("fontWhite", true));
+            textColor = Color.BLACK;
+        }
+        colorText.addView(switchc);
+        colorText.addView(col);
+        navSliderview.addView(colorText);
         LinearLayout fontS = new LinearLayout(this);
         fontS.setOrientation(LinearLayout.HORIZONTAL);
         fontS.setGravity(Gravity.CENTER);
@@ -452,24 +455,23 @@ public class Main extends Activity {
         fontS.addView(size);
         fontS.addView(plus);
         navSliderview.addView(fontS);
-        LinearLayout colorText = new LinearLayout(this);
-        colorText.setOrientation(LinearLayout.HORIZONTAL);
-        colorText.setGravity(Gravity.CENTER);
-        colorText.setBackground(getDrawable(R.drawable.back));
-        colorText.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 4, Light.Device.screenY(getApplicationContext()) / 12));
-        final ImageButton switchc = new ImageButton(this);
-        switchc.setBackgroundColor(Color.TRANSPARENT);
-        LinearLayout.LayoutParams colorTextp = new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 15, Light.Device.screenY(getApplicationContext()) / 15);
-        switchc.setLayoutParams(colorTextp);
-        if (sp.getBoolean("fontWhite", true)) {
-            switchc.setImageDrawable(getDrawable(R.drawable.ic_white));
-            textColor = Color.WHITE;
-        } else {
-            switchc.setImageDrawable(getDrawable(R.drawable.ic_black));
-            textColor = Color.BLACK;
-        }
-        colorText.addView(switchc);
-        navSliderview.addView(colorText);
+        LinearLayout share = new LinearLayout(this);
+        share.setOrientation(LinearLayout.HORIZONTAL);
+        share.setGravity(Gravity.CENTER);
+        ImageButton sr = new ImageButton(this);
+        sr.setImageDrawable(getDrawable(R.drawable.ic_share));
+        sr.setBackgroundColor(Color.TRANSPARENT);
+        share.setBackground(getDrawable(R.drawable.back));
+        sr.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
+        share.addView(sr);
+        sr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                share(currentClass.name + "\n" + hourSystemForClassString(currentClass, sp.getBoolean("show_time", true)));
+            }
+        });
+        share.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 4, Light.Device.screenY(getApplicationContext()) / 12));
+        navSliderview.addView(share);
         int selectedClass = 0;
         if (sp.getString("favorite_class", null) != null) {
             if (classes != null) {
@@ -507,11 +509,11 @@ public class Main extends Activity {
                 showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32), b);
             }
         });
-        switchc.setOnClickListener(new View.OnClickListener() {
+        col.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
-                sp.edit().putBoolean("fontWhite", !sp.getBoolean("fontWhite", true)).commit();
-                if (sp.getBoolean("fontWhite", true)) {
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                sp.edit().putBoolean("fontWhite", b).commit();
+                if (b) {
                     switchc.setImageDrawable(getDrawable(R.drawable.ic_white));
                     textColor = Color.WHITE;
                 } else {
@@ -549,40 +551,77 @@ public class Main extends Activity {
             @Override
             public void onClick(View view) {
                 final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
-                int fontSize = sp.getInt("font", 32);
-                LinearLayout newsll = new LinearLayout(getApplicationContext());
+                final int fontSize = sp.getInt("font", 32);
+                final LinearLayout newsll = new LinearLayout(getApplicationContext());
+                final LinearLayout filln = new LinearLayout(getApplicationContext());
                 newsll.setGravity(Gravity.CENTER);
                 newsll.setOrientation(LinearLayout.VERTICAL);
+                filln.setGravity(Gravity.CENTER);
+                filln.setOrientation(LinearLayout.VERTICAL);
                 final Dialog dialog = new Dialog(Main.this);
                 dialog.setCancelable(true);
                 ScrollView news = new ScrollView(getApplicationContext());
                 news.addView(newsll);
-                ProgressBar lding=new ProgressBar(getApplicationContext());
-                lding.setIndeterminate(true);
-                dialog.setContentView(lding);
-                try {
-                    ArrayList<Link> nws=new GetNews(serviceProvider,null).execute("").get();
-                for(int i=0;i<nws.size();i++){
-                    Log.i("LINKSONNEWS",nws.get(i).name+" "+nws.get(i).url);
-                }
+                filln.addView(news);
+                dialog.setContentView(filln);
+                final Animation rotating = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                rotating.setDuration(1000);
+                rotating.setRepeatCount(ObjectAnimator.INFINITE);
+                rotating.setRepeatMode(ObjectAnimator.RESTART);
+                newsIcon.startAnimation(rotating);
+                filln.setPadding(20, 20, 20, 20);
+                news.setPadding(20, 20, 20, 20);
+                filln.setBackgroundColor(color);
+                news.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10 * 6));
+                new GetNews(serviceProvider, new GetNews.GotNews() {
+                    @Override
+                    public void onNewsGet(final ArrayList<Link> link) {
+                        for (int i = 0; i < link.size(); i++) {
+                            Button cls = new Button(getApplicationContext());
+                            cls.setTextSize((float) fontSize);
+                            cls.setGravity(Gravity.CENTER);
+                            cls.setText(link.get(i).name);
+                            cls.setTextColor(textColor);
+                            //                            cls.setBackgroundColor(Color.TRANSPARENT);
+                            cls.setBackground(getDrawable(R.drawable.button));
+                            cls.setTypeface(custom_font);
+                            cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 6)));
+                            newsll.addView(cls);
+                            if (!link.get(i).url.equals("")) {
+                                final int finalI = i;
+                                cls.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        String url = link.get(finalI).url;
+                                        Intent i = new Intent(Intent.ACTION_VIEW);
+                                        i.setData(Uri.parse(url));
+                                        startActivity(i);
+                                    }
+                                });
+                            }
+                        }
+                        Button cl = new Button(getApplicationContext());
+                        cl.setText(R.string.cls);
+                        cl.setAllCaps(false);
+                        cl.setBackground(getDrawable(R.drawable.back));
+                        cl.setTextSize((float) 22);
+                        cl.setTextColor(textColor);
+                        cl.setTypeface(custom_font);
+                        cl.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.dismiss();
+                            }
+                        });
+                        filln.addView(cl);
+                        rotating.cancel();
+                        dialog.show();
+                    }
 
-                } catch (InterruptedException e) {
-                } catch (ExecutionException e) {
-                }
-                for (int cs = 0; cs < classes.size(); cs++) {
-                        Button cls = new Button(getApplicationContext());
-                        cls.setTextSize((float) fontSize);
-                        cls.setGravity(Gravity.CENTER);
-                        cls.setText(classes.get(cs).name);
-                        cls.setTextColor(textColor);
-                        cls.setBackgroundColor(Color.TRANSPARENT);
-                        cls.setTypeface(custom_font);
-                        cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
-                        newsll.addView(cls);
-                        final int finalCs = cs;
-
-                }
-                dialog.show();
+                    @Override
+                    public void onFail(ArrayList<Link> e) {
+                    }
+                }).execute("");
             }
         });
         if (classes != null)
@@ -895,6 +934,7 @@ public class Main extends Activity {
 
     private void openApp() {
         final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+        String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/";
         new GetLink(service, new GetLink.GotLink() {
             @Override
             public void onLinkGet(String link) {
@@ -974,41 +1014,40 @@ public class Main extends Activity {
             POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
             Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
             Sheet mySheet = myWorkBook.getSheetAt(0);
-            int rows = mySheet.getLastRowNum();
-            String day = mySheet.getRow(0).getCell(0).getStringCellValue();
-            return day;
+            return mySheet.getRow(0).getCell(0).getStringCellValue();
         } catch (Exception e) {
             return null;
         }
     }
 
-    private float[] reversedValue(float[] a){
-        for(int o=0;o<a.length;o++){
-            a[o]=-a[o];
+    private float[] reversedValue(float[] a) {
+        for (int o = 0; o < a.length; o++) {
+            a[o] = -a[o];
         }
         return a;
     }
-    class Class {
-        public String name;
-        public ArrayList<Subject> classes;
 
-        public Class(String name, ArrayList<Subject> classes) {
+    static class Link {
+        String url, name;
+    }
+    private class Class {
+        String name;
+        ArrayList<Subject> classes;
+
+        Class(String name, ArrayList<Subject> classes) {
             this.name = name;
             this.classes = classes;
         }
     }
-    class Subject {
-        public int hour;
-        public String name, fullName;
+    private class Subject {
+        int hour;
+        String name, fullName;
 
-        public Subject(int hour, String name, String fullName) {
+        Subject(int hour, String name, String fullName) {
             this.hour = hour;
             this.name = name;
             this.fullName = fullName;
         }
-    }
-    static class Link{
-        public String url,name;
     }
 }
 class GetLink extends AsyncTask<String, String, String> {
@@ -1016,7 +1055,7 @@ class GetLink extends AsyncTask<String, String, String> {
     private GotLink gotlink;
     private boolean success;
 
-    public GetLink(String service, GotLink gl) {
+    GetLink(String service, GotLink gl) {
         ser = service;
         gotlink = gl;
     }
@@ -1050,7 +1089,7 @@ class GetLink extends AsyncTask<String, String, String> {
         }
     }
 
-    public interface GotLink {
+    interface GotLink {
         void onLinkGet(String link);
 
         void onFail(String e);
@@ -1062,7 +1101,7 @@ class GetNews extends AsyncTask<String, String, ArrayList<Main.Link>> {
     private GotNews gotlink;
     private boolean success;
 
-    public GetNews(String service, GotNews gl) {
+    GetNews(String service, GotNews gl) {
         ser = service;
         gotlink = gl;
     }
@@ -1072,13 +1111,12 @@ class GetNews extends AsyncTask<String, String, ArrayList<Main.Link>> {
         try {
             ArrayList<Main.Link> file = new ArrayList<>();
             Document docu = Jsoup.connect(ser).get();
-            Elements ahs=docu.getAllElements().select("div.carousel-inner").select("div.item").select("a");
-            for(int in=0;in<ahs.size();in++){
-                Main.Link link=new Main.Link();
-                link.name=ahs.get(in).text();
-                link.url=ahs.get(in).attr("href");
-                if(!link.name.equals(""))
-                file.add(link);
+            Elements ahs = docu.getAllElements().select("div.carousel-inner").select("div.item").select("a");
+            for (int in = 0; in < ahs.size(); in++) {
+                Main.Link link = new Main.Link();
+                link.name = ahs.get(in).text();
+                link.url = ahs.get(in).attr("href");
+                if (!link.name.equals("")) file.add(link);
             }
             success = true;
             return file;
@@ -1091,15 +1129,13 @@ class GetNews extends AsyncTask<String, String, ArrayList<Main.Link>> {
     @Override
     protected void onPostExecute(ArrayList<Main.Link> s) {
         if (success) {
-            if(gotlink!=null)
-            gotlink.onNewsGet(s);
+            if (gotlink != null) gotlink.onNewsGet(s);
         } else {
-            if(gotlink!=null)
-                gotlink.onFail(s);
+            if (gotlink != null) gotlink.onFail(s);
         }
     }
 
-    public interface GotNews {
+    interface GotNews {
         void onNewsGet(ArrayList<Main.Link> link);
 
         void onFail(ArrayList<Main.Link> e);
