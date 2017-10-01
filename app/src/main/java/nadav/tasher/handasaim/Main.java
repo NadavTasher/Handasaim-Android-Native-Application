@@ -338,11 +338,11 @@ public class Main extends Activity {
         final ImageView nutIcon = new ImageView(this);
         final ImageView newsIcon = new ImageView(this);
         final int screenY = Light.Device.screenY(this);
-        final int nutSize = (screenY / 8) - screenY / 30;
+        //        final int nutSize = (screenY / 8) - screenY / 30;
         final int newsSize = (screenY / 9) - screenY / 30;
         final ObjectAnimator anim = ObjectAnimator.ofFloat(nutIcon, View.TRANSLATION_Y, reversedValue(Light.Animations.JUMP_SMALL));
         final int navY = screenY / 8;
-        final LinearLayout.LayoutParams nutParms = new LinearLayout.LayoutParams(nutSize, nutSize);
+        //        final LinearLayout.LayoutParams nutParms = new LinearLayout.LayoutParams(nutSize, nutSize);
         final LinearLayout.LayoutParams newsParms = new LinearLayout.LayoutParams(newsSize, newsSize);
         final LinearLayout.LayoutParams navParms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, navY);
         all.setOrientation(LinearLayout.VERTICAL);
@@ -1144,17 +1144,18 @@ public class Main extends Activity {
         }
         return a;
     }
+
     static class Link {
         String url, name;
     }
-    class Theme {
-        public int color;
+    private class Theme {
+        int color;
 
-        public Theme(String color) {
+        Theme(String color) {
             this.color = Color.parseColor(color);
         }
 
-        public Theme(int color) {
+        Theme(int color) {
             this.color = color;
         }
     }
