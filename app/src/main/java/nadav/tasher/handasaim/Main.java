@@ -680,6 +680,8 @@ public class Main extends Activity {
                             cls.setGravity(Gravity.CENTER);
                             cls.setText(link.get(i).name);
                             cls.setTextColor(textColor);
+                            cls.setEllipsize(TextUtils.TruncateAt.END);
+                            cls.setLines(2);
                             //                            cls.setBackgroundColor(Color.TRANSPARENT);
                             cls.setBackground(getDrawable(R.drawable.button));
                             cls.setTypeface(custom_font);
