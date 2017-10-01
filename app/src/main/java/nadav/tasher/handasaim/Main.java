@@ -11,10 +11,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -59,16 +55,15 @@ import java.util.ArrayList;
 import nadav.tasher.lightool.Light;
 
 public class Main extends Activity {
+    private final String serviceProvider = "http://handasaim.co.il";
     private int color = Color.parseColor("#1b5d96");
     private int secolor = color + 0x333333;
-    private final String serviceProvider = "http://handasaim.co.il";
     private String day;
     private Class currentClass;
     private int textColor = Color.WHITE;
-    private int countheme=0;
-    private Theme[] themes=new Theme[]{
-        new Theme("#112233"),new Theme("#553311"),new Theme("#4fbc68"),new Theme("#7047a3"),new Theme("#000000"),new Theme("#557896"),new Theme(color)
-    };
+    private int countheme = 0;
+    private Theme[] themes = new Theme[]{new Theme("#112233"), new Theme("#553311"), new Theme("#4fbc68"), new Theme("#7047a3"), new Theme("#000000"), new Theme("#557896"), new Theme(color)};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,8 +72,8 @@ public class Main extends Activity {
 
     private void splash() {
         final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
-        color=sp.getInt("color",color);
-        secolor=color+0x333333;
+        color = sp.getInt("color", color);
+        secolor = color + 0x333333;
         final Window window = getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -434,7 +429,6 @@ public class Main extends Activity {
         colorText.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
         //Switch col = new Switch(this);
         colorText.setPadding(20, 20, 20, 20);
-
         final ImageButton switchc = new ImageButton(this);
         switchc.setBackgroundColor(Color.TRANSPARENT);
         LinearLayout.LayoutParams colorTextp = new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20);
@@ -523,107 +517,106 @@ public class Main extends Activity {
         hsplace.setOrientation(LinearLayout.VERTICAL);
         hsplace.setPadding(20, 20, 20, 20);
         all.addView(hsplace);
-        if(sp.getBoolean("show_time",false)){
+        if (sp.getBoolean("show_time", false)) {
             timeswitch.setBackground(getDrawable(R.drawable.back));
-        }else{
+        } else {
             timeswitch.setBackground(getDrawable(R.drawable.back_2));
         }
-        View.OnClickListener timeONC=new View.OnClickListener() {
+        View.OnClickListener timeONC = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sp.edit().putBoolean("show_time", !sp.getBoolean("show_time",false)).commit();
-                if(sp.getBoolean("show_time",false)){
+                sp.edit().putBoolean("show_time", !sp.getBoolean("show_time", false)).commit();
+                if (sp.getBoolean("show_time", false)) {
                     timeswitch.setBackground(getDrawable(R.drawable.back));
-                }else{
+                } else {
                     timeswitch.setBackground(getDrawable(R.drawable.back_2));
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time",false), sp.getInt("font", 32), sp.getBoolean("breaks", true),sp.getBoolean("bagmake",false));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false));
             }
         };
         clock_ic.setOnClickListener(timeONC);
         timeswitch.setOnClickListener(timeONC);
-        if(!sp.getBoolean("bagmake",false)){
+        if (!sp.getBoolean("bagmake", false)) {
             bagswitch.setBackground(getDrawable(R.drawable.back));
-        }else{
+        } else {
             bagswitch.setBackground(getDrawable(R.drawable.back_2));
         }
-        View.OnClickListener bagONC=new View.OnClickListener() {
+        View.OnClickListener bagONC = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sp.edit().putBoolean("bagmake", !sp.getBoolean("bagmake",false)).commit();
-                if(!sp.getBoolean("bagmake",false)){
+                sp.edit().putBoolean("bagmake", !sp.getBoolean("bagmake", false)).commit();
+                if (!sp.getBoolean("bagmake", false)) {
                     bagswitch.setBackground(getDrawable(R.drawable.back));
-                }else{
+                } else {
                     bagswitch.setBackground(getDrawable(R.drawable.back_2));
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time",false), sp.getInt("font", 32), sp.getBoolean("breaks", true),sp.getBoolean("bagmake",false));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false));
             }
         };
         bagswitch_ic.setOnClickListener(bagONC);
         bagswitch.setOnClickListener(bagONC);
-
-        if(sp.getBoolean("breaks",true)){
+        if (sp.getBoolean("breaks", true)) {
             breakswitch.setBackground(getDrawable(R.drawable.back));
-        }else{
+        } else {
             breakswitch.setBackground(getDrawable(R.drawable.back_2));
         }
-        View.OnClickListener breakONC=new View.OnClickListener() {
+        View.OnClickListener breakONC = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sp.edit().putBoolean("breaks", !sp.getBoolean("breaks",true)).commit();
-                if(sp.getBoolean("breaks",true)){
+                sp.edit().putBoolean("breaks", !sp.getBoolean("breaks", true)).commit();
+                if (sp.getBoolean("breaks", true)) {
                     breakswitch.setBackground(getDrawable(R.drawable.back));
-                }else{
+                } else {
                     breakswitch.setBackground(getDrawable(R.drawable.back_2));
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time",false), sp.getInt("font", 32), sp.getBoolean("breaks", true),sp.getBoolean("bagmake",false));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false));
             }
         };
         breakswitch.setOnClickListener(breakONC);
         breakswitch_ic.setOnClickListener(breakONC);
-        if(sp.getBoolean("fontWhite",true)){
+        if (sp.getBoolean("fontWhite", true)) {
             colorText.setBackground(getDrawable(R.drawable.back));
-        }else{
+        } else {
             colorText.setBackground(getDrawable(R.drawable.back_2));
         }
-        View.OnClickListener textCONC=new View.OnClickListener() {
+        View.OnClickListener textCONC = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sp.edit().putBoolean("fontWhite", !sp.getBoolean("fontWhite",true)).commit();
-                if(sp.getBoolean("fontWhite",true)){
+                sp.edit().putBoolean("fontWhite", !sp.getBoolean("fontWhite", true)).commit();
+                if (sp.getBoolean("fontWhite", true)) {
                     colorText.setBackground(getDrawable(R.drawable.back));
-                }else{
+                } else {
                     colorText.setBackground(getDrawable(R.drawable.back_2));
                 }
-                if (sp.getBoolean("fontWhite",true)) {
+                if (sp.getBoolean("fontWhite", true)) {
                     switchc.setImageDrawable(getDrawable(R.drawable.ic_white));
                     textColor = Color.WHITE;
                 } else {
                     switchc.setImageDrawable(getDrawable(R.drawable.ic_black));
                     textColor = Color.BLACK;
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time",false), sp.getInt("font", 32), sp.getBoolean("breaks", true),sp.getBoolean("bagmake",false));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false));
             }
         };
         colorText.setOnClickListener(textCONC);
         switchc.setOnClickListener(textCONC);
-        View.OnClickListener themeONC=new View.OnClickListener() {
+        View.OnClickListener themeONC = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 sp.edit().putInt("color", themes[countheme].color).commit();
-                color=themes[countheme].color;
-                secolor=color+0x333333;
+                color = themes[countheme].color;
+                secolor = color + 0x333333;
                 getWindow().setStatusBarColor(secolor);
                 getWindow().setNavigationBarColor(color);
                 sall.setBackgroundColor(color);
                 all.setBackgroundColor(color);
                 navbarAll.setBackgroundColor(secolor);
-                if(countheme+1<themes.length) {
+                if (countheme + 1 < themes.length) {
                     countheme++;
-                }else{
-                    countheme=0;
+                } else {
+                    countheme = 0;
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time",false), sp.getInt("font", 32), sp.getBoolean("breaks", true),sp.getBoolean("bagmake",false));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false));
             }
         };
         tsw.setOnClickListener(themeONC);
@@ -635,7 +628,7 @@ public class Main extends Activity {
                 fontSize++;
                 if (fontSize <= 50) {
                     sp.edit().putInt("font", fontSize).commit();
-                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize, sp.getBoolean("breaks", true),sp.getBoolean("bagmake",false));
+                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize, sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false));
                     size.setText(String.valueOf(fontSize));
                 }
             }
@@ -647,7 +640,7 @@ public class Main extends Activity {
                 fontSize--;
                 if (fontSize >= 1) {
                     sp.edit().putInt("font", fontSize).commit();
-                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize, sp.getBoolean("breaks", true),sp.getBoolean("bagmake",false));
+                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize, sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false));
                     size.setText(String.valueOf(fontSize));
                 }
             }
@@ -729,20 +722,11 @@ public class Main extends Activity {
                 }).execute("");
             }
         });
-
         if (classes != null)
-            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32), sp.getBoolean("breaks", true),sp.getBoolean("bagmake",false));
+            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false));
         setContentView(sall);
     }
-    class Theme{
-        public int color;
-        public Theme(String color){
-            this.color=Color.parseColor(color);
-        }
-        public Theme(int color){
-            this.color=color;
-        }
-    }
+
     private void share(String st) {
         Intent s = new Intent(Intent.ACTION_SEND);
         s.putExtra(Intent.EXTRA_TEXT, st);
@@ -791,7 +775,7 @@ public class Main extends Activity {
                             public void onClick(View view) {
                                 final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
                                 sp.edit().putString("favorite_class", classes.get(finalCs).name).commit();
-                                showHS(classes.get(finalCs), hsplace, classes, showTime, fontSize, breakTimes,showOrgCheckBox);
+                                showHS(classes.get(finalCs), hsplace, classes, showTime, fontSize, breakTimes, showOrgCheckBox);
                                 dialog.dismiss();
                             }
                         });
@@ -801,10 +785,10 @@ public class Main extends Activity {
             }
         });
         hsplace.addView(className);
-        hsplace.addView(hourSystemForClass(c, showTime, fontSize, breakTimes,showOrgCheckBox));
+        hsplace.addView(hourSystemForClass(c, showTime, fontSize, breakTimes, showOrgCheckBox));
     }
 
-    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize, boolean breakTimes,boolean showOrgC) {
+    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize, boolean breakTimes, boolean showOrgC) {
         LinearLayout all = new LinearLayout(this);
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
@@ -873,22 +857,22 @@ public class Main extends Activity {
                     }
                 });
             }
-            LinearLayout fsubj=new LinearLayout(getApplicationContext());
+            LinearLayout fsubj = new LinearLayout(getApplicationContext());
             fsubj.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
             fsubj.setGravity(Gravity.CENTER);
-//            fsubj.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);
+            //            fsubj.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);
             fsubj.setOrientation(LinearLayout.HORIZONTAL);
             Button subj = new Button(this);
-            if(showOrgC){
-                fsubj.setPadding(0,0,20,0);
-                CheckBox che=new CheckBox(getApplicationContext());
+            if (showOrgC) {
+                fsubj.setPadding(0, 0, 20, 0);
+                CheckBox che = new CheckBox(getApplicationContext());
                 che.setText(null);
                 che.setButtonDrawable(getDrawable(R.drawable.checkbox_b));
-//                che.setButtonTintList(new ColorStateList());
+                //                che.setButtonTintList(new ColorStateList());
                 fsubj.addView(che);
                 fsubj.setBackground(getDrawable(R.drawable.backasbutton));
                 subj.setBackground(getDrawable(R.drawable.button_alpha));
-            }else{
+            } else {
                 subj.setBackground(getDrawable(R.drawable.button));
 
             }
@@ -1160,9 +1144,19 @@ public class Main extends Activity {
         }
         return a;
     }
-
     static class Link {
         String url, name;
+    }
+    class Theme {
+        public int color;
+
+        public Theme(String color) {
+            this.color = Color.parseColor(color);
+        }
+
+        public Theme(int color) {
+            this.color = color;
+        }
     }
     private class Class {
         String name;
