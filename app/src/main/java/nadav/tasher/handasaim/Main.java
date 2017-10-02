@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -62,7 +63,8 @@ public class Main extends Activity {
     private Class currentClass;
     private int textColor = Color.WHITE;
     private int countheme = 0;
-    private Theme[] themes = new Theme[]{new Theme("#112233"), new Theme("#553311"), new Theme("#4fbc68"), new Theme("#7047a3"), new Theme("#000000"), new Theme("#557896"), new Theme(color)};
+    static final String STOP_SERVICE="nadav.tasher.handasaim.STOP_SERVICE";
+    private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#133584"), new Theme("#112233"), new Theme("#325947"), new Theme("#413567"), new Theme("#012345"), new Theme("#448833"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme("#4fbc68"), new Theme("#7047a3"), new Theme("#000000"), new Theme("#557896"), new Theme(color)};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +74,7 @@ public class Main extends Activity {
 
     private void splash() {
         final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         color = sp.getInt("color", color);
         secolor = color + 0x333333;
         final Window window = getWindow();
@@ -244,10 +247,17 @@ public class Main extends Activity {
         showBreaks.setTextSize((float) 30);
         showBreaks.setTypeface(custom_font);
         showBreaks.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
+        final Switch pushNoti = new Switch(this);
+        pushNoti.setChecked(false);
+        pushNoti.setText(R.string.push);
+        pushNoti.setTextSize((float) 30);
+        pushNoti.setTypeface(custom_font);
+        pushNoti.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         part3.addView(spclSet);
         part3.addView(showTimes);
         part3.addView(showBreaks);
         part3.addView(textCo);
+        part3.addView(pushNoti);
         part3.addView(done);
         done.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -255,6 +265,7 @@ public class Main extends Activity {
                 sp.edit().putBoolean("show_time", showTimes.isChecked()).commit();
                 sp.edit().putBoolean("fontWhite", textCo.isChecked()).commit();
                 sp.edit().putBoolean("breaks", textCo.isChecked()).commit();
+                sp.edit().putBoolean("push", pushNoti.isChecked()).commit();
                 sp.edit().putInt("last_recorded_version_code", Light.Device.getVersionCode(getApplicationContext(), getPackageName())).commit();
                 sp.edit().putBoolean("first", false).commit();
                 if (!renew) {
@@ -337,12 +348,12 @@ public class Main extends Activity {
         final LinearLayout navbarAll = new LinearLayout(this);
         final ImageView nutIcon = new ImageView(this);
         final ImageView newsIcon = new ImageView(this);
+        final ImageView pushIcon = new ImageView(this);
         final int screenY = Light.Device.screenY(this);
-        //        final int nutSize = (screenY / 8) - screenY / 30;
+        final int nutSize = (screenY / 8) - screenY / 30;
         final int newsSize = (screenY / 9) - screenY / 30;
-        final ObjectAnimator anim = ObjectAnimator.ofFloat(nutIcon, View.TRANSLATION_Y, reversedValue(Light.Animations.JUMP_SMALL));
         final int navY = screenY / 8;
-        //        final LinearLayout.LayoutParams nutParms = new LinearLayout.LayoutParams(nutSize, nutSize);
+        final LinearLayout.LayoutParams nutParms = new LinearLayout.LayoutParams(nutSize, nutSize);
         final LinearLayout.LayoutParams newsParms = new LinearLayout.LayoutParams(newsSize, newsSize);
         final LinearLayout.LayoutParams navParms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, navY);
         all.setOrientation(LinearLayout.VERTICAL);
@@ -356,7 +367,9 @@ public class Main extends Activity {
         navbarAll.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         newsIcon.setLayoutParams(newsParms);
         newsIcon.setImageDrawable(getDrawable(R.drawable.ic_news));
-        nutIcon.setLayoutParams(newsParms);
+        pushIcon.setLayoutParams(newsParms);
+        pushIcon.setImageDrawable(getDrawable(R.drawable.ic_warn_s));
+        nutIcon.setLayoutParams(nutParms);
         nutIcon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         nutIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -369,12 +382,9 @@ public class Main extends Activity {
                 ab.show();
             }
         });
-        anim.setDuration(1500);
-        anim.setRepeatMode(ObjectAnimator.RESTART);
-        anim.setRepeatCount(ObjectAnimator.INFINITE);
-        anim.start();
         navbarAll.addView(nutIcon);
         navbarAll.addView(newsIcon);
+        navbarAll.addView(pushIcon);
         navbarAll.setPadding(10, 10, 10, 10);
         navParms.gravity = Gravity.START;
         navbarAll.setLayoutParams(navParms);
@@ -517,7 +527,7 @@ public class Main extends Activity {
         hsplace.setOrientation(LinearLayout.VERTICAL);
         hsplace.setPadding(20, 20, 20, 20);
         all.addView(hsplace);
-        if (sp.getBoolean("show_time", false)) {
+        if (!sp.getBoolean("show_time", false)) {
             timeswitch.setBackground(getDrawable(R.drawable.back));
         } else {
             timeswitch.setBackground(getDrawable(R.drawable.back_2));
@@ -526,7 +536,7 @@ public class Main extends Activity {
             @Override
             public void onClick(View view) {
                 sp.edit().putBoolean("show_time", !sp.getBoolean("show_time", false)).commit();
-                if (sp.getBoolean("show_time", false)) {
+                if (!sp.getBoolean("show_time", false)) {
                     timeswitch.setBackground(getDrawable(R.drawable.back));
                 } else {
                     timeswitch.setBackground(getDrawable(R.drawable.back_2));
@@ -555,7 +565,7 @@ public class Main extends Activity {
         };
         bagswitch_ic.setOnClickListener(bagONC);
         bagswitch.setOnClickListener(bagONC);
-        if (sp.getBoolean("breaks", true)) {
+        if (!sp.getBoolean("breaks", true)) {
             breakswitch.setBackground(getDrawable(R.drawable.back));
         } else {
             breakswitch.setBackground(getDrawable(R.drawable.back_2));
@@ -564,7 +574,7 @@ public class Main extends Activity {
             @Override
             public void onClick(View view) {
                 sp.edit().putBoolean("breaks", !sp.getBoolean("breaks", true)).commit();
-                if (sp.getBoolean("breaks", true)) {
+                if (!sp.getBoolean("breaks", true)) {
                     breakswitch.setBackground(getDrawable(R.drawable.back));
                 } else {
                     breakswitch.setBackground(getDrawable(R.drawable.back_2));
@@ -676,6 +686,7 @@ public class Main extends Activity {
                     public void onNewsGet(final ArrayList<Link> link) {
                         for (int i = 0; i < link.size(); i++) {
                             Button cls = new Button(getApplicationContext());
+                            cls.setPadding(10, 10, 10, 10);
                             cls.setTextSize((float) fontSize);
                             cls.setGravity(Gravity.CENTER);
                             cls.setText(link.get(i).name);
@@ -1140,13 +1151,6 @@ public class Main extends Activity {
         }
     }
 
-    private float[] reversedValue(float[] a) {
-        for (int o = 0; o < a.length; o++) {
-            a[o] = -a[o];
-        }
-        return a;
-    }
-
     static class Link {
         String url, name;
     }
@@ -1200,6 +1204,7 @@ class GetLink extends AsyncTask<String, String, String> {
             for (int i = 0; i < doc.size(); i++) {
                 if (doc.get(i).attr("href").endsWith(".xls")) {
                     file = doc.get(i).attr("href");
+                    Log.i("FILE", file);
                     break;
                 }
             }
