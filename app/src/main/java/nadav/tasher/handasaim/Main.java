@@ -44,6 +44,9 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -56,6 +59,8 @@ import java.util.ArrayList;
 import nadav.tasher.lightool.Light;
 
 public class Main extends Activity {
+    static final String pushProvider = "http://handasaim.thepuzik.com/push/push.php";
+    static final String STOP_SERVICE = "nadav.tasher.handasaim.STOP_SERVICE";
     private final String serviceProvider = "http://handasaim.co.il";
     private int color = Color.parseColor("#1b5d96");
     private int secolor = color + 0x333333;
@@ -63,7 +68,6 @@ public class Main extends Activity {
     private Class currentClass;
     private int textColor = Color.WHITE;
     private int countheme = 0;
-    static final String STOP_SERVICE="nadav.tasher.handasaim.STOP_SERVICE";
     private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#133584"), new Theme("#112233"), new Theme("#325947"), new Theme("#413567"), new Theme("#012345"), new Theme("#448833"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme("#4fbc68"), new Theme("#7047a3"), new Theme("#000000"), new Theme("#557896"), new Theme(color)};
 
     @Override
@@ -73,7 +77,11 @@ public class Main extends Activity {
     }
 
     private void splash() {
-        final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
+        if (sp.getBoolean("push", false)) {
+            sendBroadcast(new Intent(STOP_SERVICE));
+            startService(new Intent(getApplicationContext(), PushService.class));
+        }
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         color = sp.getInt("color", color);
         secolor = color + 0x333333;
@@ -98,7 +106,7 @@ public class Main extends Activity {
     }
 
     private void welcome(final ArrayList<Class> classes, final boolean renew) {
-        final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         LinearLayout part1 = new LinearLayout(this);
         final LinearLayout part2 = new LinearLayout(this);
         final LinearLayout part3 = new LinearLayout(this);
@@ -275,7 +283,7 @@ public class Main extends Activity {
                             if (b) {
                                 ArrayList<Light.Net.PHP.Post.PHPParameter> parms = new ArrayList<>();
                                 parms.add(new Light.Net.PHP.Post.PHPParameter("install", "true"));
-                                new Light.Net.PHP.Post("http://handasaim.thepuzik.com/install.php", parms, new Light.Net.PHP.Post.OnPost() {
+                                new Light.Net.PHP.Post("http://handasaim.thepuzik.com/new.php", parms, new Light.Net.PHP.Post.OnPost() {
                                     @Override
                                     public void onPost(String s) {
                                         Log.i("COUNT", s);
@@ -341,7 +349,7 @@ public class Main extends Activity {
     }
 
     private void view(final ArrayList<Class> classes) {
-        final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         getWindow().setStatusBarColor(secolor);
         final LinearLayout sall = new LinearLayout(this);
         final LinearLayout all = new LinearLayout(this);
@@ -368,6 +376,7 @@ public class Main extends Activity {
         newsIcon.setLayoutParams(newsParms);
         newsIcon.setImageDrawable(getDrawable(R.drawable.ic_news));
         pushIcon.setLayoutParams(newsParms);
+        final ObjectAnimator rotating = ObjectAnimator.ofFloat(pushIcon, View.TRANSLATION_X, Light.Animations.VIBRATE_SMALL);
         pushIcon.setImageDrawable(getDrawable(R.drawable.ic_warn_s));
         nutIcon.setLayoutParams(nutParms);
         nutIcon.setImageDrawable(getDrawable(R.drawable.ic_icon));
@@ -464,6 +473,18 @@ public class Main extends Activity {
         tsw.setGravity(Gravity.CENTER);
         tsw.setOrientation(LinearLayout.HORIZONTAL);
         navSliderview.addView(tsw);
+        //
+        final LinearLayout pushSwitch = new LinearLayout(this);
+        pushSwitch.setBackground(getDrawable(R.drawable.back));
+        pushSwitch.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
+        final ImageView pushSwitch_ic = new ImageView(getApplicationContext());
+        pushSwitch_ic.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
+        pushSwitch_ic.setImageDrawable(getDrawable(R.drawable.ic_warn_sett));
+        pushSwitch.addView(pushSwitch_ic);
+        pushSwitch.setPadding(20, 20, 20, 20);
+        pushSwitch.setGravity(Gravity.CENTER);
+        pushSwitch.setOrientation(LinearLayout.HORIZONTAL);
+        navSliderview.addView(pushSwitch);
         //
         LinearLayout fontS = new LinearLayout(this);
         fontS.setOrientation(LinearLayout.HORIZONTAL);
@@ -631,6 +652,27 @@ public class Main extends Activity {
         };
         tsw.setOnClickListener(themeONC);
         tsw_ic.setOnClickListener(themeONC);
+        if (!sp.getBoolean("push", false)) {
+            pushSwitch.setBackground(getDrawable(R.drawable.back));
+        } else {
+            pushSwitch.setBackground(getDrawable(R.drawable.back_2));
+        }
+        View.OnClickListener pushONC = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sp.edit().putBoolean("push", !sp.getBoolean("push", false)).commit();
+                if (!sp.getBoolean("push", false)) {
+                    pushSwitch.setBackground(getDrawable(R.drawable.back));
+                    sendBroadcast(new Intent(STOP_SERVICE));
+                } else {
+                    pushSwitch.setBackground(getDrawable(R.drawable.back_2));
+                    sendBroadcast(new Intent(STOP_SERVICE));
+                    startService(new Intent(getApplicationContext(), PushService.class));
+                }
+            }
+        };
+        pushSwitch.setOnClickListener(pushONC);
+        pushSwitch_ic.setOnClickListener(pushONC);
         plus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -735,6 +777,82 @@ public class Main extends Activity {
                 }).execute("");
             }
         });
+        pushIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+                final int fontSize = sp.getInt("font", 32);
+                final LinearLayout newsll = new LinearLayout(getApplicationContext());
+                final LinearLayout filln = new LinearLayout(getApplicationContext());
+                newsll.setGravity(Gravity.CENTER);
+                newsll.setOrientation(LinearLayout.VERTICAL);
+                filln.setGravity(Gravity.CENTER);
+                filln.setOrientation(LinearLayout.VERTICAL);
+                final Dialog dialog = new Dialog(Main.this);
+                dialog.setCancelable(true);
+                ScrollView news = new ScrollView(getApplicationContext());
+                news.addView(newsll);
+                filln.addView(news);
+                dialog.setContentView(filln);
+                rotating.setDuration(1000);
+                rotating.setRepeatCount(ObjectAnimator.INFINITE);
+                rotating.setRepeatMode(ObjectAnimator.RESTART);
+                rotating.start();
+                filln.setPadding(20, 20, 20, 20);
+                news.setPadding(20, 20, 20, 20);
+                filln.setBackgroundColor(color);
+                news.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10 * 6));
+                ArrayList<Light.Net.PHP.Post.PHPParameter> parameters = new ArrayList<>();
+                parameters.add(new Light.Net.PHP.Post.PHPParameter("get", ""));
+                new Light.Net.PHP.Post(Main.pushProvider, parameters, new Light.Net.PHP.Post.OnPost() {
+                    @Override
+                    public void onPost(String s) {
+                        try {
+                            JSONObject mainObject = new JSONObject(s);
+                            boolean success = mainObject.getBoolean("success");
+                            if (success) {
+                                JSONArray pushesArray = mainObject.getJSONArray("pushes");
+                                for (int pA = 0; pA < pushesArray.length(); pA++) {
+                                    JSONObject push = pushesArray.getJSONObject(pA);
+                                    String text = push.getString("data");
+                                    Button cls = new Button(getApplicationContext());
+                                    cls.setPadding(10, 10, 10, 10);
+                                    cls.setTextSize((float) fontSize);
+                                    cls.setGravity(Gravity.CENTER);
+                                    cls.setText(text);
+                                    cls.setAllCaps(false);
+                                    cls.setTextColor(textColor);
+                                    cls.setEllipsize(TextUtils.TruncateAt.END);
+                                    cls.setLines(2);
+                                    //                            cls.setBackgroundColor(Color.TRANSPARENT);
+                                    cls.setBackground(getDrawable(R.drawable.button));
+                                    cls.setTypeface(custom_font);
+                                    cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 6)));
+                                    newsll.addView(cls);
+                                }
+                                Button cl = new Button(getApplicationContext());
+                                cl.setText(R.string.cls);
+                                cl.setAllCaps(false);
+                                cl.setBackground(getDrawable(R.drawable.back));
+                                cl.setTextSize((float) 22);
+                                cl.setTextColor(textColor);
+                                cl.setTypeface(custom_font);
+                                cl.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                                filln.addView(cl);
+                                rotating.cancel();
+                                dialog.show();
+                            }
+                        } catch (JSONException e) {
+                        }
+                    }
+                }).execute("");
+            }
+        });
         if (classes != null)
             showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false));
         setContentView(sall);
@@ -786,7 +904,7 @@ public class Main extends Activity {
                         cls.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+                                final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
                                 sp.edit().putString("favorite_class", classes.get(finalCs).name).commit();
                                 showHS(classes.get(finalCs), hsplace, classes, showTime, fontSize, breakTimes, showOrgCheckBox);
                                 dialog.dismiss();
@@ -1064,7 +1182,7 @@ public class Main extends Activity {
     }
 
     private void openApp() {
-        final SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/";
         new GetLink(service, new GetLink.GotLink() {
             @Override
