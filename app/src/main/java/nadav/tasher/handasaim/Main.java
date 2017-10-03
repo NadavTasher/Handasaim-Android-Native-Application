@@ -812,7 +812,7 @@ public class Main extends Activity {
                             boolean success = mainObject.getBoolean("success");
                             if (success) {
                                 JSONArray pushesArray = mainObject.getJSONArray("pushes");
-                                for (int pA = pushesArray.length()-1; pA >= 0; pA--) {
+                                for (int pA = pushesArray.length() - 1; pA >= 0; pA--) {
                                     JSONObject push = pushesArray.getJSONObject(pA);
                                     String text = push.getString("data");
                                     Button cls = new Button(getApplicationContext());
