@@ -59,7 +59,7 @@ public class PushService extends Service {
             public void run() {
                 ArrayList<Light.Net.PHP.Post.PHPParameter> parameters= new ArrayList<>();
                 parameters.add(new Light.Net.PHP.Post.PHPParameter("get",""));
-                new Light.Net.PHP.Post(Main.pushProvider, parameters, new Light.Net.PHP.Post.OnPost() {
+                final Light.Net.PHP.Post p=new Light.Net.PHP.Post(Main.pushProvider, parameters, new Light.Net.PHP.Post.OnPost() {
                     @Override
                     public void onPost(String s) {
                         try {
@@ -85,7 +85,17 @@ public class PushService extends Service {
                             Log.e("HandasaimPushService","Failed To Get, Skipping Loop.");
                         }
                     }
-                }).execute("");
+                });
+                if(Light.Device.isOnline(getApplicationContext())){
+                    new Light.Net.Pinger(5000, new Light.Net.Pinger.OnEnd() {
+                        @Override
+                        public void onPing(String s, boolean b) {
+                            if(b){
+                                p.execute("");
+                            }
+                        }
+                    }).execute("http://handasaim.thepuzik.com");
+                }
             }
         }, 0, 1000*60*2);
     }

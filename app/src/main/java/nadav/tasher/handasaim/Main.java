@@ -68,7 +68,7 @@ public class Main extends Activity {
     private Class currentClass;
     private int textColor = Color.WHITE;
     private int countheme = 0;
-    private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#133584"), new Theme("#112233"), new Theme("#325947"), new Theme("#413567"), new Theme("#012345"), new Theme("#448833"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme("#4fbc68"), new Theme("#7047a3"), new Theme("#000000"), new Theme("#557896"), new Theme(color)};
+    private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#75a08e"), new Theme("#773272"), new Theme("#b2a03c"), new Theme("#425166"), new Theme("#133584"), new Theme("#112233"), new Theme("#325947"), new Theme("#413567"), new Theme("#012345"), new Theme("#448833"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme("#4fbc68"), new Theme("#7047a3"), new Theme("#000000"), new Theme("#557896"), new Theme(color)};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -804,7 +804,7 @@ public class Main extends Activity {
                 news.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10 * 6));
                 ArrayList<Light.Net.PHP.Post.PHPParameter> parameters = new ArrayList<>();
                 parameters.add(new Light.Net.PHP.Post.PHPParameter("get", ""));
-                new Light.Net.PHP.Post(Main.pushProvider, parameters, new Light.Net.PHP.Post.OnPost() {
+                final Light.Net.PHP.Post p = new Light.Net.PHP.Post(Main.pushProvider, parameters, new Light.Net.PHP.Post.OnPost() {
                     @Override
                     public void onPost(String s) {
                         try {
@@ -812,7 +812,7 @@ public class Main extends Activity {
                             boolean success = mainObject.getBoolean("success");
                             if (success) {
                                 JSONArray pushesArray = mainObject.getJSONArray("pushes");
-                                for (int pA = 0; pA < pushesArray.length(); pA++) {
+                                for (int pA = pushesArray.length()-1; pA >= 0; pA--) {
                                     JSONObject push = pushesArray.getJSONObject(pA);
                                     String text = push.getString("data");
                                     Button cls = new Button(getApplicationContext());
@@ -850,7 +850,17 @@ public class Main extends Activity {
                         } catch (JSONException e) {
                         }
                     }
-                }).execute("");
+                });
+                if (Light.Device.isOnline(getApplicationContext())) {
+                    new Light.Net.Pinger(5000, new Light.Net.Pinger.OnEnd() {
+                        @Override
+                        public void onPing(String s, boolean b) {
+                            if (b) {
+                                p.execute("");
+                            }
+                        }
+                    }).execute("http://handasaim.thepuzik.com");
+                }
             }
         });
         if (classes != null)
