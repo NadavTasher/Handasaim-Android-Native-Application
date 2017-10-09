@@ -15,7 +15,11 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -27,6 +31,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -69,9 +74,30 @@ public class Main extends Activity {
     private Class currentClass;
     private int textColor = Color.WHITE;
     private int countheme = 0;
-    private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#75a08e"), new Theme("#773272"), new Theme("#b2a03c"), new Theme("#425166"), new Theme("#133584"), new Theme("#112233"), new Theme("#325947"), new Theme("#413567"), new Theme("#012345"), new Theme("#448833"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme("#4fbc68"), new Theme("#7047a3"), new Theme("#000000"), new Theme("#557896"), new Theme(color)};
-    private String[] ees = new String[]{"Stop it! it tickles!", "Ok now stop", "This wont lead you anywhere", "I mean, you have already found me!", "How much wood could a wood chuck chuck if a wood chuck could chuck wood?", "This ain't fun anymore", "Don't mess with me!", "I'm an egg okay? now leave me alone!", "Do you wanna play a game?", "I'm gonna tell my boss you're interrupting my work!", "This is messed up", "Calling him to inform him", "Supercalifragilisticexpialidocious", "Ground Control To Major Tom", "Houston, we have a problem", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it", "I'm not afraid of you", "High five?", "Go AWAY!", "\uD83D\uDE02\uD83D\uDE01\uD83D\uDE00\uD83D\uDE18☺️\uD83D\uDE10\uD83D\uDE11\uD83D\uDE36"};
+    private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
+    private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
     private int lastegg = 0;
+    private String allowed = "0123456789ABCDEFabcdef";
+    private InputFilter filter = new InputFilter() {
+
+        @Override
+        public CharSequence filter(CharSequence charSequence, int i, int i1, Spanned spanned, int i2, int i3) {
+            if (charSequence != null) {
+                for (int c = 0; c < charSequence.length(); c++) {
+                    boolean charAllowed = false;
+                    for (int a = 0; a < allowed.length(); a++) {
+                        if (charSequence.charAt(c) == allowed.charAt(a)) {
+                            charAllowed = true;
+                            break;
+                        }
+                    }
+                    if (!charAllowed) return "";
+                }
+                return null;
+            }
+            return null;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -670,8 +696,98 @@ public class Main extends Activity {
                 showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false));
             }
         };
+        View.OnLongClickListener themelong = new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+                final int fontSize = sp.getInt("font", 32);
+                final LinearLayout newsll = new LinearLayout(getApplicationContext());
+                final LinearLayout bts = new LinearLayout(getApplicationContext());
+                final LinearLayout layerer = new LinearLayout(getApplicationContext());
+                newsll.setGravity(Gravity.CENTER);
+                newsll.setOrientation(LinearLayout.HORIZONTAL);
+                bts.setGravity(Gravity.CENTER);
+                bts.setOrientation(LinearLayout.HORIZONTAL);
+                layerer.setGravity(Gravity.CENTER);
+                layerer.setOrientation(LinearLayout.VERTICAL);
+                final EditText colorEditor = new EditText(getApplicationContext());
+                colorEditor.setAllCaps(true);
+                colorEditor.setFilters(new InputFilter[]{filter});
+                TextView hashv = new TextView(getApplicationContext());
+                hashv.setText("#");
+                hashv.setTextSize((float) fontSize);
+                hashv.setTypeface(custom_font);
+                colorEditor.setTypeface(custom_font);
+                colorEditor.setTextSize((float) fontSize);
+                colorEditor.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                        if (charSequence.length() == 6) {
+                            layerer.setBackgroundColor(Color.parseColor("#" + charSequence));
+                        }
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                    }
+                });
+                hashv.setTextColor(textColor);
+                colorEditor.setTextColor(textColor);
+                newsll.addView(hashv);
+                newsll.addView(colorEditor);
+                layerer.addView(newsll);
+                Button save, close;
+                save = new Button(getApplicationContext());
+                close = new Button(getApplicationContext());
+                save.setText(R.string.sv);
+                close.setText(R.string.close);
+                save.setBackground(getDrawable(R.drawable.button));
+                close.setBackground(getDrawable(R.drawable.button));
+                final Dialog dialog = new Dialog(Main.this);
+                close.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                    }
+                });
+                save.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (colorEditor.getText().length() == 6) {
+                            sp.edit().putInt("color", Color.parseColor("#" + colorEditor.getText().toString())).commit();
+                            color = Color.parseColor("#" + colorEditor.getText().toString());
+                            secolor = color + 0x333333;
+                            getWindow().setStatusBarColor(secolor);
+                            getWindow().setNavigationBarColor(color);
+                            sall.setBackgroundColor(color);
+                            all.setBackgroundColor(color);
+                            navbarAll.setBackgroundColor(secolor);
+                            dialog.dismiss();
+                            showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false));
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Color Has To Include 6 Characters.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                bts.addView(close);
+                bts.addView(save);
+                layerer.addView(bts);
+                dialog.setCancelable(true);
+                dialog.setContentView(layerer);
+                layerer.setPadding(20, 20, 20, 20);
+                layerer.setBackgroundColor(color);
+                dialog.show();
+                return true;
+            }
+        };
         tsw.setOnClickListener(themeONC);
         tsw_ic.setOnClickListener(themeONC);
+        tsw_ic.setOnLongClickListener(themelong);
+        tsw.setOnLongClickListener(themelong);
         if (!sp.getBoolean("push", false)) {
             pushSwitch.setBackground(getDrawable(R.drawable.back));
         } else {
