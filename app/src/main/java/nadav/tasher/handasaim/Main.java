@@ -3,6 +3,7 @@ package nadav.tasher.handasaim;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -10,6 +11,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -104,7 +107,11 @@ public class Main extends Activity {
         super.onCreate(savedInstanceState);
         startApp();
     }
-
+    private void taskDesc(){
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, secolor);
+        setTaskDescription(taskDesc);
+    }
     private void splash() {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         if (sp.getBoolean("push", false)) {
@@ -118,7 +125,9 @@ public class Main extends Activity {
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(color);
+
         window.setNavigationBarColor(color);
+        taskDesc();
         LinearLayout ll = new LinearLayout(this);
         ll.setGravity(Gravity.CENTER);
         ll.setOrientation(LinearLayout.VERTICAL);
@@ -344,7 +353,8 @@ public class Main extends Activity {
                     if (s.equals(serviceProvider) && b) {
                         openApp();
                     } else if (s.equals(serviceProvider) && !b) {
-                        popup("Server Error: No Response From Service Provider.");
+//                        popup("Server Error: No Response From Service Provider.");
+                        openApp();
                     }
                 }
             }).execute(serviceProvider);
@@ -390,6 +400,7 @@ public class Main extends Activity {
     private void view(final ArrayList<Class> classes) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         getWindow().setStatusBarColor(secolor);
+        taskDesc();
         final LinearLayout sall = new LinearLayout(this);
         final LinearLayout all = new LinearLayout(this);
         final LinearLayout navbarAll = new LinearLayout(this);
@@ -583,7 +594,8 @@ public class Main extends Activity {
                     }
                 }
             } else {
-                popup("Downloaded Excel File Is Corrupted");
+//                popup("Downloaded Excel File Is Corrupted");
+                openApp();
             }
         }
         ScrollView sv = new ScrollView(this);
@@ -687,6 +699,7 @@ public class Main extends Activity {
                 getWindow().setNavigationBarColor(color);
                 sall.setBackgroundColor(color);
                 all.setBackgroundColor(color);
+                taskDesc();
                 navbarAll.setBackgroundColor(secolor);
                 if (countheme + 1 < themes.length) {
                     countheme++;
@@ -767,6 +780,7 @@ public class Main extends Activity {
                             all.setBackgroundColor(color);
                             navbarAll.setBackgroundColor(secolor);
                             dialog.dismiss();
+                            taskDesc();
                             showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false));
                         } else {
                             Toast.makeText(getApplicationContext(), "Color Has To Include 6 Characters.", Toast.LENGTH_SHORT).show();
@@ -1390,8 +1404,10 @@ public class Main extends Activity {
 
             @Override
             public void onFail(String e) {
-                popup("Failed");
+//                popup("Failed");
+                openApp();
             }
+
         }).execute();
     }
 
