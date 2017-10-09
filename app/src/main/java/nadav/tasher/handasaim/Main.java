@@ -70,7 +70,8 @@ public class Main extends Activity {
     private int textColor = Color.WHITE;
     private int countheme = 0;
     private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#75a08e"), new Theme("#773272"), new Theme("#b2a03c"), new Theme("#425166"), new Theme("#133584"), new Theme("#112233"), new Theme("#325947"), new Theme("#413567"), new Theme("#012345"), new Theme("#448833"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme("#4fbc68"), new Theme("#7047a3"), new Theme("#000000"), new Theme("#557896"), new Theme(color)};
-    private String[] ees = new String[]{"Stop it! it tickles!", "Ok now stop", "This wont lead you anywhere", "I mean, you have already found me!", "How much wood could a wood chuck chuck if a wood chuck could chuck wood?", "This ain't fun anymore", "Don't mess with me!", "I'm an egg okay? now leave me alone!", "Do you wanna play a game?", "I'm gonna tell my boss you're interrupting my work!","This is messed up","Calling him to inform him","Supercalifragilisticexpialidocious","Ground Control To Major Tom","Houston, we have a problem","You can avoid reality, but you cannot avoid the consequences of avoiding reality.","You may not be interested in war, but war is interested in you.","Don't stay in bed, unless you can make money in bed.","C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.","I have not failed. I've just found 10,000 ways that won't work.","Black holes are where God divided by zero.","The significant problems we face cannot be solved at the same level of thinking we were at when we created them.","Knowledge speaks, but wisdom listens.","Sleep is an excellent way of listening to an opera.","Success usually comes to those who are too busy to be looking for it", "I'm not afraid of you", "High five?", "Go AWAY!","\uD83D\uDE02\uD83D\uDE01\uD83D\uDE00\uD83D\uDE18☺️\uD83D\uDE10\uD83D\uDE11\uD83D\uDE36"};
+    private String[] ees = new String[]{"Stop it! it tickles!", "Ok now stop", "This wont lead you anywhere", "I mean, you have already found me!", "How much wood could a wood chuck chuck if a wood chuck could chuck wood?", "This ain't fun anymore", "Don't mess with me!", "I'm an egg okay? now leave me alone!", "Do you wanna play a game?", "I'm gonna tell my boss you're interrupting my work!", "This is messed up", "Calling him to inform him", "Supercalifragilisticexpialidocious", "Ground Control To Major Tom", "Houston, we have a problem", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it", "I'm not afraid of you", "High five?", "Go AWAY!", "\uD83D\uDE02\uD83D\uDE01\uD83D\uDE00\uD83D\uDE18☺️\uD83D\uDE10\uD83D\uDE11\uD83D\uDE36"};
+    private int lastegg = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -349,16 +350,17 @@ public class Main extends Activity {
         });
         pop.show();
     }
-    private int lastegg=0;
-    private void showEasterEgg(){
-        int newrand=new Random().nextInt(ees.length);
-        if(lastegg!=newrand){
-            Toast.makeText(getApplicationContext(),ees[newrand],Toast.LENGTH_LONG).show();
-            lastegg=newrand;
-        }else{
+
+    private void showEasterEgg() {
+        int newrand = new Random().nextInt(ees.length);
+        if (lastegg != newrand) {
+            Toast.makeText(getApplicationContext(), ees[newrand], Toast.LENGTH_LONG).show();
+            lastegg = newrand;
+        } else {
             showEasterEgg();
         }
     }
+
     private void view(final ArrayList<Class> classes) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         getWindow().setStatusBarColor(secolor);
