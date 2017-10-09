@@ -385,7 +385,7 @@ public class Main extends Activity {
             public void onClick(View view) {
                 AlertDialog.Builder ab = new AlertDialog.Builder(Main.this);
                 ab.setTitle(R.string.app_name);
-                ab.setMessage("This App Was Made By NadavTasher, Sept. 2017\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
+                ab.setMessage("This App Was Made By NadavTasher\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
                 ab.setCancelable(true);
                 ab.setPositiveButton("Close", null);
                 ab.show();
@@ -766,6 +766,7 @@ public class Main extends Activity {
                                 dialog.dismiss();
                             }
                         });
+                        cl.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8)+(Light.Device.screenX(getApplicationContext()) /20), (Light.Device.screenY(getApplicationContext()) / 10)));
                         filln.addView(cl);
                         rotating.cancel();
                         dialog.show();
@@ -843,6 +844,7 @@ public class Main extends Activity {
                                         dialog.dismiss();
                                     }
                                 });
+                                cl.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8)+(Light.Device.screenX(getApplicationContext()) /20), (Light.Device.screenY(getApplicationContext()) / 10)));
                                 filln.addView(cl);
                                 rotating.cancel();
                                 dialog.show();
@@ -970,6 +972,7 @@ public class Main extends Activity {
                         di.addView(subjName);
                         di.addView(hours);
                         di.addView(fullInfo);
+                        di.setBackgroundColor(color);
                         subjName.setTextColor(textColor);
                         hours.setTextColor(textColor);
                         fullInfo.setTextColor(textColor);
@@ -984,14 +987,19 @@ public class Main extends Activity {
                         fullInfo.setTypeface(custom_font);
                         Button close = new Button(getApplicationContext());
                         close.setText(R.string.close);
+                        close.setTextColor(textColor);
+                        close.setTypeface(custom_font);
                         close.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 dialog.dismiss();
                             }
                         });
-                        close.setBackgroundColor(Color.TRANSPARENT);
-                        close.setTextColor(textColor);
+                        close.setAllCaps(false);
+                        close.setBackground(getDrawable(R.drawable.back));
+                        close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6)+(Light.Device.screenX(getApplicationContext()) /20), (Light.Device.screenY(getApplicationContext()) / 10)));
+                        close.setTextSize((float) 25);
+
                         di.addView(close);
                         dialog.setContentView(di);
                         dialog.show();
@@ -1052,6 +1060,7 @@ public class Main extends Activity {
                     di.addView(subjName);
                     di.addView(hours);
                     di.addView(fullInfo);
+                    di.setBackgroundColor(color);
                     subjName.setTextColor(textColor);
                     hours.setTextColor(textColor);
                     fullInfo.setTextColor(textColor);
@@ -1066,14 +1075,19 @@ public class Main extends Activity {
                     fullInfo.setTypeface(custom_font);
                     Button close = new Button(getApplicationContext());
                     close.setText(R.string.close);
+                    close.setTextColor(textColor);
+                    close.setTextSize((float) 25);
+                    close.setTypeface(custom_font);
                     close.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             dialog.dismiss();
                         }
                     });
-                    close.setBackgroundColor(Color.TRANSPARENT);
-                    close.setTextColor(textColor);
+                    close.setAllCaps(false);
+                    close.setBackground(getDrawable(R.drawable.back));
+                    close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6)+(Light.Device.screenX(getApplicationContext()) /20), (Light.Device.screenY(getApplicationContext()) / 10)));
+
                     di.addView(close);
                     dialog.setContentView(di);
                     dialog.show();
@@ -1222,7 +1236,8 @@ public class Main extends Activity {
                                     }
                                 }
                             } else {
-                                popup("Failed To Download Excel File");
+//                                popup("Failed To Download Excel File");
+                                openApp();
                             }
                         }
 
@@ -1328,6 +1343,8 @@ class GetLink extends AsyncTask<String, String, String> {
         try {
             Document docu = Jsoup.connect(ser).get();
             Elements doc = docu.select("a");
+            logAll("LINKGET",docu.outerHtml());
+
             String file = null;
             for (int i = 0; i < doc.size(); i++) {
                 if (doc.get(i).attr("href").endsWith(".xls")) {
@@ -1343,7 +1360,21 @@ class GetLink extends AsyncTask<String, String, String> {
             return e.getMessage();
         }
     }
+    void logAll(String TAG, String longString) {
 
+        int splitSize = 300;
+
+        if (longString.length() > splitSize) {
+            int index = 0;
+            while (index < longString.length()-splitSize) {
+                Log.e(TAG, longString.substring(index, index + splitSize));
+                index += splitSize;
+            }
+            Log.e(TAG, longString.substring(index, longString.length()));
+        } else {
+            Log.e(TAG, longString.toString());
+        }
+    }
     @Override
     protected void onPostExecute(String s) {
         if (success) {
