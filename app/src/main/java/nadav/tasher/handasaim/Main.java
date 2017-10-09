@@ -55,6 +55,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import nadav.tasher.lightool.Light;
 
@@ -69,6 +70,7 @@ public class Main extends Activity {
     private int textColor = Color.WHITE;
     private int countheme = 0;
     private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#75a08e"), new Theme("#773272"), new Theme("#b2a03c"), new Theme("#425166"), new Theme("#133584"), new Theme("#112233"), new Theme("#325947"), new Theme("#413567"), new Theme("#012345"), new Theme("#448833"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme("#4fbc68"), new Theme("#7047a3"), new Theme("#000000"), new Theme("#557896"), new Theme(color)};
+    private String[] ees = new String[]{"Stop it! it tickles!", "Ok now stop", "This wont lead you anywhere", "I mean, you have already found me!", "How much wood could a wood chuck chuck if a wood chuck could chuck wood?", "This ain't fun anymore", "Don't mess with me!", "I'm an egg okay? now leave me alone!", "Do you wanna play a game?", "I'm gonna tell my boss you're interrupting my work!","This is messed up","Calling him to inform him","Supercalifragilisticexpialidocious","Ground Control To Major Tom","Houston, we have a problem","You can avoid reality, but you cannot avoid the consequences of avoiding reality.","You may not be interested in war, but war is interested in you.","Don't stay in bed, unless you can make money in bed.","C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.","I have not failed. I've just found 10,000 ways that won't work.","Black holes are where God divided by zero.","The significant problems we face cannot be solved at the same level of thinking we were at when we created them.","Knowledge speaks, but wisdom listens.","Sleep is an excellent way of listening to an opera.","Success usually comes to those who are too busy to be looking for it", "I'm not afraid of you", "High five?", "Go AWAY!","\uD83D\uDE02\uD83D\uDE01\uD83D\uDE00\uD83D\uDE18☺️\uD83D\uDE10\uD83D\uDE11\uD83D\uDE36"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +84,7 @@ public class Main extends Activity {
             sendBroadcast(new Intent(STOP_SERVICE));
             startService(new Intent(getApplicationContext(), PushService.class));
         }
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         color = sp.getInt("color", color);
         secolor = color + 0x333333;
         final Window window = getWindow();
@@ -347,7 +349,16 @@ public class Main extends Activity {
         });
         pop.show();
     }
-
+    private int lastegg=0;
+    private void showEasterEgg(){
+        int newrand=new Random().nextInt(ees.length);
+        if(lastegg!=newrand){
+            Toast.makeText(getApplicationContext(),ees[newrand],Toast.LENGTH_LONG).show();
+            lastegg=newrand;
+        }else{
+            showEasterEgg();
+        }
+    }
     private void view(final ArrayList<Class> classes) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         getWindow().setStatusBarColor(secolor);
@@ -385,10 +396,17 @@ public class Main extends Activity {
             public void onClick(View view) {
                 AlertDialog.Builder ab = new AlertDialog.Builder(Main.this);
                 ab.setTitle(R.string.app_name);
-                ab.setMessage("This App Was Made By NadavTasher, Sept. 2017\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
+                ab.setMessage("This App Was Made By NadavTasher\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
                 ab.setCancelable(true);
                 ab.setPositiveButton("Close", null);
                 ab.show();
+            }
+        });
+        nutIcon.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                showEasterEgg();
+                return true;
             }
         });
         navbarAll.addView(nutIcon);
@@ -766,6 +784,7 @@ public class Main extends Activity {
                                 dialog.dismiss();
                             }
                         });
+                        cl.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
                         filln.addView(cl);
                         rotating.cancel();
                         dialog.show();
@@ -843,6 +862,7 @@ public class Main extends Activity {
                                         dialog.dismiss();
                                     }
                                 });
+                                cl.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
                                 filln.addView(cl);
                                 rotating.cancel();
                                 dialog.show();
@@ -970,6 +990,7 @@ public class Main extends Activity {
                         di.addView(subjName);
                         di.addView(hours);
                         di.addView(fullInfo);
+                        di.setBackgroundColor(color);
                         subjName.setTextColor(textColor);
                         hours.setTextColor(textColor);
                         fullInfo.setTextColor(textColor);
@@ -984,14 +1005,18 @@ public class Main extends Activity {
                         fullInfo.setTypeface(custom_font);
                         Button close = new Button(getApplicationContext());
                         close.setText(R.string.close);
+                        close.setTextColor(textColor);
+                        close.setTypeface(custom_font);
                         close.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 dialog.dismiss();
                             }
                         });
-                        close.setBackgroundColor(Color.TRANSPARENT);
-                        close.setTextColor(textColor);
+                        close.setAllCaps(false);
+                        close.setBackground(getDrawable(R.drawable.back));
+                        close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
+                        close.setTextSize((float) 25);
                         di.addView(close);
                         dialog.setContentView(di);
                         dialog.show();
@@ -1052,6 +1077,7 @@ public class Main extends Activity {
                     di.addView(subjName);
                     di.addView(hours);
                     di.addView(fullInfo);
+                    di.setBackgroundColor(color);
                     subjName.setTextColor(textColor);
                     hours.setTextColor(textColor);
                     fullInfo.setTextColor(textColor);
@@ -1066,14 +1092,18 @@ public class Main extends Activity {
                     fullInfo.setTypeface(custom_font);
                     Button close = new Button(getApplicationContext());
                     close.setText(R.string.close);
+                    close.setTextColor(textColor);
+                    close.setTextSize((float) 25);
+                    close.setTypeface(custom_font);
                     close.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             dialog.dismiss();
                         }
                     });
-                    close.setBackgroundColor(Color.TRANSPARENT);
-                    close.setTextColor(textColor);
+                    close.setAllCaps(false);
+                    close.setBackground(getDrawable(R.drawable.back));
+                    close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
                     di.addView(close);
                     dialog.setContentView(di);
                     dialog.show();
@@ -1222,7 +1252,8 @@ public class Main extends Activity {
                                     }
                                 }
                             } else {
-                                popup("Failed To Download Excel File");
+                                //                                popup("Failed To Download Excel File");
+                                openApp();
                             }
                         }
 
@@ -1328,6 +1359,7 @@ class GetLink extends AsyncTask<String, String, String> {
         try {
             Document docu = Jsoup.connect(ser).get();
             Elements doc = docu.select("a");
+            logAll("LINKGET", docu.outerHtml());
             String file = null;
             for (int i = 0; i < doc.size(); i++) {
                 if (doc.get(i).attr("href").endsWith(".xls")) {
@@ -1341,6 +1373,20 @@ class GetLink extends AsyncTask<String, String, String> {
         } catch (IOException e) {
             success = false;
             return e.getMessage();
+        }
+    }
+
+    void logAll(String TAG, String longString) {
+        int splitSize = 300;
+        if (longString.length() > splitSize) {
+            int index = 0;
+            while (index < longString.length() - splitSize) {
+                Log.e(TAG, longString.substring(index, index + splitSize));
+                index += splitSize;
+            }
+            Log.e(TAG, longString.substring(index, longString.length()));
+        } else {
+            Log.e(TAG, longString.toString());
         }
     }
 
