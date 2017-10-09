@@ -120,7 +120,13 @@ public class Main extends Activity {
         }
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         color = sp.getInt("color", color);
-        secolor = color + 0x333333;
+        String hexColor = String.format("#%06X", (0xFFFFFF & color));
+
+        if(!hexColor.contains("D")&&!hexColor.contains("E")&&!hexColor.contains("F")) {
+            secolor = color + 0x333333;
+        }else{
+            secolor=color;
+        }
         final Window window = getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -694,7 +700,13 @@ public class Main extends Activity {
             public void onClick(View view) {
                 sp.edit().putInt("color", themes[countheme].color).commit();
                 color = themes[countheme].color;
-                secolor = color + 0x333333;
+                String hexColor = String.format("#%06X", (0xFFFFFF & color));
+
+                if(!hexColor.contains("D")&&!hexColor.contains("E")&&!hexColor.contains("F")) {
+                    secolor = color + 0x333333;
+                }else{
+                    secolor=color;
+                }
                 getWindow().setStatusBarColor(secolor);
                 getWindow().setNavigationBarColor(color);
                 sall.setBackgroundColor(color);
@@ -773,7 +785,13 @@ public class Main extends Activity {
                         if (colorEditor.getText().length() == 6) {
                             sp.edit().putInt("color", Color.parseColor("#" + colorEditor.getText().toString())).commit();
                             color = Color.parseColor("#" + colorEditor.getText().toString());
-                            secolor = color + 0x333333;
+                            String hexColor = String.format("#%06X", (0xFFFFFF & color));
+
+                            if(!hexColor.contains("D")&&!hexColor.contains("E")&&!hexColor.contains("F")) {
+                                secolor = color + 0x333333;
+                            }else{
+                                secolor=color;
+                            }
                             getWindow().setStatusBarColor(secolor);
                             getWindow().setNavigationBarColor(color);
                             sall.setBackgroundColor(color);
