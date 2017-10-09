@@ -255,13 +255,13 @@ public class Main extends Activity {
         spclSet.setText(R.string.spclstt);
         done.setText(R.string.dn);
         final Switch showTimes = new Switch(this);
-        showTimes.setChecked(false);
+        showTimes.setChecked(sp.getBoolean("show_time",false));
         showTimes.setText(R.string.sct);
         showTimes.setTextSize((float) 30);
         showTimes.setTypeface(custom_font);
         showTimes.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch textCo = new Switch(this);
-        textCo.setChecked(true);
+        textCo.setChecked(sp.getBoolean("fontWhite",true));
         textCo.setText(R.string.white);
         textCo.setTextSize((float) 30);
         textCo.setTypeface(custom_font);
@@ -279,13 +279,13 @@ public class Main extends Activity {
             }
         });
         final Switch showBreaks = new Switch(this);
-        showBreaks.setChecked(true);
+        showBreaks.setChecked(sp.getBoolean("breaks",true));
         showBreaks.setText(R.string.showbrk);
         showBreaks.setTextSize((float) 30);
         showBreaks.setTypeface(custom_font);
         showBreaks.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch pushNoti = new Switch(this);
-        pushNoti.setChecked(false);
+        pushNoti.setChecked(sp.getBoolean("push",false));
         pushNoti.setText(R.string.push);
         pushNoti.setTextSize((float) 30);
         pushNoti.setTypeface(custom_font);
