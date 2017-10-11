@@ -80,7 +80,6 @@ public class Main extends Activity {
     private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
     private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
     private int lastegg = 0;
-    private String allowed = "0123456789ABCDEFabcdef";
     private InputFilter filter = new InputFilter() {
 
         @Override
@@ -88,6 +87,7 @@ public class Main extends Activity {
             if (charSequence != null) {
                 for (int c = 0; c < charSequence.length(); c++) {
                     boolean charAllowed = false;
+                    String allowed = "0123456789ABCDEFabcdef";
                     for (int a = 0; a < allowed.length(); a++) {
                         if (charSequence.charAt(c) == allowed.charAt(a)) {
                             charAllowed = true;
@@ -107,11 +107,13 @@ public class Main extends Activity {
         super.onCreate(savedInstanceState);
         startApp();
     }
-    private void taskDesc(){
+
+    private void taskDesc() {
         Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
         ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, secolor);
         setTaskDescription(taskDesc);
     }
+
     private void splash() {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         if (sp.getBoolean("push", false)) {
@@ -121,17 +123,15 @@ public class Main extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         color = sp.getInt("color", color);
         String hexColor = String.format("#%06X", (0xFFFFFF & color));
-
-        if(!hexColor.contains("D")&&!hexColor.contains("E")&&!hexColor.contains("F")) {
+        if (!hexColor.contains("D") && !hexColor.contains("E") && !hexColor.contains("F")) {
             secolor = color + 0x333333;
-        }else{
-            secolor=color;
+        } else {
+            secolor = color;
         }
         final Window window = getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(color);
-
         window.setNavigationBarColor(color);
         taskDesc();
         LinearLayout ll = new LinearLayout(this);
@@ -270,13 +270,13 @@ public class Main extends Activity {
         spclSet.setText(R.string.spclstt);
         done.setText(R.string.dn);
         final Switch showTimes = new Switch(this);
-        showTimes.setChecked(sp.getBoolean("show_time",false));
+        showTimes.setChecked(sp.getBoolean("show_time", false));
         showTimes.setText(R.string.sct);
         showTimes.setTextSize((float) 30);
         showTimes.setTypeface(custom_font);
         showTimes.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch textCo = new Switch(this);
-        textCo.setChecked(sp.getBoolean("fontWhite",true));
+        textCo.setChecked(sp.getBoolean("fontWhite", true));
         textCo.setText(R.string.white);
         textCo.setTextSize((float) 30);
         textCo.setTypeface(custom_font);
@@ -294,13 +294,13 @@ public class Main extends Activity {
             }
         });
         final Switch showBreaks = new Switch(this);
-        showBreaks.setChecked(sp.getBoolean("breaks",true));
+        showBreaks.setChecked(sp.getBoolean("breaks", true));
         showBreaks.setText(R.string.showbrk);
         showBreaks.setTextSize((float) 30);
         showBreaks.setTypeface(custom_font);
         showBreaks.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch pushNoti = new Switch(this);
-        pushNoti.setChecked(sp.getBoolean("push",false));
+        pushNoti.setChecked(sp.getBoolean("push", false));
         pushNoti.setText(R.string.push);
         pushNoti.setTextSize((float) 30);
         pushNoti.setTypeface(custom_font);
@@ -359,7 +359,7 @@ public class Main extends Activity {
                     if (s.equals(serviceProvider) && b) {
                         openApp();
                     } else if (s.equals(serviceProvider) && !b) {
-//                        popup("Server Error: No Response From Service Provider.");
+                        //                        popup("Server Error: No Response From Service Provider.");
                         openApp();
                     }
                 }
@@ -433,7 +433,7 @@ public class Main extends Activity {
         newsIcon.setImageDrawable(getDrawable(R.drawable.ic_news));
         pushIcon.setLayoutParams(newsParms);
         final ObjectAnimator rotating = ObjectAnimator.ofFloat(pushIcon, View.TRANSLATION_X, Light.Animations.VIBRATE_SMALL);
-        pushIcon.setImageDrawable(getDrawable(R.drawable.ic_warn_s));
+        pushIcon.setImageDrawable(getDrawable(R.drawable.ic_info));
         nutIcon.setLayoutParams(nutParms);
         nutIcon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         nutIcon.setOnClickListener(new View.OnClickListener() {
@@ -542,7 +542,7 @@ public class Main extends Activity {
         pushSwitch.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
         final ImageView pushSwitch_ic = new ImageView(getApplicationContext());
         pushSwitch_ic.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
-        pushSwitch_ic.setImageDrawable(getDrawable(R.drawable.ic_warn_sett));
+        pushSwitch_ic.setImageDrawable(getDrawable(R.drawable.ic_info_sett));
         pushSwitch.addView(pushSwitch_ic);
         pushSwitch.setPadding(20, 20, 20, 20);
         pushSwitch.setGravity(Gravity.CENTER);
@@ -600,7 +600,7 @@ public class Main extends Activity {
                     }
                 }
             } else {
-//                popup("Downloaded Excel File Is Corrupted");
+                //                popup("Downloaded Excel File Is Corrupted");
                 openApp();
             }
         }
@@ -701,11 +701,10 @@ public class Main extends Activity {
                 sp.edit().putInt("color", themes[countheme].color).commit();
                 color = themes[countheme].color;
                 String hexColor = String.format("#%06X", (0xFFFFFF & color));
-
-                if(!hexColor.contains("D")&&!hexColor.contains("E")&&!hexColor.contains("F")) {
+                if (!hexColor.contains("D") && !hexColor.contains("E") && !hexColor.contains("F")) {
                     secolor = color + 0x333333;
-                }else{
-                    secolor=color;
+                } else {
+                    secolor = color;
                 }
                 getWindow().setStatusBarColor(secolor);
                 getWindow().setNavigationBarColor(color);
@@ -786,11 +785,10 @@ public class Main extends Activity {
                             sp.edit().putInt("color", Color.parseColor("#" + colorEditor.getText().toString())).commit();
                             color = Color.parseColor("#" + colorEditor.getText().toString());
                             String hexColor = String.format("#%06X", (0xFFFFFF & color));
-
-                            if(!hexColor.contains("D")&&!hexColor.contains("E")&&!hexColor.contains("F")) {
+                            if (!hexColor.contains("D") && !hexColor.contains("E") && !hexColor.contains("F")) {
                                 secolor = color + 0x333333;
-                            }else{
-                                secolor=color;
+                            } else {
+                                secolor = color;
                             }
                             getWindow().setStatusBarColor(secolor);
                             getWindow().setNavigationBarColor(color);
@@ -924,7 +922,7 @@ public class Main extends Activity {
                         Button cl = new Button(getApplicationContext());
                         cl.setText(R.string.cls);
                         cl.setAllCaps(false);
-                        cl.setBackground(getDrawable(R.drawable.back));
+                        cl.setBackground(getDrawable(R.drawable.button));
                         cl.setTextSize((float) 22);
                         cl.setTextColor(textColor);
                         cl.setTypeface(custom_font);
@@ -1002,7 +1000,7 @@ public class Main extends Activity {
                                 Button cl = new Button(getApplicationContext());
                                 cl.setText(R.string.cls);
                                 cl.setAllCaps(false);
-                                cl.setBackground(getDrawable(R.drawable.back));
+                                cl.setBackground(getDrawable(R.drawable.button));
                                 cl.setTextSize((float) 22);
                                 cl.setTextColor(textColor);
                                 cl.setTypeface(custom_font);
@@ -1018,6 +1016,7 @@ public class Main extends Activity {
                                 dialog.show();
                             }
                         } catch (JSONException e) {
+                            e.printStackTrace();
                         }
                     }
                 });
@@ -1164,7 +1163,7 @@ public class Main extends Activity {
                             }
                         });
                         close.setAllCaps(false);
-                        close.setBackground(getDrawable(R.drawable.back));
+                        close.setBackground(getDrawable(R.drawable.button));
                         close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
                         close.setTextSize((float) 25);
                         di.addView(close);
@@ -1199,7 +1198,8 @@ public class Main extends Activity {
                 before = fclass.classes.get(s).hour + ". ";
             }
             String total = before + fclass.classes.get(s).name;
-            subj.setText(total);
+            String main = "\u200F" + total;
+            subj.setText(main);
             subj.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
             subj.setTextSize((float) fontSize - 2);
             subj.setTextColor(textColor);
@@ -1252,7 +1252,7 @@ public class Main extends Activity {
                         }
                     });
                     close.setAllCaps(false);
-                    close.setBackground(getDrawable(R.drawable.back));
+                    close.setBackground(getDrawable(R.drawable.button));
                     close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
                     di.addView(close);
                     dialog.setContentView(di);
@@ -1422,7 +1422,7 @@ public class Main extends Activity {
 
             @Override
             public void onFail(String e) {
-//                popup("Failed");
+                //                popup("Failed");
                 openApp();
             }
 
@@ -1528,7 +1528,7 @@ class GetLink extends AsyncTask<String, String, String> {
         }
     }
 
-    void logAll(String TAG, String longString) {
+    private void logAll(String TAG, String longString) {
         int splitSize = 300;
         if (longString.length() > splitSize) {
             int index = 0;
@@ -1538,7 +1538,7 @@ class GetLink extends AsyncTask<String, String, String> {
             }
             Log.e(TAG, longString.substring(index, longString.length()));
         } else {
-            Log.e(TAG, longString.toString());
+            Log.e(TAG, longString);
         }
     }
 
