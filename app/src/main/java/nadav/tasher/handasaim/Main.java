@@ -151,6 +151,8 @@ public class Main extends Activity {
         tv.setGravity(Gravity.CENTER);
         tv.setTextColor(Color.WHITE);
         tv.setTextSize(21);
+        final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+        tv.setTypeface(custom_font);
         String versionin = "v" + Light.Device.getVersionName(getApplicationContext(), getPackageName());
         tv.setText(versionin);
         tv.setLayoutParams(new LinearLayout.LayoutParams(is, ViewGroup.LayoutParams.WRAP_CONTENT));
