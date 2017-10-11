@@ -71,7 +71,7 @@ public class Main extends Activity {
     static final String pushProvider = "http://handasaim.thepuzik.com/push/push.php";
     static final String STOP_SERVICE = "nadav.tasher.handasaim.STOP_SERVICE";
     private final String serviceProvider = "http://handasaim.co.il";
-    private int color = Color.parseColor("#1b5d96");
+    private int color = Color.parseColor("#1b5c96");
     private int secolor = color + 0x333333;
     private String day;
     private Class currentClass;
