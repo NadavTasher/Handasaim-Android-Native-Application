@@ -217,7 +217,7 @@ public class Main extends Activity {
         welcome.setText(R.string.wlc);
         icon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         int is = (int) (Light.Device.screenX(getApplicationContext()) * 0.8);
-        icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
+        icon.setLayoutParams(new LinearLayout.LayoutParams(is, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
         ObjectAnimator iconSlide = ObjectAnimator.ofFloat(icon, View.TRANSLATION_X, -Light.Device.screenX(getApplicationContext()), 0);
         iconSlide.setDuration(1000);
         iconSlide.addListener(new Animator.AnimatorListener() {
@@ -274,7 +274,7 @@ public class Main extends Activity {
         part2.addView(clascroll);
         part2.addView(next);
         classs.setGravity(Gravity.CENTER);
-        clascroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 2));
+        clascroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
         for (int c = 0; c < classes.size(); c++) {
             RadioButton rb = new RadioButton(this);
             rb.setText(classes.get(c).name);
@@ -294,6 +294,9 @@ public class Main extends Activity {
             }
         });
         //part3
+        LinearLayout spcl = new LinearLayout(getApplicationContext());
+        spcl.setOrientation(LinearLayout.VERTICAL);
+        spcl.setGravity(Gravity.CENTER);
         TextView spclSet = new TextView(this);
         Button done = new Button(this);
         done.setTypeface(custom_font);
@@ -341,11 +344,13 @@ public class Main extends Activity {
         pushNoti.setTextSize((float) 30);
         pushNoti.setTypeface(custom_font);
         pushNoti.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
+        spcl.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 9, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
         part3.addView(spclSet);
-        part3.addView(showTimes);
-        part3.addView(showBreaks);
-        part3.addView(textCo);
-        part3.addView(pushNoti);
+        spcl.addView(showTimes);
+        spcl.addView(showBreaks);
+        spcl.addView(textCo);
+        spcl.addView(pushNoti);
+        part3.addView(spcl);
         part3.addView(done);
         done.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -396,7 +401,7 @@ public class Main extends Activity {
                         openApp();
                     } else if (s.equals(serviceProvider) && !b) {
                         //                        popup("Server Error: No Response From Service Provider.");
-                        openApp();
+                        checkInternet();
                     }
                 }
             }).execute(serviceProvider);
