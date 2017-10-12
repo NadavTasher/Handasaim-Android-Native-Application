@@ -18,6 +18,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -102,6 +103,7 @@ public class Main extends Activity {
             return null;
         }
     };
+    private int classAnimElapsed = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,9 +146,11 @@ public class Main extends Activity {
         int is = (int) (Light.Device.screenX(getApplicationContext()) * 0.8);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
         ll.addView(icon);
-        ProgressBar pb = new ProgressBar(this);
+        final ProgressBar pb = new ProgressBar(this);
         pb.setIndeterminate(true);
-        ll.addView(pb);
+                ll.addView(pb);
+        pb.setVisibility(View.GONE);
+        pb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,(int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
         final TextView tv = new TextView(getApplicationContext());
         tv.setGravity(Gravity.CENTER);
         tv.setTextColor(Color.WHITE);
@@ -155,21 +159,18 @@ public class Main extends Activity {
         tv.setTypeface(custom_font);
         String versionin = "v" + Light.Device.getVersionName(getApplicationContext(), getPackageName());
         tv.setText(versionin);
-        tv.setLayoutParams(new LinearLayout.LayoutParams(is, ViewGroup.LayoutParams.WRAP_CONTENT));
-        ObjectAnimator fadeAway = ObjectAnimator.ofFloat(tv, View.ALPHA, Light.Animations.VISIBLE_TO_INVISIBLE);
-        fadeAway.setDuration(1000);
-        fadeAway.addListener(new Animator.AnimatorListener() {
+        tv.setLayoutParams(new LinearLayout.LayoutParams(is, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
+        final ObjectAnimator slideRC=ObjectAnimator.ofFloat(tv,View.TRANSLATION_X, Light.Animations.getSlideRight(getApplicationContext()));
+        slideRC.setDuration(500);
+        slideRC.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
             }
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                int newrand = new Random().nextInt(ees.length);
-                tv.setText("\"" + ees[newrand] + "\"");
-                ObjectAnimator fadeBack = ObjectAnimator.ofFloat(tv, View.ALPHA, Light.Animations.INVISIBLE_TO_VISIBLE);
-                fadeBack.setDuration(1000);
-                fadeBack.start();
+                tv.setVisibility(View.GONE);
+                pb.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -180,7 +181,33 @@ public class Main extends Activity {
             public void onAnimationRepeat(Animator animator) {
             }
         });
-        fadeAway.start();
+        ObjectAnimator slideR = ObjectAnimator.ofFloat(tv, View.TRANSLATION_X, -Light.Device.screenX(getApplicationContext()), 0);
+        slideR.setDuration(500);
+        slideR.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        slideRC.start();
+                    }
+                }, 500);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+            }
+        });
+        slideR.start();
+        //Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f
         ll.addView(tv);
         setContentView(ll);
     }
@@ -371,7 +398,7 @@ public class Main extends Activity {
                                 new Light.Net.PHP.Post("http://handasaim.thepuzik.com/new.php", parms, new Light.Net.PHP.Post.OnPost() {
                                     @Override
                                     public void onPost(String s) {
-                                        Log.i("COUNT", s);
+//                                        Log.i("COUNT", s);
                                         view(classes);
                                     }
                                 }).execute();
@@ -435,12 +462,13 @@ public class Main extends Activity {
     }
 
     private void showEasterEgg() {
-        int newrand = new Random().nextInt(infact.length);
-        if (lastegg != newrand) {
+        int which = new Random().nextInt(2);
+        if(which==0) {
+            int newrand = new Random().nextInt(infact.length);
             Toast.makeText(getApplicationContext(), infact[newrand], Toast.LENGTH_LONG).show();
-            lastegg = newrand;
-        } else {
-            showEasterEgg();
+        }else{
+            int newrand = new Random().nextInt(ees.length);
+            Toast.makeText(getApplicationContext(), "\""+ees[newrand]+"\"", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -907,6 +935,7 @@ public class Main extends Activity {
         newsIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                newsIcon.setClickable(false);
                 final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
                 final int fontSize = sp.getInt("font", 32);
                 final LinearLayout newsll = new LinearLayout(getApplicationContext());
@@ -933,6 +962,7 @@ public class Main extends Activity {
                 new GetNews(serviceProvider, new GetNews.GotNews() {
                     @Override
                     public void onNewsGet(final ArrayList<Link> link) {
+                        newsIcon.setClickable(true);
                         for (int i = 0; i < link.size(); i++) {
                             Button cls = new Button(getApplicationContext());
                             cls.setPadding(10, 10, 10, 10);
@@ -981,6 +1011,7 @@ public class Main extends Activity {
 
                     @Override
                     public void onFail(ArrayList<Link> e) {
+                        newsIcon.setClickable(true);
                     }
                 }).execute("");
             }
@@ -988,6 +1019,7 @@ public class Main extends Activity {
         pushIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                pushIcon.setClickable(false);
                 final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
                 final int fontSize = sp.getInt("font", 32);
                 final LinearLayout newsll = new LinearLayout(getApplicationContext());
@@ -1055,9 +1087,11 @@ public class Main extends Activity {
                                 filln.addView(cl);
                                 rotating.cancel();
                                 dialog.show();
+                                pushIcon.setClickable(true);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            pushIcon.setClickable(true);
                         }
                     }
                 });
@@ -1140,6 +1174,7 @@ public class Main extends Activity {
     }
 
     private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize, boolean breakTimes, boolean showOrgC) {
+        classAnimElapsed = 0;
         LinearLayout all = new LinearLayout(this);
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
@@ -1147,7 +1182,7 @@ public class Main extends Activity {
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
         for (int s = 0; s < fclass.classes.size(); s++) {
             if (getBreak(fclass.classes.get(s).hour - 1) != -1 && breakTimes) {
-                Button breakt = new Button(this);
+                final Button breakt = new Button(this);
                 breakt.setText("הפסקה, " + getBreak(fclass.classes.get(s).hour - 1) + " דקות");
                 breakt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                 breakt.setTextSize((float) fontSize - 2);
@@ -1213,7 +1248,7 @@ public class Main extends Activity {
                     }
                 });
             }
-            LinearLayout fsubj = new LinearLayout(getApplicationContext());
+            final LinearLayout fsubj = new LinearLayout(getApplicationContext());
             fsubj.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
             fsubj.setGravity(Gravity.CENTER);
             //            fsubj.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);
@@ -1419,7 +1454,7 @@ public class Main extends Activity {
             @Override
             public void onLinkGet(String link) {
                 if (link != null) {
-                    Log.i("LINK", link);
+//                    Log.i("LINK", link);
                     new Light.Net.NetFile.FileDownloader(link, new File(getApplicationContext().getFilesDir(), "hs.xls"), new Light.Net.NetFile.FileDownloader.OnDownload() {
                         @Override
                         public void onFinish(File file, boolean b) {
@@ -1427,11 +1462,11 @@ public class Main extends Activity {
                                 ArrayList<Class> classes = readExcelFile(file);
                                 day = readExcelDay(file);
                                 if (classes != null) {
-                                    for (int cl = 0; cl < classes.size(); cl++) {
-                                        for (int su = 0; su < classes.get(cl).classes.size(); su++) {
-                                            Log.i(classes.get(cl).name + " " + classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
-                                        }
-                                    }
+//                                    for (int cl = 0; cl < classes.size(); cl++) {
+//                                        for (int su = 0; su < classes.get(cl).classes.size(); su++) {
+//                                            Log.i(classes.get(cl).name + " " + classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
+//                                        }
+//                                    }
                                     if (!sp.getBoolean("first", true)) {
                                         if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
                                             welcome(classes, true);
@@ -1557,7 +1592,7 @@ class GetLink extends AsyncTask<String, String, String> {
             for (int i = 0; i < doc.size(); i++) {
                 if (doc.get(i).attr("href").endsWith(".xls")) {
                     file = doc.get(i).attr("href");
-                    Log.i("FILE", file);
+//                    Log.i("FILE", file);
                     break;
                 }
             }
