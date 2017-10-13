@@ -49,7 +49,7 @@ public class PushService extends Service {
         };
         registerReceiver(stopReceiver,new IntentFilter(Main.STOP_SERVICE));
         listenForPush();
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
     private void listenForPush(){
         final SharedPreferences sp = getSharedPreferences("app",Context.MODE_PRIVATE);
@@ -92,6 +92,8 @@ public class PushService extends Service {
                         public void onPing(String s, boolean b) {
                             if(b){
                                 p.execute("");
+                            }else{
+                                Log.i("HandasaimPushService","Failed To Connect To Server");
                             }
                         }
                     }).execute("http://handasaim.thepuzik.com");

@@ -7,8 +7,8 @@ android {
         applicationId "nadav.tasher.handasaim"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 15
-        versionName '2.4'
+        versionCode 16
+        versionName '2.5'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -35,6 +35,6 @@ dependencies {
     compile project(':lightool')
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/poi.jar')
-    compile files('libs/jsoup.jar')
     compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
+    compile 'org.jsoup:jsoup:1.10.3'
 }

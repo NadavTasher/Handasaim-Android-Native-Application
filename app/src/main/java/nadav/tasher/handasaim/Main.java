@@ -60,9 +60,16 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -103,7 +110,6 @@ public class Main extends Activity {
             return null;
         }
     };
-    private int classAnimElapsed = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,9 +154,9 @@ public class Main extends Activity {
         ll.addView(icon);
         final ProgressBar pb = new ProgressBar(this);
         pb.setIndeterminate(true);
-                ll.addView(pb);
+        ll.addView(pb);
         pb.setVisibility(View.GONE);
-        pb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,(int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
+        pb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
         final TextView tv = new TextView(getApplicationContext());
         tv.setGravity(Gravity.CENTER);
         tv.setTextColor(Color.WHITE);
@@ -160,7 +166,7 @@ public class Main extends Activity {
         String versionin = "v" + Light.Device.getVersionName(getApplicationContext(), getPackageName());
         tv.setText(versionin);
         tv.setLayoutParams(new LinearLayout.LayoutParams(is, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
-        final ObjectAnimator slideRC=ObjectAnimator.ofFloat(tv,View.TRANSLATION_X, Light.Animations.getSlideRight(getApplicationContext()));
+        final ObjectAnimator slideRC = ObjectAnimator.ofFloat(tv, View.TRANSLATION_X, Light.Animations.getSlideRight(getApplicationContext()));
         slideRC.setDuration(500);
         slideRC.addListener(new Animator.AnimatorListener() {
             @Override
@@ -398,7 +404,7 @@ public class Main extends Activity {
                                 new Light.Net.PHP.Post("http://handasaim.thepuzik.com/new.php", parms, new Light.Net.PHP.Post.OnPost() {
                                     @Override
                                     public void onPost(String s) {
-//                                        Log.i("COUNT", s);
+                                        //                                        Log.i("COUNT", s);
                                         view(classes);
                                     }
                                 }).execute();
@@ -463,12 +469,12 @@ public class Main extends Activity {
 
     private void showEasterEgg() {
         int which = new Random().nextInt(2);
-        if(which==0) {
+        if (which == 0) {
             int newrand = new Random().nextInt(infact.length);
             Toast.makeText(getApplicationContext(), infact[newrand], Toast.LENGTH_LONG).show();
-        }else{
+        } else {
             int newrand = new Random().nextInt(ees.length);
-            Toast.makeText(getApplicationContext(), "\""+ees[newrand]+"\"", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "\"" + ees[newrand] + "\"", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -1054,7 +1060,7 @@ public class Main extends Activity {
                                 JSONArray pushesArray = mainObject.getJSONArray("pushes");
                                 for (int pA = pushesArray.length() - 1; pA >= 0; pA--) {
                                     JSONObject push = pushesArray.getJSONObject(pA);
-                                    String text = push.getString("data");
+                                    final String text = push.getString("data");
                                     Button cls = new Button(getApplicationContext());
                                     cls.setPadding(10, 10, 10, 10);
                                     cls.setTextSize((float) fontSize);
@@ -1069,6 +1075,12 @@ public class Main extends Activity {
                                     cls.setTypeface(custom_font);
                                     cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 6)));
                                     newsll.addView(cls);
+                                    cls.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
+                                        }
+                                    });
                                 }
                                 Button cl = new Button(getApplicationContext());
                                 cl.setText(R.string.cls);
@@ -1101,6 +1113,9 @@ public class Main extends Activity {
                         public void onPing(String s, boolean b) {
                             if (b) {
                                 p.execute("");
+                            }else{
+                                pushIcon.setClickable(true);
+                                rotating.cancel();
                             }
                         }
                     }).execute("http://handasaim.thepuzik.com");
@@ -1174,7 +1189,6 @@ public class Main extends Activity {
     }
 
     private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize, boolean breakTimes, boolean showOrgC) {
-        classAnimElapsed = 0;
         LinearLayout all = new LinearLayout(this);
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
@@ -1449,24 +1463,24 @@ public class Main extends Activity {
 
     private void openApp() {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-        String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/";
+        String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/index.php";
         new GetLink(service, new GetLink.GotLink() {
             @Override
             public void onLinkGet(String link) {
                 if (link != null) {
-//                    Log.i("LINK", link);
-                    new Light.Net.NetFile.FileDownloader(link, new File(getApplicationContext().getFilesDir(), "hs.xls"), new Light.Net.NetFile.FileDownloader.OnDownload() {
+                    //                    Log.i("LINK", link);
+                    new FileDownloader(link, new File(getApplicationContext().getFilesDir(), "hs.xls"), new FileDownloader.OnDownload() {
                         @Override
                         public void onFinish(File file, boolean b) {
                             if (b) {
                                 ArrayList<Class> classes = readExcelFile(file);
                                 day = readExcelDay(file);
                                 if (classes != null) {
-//                                    for (int cl = 0; cl < classes.size(); cl++) {
-//                                        for (int su = 0; su < classes.get(cl).classes.size(); su++) {
-//                                            Log.i(classes.get(cl).name + " " + classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
-//                                        }
-//                                    }
+                                    //                                    for (int cl = 0; cl < classes.size(); cl++) {
+                                    //                                        for (int su = 0; su < classes.get(cl).classes.size(); su++) {
+                                    //                                            Log.i(classes.get(cl).name + " " + classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
+                                    //                                        }
+                                    //                                    }
                                     if (!sp.getBoolean("first", true)) {
                                         if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
                                             welcome(classes, true);
@@ -1592,7 +1606,7 @@ class GetLink extends AsyncTask<String, String, String> {
             for (int i = 0; i < doc.size(); i++) {
                 if (doc.get(i).attr("href").endsWith(".xls")) {
                     file = doc.get(i).attr("href");
-//                    Log.i("FILE", file);
+                    Log.i("FILE", file);
                     break;
                 }
             }
@@ -1677,5 +1691,77 @@ class GetNews extends AsyncTask<String, String, ArrayList<Main.Link>> {
         void onNewsGet(ArrayList<Main.Link> link);
 
         void onFail(ArrayList<Main.Link> e);
+    }
+}
+
+class FileDownloader extends AsyncTask<String, String, String> {
+    private String furl;
+    private File fdpath;
+    private boolean available;
+    private FileDownloader.OnDownload oe;
+
+    FileDownloader(String url, File path, FileDownloader.OnDownload onfile) {
+        oe = onfile;
+        furl = url;
+        fdpath = path;
+    }
+
+    private boolean check() {
+        try {
+            HttpURLConnection.setFollowRedirects(false);
+            HttpURLConnection con = (HttpURLConnection) new URL(furl).openConnection();
+            return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    protected String doInBackground(String... comment) {
+        int perc = 0;
+        if (check()) {
+            available = true;
+            int count;
+            try {
+                URL url = new URL(furl);
+                URLConnection conection = url.openConnection();
+                conection.connect();
+                int lenghtOfFile = conection.getContentLength();
+                InputStream input = new BufferedInputStream(url.openStream(), 8192);
+                OutputStream output = new FileOutputStream(fdpath);
+                byte data[] = new byte[1024];
+                long total = 0;
+                while ((count = input.read(data)) != -1) {
+                    output.write(data, 0, count);
+                    total += count;
+                    if (perc < (int) (total * 100 / lenghtOfFile)) {
+                        perc++;
+                        oe.onProgressChanged(fdpath, (int) (total * 100 / lenghtOfFile));
+                    }
+                }
+                output.flush();
+                output.close();
+                input.close();
+            } catch (Exception e) {
+                Log.e("Error: ", e.getMessage());
+            }
+        } else {
+            available = false;
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(String file_url) {
+        if (oe != null) {
+            oe.onFinish(fdpath, available);
+        }
+    }
+
+    interface OnDownload {
+        void onFinish(File output, boolean isAvailable);
+
+        void onProgressChanged(File output, int percent);
     }
 }
