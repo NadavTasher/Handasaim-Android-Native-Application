@@ -36,5 +36,5 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/poi.jar')
     compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
-    compile 'org.jsoup:jsoup:1.10.3'
+    compile files('libs/jsoup.jar')
 }
