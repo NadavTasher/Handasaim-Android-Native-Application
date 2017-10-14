@@ -31,9 +31,7 @@
         </receiver>
 
         <service
-            android:name=".PushService"
-            android:enabled="true"
-            android:exported="false">
+            android:name=".PushService">
         </service>
     </application>
 

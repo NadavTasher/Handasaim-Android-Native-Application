@@ -49,7 +49,7 @@ public class PushService extends Service {
         };
         registerReceiver(stopReceiver,new IntentFilter(Main.STOP_SERVICE));
         listenForPush();
-        return START_REDELIVER_INTENT;
+        return START_STICKY;
     }
     private void listenForPush(){
         final SharedPreferences sp = getSharedPreferences("app",Context.MODE_PRIVATE);
