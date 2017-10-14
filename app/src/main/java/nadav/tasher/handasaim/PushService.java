@@ -77,6 +77,7 @@ public class PushService extends Service {
                                     String timeM=time.getString("m");
                                     if(!sp.getBoolean(id,false)){
                                         sendNotification(text,timeH,timeM);
+                                        Log.i("HandasaimPushService","Notify");
                                         sp.edit().putBoolean(id,true).commit();
                                     }
                                 }
