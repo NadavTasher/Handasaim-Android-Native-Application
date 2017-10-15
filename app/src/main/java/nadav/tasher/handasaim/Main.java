@@ -152,7 +152,7 @@ public class Main extends Activity {
         ll.setGravity(Gravity.CENTER);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setBackgroundColor(color);
-        ImageView icon = new ImageView(this);
+        final ImageView icon = new ImageView(this);
         icon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         int is = (int) (Light.Device.screenX(getApplicationContext()) * 0.8);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
@@ -171,6 +171,8 @@ public class Main extends Activity {
         String versionin = "v" + Light.Device.getVersionName(getApplicationContext(), getPackageName());
         tv.setText(versionin);
         tv.setLayoutParams(new LinearLayout.LayoutParams(is, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
+        final Animation flip = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        flip.setDuration(300);
         final ObjectAnimator slideRC = ObjectAnimator.ofFloat(tv, View.TRANSLATION_X, Light.Animations.getSlideRight(getApplicationContext()));
         slideRC.setDuration(500);
         slideRC.addListener(new Animator.AnimatorListener() {
@@ -201,6 +203,24 @@ public class Main extends Activity {
 
             @Override
             public void onAnimationEnd(Animator animator) {
+                tv.startAnimation(flip);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+            }
+        });
+        flip.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     public void run() {
@@ -210,11 +230,7 @@ public class Main extends Activity {
             }
 
             @Override
-            public void onAnimationCancel(Animator animator) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
+            public void onAnimationRepeat(Animation animation) {
             }
         });
         slideR.start();
@@ -377,7 +393,7 @@ public class Main extends Activity {
         showBreaks.setTypeface(custom_font);
         showBreaks.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch pushNoti = new Switch(this);
-        pushNoti.setChecked(sp.getBoolean("push", false));
+        pushNoti.setChecked(sp.getBoolean("push", true));
         pushNoti.setText(R.string.push);
         pushNoti.setTextSize((float) 30);
         pushNoti.setTypeface(custom_font);
