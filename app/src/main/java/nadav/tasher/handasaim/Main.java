@@ -239,6 +239,10 @@ public class Main extends Activity {
         setContentView(ll);
     }
 
+    private void newsSplash(){
+
+    }
+
     private void welcome(final ArrayList<Class> classes, final boolean renew) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         LinearLayout part1 = new LinearLayout(this);
