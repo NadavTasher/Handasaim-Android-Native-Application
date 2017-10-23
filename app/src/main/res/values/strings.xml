@@ -16,4 +16,6 @@
     <string name="cls">Close</string>
     <string name="push">Push Notifications</string>
     <string name="sv">Save</string>
+    <string name="messageboard">Message Board</string>
+    <string name="psay">Principals Saying</string>
 </resources>

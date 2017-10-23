@@ -239,8 +239,36 @@ public class Main extends Activity {
         setContentView(ll);
     }
 
-    private void newsSplash(){
-
+    private void newsSplash(ArrayList<Class> classes){
+        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
+        final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+        if(!sp.getBoolean("installed_pass_news_code",false)){
+            view(classes);
+        }
+        LinearLayout newsAll=new LinearLayout(getApplicationContext());
+        newsAll.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.START);
+        newsAll.setBackgroundColor(color);
+        TextView messBoardTitle=new TextView(getApplicationContext()),prinSays=new TextView(getApplicationContext());
+        messBoardTitle.setText(R.string.messageboard);
+        prinSays.setText(R.string.psay);
+        prinSays.setGravity(Gravity.CENTER);
+        messBoardTitle.setGravity(Gravity.CENTER);
+        prinSays.setTypeface(custom_font);
+        messBoardTitle.setTypeface(custom_font);
+        messBoardTitle.setTextSize(sp.getInt("font", 32)+2);
+        prinSays.setTextSize(sp.getInt("font", 32)+2);
+        LinearLayout news=new LinearLayout(getApplicationContext());
+        news.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.START);
+        newsAll.setOrientation(LinearLayout.VERTICAL);
+        newsAll.setOrientation(LinearLayout.VERTICAL);
+        newsAll.setPadding(20,20,20,20);
+        newsAll.addView(messBoardTitle);
+        newsAll.addView(news);
+        newsAll.addView(prinSays);
+//        newsAll.addView(messBoardTitle);
+        ScrollView newsAllSV=new ScrollView(getApplicationContext());
+        newsAllSV.addView(newsAllSV);
+        setContentView(newsAllSV);
     }
 
     private void welcome(final ArrayList<Class> classes, final boolean renew) {
@@ -1510,7 +1538,8 @@ public class Main extends Activity {
                                         if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
                                             welcome(classes, true);
                                         } else {
-                                            view(classes);
+//                                            view(classes);
+                                            newsSplash(classes);
                                             startPush();
                                         }
                                     } else {
@@ -1532,7 +1561,8 @@ public class Main extends Activity {
                         }
                     }).execute();
                 } else {
-                    popup("Could Not Fetch Link, Please Try Disconnecting From Wi-Fi");
+//                    popup("Could Not Fetch Link, Please Try Disconnecting From Wi-Fi");
+                    openApp();
                 }
             }
 
