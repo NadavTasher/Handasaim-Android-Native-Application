@@ -79,6 +79,8 @@ import nadav.tasher.lightool.Light;
 
 public class Main extends Activity {
     static final String pushProvider = "http://handasaim.thepuzik.com/push/push.php";
+    static final String keyProvider = "http://handasaim.thepuzik.com/keys/key.php";
+    static final String puzProvider = "http://handasaim.thepuzik.com";
     static final String STOP_SERVICE = "nadav.tasher.handasaim.STOP_SERVICE";
     private final String serviceProvider = "http://handasaim.co.il";
     private int color = Color.parseColor("#1b5c96");
@@ -90,7 +92,7 @@ public class Main extends Activity {
     private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
     private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
     private String[] infact = new String[]{"Every year more than 2500 left-handed people are killed from using right-handed products.", "In 1895 Hampshire police handed out the first ever speeding ticket, fining a man for doing 6mph!", "Over 1000 birds a year die from smashing into windows.", "Squirrels forget where they hide about half of their nuts.", "The average person walks the equivalent of twice around the world in a lifetime.", "A company in Taiwan makes dinnerware out of wheat, so you can eat your plate!", "An apple, potato, and onion all taste the same if you eat them with your nose plugged.", "Dying is illegal in the Houses of Parliaments – This has been voted as the most ridiculous law by the British citizens.", "The first alarm clock could only ring at 4am.", "If you leave everything to the last minute… it will only take a minute.", "Every human spent about half an hour as a single cell.", "The Twitter bird actually has a name – Larry.", "Sea otters hold hands when they sleep so they don’t drift away from each other.", "The French language has seventeen different words for ‘surrender’.", "The Titanic was the first ship to use the SOS signal.", "A baby octopus is about the size of a flea when it is born.", "You cannot snore and dream at the same time.", "A toaster uses almost half as much energy as a full-sized oven.", "If you consistently fart for 6 years & 9 months, enough gas is produced to create the energy of an atomic bomb!", "An eagle can kill a young deer and fly away with it.", "Polar bears can eat as many as 86 penguins in a single sitting.", "If Pinokio says “My Nose Will Grow Now”, it would cause a paradox.", "Bananas are curved because they grow towards the sun.", "Human saliva has a boiling point three times that of regular water.", "Cherophobia is the fear of fun.", "When hippos are upset, their sweat turns red.", "Pteronophobia is the fear of being tickled by feathers!", "Banging your head against a wall burns 150 calories an hour."};
-
+    private int keyentering=0;
     private InputFilter filter = new InputFilter() {
 
         @Override
@@ -99,6 +101,27 @@ public class Main extends Activity {
                 for (int c = 0; c < charSequence.length(); c++) {
                     boolean charAllowed = false;
                     String allowed = "0123456789ABCDEFabcdef";
+                    for (int a = 0; a < allowed.length(); a++) {
+                        if (charSequence.charAt(c) == allowed.charAt(a)) {
+                            charAllowed = true;
+                            break;
+                        }
+                    }
+                    if (!charAllowed) return "";
+                }
+                return null;
+            }
+            return null;
+        }
+    };
+    private InputFilter codeFilter = new InputFilter() {
+
+        @Override
+        public CharSequence filter(CharSequence charSequence, int i, int i1, Spanned spanned, int i2, int i3) {
+            if (charSequence != null) {
+                for (int c = 0; c < charSequence.length(); c++) {
+                    boolean charAllowed = false;
+                    String allowed = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
                     for (int a = 0; a < allowed.length(); a++) {
                         if (charSequence.charAt(c) == allowed.charAt(a)) {
                             charAllowed = true;
@@ -622,7 +645,7 @@ public class Main extends Activity {
         checkInternet();
     }
 
-    void popup(String text) {
+    private void popup(String text) {
         AlertDialog.Builder pop = new AlertDialog.Builder(this);
         pop.setCancelable(true);
         pop.setMessage(text);
@@ -639,6 +662,84 @@ public class Main extends Activity {
             }
         });
         pop.show();
+    }
+    private void loadKey(int type){
+        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
+        switch(type){
+            case 1:
+                sp.edit().putBoolean("installed_pass_news_code",true).commit();
+                break;
+            default:
+                break;
+        }
+        Toast.makeText(getApplicationContext(),"Key Loaded Successfully.",Toast.LENGTH_SHORT).show();
+    }
+    private void checkAndLoadKey(final String key){
+        new Light.Net.Pinger(10000, new Light.Net.Pinger.OnEnd() {
+            @Override
+            public void onPing(String s, boolean b) {
+                if(b){
+                    ArrayList<Light.Net.PHP.Post.PHPParameter> parms= new ArrayList<>();
+                    parms.add(new Light.Net.PHP.Post.PHPParameter("enable",key));
+                    new Light.Net.PHP.Post(keyProvider, parms, new Light.Net.PHP.Post.OnPost() {
+                        @Override
+                        public void onPost(String s) {
+                            Log.i("Response",s);
+                            try {
+                                JSONObject o=new JSONObject(s);
+                                if(o.getBoolean("success")){
+                                    if(o.getBoolean("enable")){
+                                        if(o.getString("key").equals(key)){
+                                            loadKey(o.getInt("type"));
+                                        }else{
+                                            Toast.makeText(getApplicationContext(),"Key Comparison Failed.",Toast.LENGTH_SHORT).show();
+                                        }
+                                    }else{
+                                        Toast.makeText(getApplicationContext(),"Key Already Used.",Toast.LENGTH_SHORT).show();
+                                    }
+                                }else{
+                                    Toast.makeText(getApplicationContext(),"Key Does Not Exist.",Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Toast.makeText(getApplicationContext(),"Key Verification Failed.",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }).execute();
+                }else{
+                    Toast.makeText(getApplicationContext(),"Key Provider Unreachable.",Toast.LENGTH_SHORT).show();
+                }
+            }
+        }).execute(puzProvider);
+    }
+    private void popupKeyEntering() {
+        keyentering++;
+        if(keyentering==4){
+            keyentering=0;
+            AlertDialog.Builder pop = new AlertDialog.Builder(this);
+            pop.setCancelable(true);
+            pop.setTitle("Enter Unlock Key");
+            final EditText key=new EditText(this);
+            key.setFilters(new InputFilter[]{
+                    codeFilter
+            });
+            pop.setView(key);
+            key.setLayoutParams(new WindowManager.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            pop.setPositiveButton("Unlock", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    checkAndLoadKey(key.getText().toString().toUpperCase());
+                }
+            });
+            pop.setNegativeButton("Close",null);
+            pop.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    startApp();
+                }
+            });
+            pop.show();
+        }
     }
 
     private void showEasterEgg() {
@@ -833,6 +934,13 @@ public class Main extends Activity {
             @Override
             public void onClick(View view) {
                 share(currentClass.name + "\n" + hourSystemForClassString(currentClass, sp.getBoolean("show_time", true)));
+            }
+        });
+        sr.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                popupKeyEntering();
+                return true;
             }
         });
         share.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
