@@ -18,6 +18,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -72,6 +73,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 import nadav.tasher.lightool.Light;
 
@@ -171,8 +173,6 @@ public class Main extends Activity {
         String versionin = "v" + Light.Device.getVersionName(getApplicationContext(), getPackageName());
         tv.setText(versionin);
         tv.setLayoutParams(new LinearLayout.LayoutParams(is, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
-        final Animation flip = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        flip.setDuration(300);
         final ObjectAnimator slideRC = ObjectAnimator.ofFloat(tv, View.TRANSLATION_X, Light.Animations.getSlideRight(getApplicationContext()));
         slideRC.setDuration(500);
         slideRC.addListener(new Animator.AnimatorListener() {
@@ -203,7 +203,12 @@ public class Main extends Activity {
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                tv.startAnimation(flip);
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        slideRC.start();
+                    }
+                }, 500);
             }
 
             @Override
@@ -214,61 +219,178 @@ public class Main extends Activity {
             public void onAnimationRepeat(Animator animator) {
             }
         });
-        flip.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        slideRC.start();
-                    }
-                }, 500);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
         slideR.start();
         //Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f
         ll.addView(tv);
         setContentView(ll);
     }
 
-    private void newsSplash(ArrayList<Class> classes){
+    private void newsSplash(final ArrayList<Class> classes) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
-        if(!sp.getBoolean("installed_pass_news_code",false)){
+        if (sp.getBoolean("installed_pass_news_code", false)) {
             view(classes);
+        } else {
+            if (sp.getBoolean("fontWhite", true)) {
+                textColor = Color.WHITE;
+            } else {
+                textColor = Color.BLACK;
+            }
+            final LinearLayout full = new LinearLayout(getApplicationContext());
+            full.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
+            full.setOrientation(LinearLayout.VERTICAL);
+            full.setPadding(10, 10, 10, 10);
+            LinearLayout newsAll = new LinearLayout(getApplicationContext());
+            newsAll.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START);
+            TextView messBoardTitle = new TextView(getApplicationContext()), prinSays = new TextView(getApplicationContext());
+            messBoardTitle.setText(R.string.messageboard);
+            prinSays.setText(R.string.psay);
+            prinSays.setGravity(Gravity.CENTER);
+            messBoardTitle.setGravity(Gravity.CENTER);
+            prinSays.setTypeface(custom_font);
+            messBoardTitle.setTypeface(custom_font);
+            messBoardTitle.setTextSize(sp.getInt("font", 32) + 2);
+            prinSays.setTextSize(sp.getInt("font", 32) + 2);
+            prinSays.setTextColor(textColor);
+            messBoardTitle.setTextColor(textColor);
+            LinearLayout news = new LinearLayout(getApplicationContext());
+            news.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START);
+            newsAll.setOrientation(LinearLayout.VERTICAL);
+            news.setOrientation(LinearLayout.VERTICAL);
+            Button princibleSay = new Button(getApplicationContext());
+            princibleSay.setBackground(getDrawable(R.drawable.button));
+            princibleSay.setTypeface(custom_font);
+            princibleSay.setPadding(10, 10, 10, 10);
+            princibleSay.setTextColor(textColor);
+            princibleSay.setTextSize(sp.getInt("font", 32) - 15);
+            princibleSay.setEllipsize(TextUtils.TruncateAt.END);
+            princibleSay.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 4));
+            //            newsAll.setPadding(0, 20, 0, 20);
+            news.setPadding(40, 40, 40, 40);
+            news.addView(messBoardTitle);
+            news.setBackground(getDrawable(R.drawable.back_transparant));
+            //        news.setAlpha(0.5f);
+            newsAll.addView(news);
+            LinearLayout principals = new LinearLayout(getApplicationContext());
+            principals.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START);
+            principals.setOrientation(LinearLayout.VERTICAL);
+            principals.addView(prinSays);
+            principals.addView(princibleSay);
+            newsAll.addView(principals);
+            principals.setBackground(getDrawable(R.drawable.back_transparant));
+            principals.setPadding(40, 20, 40, 40);
+            prinSays.setPadding(10, 10, 10, 10);
+            messBoardTitle.setPadding(10, 10, 10, 10);
+            final ScrollView newsAllSV = new ScrollView(getApplicationContext());
+            full.setBackgroundColor(color);
+            newsAllSV.addView(newsAll);
+            newsAllSV.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 15 * 12));
+            full.addView(newsAllSV);
+            LinearLayout nextLayout = new LinearLayout(getApplicationContext());
+            nextLayout.setGravity(Gravity.CENTER);
+            nextLayout.setOrientation(LinearLayout.HORIZONTAL);
+            final Button nextButton = new Button(getApplicationContext());
+            final TextView waiting = new TextView(getApplicationContext());
+            TextView instructions = new TextView(getApplicationContext());
+            LinearLayout.LayoutParams buttons = new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 4, Light.Device.screenY(getApplicationContext()) / 10);
+            nextButton.setLayoutParams(buttons);
+            waiting.setLayoutParams(buttons);
+            instructions.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 3 * 2, Light.Device.screenY(getApplicationContext()) / 10));
+            nextLayout.addView(instructions);
+            nextLayout.addView(waiting);
+            nextLayout.addView(nextButton);
+            nextButton.setVisibility(View.GONE);
+            instructions.setTextColor(textColor);
+            waiting.setTextColor(textColor);
+            instructions.setTextSize(sp.getInt("font", 32) - 10);
+            waiting.setTextSize(sp.getInt("font", 32) - 10);
+            instructions.setText(R.string.instructions);
+            instructions.setTypeface(custom_font);
+            waiting.setTypeface(custom_font);
+            instructions.setGravity(Gravity.CENTER);
+            instructions.setBackground(getDrawable(R.drawable.back_transparant));
+            waiting.setBackground(getDrawable(R.drawable.back_transparant));
+            waiting.setGravity(Gravity.CENTER);
+            instructions.setPadding(20, 20, 20, 20);
+            waiting.setPadding(20, 20, 20, 20);
+            waiting.setText(R.string.secondsleft);
+            //            nextLayout.setPadding(0,10,0,10);
+            nextButton.setText(R.string.nxt);
+            nextButton.setBackground(getDrawable(R.drawable.back_transparant));
+            nextButton.setTypeface(custom_font);
+            nextButton.setTextSize(sp.getInt("font", 32) - 10);
+            nextButton.setTextColor(textColor);
+            nextLayout.setBackground(getDrawable(R.drawable.back_transparant));
+            nextLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 15 * 2));
+            full.addView(nextLayout);
+            nextButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    view(classes);
+                }
+            });
+            setContentView(full);
+            try {
+                final MainSite ms = new GetMainSite().execute().get();
+                if (ms != null) {
+                    princibleSay.setText(ms.princSaying);
+                    princibleSay.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String url = ms.readMorePrics;
+                            Intent i = new Intent(Intent.ACTION_VIEW);
+                            i.setData(Uri.parse(url));
+                            startActivity(i);
+                        }
+                    });
+                    for (int n = 0; n < ms.news.size(); n++) {
+                        Button newtopic = new Button(getApplicationContext());
+                        newtopic.setText(ms.news.get(n).name);
+                        newtopic.setEllipsize(TextUtils.TruncateAt.END);
+                        newtopic.setBackground(getDrawable(R.drawable.button));
+                        newtopic.setTextColor(textColor);
+                        newtopic.setTextSize(sp.getInt("font", 32) - 10);
+                        newtopic.setPadding(10, 10, 10, 10);
+                        newtopic.setTypeface(custom_font);
+                        newtopic.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 8));
+                        final int finalN = n;
+                        newtopic.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                String url = ms.news.get(finalN).url;
+                                Intent i = new Intent(Intent.ACTION_VIEW);
+                                i.setData(Uri.parse(url));
+                                startActivity(i);
+                            }
+                        });
+                        news.addView(newtopic);
+                    }
+                    new CountDownTimer(11000, 1000) {
+
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+                            String text = String.valueOf((millisUntilFinished / 1000) - 1) + "s";
+                            waiting.setText(text);
+                            if (millisUntilFinished <= 2000) {
+                                waiting.setVisibility(View.GONE);
+                                nextButton.setVisibility(View.VISIBLE);
+                            }
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            //                            waiting.setVisibility(View.GONE);
+                            //                            nextButton.setVisibility(View.VISIBLE);
+                        }
+                    }.start();
+                } else {
+                    view(classes);
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                view(classes);
+            }
         }
-        LinearLayout newsAll=new LinearLayout(getApplicationContext());
-        newsAll.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.START);
-        newsAll.setBackgroundColor(color);
-        TextView messBoardTitle=new TextView(getApplicationContext()),prinSays=new TextView(getApplicationContext());
-        messBoardTitle.setText(R.string.messageboard);
-        prinSays.setText(R.string.psay);
-        prinSays.setGravity(Gravity.CENTER);
-        messBoardTitle.setGravity(Gravity.CENTER);
-        prinSays.setTypeface(custom_font);
-        messBoardTitle.setTypeface(custom_font);
-        messBoardTitle.setTextSize(sp.getInt("font", 32)+2);
-        prinSays.setTextSize(sp.getInt("font", 32)+2);
-        LinearLayout news=new LinearLayout(getApplicationContext());
-        news.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.START);
-        newsAll.setOrientation(LinearLayout.VERTICAL);
-        newsAll.setOrientation(LinearLayout.VERTICAL);
-        newsAll.setPadding(20,20,20,20);
-        newsAll.addView(messBoardTitle);
-        newsAll.addView(news);
-        newsAll.addView(prinSays);
-//        newsAll.addView(messBoardTitle);
-        ScrollView newsAllSV=new ScrollView(getApplicationContext());
-        newsAllSV.addView(newsAllSV);
-        setContentView(newsAllSV);
     }
 
     private void welcome(final ArrayList<Class> classes, final boolean renew) {
@@ -319,7 +441,6 @@ public class Main extends Activity {
                 ObjectAnimator welAn = ObjectAnimator.ofFloat(welcome, View.ALPHA, Light.Animations.INVISIBLE_TO_VISIBLE);
                 welAn.setDuration(500);
                 welAn.start();
-
             }
 
             @Override
@@ -729,7 +850,7 @@ public class Main extends Activity {
                 }
             } else {
                 //                popup("Downloaded Excel File Is Corrupted");
-                openApp();
+                startApp();
             }
         }
         ScrollView sv = new ScrollView(this);
@@ -1332,7 +1453,6 @@ public class Main extends Activity {
                 subj.setBackground(getDrawable(R.drawable.button_alpha));
             } else {
                 subj.setBackground(getDrawable(R.drawable.button));
-
             }
             String before;
             if (showTime) {
@@ -1526,7 +1646,7 @@ public class Main extends Activity {
                         @Override
                         public void onFinish(File file, boolean b) {
                             if (b) {
-                                ArrayList<Class> classes = readExcelFile(file);
+                                final ArrayList<Class> classes = readExcelFile(file);
                                 day = readExcelDay(file);
                                 if (classes != null) {
                                     //                                    for (int cl = 0; cl < classes.size(); cl++) {
@@ -1538,7 +1658,7 @@ public class Main extends Activity {
                                         if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
                                             welcome(classes, true);
                                         } else {
-//                                            view(classes);
+                                            //                                            view(classes);
                                             newsSplash(classes);
                                             startPush();
                                         }
@@ -1561,7 +1681,7 @@ public class Main extends Activity {
                         }
                     }).execute();
                 } else {
-//                    popup("Could Not Fetch Link, Please Try Disconnecting From Wi-Fi");
+                    //                    popup("Could Not Fetch Link, Please Try Disconnecting From Wi-Fi");
                     openApp();
                 }
             }
@@ -1571,7 +1691,6 @@ public class Main extends Activity {
                 //                popup("Failed");
                 openApp();
             }
-
         }).execute();
     }
 
@@ -1611,6 +1730,7 @@ public class Main extends Activity {
     static class Link {
         String url, name;
     }
+
     private class Theme {
         int color;
 
@@ -1622,6 +1742,7 @@ public class Main extends Activity {
             this.color = color;
         }
     }
+
     private class Class {
         String name;
         ArrayList<Subject> classes;
@@ -1631,6 +1752,7 @@ public class Main extends Activity {
             this.classes = classes;
         }
     }
+
     private class Subject {
         int hour;
         String name, fullName;
@@ -1642,6 +1764,13 @@ public class Main extends Activity {
         }
     }
 }
+
+class MainSite {
+    String princSaying;
+    String readMorePrics;
+    ArrayList<Main.Link> news;
+}
+
 class GetLink extends AsyncTask<String, String, String> {
     private String ser;
     private GotLink gotlink;
@@ -1747,6 +1876,32 @@ class GetNews extends AsyncTask<String, String, ArrayList<Main.Link>> {
         void onNewsGet(ArrayList<Main.Link> link);
 
         void onFail(ArrayList<Main.Link> e);
+    }
+}
+
+class GetMainSite extends AsyncTask<String, String, MainSite> {
+    private String ser = "http://handasaim.co.il";
+
+    @Override
+    protected MainSite doInBackground(String... strings) {
+        try {
+            MainSite ms = new MainSite();
+            ArrayList<Main.Link> news = new ArrayList<>();
+            Document docu = Jsoup.connect(ser).get();
+            Elements ahs = docu.getAllElements().select("div.carousel-inner").select("div.item").select("a");
+            for (int in = 0; in < ahs.size(); in++) {
+                Main.Link link = new Main.Link();
+                link.name = ahs.get(in).text();
+                link.url = ahs.get(in).attr("href");
+                if (!link.name.equals("")) news.add(link);
+            }
+            ms.news = news;
+            ms.princSaying = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").first().text();
+            ms.readMorePrics = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").select("a").first().attr("href");
+            return ms;
+        } catch (IOException e) {
+            return null;
+        }
     }
 }
 

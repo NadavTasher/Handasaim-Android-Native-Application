@@ -17,5 +17,7 @@
     <string name="push">Push Notifications</string>
     <string name="sv">Save</string>
     <string name="messageboard">Message Board</string>
-    <string name="psay">Principals Saying</string>
+    <string name="psay">Principal\'s Welcome</string>
+    <string name="instructions">Wait 10s To Continue</string>
+    <string name="secondsleft">10s</string>
 </resources>
