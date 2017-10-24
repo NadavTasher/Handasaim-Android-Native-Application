@@ -746,7 +746,7 @@ public class Main extends Activity {
             Toast.makeText(getApplicationContext(), "\"" + ees[newrand] + "\"", Toast.LENGTH_LONG).show();
         }
     }
-
+    private boolean opened=false;
     private void view(final ArrayList<Class> classes) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         getWindow().setStatusBarColor(secolor);
@@ -757,6 +757,7 @@ public class Main extends Activity {
         final ImageView nutIcon = new ImageView(this);
         final ImageView newsIcon = new ImageView(this);
         final ImageView pushIcon = new ImageView(this);
+        final ImageView hideIcon = new ImageView(this);
         final int screenY = Light.Device.screenY(this);
         final int nutSize = (screenY / 8) - screenY / 30;
         final int newsSize = (screenY / 9) - screenY / 30;
@@ -772,6 +773,7 @@ public class Main extends Activity {
         sall.setBackgroundColor(color);
         navbarAll.setBackgroundColor(secolor);
         navbarAll.setOrientation(LinearLayout.HORIZONTAL);
+//        navbarAll.setGravity(Gravity.CENTER);
         navbarAll.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         newsIcon.setLayoutParams(newsParms);
         newsIcon.setImageDrawable(getDrawable(R.drawable.ic_news));
@@ -798,9 +800,37 @@ public class Main extends Activity {
                 return true;
             }
         });
+        hideIcon.setLayoutParams(newsParms);
+        hideIcon.setImageDrawable(getDrawable(R.drawable.ic_open_close));
+        hideIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                opened=!opened;
+                if(opened){
+                    hideIcon.setRotation(0.5f);
+                    navbarAll.setGravity(Gravity.CENTER_VERTICAL|Gravity.START);
+                }else{
+                    hideIcon.setRotation(0f);
+                    navbarAll.setGravity(Gravity.CENTER);
+                }
+            }
+        });
+        hideIcon.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                //fast spin
+                final Animation rotating = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                rotating.setDuration(200);
+                rotating.setRepeatCount(ObjectAnimator.INFINITE);
+                rotating.setRepeatMode(ObjectAnimator.RESTART);
+                hideIcon.startAnimation(rotating);
+                return true;
+            }
+        });
         navbarAll.addView(nutIcon);
         navbarAll.addView(newsIcon);
         navbarAll.addView(pushIcon);
+//        navbarAll.addView(hideIcon);
         navbarAll.setPadding(10, 10, 10, 10);
         navParms.gravity = Gravity.START;
         navbarAll.setLayoutParams(navParms);
@@ -809,6 +839,11 @@ public class Main extends Activity {
         navSliderview.setGravity(Gravity.START);
         navSliderview.setOrientation(LinearLayout.HORIZONTAL);
         HorizontalScrollView navSliderviewscroll = new HorizontalScrollView(this);
+        ////
+        ////
+//        navSliderviewscroll.setAlpha(0);
+        ////
+        ////
         navSliderviewscroll.addView(navSliderview);
         navbarAll.addView(navSliderviewscroll);
         //
