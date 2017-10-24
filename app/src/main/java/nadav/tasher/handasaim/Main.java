@@ -732,12 +732,6 @@ public class Main extends Activity {
                 }
             });
             pop.setNegativeButton("Close",null);
-            pop.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialogInterface) {
-                    startApp();
-                }
-            });
             pop.show();
         }
     }
@@ -1508,10 +1502,12 @@ public class Main extends Activity {
                         fullInfo.setText(fulltext);
                         di.setGravity(Gravity.CENTER);
                         di.setOrientation(LinearLayout.VERTICAL);
+
                         di.addView(subjName);
                         di.addView(hours);
                         di.addView(fullInfo);
                         di.setBackgroundColor(color);
+//                        di.setBackground(getDrawable(R.drawable.back));
                         subjName.setTextColor(textColor);
                         hours.setTextColor(textColor);
                         fullInfo.setTextColor(textColor);
@@ -1538,6 +1534,7 @@ public class Main extends Activity {
                         close.setBackground(getDrawable(R.drawable.button));
                         close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
                         close.setTextSize((float) 25);
+                        di.setPadding(40,40,40,40);
                         di.addView(close);
                         dialog.setContentView(di);
                         dialog.show();
@@ -1626,6 +1623,7 @@ public class Main extends Activity {
                     close.setBackground(getDrawable(R.drawable.button));
                     close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
                     di.addView(close);
+                    di.setPadding(40,40,40,40);
                     dialog.setContentView(di);
                     dialog.show();
                 }
