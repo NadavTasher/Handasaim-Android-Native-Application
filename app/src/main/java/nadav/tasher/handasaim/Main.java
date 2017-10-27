@@ -1338,10 +1338,10 @@ public class Main extends Activity {
         final int fontSize = sp.getInt("font", 32);
         final Dialog dialog = new Dialog(Main.this);
         dialog.setCancelable(true);
-        LinearLayout fullPage=new LinearLayout(getApplicationContext());
-        final LinearLayout news=new LinearLayout(getApplicationContext()),push=new LinearLayout(getApplicationContext());
-        ScrollView npscroll=new ScrollView(getApplicationContext());
-        LinearLayout newsAndPush=new LinearLayout(getApplicationContext());
+        LinearLayout fullPage = new LinearLayout(getApplicationContext());
+        final LinearLayout news = new LinearLayout(getApplicationContext()), push = new LinearLayout(getApplicationContext());
+        ScrollView npscroll = new ScrollView(getApplicationContext());
+        LinearLayout newsAndPush = new LinearLayout(getApplicationContext());
         fullPage.setOrientation(LinearLayout.VERTICAL);
         news.setOrientation(LinearLayout.VERTICAL);
         push.setOrientation(LinearLayout.VERTICAL);
@@ -1353,11 +1353,11 @@ public class Main extends Activity {
         npscroll.addView(newsAndPush);
         newsAndPush.addView(push);
         newsAndPush.addView(news);
-        push.setPadding(10,15,10,15);
-        news.setPadding(10,15,10,15);
-        TextView pushTitle,newsTitle;
-        pushTitle=new TextView(getApplicationContext());
-        newsTitle=new TextView(getApplicationContext());
+        push.setPadding(10, 15, 10, 15);
+        news.setPadding(10, 15, 10, 15);
+        TextView pushTitle, newsTitle;
+        pushTitle = new TextView(getApplicationContext());
+        newsTitle = new TextView(getApplicationContext());
         pushTitle.setText(R.string.pushmess);
         newsTitle.setText(R.string.news);
         push.addView(pushTitle);
@@ -1392,13 +1392,13 @@ public class Main extends Activity {
         fullPage.setPadding(5, 5, 5, 5);
         news.setVisibility(View.INVISIBLE);
         push.setVisibility(View.INVISIBLE);
-        fullPage.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext())/10*8));
-        npscroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext())/10*6));
+        fullPage.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10 * 8));
+        npscroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10 * 6));
         dialog.setContentView(fullPage);
-        if(Light.Device.isOnline(getApplicationContext())){
+        if (Light.Device.isOnline(getApplicationContext())) {
             ArrayList<Light.Net.PHP.Post.PHPParameter> parameters = new ArrayList<>();
             parameters.add(new Light.Net.PHP.Post.PHPParameter("get", ""));
-           new Light.Net.PHP.Post(Main.pushProvider, parameters, new Light.Net.PHP.Post.OnPost() {
+            new Light.Net.PHP.Post(Main.pushProvider, parameters, new Light.Net.PHP.Post.OnPost() {
                 @Override
                 public void onPost(String s) {
                     try {
@@ -1411,7 +1411,7 @@ public class Main extends Activity {
                                 final String text = pushj.getString("data");
                                 Button cls = new Button(getApplicationContext());
                                 cls.setPadding(10, 10, 10, 10);
-                                cls.setTextSize((float) fontSize-10);
+                                cls.setTextSize((float) fontSize - 10);
                                 cls.setGravity(Gravity.CENTER);
                                 cls.setText(text);
                                 cls.setAllCaps(false);
@@ -1442,14 +1442,15 @@ public class Main extends Activity {
                     for (int i = 0; i < link.size(); i++) {
                         Button cls = new Button(getApplicationContext());
                         cls.setPadding(10, 10, 10, 10);
-                        cls.setTextSize((float) fontSize-10);
+                        cls.setTextSize((float) fontSize - 10);
                         cls.setGravity(Gravity.CENTER);
                         cls.setText(link.get(i).name);
                         cls.setTextColor(textColor);
                         cls.setEllipsize(TextUtils.TruncateAt.END);
                         cls.setLines(2);
                         //                            cls.setBackgroundColor(Color.TRANSPARENT);
-                        cls.setBackground(getDrawable(R.drawable.back_transparant));                        cls.setTypeface(custom_font);
+                        cls.setBackground(getDrawable(R.drawable.back_transparant));
+                        cls.setTypeface(custom_font);
                         cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
                         news.addView(cls);
                         if (!link.get(i).url.equals("")) {
@@ -1472,695 +1473,689 @@ public class Main extends Activity {
                 public void onFail(ArrayList<Link> e) {
                 }
             }).execute("");
-           dialog.show();
+            dialog.show();
         }
-
-//
-//        final LinearLayout newsll = new LinearLayout(getApplicationContext());
-//        final LinearLayout filln = new LinearLayout(getApplicationContext());
-//        newsll.setGravity(Gravity.CENTER);
-//        newsll.setOrientation(LinearLayout.VERTICAL);
-//        filln.setGravity(Gravity.CENTER);
-//        filln.setOrientation(LinearLayout.VERTICAL);
-//        ScrollView news = new ScrollView(getApplicationContext());
-//        news.addView(newsll);
-//        filln.addView(news);
-//        dialog.setContentView(filln);
-//        filln.setPadding(20, 20, 20, 20);
-//        news.setPadding(20, 20, 20, 20);
-//        filln.setBackgroundColor(color);
-
     }
 
-            private void share(String st) {
-                Intent s = new Intent(Intent.ACTION_SEND);
-                s.putExtra(Intent.EXTRA_TEXT, st);
-                s.setType("text/plain");
-                s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(Intent.createChooser(s, "Share With"));
-            }
+    private void share(String st) {
+        Intent s = new Intent(Intent.ACTION_SEND);
+        s.putExtra(Intent.EXTRA_TEXT, st);
+        s.setType("text/plain");
+        s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(Intent.createChooser(s, "Share With"));
+    }
 
-            private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes, final boolean showTime, final int fontSize, final boolean breakTimes, final boolean showOrgCheckBox) {
-                currentClass = c;
-                hsplace.removeAllViews();
-                final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
-                final Button className = new Button(this);
-                className.setTextSize((float) fontSize);
-                //        className.setBackgroundColor(Color.TRANSPARENT);
-                className.setGravity(Gravity.CENTER);
-                className.setBackground(getDrawable(R.drawable.back));
-                className.setText(c.name + " (" + day + ")");
-                className.setTextColor(textColor);
-                className.setTypeface(custom_font);
-                className.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        LinearLayout classesll = new LinearLayout(getApplicationContext());
-                        classesll.setGravity(Gravity.CENTER);
-                        classesll.setOrientation(LinearLayout.VERTICAL);
-                        final Dialog dialog = new Dialog(Main.this);
-                        dialog.setCancelable(true);
-                        ScrollView classesllss = new ScrollView(getApplicationContext());
-                        classesllss.addView(classesll);
-                        dialog.setContentView(classesllss);
-                        for (int cs = 0; cs < classes.size(); cs++) {
-                            if (classes.get(cs) != c) {
-                                Button cls = new Button(getApplicationContext());
-                                cls.setTextSize((float) fontSize);
-                                cls.setGravity(Gravity.CENTER);
-                                cls.setText(classes.get(cs).name);
-                                cls.setTextColor(textColor);
-                                cls.setBackgroundColor(Color.TRANSPARENT);
-                                cls.setTypeface(custom_font);
-                                cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
-                                classesll.addView(cls);
-                                final int finalCs = cs;
-                                cls.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-                                        sp.edit().putString("favorite_class", classes.get(finalCs).name).commit();
-                                        showHS(classes.get(finalCs), hsplace, classes, showTime, fontSize, breakTimes, showOrgCheckBox);
-                                        dialog.dismiss();
-                                    }
-                                });
-                            }
-                        }
-                        dialog.show();
-                    }
-                });
-                hsplace.addView(className);
-                hsplace.addView(hourSystemForClass(c, showTime, fontSize, breakTimes, showOrgCheckBox));
-            }
-
-            private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize, boolean breakTimes, boolean showOrgC) {
-                LinearLayout all = new LinearLayout(this);
-                all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
-                all.setOrientation(LinearLayout.VERTICAL);
-                all.setPadding(10, 10, 10, 10);
-                final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
-                for (int s = 0; s < fclass.classes.size(); s++) {
-                    if (getBreak(fclass.classes.get(s).hour - 1) != -1 && breakTimes) {
-                        final Button breakt = new Button(this);
-                        breakt.setText("הפסקה, " + getBreak(fclass.classes.get(s).hour - 1) + " דקות");
-                        breakt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                        breakt.setTextSize((float) fontSize - 2);
-                        breakt.setTextColor(textColor);
-                        breakt.setBackground(getDrawable(R.drawable.button));
-                        breakt.setPadding(20, 20, 20, 20);
-                        breakt.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
-                        breakt.setTypeface(custom_font);
-                        breakt.setAllCaps(false);
-                        if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
-                            all.addView(breakt);
-                        }
-                        final int finalS1 = s;
-                        breakt.setOnClickListener(new View.OnClickListener() {
+    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes, final boolean showTime, final int fontSize, final boolean breakTimes, final boolean showOrgCheckBox) {
+        currentClass = c;
+        hsplace.removeAllViews();
+        final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+        final Button className = new Button(this);
+        className.setTextSize((float) fontSize);
+        //        className.setBackgroundColor(Color.TRANSPARENT);
+        className.setGravity(Gravity.CENTER);
+        className.setBackground(getDrawable(R.drawable.back));
+        String ctxt = c.name + " (" + day + ")";
+        className.setText(ctxt);
+        className.setTextColor(textColor);
+        className.setTypeface(custom_font);
+        className.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LinearLayout classesll = new LinearLayout(getApplicationContext());
+                classesll.setGravity(Gravity.CENTER);
+                classesll.setOrientation(LinearLayout.VERTICAL);
+                final Dialog dialog = new Dialog(Main.this);
+                dialog.setCancelable(true);
+                ScrollView classesllss = new ScrollView(getApplicationContext());
+                classesllss.addView(classesll);
+                dialog.setContentView(classesllss);
+                for (int cs = 0; cs < classes.size(); cs++) {
+                    if (classes.get(cs) != c) {
+                        Button cls = new Button(getApplicationContext());
+                        cls.setTextSize((float) fontSize);
+                        cls.setGravity(Gravity.CENTER);
+                        cls.setText(classes.get(cs).name);
+                        cls.setTextColor(textColor);
+                        cls.setBackgroundColor(Color.TRANSPARENT);
+                        cls.setTypeface(custom_font);
+                        cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
+                        classesll.addView(cls);
+                        final int finalCs = cs;
+                        cls.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                final Dialog dialog = new Dialog(Main.this);
-                                dialog.setCancelable(true);
-                                LinearLayout di = new LinearLayout(getApplicationContext());
-                                TextView subjName = new TextView(getApplicationContext());
-                                TextView hours = new TextView(getApplicationContext());
-                                TextView fullInfo = new TextView(getApplicationContext());
-                                subjName.setText(R.string.brkk);
-                                //fclass.classes.get(s)
-                                hours.setText(getRealEndTimeForHourNumber(fclass.classes.get(finalS1).hour - 1) + "-" + getRealTimeForHourNumber(fclass.classes.get(finalS1).hour));
-                                String fulltext = getBreak(fclass.classes.get(finalS1).hour - 1) + " Minutes";
-                                fullInfo.setText(fulltext);
-                                di.setGravity(Gravity.CENTER);
-                                di.setOrientation(LinearLayout.VERTICAL);
-                                di.addView(subjName);
-                                di.addView(hours);
-                                di.addView(fullInfo);
-                                di.setBackgroundColor(color);
-                                //                        di.setBackground(getDrawable(R.drawable.back));
-                                subjName.setTextColor(textColor);
-                                hours.setTextColor(textColor);
-                                fullInfo.setTextColor(textColor);
-                                subjName.setTextSize((float) 30);
-                                hours.setTextSize((float) 30);
-                                fullInfo.setTextSize((float) 30);
-                                subjName.setGravity(Gravity.CENTER);
-                                hours.setGravity(Gravity.CENTER);
-                                fullInfo.setGravity(Gravity.CENTER);
-                                subjName.setTypeface(custom_font, Typeface.BOLD);
-                                hours.setTypeface(custom_font);
-                                fullInfo.setTypeface(custom_font);
-                                Button close = new Button(getApplicationContext());
-                                close.setText(R.string.close);
-                                close.setTextColor(textColor);
-                                close.setTypeface(custom_font);
-                                close.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                                close.setAllCaps(false);
-                                close.setBackground(getDrawable(R.drawable.button));
-                                close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
-                                close.setTextSize((float) 25);
-                                di.setPadding(40, 40, 40, 40);
-                                di.addView(close);
-                                dialog.setContentView(di);
-                                dialog.show();
+                                final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
+                                sp.edit().putString("favorite_class", classes.get(finalCs).name).commit();
+                                showHS(classes.get(finalCs), hsplace, classes, showTime, fontSize, breakTimes, showOrgCheckBox);
+                                dialog.dismiss();
                             }
                         });
                     }
-                    final LinearLayout fsubj = new LinearLayout(getApplicationContext());
-                    fsubj.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-                    fsubj.setGravity(Gravity.CENTER);
-                    //            fsubj.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);
-                    fsubj.setOrientation(LinearLayout.HORIZONTAL);
-                    Button subj = new Button(this);
-                    if (showOrgC) {
-                        fsubj.setPadding(0, 0, 20, 0);
-                        CheckBox che = new CheckBox(getApplicationContext());
-                        che.setText(null);
-                        che.setButtonDrawable(getDrawable(R.drawable.checkbox_b));
-                        //                che.setButtonTintList(new ColorStateList());
-                        fsubj.addView(che);
-                        fsubj.setBackground(getDrawable(R.drawable.backasbutton));
-                        subj.setBackground(getDrawable(R.drawable.button_alpha));
-                    } else {
-                        subj.setBackground(getDrawable(R.drawable.button));
+                }
+                dialog.show();
+            }
+        });
+        hsplace.addView(className);
+        hsplace.addView(hourSystemForClass(c, showTime, fontSize, breakTimes, showOrgCheckBox));
+    }
+
+    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize, boolean breakTimes, boolean showOrgC) {
+        LinearLayout all = new LinearLayout(this);
+        all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
+        all.setOrientation(LinearLayout.VERTICAL);
+        all.setPadding(10, 10, 10, 10);
+        final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+        for (int s = 0; s < fclass.classes.size(); s++) {
+            if (getBreak(fclass.classes.get(s).hour - 1) != -1 && breakTimes) {
+                final Button breakt = new Button(this);
+                String btext = "הפסקה, " + getBreak(fclass.classes.get(s).hour - 1) + " דקות";
+                breakt.setText(btext);
+                breakt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                breakt.setTextSize((float) fontSize - 2);
+                breakt.setTextColor(textColor);
+                breakt.setBackground(getDrawable(R.drawable.button));
+                breakt.setPadding(20, 20, 20, 20);
+                breakt.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
+                breakt.setTypeface(custom_font);
+                breakt.setAllCaps(false);
+                if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
+                    all.addView(breakt);
+                }
+                final int finalS1 = s;
+                breakt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        final Dialog dialog = new Dialog(Main.this);
+                        dialog.setCancelable(true);
+                        LinearLayout di = new LinearLayout(getApplicationContext());
+                        TextView subjName = new TextView(getApplicationContext());
+                        TextView hours = new TextView(getApplicationContext());
+                        TextView fullInfo = new TextView(getApplicationContext());
+                        subjName.setText(R.string.brkk);
+                        //fclass.classes.get(s)
+                        String txt = getRealEndTimeForHourNumber(fclass.classes.get(finalS1).hour - 1) + "-" + getRealTimeForHourNumber(fclass.classes.get(finalS1).hour);
+                        hours.setText(txt);
+                        String fulltext = getBreak(fclass.classes.get(finalS1).hour - 1) + " Minutes";
+                        fullInfo.setText(fulltext);
+                        di.setGravity(Gravity.CENTER);
+                        di.setOrientation(LinearLayout.VERTICAL);
+                        di.addView(subjName);
+                        di.addView(hours);
+                        di.addView(fullInfo);
+                        di.setBackgroundColor(color);
+                        //                        di.setBackground(getDrawable(R.drawable.back));
+                        subjName.setTextColor(textColor);
+                        hours.setTextColor(textColor);
+                        fullInfo.setTextColor(textColor);
+                        subjName.setTextSize((float) 30);
+                        hours.setTextSize((float) 30);
+                        fullInfo.setTextSize((float) 30);
+                        subjName.setGravity(Gravity.CENTER);
+                        hours.setGravity(Gravity.CENTER);
+                        fullInfo.setGravity(Gravity.CENTER);
+                        subjName.setTypeface(custom_font, Typeface.BOLD);
+                        hours.setTypeface(custom_font);
+                        fullInfo.setTypeface(custom_font);
+                        Button close = new Button(getApplicationContext());
+                        close.setText(R.string.close);
+                        close.setTextColor(textColor);
+                        close.setTypeface(custom_font);
+                        close.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.dismiss();
+                            }
+                        });
+                        close.setAllCaps(false);
+                        close.setBackground(getDrawable(R.drawable.button));
+                        close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
+                        close.setTextSize((float) 25);
+                        di.setPadding(40, 40, 40, 40);
+                        di.addView(close);
+                        dialog.setContentView(di);
+                        dialog.show();
                     }
-                    String before;
-                    if (showTime) {
-                        before = "(" + getRealTimeForHourNumber(fclass.classes.get(s).hour) + ") " + fclass.classes.get(s).hour + ". ";
-                    } else {
-                        before = fclass.classes.get(s).hour + ". ";
-                    }
-                    String total = before + fclass.classes.get(s).name;
-                    String main = "\u200F" + total;
-                    subj.setText(main);
-                    subj.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                    subj.setTextSize((float) fontSize - 2);
-                    subj.setTextColor(textColor);
-                    subj.setPadding(20, 20, 20, 20);
-                    subj.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
-                    subj.setTypeface(custom_font);
-                    subj.setSingleLine(true);
-                    subj.setEllipsize(TextUtils.TruncateAt.END);
-                    final int finalS = s;
-                    subj.setOnClickListener(new View.OnClickListener() {
+                });
+            }
+            final LinearLayout fsubj = new LinearLayout(getApplicationContext());
+            fsubj.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+            fsubj.setGravity(Gravity.CENTER);
+            //            fsubj.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);
+            fsubj.setOrientation(LinearLayout.HORIZONTAL);
+            Button subj = new Button(this);
+            if (showOrgC) {
+                fsubj.setPadding(0, 0, 20, 0);
+                CheckBox che = new CheckBox(getApplicationContext());
+                che.setText(null);
+                che.setButtonDrawable(getDrawable(R.drawable.checkbox_b));
+                //                che.setButtonTintList(new ColorStateList());
+                fsubj.addView(che);
+                fsubj.setBackground(getDrawable(R.drawable.backasbutton));
+                subj.setBackground(getDrawable(R.drawable.button_alpha));
+            } else {
+                subj.setBackground(getDrawable(R.drawable.button));
+            }
+            String before;
+            if (showTime) {
+                before = "(" + getRealTimeForHourNumber(fclass.classes.get(s).hour) + ") " + fclass.classes.get(s).hour + ". ";
+            } else {
+                before = fclass.classes.get(s).hour + ". ";
+            }
+            String total = before + fclass.classes.get(s).name;
+            String main = "\u200F" + total;
+            subj.setText(main);
+            subj.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+            subj.setTextSize((float) fontSize - 2);
+            subj.setTextColor(textColor);
+            subj.setPadding(20, 20, 20, 20);
+            subj.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
+            subj.setTypeface(custom_font);
+            subj.setSingleLine(true);
+            subj.setEllipsize(TextUtils.TruncateAt.END);
+            final int finalS = s;
+            subj.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    final Dialog dialog = new Dialog(Main.this);
+                    dialog.setCancelable(true);
+                    LinearLayout di = new LinearLayout(getApplicationContext());
+                    TextView subjName = new TextView(getApplicationContext());
+                    TextView hours = new TextView(getApplicationContext());
+                    TextView fullInfo = new TextView(getApplicationContext());
+                    subjName.setText(fclass.classes.get(finalS).name);
+                    //fclass.classes.get(s)
+                    String txt = getRealTimeForHourNumber(fclass.classes.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.classes.get(finalS).hour);
+                    hours.setText(txt);
+                    fullInfo.setText(fclass.classes.get(finalS).fullName);
+                    di.setGravity(Gravity.CENTER);
+                    di.setOrientation(LinearLayout.VERTICAL);
+                    di.addView(subjName);
+                    di.addView(hours);
+                    di.addView(fullInfo);
+                    di.setBackgroundColor(color);
+                    subjName.setTextColor(textColor);
+                    hours.setTextColor(textColor);
+                    fullInfo.setTextColor(textColor);
+                    subjName.setTextSize((float) 30);
+                    hours.setTextSize((float) 30);
+                    fullInfo.setTextSize((float) 30);
+                    subjName.setGravity(Gravity.CENTER);
+                    hours.setGravity(Gravity.CENTER);
+                    fullInfo.setGravity(Gravity.CENTER);
+                    subjName.setTypeface(custom_font, Typeface.BOLD);
+                    hours.setTypeface(custom_font);
+                    fullInfo.setTypeface(custom_font);
+                    Button close = new Button(getApplicationContext());
+                    close.setText(R.string.close);
+                    close.setTextColor(textColor);
+                    close.setTextSize((float) 25);
+                    close.setTypeface(custom_font);
+                    close.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            final Dialog dialog = new Dialog(Main.this);
-                            dialog.setCancelable(true);
-                            LinearLayout di = new LinearLayout(getApplicationContext());
-                            TextView subjName = new TextView(getApplicationContext());
-                            TextView hours = new TextView(getApplicationContext());
-                            TextView fullInfo = new TextView(getApplicationContext());
-                            subjName.setText(fclass.classes.get(finalS).name);
-                            //fclass.classes.get(s)
-                            hours.setText(getRealTimeForHourNumber(fclass.classes.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.classes.get(finalS).hour));
-                            fullInfo.setText(fclass.classes.get(finalS).fullName);
-                            di.setGravity(Gravity.CENTER);
-                            di.setOrientation(LinearLayout.VERTICAL);
-                            di.addView(subjName);
-                            di.addView(hours);
-                            di.addView(fullInfo);
-                            di.setBackgroundColor(color);
-                            subjName.setTextColor(textColor);
-                            hours.setTextColor(textColor);
-                            fullInfo.setTextColor(textColor);
-                            subjName.setTextSize((float) 30);
-                            hours.setTextSize((float) 30);
-                            fullInfo.setTextSize((float) 30);
-                            subjName.setGravity(Gravity.CENTER);
-                            hours.setGravity(Gravity.CENTER);
-                            fullInfo.setGravity(Gravity.CENTER);
-                            subjName.setTypeface(custom_font, Typeface.BOLD);
-                            hours.setTypeface(custom_font);
-                            fullInfo.setTypeface(custom_font);
-                            Button close = new Button(getApplicationContext());
-                            close.setText(R.string.close);
-                            close.setTextColor(textColor);
-                            close.setTextSize((float) 25);
-                            close.setTypeface(custom_font);
-                            close.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    dialog.dismiss();
-                                }
-                            });
-                            close.setAllCaps(false);
-                            close.setBackground(getDrawable(R.drawable.button));
-                            close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
-                            di.addView(close);
-                            di.setPadding(40, 40, 40, 40);
-                            dialog.setContentView(di);
-                            dialog.show();
+                            dialog.dismiss();
                         }
                     });
-                    subj.setOnLongClickListener(new View.OnLongClickListener() {
+                    close.setAllCaps(false);
+                    close.setBackground(getDrawable(R.drawable.button));
+                    close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
+                    di.addView(close);
+                    di.setPadding(40, 40, 40, 40);
+                    dialog.setContentView(di);
+                    dialog.show();
+                }
+            });
+            subj.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    Toast.makeText(getApplicationContext(), getRealTimeForHourNumber(fclass.classes.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.classes.get(finalS).hour), Toast.LENGTH_LONG).show();
+                    return true;
+                }
+            });
+            if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
+                fsubj.addView(subj);
+                all.addView(fsubj);
+            }
+        }
+        return all;
+    }
+
+    private String hourSystemForClassString(Class fclass, boolean showTime) {
+        String allsubj = "";
+        for (int s = 0; s < fclass.classes.size(); s++) {
+            String before;
+            if (showTime) {
+                before = "(" + getRealTimeForHourNumber(fclass.classes.get(s).hour) + ") " + fclass.classes.get(s).hour + ". ";
+            } else {
+                before = fclass.classes.get(s).hour + ". ";
+            }
+            String total = before + fclass.classes.get(s).name;
+            if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
+                allsubj += total + "\n";
+            }
+        }
+        return allsubj;
+    }
+
+    private String getRealTimeForHourNumber(int hour) {
+        switch (hour) {
+            case 0:
+                return "07:45";
+            case 1:
+                return "08:30";
+            case 2:
+                return "09:15";
+            case 3:
+                return "10:15";
+            case 4:
+                return "11:00";
+            case 5:
+                return "12:10";
+            case 6:
+                return "12:55";
+            case 7:
+                return "13:50";
+            case 8:
+                return "14:35";
+            case 9:
+                return "15:25";
+            case 10:
+                return "16:10";
+            case 11:
+                return "17:00";
+            case 12:
+                return "17:45";
+        }
+        return null;
+    }
+
+    private String getRealEndTimeForHourNumber(int hour) {
+        switch (hour) {
+            case 0:
+                return "08:30";
+            case 1:
+                return "09:15";
+            case 2:
+                return "10:00";
+            case 3:
+                return "11:00";
+            case 4:
+                return "11:45";
+            case 5:
+                return "12:55";
+            case 6:
+                return "13:40";
+            case 7:
+                return "14:35";
+            case 8:
+                return "15:20";
+            case 9:
+                return "16:10";
+            case 10:
+                return "16:55";
+            case 11:
+                return "17:45";
+            case 12:
+                return "18:30";
+        }
+        return null;
+    }
+
+    private int getBreak(int washour) {
+        switch (washour) {
+            case 2:
+                return 15;
+            case 4:
+                return 25;
+            case 6:
+                return 10;
+            case 8:
+                return 5;
+            case 10:
+                return 5;
+        }
+        return -1;
+    }
+
+    private void openApp() {
+        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
+        String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/index.php";
+        new GetLink(service, new GetLink.GotLink() {
+            @Override
+            public void onLinkGet(String link) {
+                if (link != null) {
+                    //                    Log.i("LINK", link);
+                    new FileDownloader(link, new File(getApplicationContext().getFilesDir(), "hs.xls"), new FileDownloader.OnDownload() {
                         @Override
-                        public boolean onLongClick(View view) {
-                            Toast.makeText(getApplicationContext(), getRealTimeForHourNumber(fclass.classes.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.classes.get(finalS).hour), Toast.LENGTH_LONG).show();
-                            return true;
-                        }
-                    });
-                    if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
-                        fsubj.addView(subj);
-                        all.addView(fsubj);
-                    }
-                }
-                return all;
-            }
-
-            private String hourSystemForClassString(Class fclass, boolean showTime) {
-                String allsubj = "";
-                for (int s = 0; s < fclass.classes.size(); s++) {
-                    String before;
-                    if (showTime) {
-                        before = "(" + getRealTimeForHourNumber(fclass.classes.get(s).hour) + ") " + fclass.classes.get(s).hour + ". ";
-                    } else {
-                        before = fclass.classes.get(s).hour + ". ";
-                    }
-                    String total = before + fclass.classes.get(s).name;
-                    if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
-                        allsubj += total + "\n";
-                    }
-                }
-                return allsubj;
-            }
-
-            private String getRealTimeForHourNumber(int hour) {
-                switch (hour) {
-                    case 0:
-                        return "07:45";
-                    case 1:
-                        return "08:30";
-                    case 2:
-                        return "09:15";
-                    case 3:
-                        return "10:15";
-                    case 4:
-                        return "11:00";
-                    case 5:
-                        return "12:10";
-                    case 6:
-                        return "12:55";
-                    case 7:
-                        return "13:50";
-                    case 8:
-                        return "14:35";
-                    case 9:
-                        return "15:25";
-                    case 10:
-                        return "16:10";
-                    case 11:
-                        return "17:00";
-                    case 12:
-                        return "17:45";
-                }
-                return null;
-            }
-
-            private String getRealEndTimeForHourNumber(int hour) {
-                switch (hour) {
-                    case 0:
-                        return "08:30";
-                    case 1:
-                        return "09:15";
-                    case 2:
-                        return "10:00";
-                    case 3:
-                        return "11:00";
-                    case 4:
-                        return "11:45";
-                    case 5:
-                        return "12:55";
-                    case 6:
-                        return "13:40";
-                    case 7:
-                        return "14:35";
-                    case 8:
-                        return "15:20";
-                    case 9:
-                        return "16:10";
-                    case 10:
-                        return "16:55";
-                    case 11:
-                        return "17:45";
-                    case 12:
-                        return "18:30";
-                }
-                return null;
-            }
-
-            private int getBreak(int washour) {
-                switch (washour) {
-                    case 2:
-                        return 15;
-                    case 4:
-                        return 25;
-                    case 6:
-                        return 10;
-                    case 8:
-                        return 5;
-                    case 10:
-                        return 5;
-                }
-                return -1;
-            }
-
-            private void openApp() {
-                final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-                String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/index.php";
-                new GetLink(service, new GetLink.GotLink() {
-                    @Override
-                    public void onLinkGet(String link) {
-                        if (link != null) {
-                            //                    Log.i("LINK", link);
-                            new FileDownloader(link, new File(getApplicationContext().getFilesDir(), "hs.xls"), new FileDownloader.OnDownload() {
-                                @Override
-                                public void onFinish(File file, boolean b) {
-                                    if (b) {
-                                        final ArrayList<Class> classes = readExcelFile(file);
-                                        day = readExcelDay(file);
-                                        if (classes != null) {
-                                            //                                    for (int cl = 0; cl < classes.size(); cl++) {
-                                            //                                        for (int su = 0; su < classes.get(cl).classes.size(); su++) {
-                                            //                                            Log.i(classes.get(cl).name + " " + classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
-                                            //                                        }
-                                            //                                    }
-                                            if (!sp.getBoolean("first", true)) {
-                                                if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
-                                                    welcome(classes, true);
-                                                } else {
-                                                    //                                            view(classes);
-                                                    newsSplash(classes);
-                                                    startPush();
-                                                }
-                                            } else {
-                                                welcome(classes, false);
-                                            }
+                        public void onFinish(File file, boolean b) {
+                            if (b) {
+                                final ArrayList<Class> classes = readExcelFile(file);
+                                day = readExcelDay(file);
+                                if (classes != null) {
+                                    //                                    for (int cl = 0; cl < classes.size(); cl++) {
+                                    //                                        for (int su = 0; su < classes.get(cl).classes.size(); su++) {
+                                    //                                            Log.i(classes.get(cl).name + " " + classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
+                                    //                                        }
+                                    //                                    }
+                                    if (!sp.getBoolean("first", true)) {
+                                        if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
+                                            welcome(classes, true);
+                                        } else {
+                                            //                                            view(classes);
+                                            newsSplash(classes);
+                                            startPush();
                                         }
                                     } else {
-                                        //                                popup("Failed To Download Excel File");
-                                        openApp();
+                                        welcome(classes, false);
                                     }
                                 }
-
-                                @Override
-                                public void onProgressChanged(File file, int i) {
-                                    //                            Log.i("Downloader","Progress "+i);
-                                    //                            pb.setIndeterminate(false);
-                                    //                            pb.setMax(100);
-                                    //                            pb.setProgress(i);
-                                }
-                            }).execute();
-                        } else {
-                            //                    popup("Could Not Fetch Link, Please Try Disconnecting From Wi-Fi");
-                            openApp();
-                        }
-                    }
-
-                    @Override
-                    public void onFail(String e) {
-                        //                popup("Failed");
-                        openApp();
-                    }
-                }).execute();
-            }
-
-            private ArrayList<Class> readExcelFile(File f) {
-                try {
-                    ArrayList<Class> classes = new ArrayList<>();
-                    POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
-                    Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
-                    Sheet mySheet = myWorkBook.getSheetAt(0);
-                    int rows = mySheet.getLastRowNum();
-                    int cols = mySheet.getRow(1).getLastCellNum();
-                    for (int c = 1; c < cols; c++) {
-                        ArrayList<Subject> subs = new ArrayList<>();
-                        for (int r = 2; r < rows; r++) {
-                            Row row = mySheet.getRow(r);
-                            subs.add(new Subject(r - 2, row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
-                        }
-                        classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(), subs));
-                    }
-                    return classes;
-                } catch (Exception e) {
-                    return null;
-                }
-            }
-
-            private String readExcelDay(File f) {
-                try {
-                    POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
-                    Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
-                    Sheet mySheet = myWorkBook.getSheetAt(0);
-                    return mySheet.getRow(0).getCell(0).getStringCellValue();
-                } catch (Exception e) {
-                    return null;
-                }
-            }
-
-            static class Link {
-                String url, name;
-            }
-
-            private class Theme {
-                int color;
-
-                Theme(String color) {
-                    this.color = Color.parseColor(color);
-                }
-
-                Theme(int color) {
-                    this.color = color;
-                }
-            }
-
-            private class Class {
-                String name;
-                ArrayList<Subject> classes;
-
-                Class(String name, ArrayList<Subject> classes) {
-                    this.name = name;
-                    this.classes = classes;
-                }
-            }
-
-            private class Subject {
-                int hour;
-                String name, fullName;
-
-                Subject(int hour, String name, String fullName) {
-                    this.hour = hour;
-                    this.name = name;
-                    this.fullName = fullName;
-                }
-            }
-        } class MainSite {
-            String princSaying;
-            String readMorePrics;
-            ArrayList<Main.Link> news;
-        }
-        class GetLink extends AsyncTask<String, String, String> {
-            private String ser;
-            private GotLink gotlink;
-            private boolean success;
-
-            GetLink(String service, GotLink gl) {
-                ser = service;
-                gotlink = gl;
-            }
-
-            @Override
-            protected String doInBackground(String... strings) {
-                try {
-                    Document docu = Jsoup.connect(ser).get();
-                    Elements doc = docu.select("a");
-                    logAll("LINKGET", docu.outerHtml());
-                    String file = null;
-                    for (int i = 0; i < doc.size(); i++) {
-                        if (doc.get(i).attr("href").endsWith(".xls")) {
-                            file = doc.get(i).attr("href");
-                            Log.i("FILE", file);
-                            break;
-                        }
-                    }
-                    success = true;
-                    return file;
-                } catch (IOException e) {
-                    success = false;
-                    return e.getMessage();
-                }
-            }
-
-            private void logAll(String TAG, String longString) {
-                int splitSize = 300;
-                if (longString.length() > splitSize) {
-                    int index = 0;
-                    while (index < longString.length() - splitSize) {
-                        Log.e(TAG, longString.substring(index, index + splitSize));
-                        index += splitSize;
-                    }
-                    Log.e(TAG, longString.substring(index, longString.length()));
-                } else {
-                    Log.e(TAG, longString);
-                }
-            }
-
-            @Override
-            protected void onPostExecute(String s) {
-                if (success) {
-                    gotlink.onLinkGet(s);
-                } else {
-                    gotlink.onFail(s);
-                }
-            }
-
-            interface GotLink {
-                void onLinkGet(String link);
-
-                void onFail(String e);
-            }
-        }
-        class GetNews extends AsyncTask<String, String, ArrayList<Main.Link>> {
-            private String ser;
-            private GotNews gotlink;
-            private boolean success;
-
-            GetNews(String service, GotNews gl) {
-                ser = service;
-                gotlink = gl;
-            }
-
-            @Override
-            protected ArrayList<Main.Link> doInBackground(String... strings) {
-                try {
-                    ArrayList<Main.Link> file = new ArrayList<>();
-                    Document docu = Jsoup.connect(ser).get();
-                    Elements ahs = docu.getAllElements().select("div.carousel-inner").select("div.item").select("a");
-                    for (int in = 0; in < ahs.size(); in++) {
-                        Main.Link link = new Main.Link();
-                        link.name = ahs.get(in).text();
-                        link.url = ahs.get(in).attr("href");
-                        if (!link.name.equals("")) file.add(link);
-                    }
-                    success = true;
-                    return file;
-                } catch (IOException e) {
-                    success = false;
-                    return null;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(ArrayList<Main.Link> s) {
-                if (success) {
-                    if (gotlink != null) gotlink.onNewsGet(s);
-                } else {
-                    if (gotlink != null) gotlink.onFail(s);
-                }
-            }
-
-            interface GotNews {
-                void onNewsGet(ArrayList<Main.Link> link);
-
-                void onFail(ArrayList<Main.Link> e);
-            }
-        }
-        class GetMainSite extends AsyncTask<String, String, MainSite> {
-            private String ser = "http://handasaim.co.il";
-
-            @Override
-            protected MainSite doInBackground(String... strings) {
-                try {
-                    MainSite ms = new MainSite();
-                    ArrayList<Main.Link> news = new ArrayList<>();
-                    Document docu = Jsoup.connect(ser).get();
-                    Elements ahs = docu.getAllElements().select("div.carousel-inner").select("div.item").select("a");
-                    for (int in = 0; in < ahs.size(); in++) {
-                        Main.Link link = new Main.Link();
-                        link.name = ahs.get(in).text();
-                        link.url = ahs.get(in).attr("href");
-                        if (!link.name.equals("")) news.add(link);
-                    }
-                    ms.news = news;
-                    ms.princSaying = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").first().text();
-                    ms.readMorePrics = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").select("a").first().attr("href");
-                    return ms;
-                } catch (IOException e) {
-                    return null;
-                }
-            }
-        }
-        class FileDownloader extends AsyncTask<String, String, String> {
-            private String furl;
-            private File fdpath;
-            private boolean available;
-            private FileDownloader.OnDownload oe;
-
-            FileDownloader(String url, File path, FileDownloader.OnDownload onfile) {
-                oe = onfile;
-                furl = url;
-                fdpath = path;
-            }
-
-            private boolean check() {
-                try {
-                    HttpURLConnection.setFollowRedirects(false);
-                    HttpURLConnection con = (HttpURLConnection) new URL(furl).openConnection();
-                    return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            }
-
-            @Override
-            protected String doInBackground(String... comment) {
-                int perc = 0;
-                if (check()) {
-                    available = true;
-                    int count;
-                    try {
-                        URL url = new URL(furl);
-                        URLConnection conection = url.openConnection();
-                        conection.connect();
-                        int lenghtOfFile = conection.getContentLength();
-                        InputStream input = new BufferedInputStream(url.openStream(), 8192);
-                        OutputStream output = new FileOutputStream(fdpath);
-                        byte data[] = new byte[1024];
-                        long total = 0;
-                        while ((count = input.read(data)) != -1) {
-                            output.write(data, 0, count);
-                            total += count;
-                            if (perc < (int) (total * 100 / lenghtOfFile)) {
-                                perc++;
-                                oe.onProgressChanged(fdpath, (int) (total * 100 / lenghtOfFile));
+                            } else {
+                                //                                popup("Failed To Download Excel File");
+                                openApp();
                             }
                         }
-                        output.flush();
-                        output.close();
-                        input.close();
-                    } catch (Exception e) {
-                        Log.e("Error: ", e.getMessage());
-                    }
+
+                        @Override
+                        public void onProgressChanged(File file, int i) {
+                            //                            Log.i("Downloader","Progress "+i);
+                            //                            pb.setIndeterminate(false);
+                            //                            pb.setMax(100);
+                            //                            pb.setProgress(i);
+                        }
+                    }).execute();
                 } else {
-                    available = false;
+                    //                    popup("Could Not Fetch Link, Please Try Disconnecting From Wi-Fi");
+                    openApp();
                 }
-                return null;
             }
 
             @Override
-            protected void onPostExecute(String file_url) {
-                if (oe != null) {
-                    oe.onFinish(fdpath, available);
+            public void onFail(String e) {
+                //                popup("Failed");
+                openApp();
+            }
+        }).execute();
+    }
+
+    private ArrayList<Class> readExcelFile(File f) {
+        try {
+            ArrayList<Class> classes = new ArrayList<>();
+            POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
+            Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+            int rows = mySheet.getLastRowNum();
+            int cols = mySheet.getRow(1).getLastCellNum();
+            for (int c = 1; c < cols; c++) {
+                ArrayList<Subject> subs = new ArrayList<>();
+                for (int r = 2; r < rows; r++) {
+                    Row row = mySheet.getRow(r);
+                    subs.add(new Subject(r - 2, row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+                }
+                classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(), subs));
+            }
+            return classes;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String readExcelDay(File f) {
+        try {
+            POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
+            Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+            return mySheet.getRow(0).getCell(0).getStringCellValue();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    static class Link {
+        String url, name;
+    }
+
+    private class Theme {
+        int color;
+
+        Theme(String color) {
+            this.color = Color.parseColor(color);
+        }
+
+        Theme(int color) {
+            this.color = color;
+        }
+    }
+
+    private class Class {
+        String name;
+        ArrayList<Subject> classes;
+
+        Class(String name, ArrayList<Subject> classes) {
+            this.name = name;
+            this.classes = classes;
+        }
+    }
+
+    private class Subject {
+        int hour;
+        String name, fullName;
+
+        Subject(int hour, String name, String fullName) {
+            this.hour = hour;
+            this.name = name;
+            this.fullName = fullName;
+        }
+    }
+}
+
+class MainSite {
+    String princSaying;
+    String readMorePrics;
+    ArrayList<Main.Link> news;
+}
+
+class GetLink extends AsyncTask<String, String, String> {
+    private String ser;
+    private GotLink gotlink;
+    private boolean success;
+
+    GetLink(String service, GotLink gl) {
+        ser = service;
+        gotlink = gl;
+    }
+
+    @Override
+    protected String doInBackground(String... strings) {
+        try {
+            Document docu = Jsoup.connect(ser).get();
+            Elements doc = docu.select("a");
+            logAll("LINKGET", docu.outerHtml());
+            String file = null;
+            for (int i = 0; i < doc.size(); i++) {
+                if (doc.get(i).attr("href").endsWith(".xls")) {
+                    file = doc.get(i).attr("href");
+                    Log.i("FILE", file);
+                    break;
                 }
             }
-
-            interface OnDownload {
-                void onFinish(File output, boolean isAvailable);
-
-                void onProgressChanged(File output, int percent);
-            }
+            success = true;
+            return file;
+        } catch (IOException e) {
+            success = false;
+            return e.getMessage();
         }
+    }
+
+    private void logAll(String TAG, String longString) {
+        int splitSize = 300;
+        if (longString.length() > splitSize) {
+            int index = 0;
+            while (index < longString.length() - splitSize) {
+                Log.e(TAG, longString.substring(index, index + splitSize));
+                index += splitSize;
+            }
+            Log.e(TAG, longString.substring(index, longString.length()));
+        } else {
+            Log.e(TAG, longString);
+        }
+    }
+
+    @Override
+    protected void onPostExecute(String s) {
+        if (success) {
+            gotlink.onLinkGet(s);
+        } else {
+            gotlink.onFail(s);
+        }
+    }
+
+    interface GotLink {
+        void onLinkGet(String link);
+
+        void onFail(String e);
+    }
+}
+
+class GetNews extends AsyncTask<String, String, ArrayList<Main.Link>> {
+    private String ser;
+    private GotNews gotlink;
+    private boolean success;
+
+    GetNews(String service, GotNews gl) {
+        ser = service;
+        gotlink = gl;
+    }
+
+    @Override
+    protected ArrayList<Main.Link> doInBackground(String... strings) {
+        try {
+            ArrayList<Main.Link> file = new ArrayList<>();
+            Document docu = Jsoup.connect(ser).get();
+            Elements ahs = docu.getAllElements().select("div.carousel-inner").select("div.item").select("a");
+            for (int in = 0; in < ahs.size(); in++) {
+                Main.Link link = new Main.Link();
+                link.name = ahs.get(in).text();
+                link.url = ahs.get(in).attr("href");
+                if (!link.name.equals("")) file.add(link);
+            }
+            success = true;
+            return file;
+        } catch (IOException e) {
+            success = false;
+            return null;
+        }
+    }
+
+    @Override
+    protected void onPostExecute(ArrayList<Main.Link> s) {
+        if (success) {
+            if (gotlink != null) gotlink.onNewsGet(s);
+        } else {
+            if (gotlink != null) gotlink.onFail(s);
+        }
+    }
+
+    interface GotNews {
+        void onNewsGet(ArrayList<Main.Link> link);
+
+        void onFail(ArrayList<Main.Link> e);
+    }
+}
+
+class GetMainSite extends AsyncTask<String, String, MainSite> {
+
+    @Override
+    protected MainSite doInBackground(String... strings) {
+        try {
+            MainSite ms = new MainSite();
+            ArrayList<Main.Link> news = new ArrayList<>();
+            String ser = "http://handasaim.co.il";
+            Document docu = Jsoup.connect(ser).get();
+            Elements ahs = docu.getAllElements().select("div.carousel-inner").select("div.item").select("a");
+            for (int in = 0; in < ahs.size(); in++) {
+                Main.Link link = new Main.Link();
+                link.name = ahs.get(in).text();
+                link.url = ahs.get(in).attr("href");
+                if (!link.name.equals("")) news.add(link);
+            }
+            ms.news = news;
+            ms.princSaying = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").first().text();
+            ms.readMorePrics = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").select("a").first().attr("href");
+            return ms;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+}
+
+class FileDownloader extends AsyncTask<String, String, String> {
+    private String furl;
+    private File fdpath;
+    private boolean available;
+    private FileDownloader.OnDownload oe;
+
+    FileDownloader(String url, File path, FileDownloader.OnDownload onfile) {
+        oe = onfile;
+        furl = url;
+        fdpath = path;
+    }
+
+    private boolean check() {
+        try {
+            HttpURLConnection.setFollowRedirects(false);
+            HttpURLConnection con = (HttpURLConnection) new URL(furl).openConnection();
+            return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    protected String doInBackground(String... comment) {
+        int perc = 0;
+        if (check()) {
+            available = true;
+            int count;
+            try {
+                URL url = new URL(furl);
+                URLConnection conection = url.openConnection();
+                conection.connect();
+                int lenghtOfFile = conection.getContentLength();
+                InputStream input = new BufferedInputStream(url.openStream(), 8192);
+                OutputStream output = new FileOutputStream(fdpath);
+                byte data[] = new byte[1024];
+                long total = 0;
+                while ((count = input.read(data)) != -1) {
+                    output.write(data, 0, count);
+                    total += count;
+                    if (perc < (int) (total * 100 / lenghtOfFile)) {
+                        perc++;
+                        oe.onProgressChanged(fdpath, (int) (total * 100 / lenghtOfFile));
+                    }
+                }
+                output.flush();
+                output.close();
+                input.close();
+            } catch (Exception e) {
+                Log.e("Error: ", e.getMessage());
+            }
+        } else {
+            available = false;
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(String file_url) {
+        if (oe != null) {
+            oe.onFinish(fdpath, available);
+        }
+    }
+
+    interface OnDownload {
+        void onFinish(File output, boolean isAvailable);
+
+        void onProgressChanged(File output, int percent);
+    }
+}
