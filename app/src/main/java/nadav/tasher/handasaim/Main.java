@@ -756,7 +756,6 @@ public class Main extends Activity {
         final LinearLayout navbarPermItems = new LinearLayout(this);
         final ImageView nutIcon = new ImageView(this);
         final ImageView newsIcon = new ImageView(this);
-        final ImageView pushIcon = new ImageView(this);
         final ImageView hideIcon = new ImageView(this);
         final int screenY = Light.Device.screenY(this);
         final int nutSize = (screenY / 8) - screenY / 30;
@@ -778,9 +777,6 @@ public class Main extends Activity {
         navbarAll.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         newsIcon.setLayoutParams(newsParms);
         newsIcon.setImageDrawable(getDrawable(R.drawable.ic_news));
-        pushIcon.setLayoutParams(newsParms);
-        final ObjectAnimator rotating = ObjectAnimator.ofFloat(pushIcon, View.TRANSLATION_X, Light.Animations.VIBRATE_SMALL);
-        pushIcon.setImageDrawable(getDrawable(R.drawable.ic_info));
         nutIcon.setLayoutParams(nutParms);
         nutIcon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         nutIcon.setOnClickListener(new View.OnClickListener() {
@@ -788,7 +784,7 @@ public class Main extends Activity {
             public void onClick(View view) {
                 AlertDialog.Builder ab = new AlertDialog.Builder(Main.this);
                 ab.setTitle(R.string.app_name);
-                ab.setMessage("This App Was Made By NadavTasher\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
+                ab.setMessage("This App Was Made By Nadav Tasher\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
                 ab.setCancelable(true);
                 ab.setPositiveButton("Close", null);
                 keyentering++;
@@ -910,7 +906,6 @@ public class Main extends Activity {
         navbarPermItems.setGravity(Gravity.CENTER);
         navbarPermItems.addView(nutIcon);
         navbarPermItems.addView(newsIcon);
-        navbarPermItems.addView(pushIcon);
         navbarPermItems.addView(hideIcon);
         navbarAll.addView(navbarPermItems);
         //        navbarAll.setBackgroundColor(Color.BLACK);
@@ -1328,192 +1323,8 @@ public class Main extends Activity {
         });
         newsIcon.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                newsIcon.setClickable(false);
-                final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
-                final int fontSize = sp.getInt("font", 32);
-                final LinearLayout newsll = new LinearLayout(getApplicationContext());
-                final LinearLayout filln = new LinearLayout(getApplicationContext());
-                newsll.setGravity(Gravity.CENTER);
-                newsll.setOrientation(LinearLayout.VERTICAL);
-                filln.setGravity(Gravity.CENTER);
-                filln.setOrientation(LinearLayout.VERTICAL);
-                final Dialog dialog = new Dialog(Main.this);
-                dialog.setCancelable(true);
-                ScrollView news = new ScrollView(getApplicationContext());
-                news.addView(newsll);
-                filln.addView(news);
-                dialog.setContentView(filln);
-                final Animation rotating = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                rotating.setDuration(1000);
-                rotating.setRepeatCount(ObjectAnimator.INFINITE);
-                rotating.setRepeatMode(ObjectAnimator.RESTART);
-                newsIcon.startAnimation(rotating);
-                filln.setPadding(20, 20, 20, 20);
-                news.setPadding(20, 20, 20, 20);
-                filln.setBackgroundColor(color);
-                news.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10 * 6));
-                new GetNews(serviceProvider, new GetNews.GotNews() {
-                    @Override
-                    public void onNewsGet(final ArrayList<Link> link) {
-                        newsIcon.setClickable(true);
-                        for (int i = 0; i < link.size(); i++) {
-                            Button cls = new Button(getApplicationContext());
-                            cls.setPadding(10, 10, 10, 10);
-                            cls.setTextSize((float) fontSize);
-                            cls.setGravity(Gravity.CENTER);
-                            cls.setText(link.get(i).name);
-                            cls.setTextColor(textColor);
-                            cls.setEllipsize(TextUtils.TruncateAt.END);
-                            cls.setLines(2);
-                            //                            cls.setBackgroundColor(Color.TRANSPARENT);
-                            cls.setBackground(getDrawable(R.drawable.button));
-                            cls.setTypeface(custom_font);
-                            cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 6)));
-                            newsll.addView(cls);
-                            if (!link.get(i).url.equals("")) {
-                                final int finalI = i;
-                                cls.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        String url = link.get(finalI).url;
-                                        Intent i = new Intent(Intent.ACTION_VIEW);
-                                        i.setData(Uri.parse(url));
-                                        startActivity(i);
-                                    }
-                                });
-                            }
-                        }
-                        Button cl = new Button(getApplicationContext());
-                        cl.setText(R.string.cls);
-                        cl.setAllCaps(false);
-                        cl.setBackground(getDrawable(R.drawable.button));
-                        cl.setTextSize((float) 22);
-                        cl.setTextColor(textColor);
-                        cl.setTypeface(custom_font);
-                        cl.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                dialog.dismiss();
-                            }
-                        });
-                        cl.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
-                        filln.addView(cl);
-                        rotating.cancel();
-                        dialog.show();
-                    }
-
-                    @Override
-                    public void onFail(ArrayList<Link> e) {
-                        newsIcon.setClickable(true);
-                    }
-                }).execute("");
-            }
-        });
-        newsIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
             public void onClick(View v) {
-                popupNews(null);
-            }
-        });
-        pushIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pushIcon.setClickable(false);
-                final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
-                final int fontSize = sp.getInt("font", 32);
-                final LinearLayout newsll = new LinearLayout(getApplicationContext());
-                final LinearLayout filln = new LinearLayout(getApplicationContext());
-                newsll.setGravity(Gravity.CENTER);
-                newsll.setOrientation(LinearLayout.VERTICAL);
-                filln.setGravity(Gravity.CENTER);
-                filln.setOrientation(LinearLayout.VERTICAL);
-                final Dialog dialog = new Dialog(Main.this);
-                dialog.setCancelable(true);
-                ScrollView news = new ScrollView(getApplicationContext());
-                news.addView(newsll);
-                filln.addView(news);
-                dialog.setContentView(filln);
-                rotating.setDuration(1000);
-                rotating.setRepeatCount(ObjectAnimator.INFINITE);
-                rotating.setRepeatMode(ObjectAnimator.RESTART);
-                rotating.start();
-                filln.setPadding(20, 20, 20, 20);
-                news.setPadding(20, 20, 20, 20);
-                filln.setBackgroundColor(color);
-                news.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10 * 6));
-                ArrayList<Light.Net.PHP.Post.PHPParameter> parameters = new ArrayList<>();
-                parameters.add(new Light.Net.PHP.Post.PHPParameter("get", ""));
-                final Light.Net.PHP.Post p = new Light.Net.PHP.Post(Main.pushProvider, parameters, new Light.Net.PHP.Post.OnPost() {
-                    @Override
-                    public void onPost(String s) {
-                        try {
-                            JSONObject mainObject = new JSONObject(s);
-                            boolean success = mainObject.getBoolean("success");
-                            if (success) {
-                                JSONArray pushesArray = mainObject.getJSONArray("pushes");
-                                for (int pA = pushesArray.length() - 1; pA >= 0; pA--) {
-                                    JSONObject push = pushesArray.getJSONObject(pA);
-                                    final String text = push.getString("data");
-                                    Button cls = new Button(getApplicationContext());
-                                    cls.setPadding(10, 10, 10, 10);
-                                    cls.setTextSize((float) fontSize);
-                                    cls.setGravity(Gravity.CENTER);
-                                    cls.setText(text);
-                                    cls.setAllCaps(false);
-                                    cls.setTextColor(textColor);
-                                    cls.setEllipsize(TextUtils.TruncateAt.END);
-                                    cls.setLines(2);
-                                    //                            cls.setBackgroundColor(Color.TRANSPARENT);
-                                    cls.setBackground(getDrawable(R.drawable.button));
-                                    cls.setTypeface(custom_font);
-                                    cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 6)));
-                                    newsll.addView(cls);
-                                    cls.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-                                }
-                                Button cl = new Button(getApplicationContext());
-                                cl.setText(R.string.cls);
-                                cl.setAllCaps(false);
-                                cl.setBackground(getDrawable(R.drawable.button));
-                                cl.setTextSize((float) 22);
-                                cl.setTextColor(textColor);
-                                cl.setTypeface(custom_font);
-                                cl.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                                cl.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
-                                filln.addView(cl);
-                                rotating.cancel();
-                                dialog.show();
-                                pushIcon.setClickable(true);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            pushIcon.setClickable(true);
-                        }
-                    }
-                });
-                if (Light.Device.isOnline(getApplicationContext())) {
-                    new Light.Net.Pinger(5000, new Light.Net.Pinger.OnEnd() {
-                        @Override
-                        public void onPing(String s, boolean b) {
-                            if (b) {
-                                p.execute("");
-                            } else {
-                                pushIcon.setClickable(true);
-                                rotating.cancel();
-                            }
-                        }
-                    }).execute("http://handasaim.thepuzik.com");
-                }
+                popupNews();
             }
         });
         if (classes != null)
@@ -1521,7 +1332,7 @@ public class Main extends Activity {
         setContentView(sall);
     }
 
-    private void popupNews(ImageView button) {
+    private void popupNews() {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
         final int fontSize = sp.getInt("font", 32);
@@ -1542,8 +1353,8 @@ public class Main extends Activity {
         npscroll.addView(newsAndPush);
         newsAndPush.addView(push);
         newsAndPush.addView(news);
-        push.setPadding(10,10,10,10);
-        news.setPadding(10,10,10,10);
+        push.setPadding(10,15,10,15);
+        news.setPadding(10,15,10,15);
         TextView pushTitle,newsTitle;
         pushTitle=new TextView(getApplicationContext());
         newsTitle=new TextView(getApplicationContext());
@@ -1581,7 +1392,8 @@ public class Main extends Activity {
         fullPage.setPadding(5, 5, 5, 5);
         news.setVisibility(View.INVISIBLE);
         push.setVisibility(View.INVISIBLE);
-        fullPage.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        fullPage.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext())/10*8));
+        npscroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext())/10*6));
         dialog.setContentView(fullPage);
         if(Light.Device.isOnline(getApplicationContext())){
             ArrayList<Light.Net.PHP.Post.PHPParameter> parameters = new ArrayList<>();
