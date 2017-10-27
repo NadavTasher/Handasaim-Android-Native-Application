@@ -784,7 +784,7 @@ public class Main extends Activity {
             public void onClick(View view) {
                 AlertDialog.Builder ab = new AlertDialog.Builder(Main.this);
                 ab.setTitle(R.string.app_name);
-                ab.setMessage("This App Was Made By Nadav Tasher\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
+                ab.setMessage("This App Was Made By NadavTasher\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
                 ab.setCancelable(true);
                 ab.setPositiveButton("Close", null);
                 keyentering++;
@@ -815,6 +815,8 @@ public class Main extends Activity {
                 hideIcon.setEnabled(false);
                 opened = !opened;
                 if (opened) {
+                    final Animation rotating = new RotateAnimation(270, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                    rotating.setDuration(500);
                     ObjectAnimator oa = ObjectAnimator.ofFloat(navbarPermItems, View.TRANSLATION_X, 0, -(Light.Device.screenX(getApplicationContext()) - navbarPermItems.getWidth()) / 2 + 10/*padding*/);
                     oa.setDuration(500);
                     oa.addListener(new Animator.AnimatorListener() {
@@ -824,6 +826,7 @@ public class Main extends Activity {
 
                         @Override
                         public void onAnimationEnd(Animator animation) {
+                            hideIcon.startAnimation(rotating);
                             hideIcon.setEnabled(true);
                             navbarAll.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
                             navbarPermItems.setX((Light.Device.screenX(getApplicationContext()) - navbarPermItems.getWidth()) / 2);
@@ -842,6 +845,8 @@ public class Main extends Activity {
                     });
                     oa.start();
                 } else {
+                    final Animation rotating = new RotateAnimation(90, 270, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                    rotating.setDuration(500);
                     final ObjectAnimator oa = ObjectAnimator.ofFloat(navbarPermItems, View.TRANSLATION_X, 0, (Light.Device.screenX(getApplicationContext()) - navbarPermItems.getWidth() - 20) / 2/*padding*/);
                     oa.setDuration(500);
                     oa.addListener(new Animator.AnimatorListener() {
@@ -851,6 +856,7 @@ public class Main extends Activity {
 
                         @Override
                         public void onAnimationEnd(Animator animation) {
+                            hideIcon.startAnimation(rotating);
                             hideIcon.setEnabled(true);
                             navbarAll.setGravity(Gravity.CENTER);
                             navbarPermItems.setX(10);
@@ -888,18 +894,6 @@ public class Main extends Activity {
                     });
                     oaa.start();
                 }
-            }
-        });
-        hideIcon.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                //fast spin
-                final Animation rotating = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                rotating.setDuration(500);
-                rotating.setRepeatCount(ObjectAnimator.INFINITE);
-                rotating.setRepeatMode(ObjectAnimator.RESTART);
-                hideIcon.startAnimation(rotating);
-                return true;
             }
         });
         navbarPermItems.setOrientation(LinearLayout.HORIZONTAL);
