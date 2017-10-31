@@ -54,6 +54,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -1819,12 +1820,23 @@ public class Main extends Activity {
             public void onLinkGet(String link) {
                 if (link != null) {
                     //                    Log.i("LINK", link);
-                    new FileDownloader(link, new File(getApplicationContext().getFilesDir(), "hs.xls"), new FileDownloader.OnDownload() {
+                    String fileName = "hs.xls";
+                    if (link.endsWith(".xlsx")) {
+                        fileName = "hs.xlsx";
+                    }
+                    final String finalFileName = fileName;
+                    new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
                         @Override
                         public void onFinish(File file, boolean b) {
                             if (b) {
-                                final ArrayList<Class> classes = readExcelFile(file);
-                                day = readExcelDay(file);
+                                ArrayList<Class> classes;
+                                if (finalFileName.endsWith(".xlsx")) {
+                                    classes = readExcelFileXLSX(file);
+                                    day = readExcelDayXLSX(file);
+                                } else {
+                                    classes = readExcelFile(file);
+                                    day = readExcelDay(file);
+                                }
                                 if (classes != null) {
                                     //                                    for (int cl = 0; cl < classes.size(); cl++) {
                                     //                                        for (int su = 0; su < classes.get(cl).classes.size(); su++) {
@@ -1904,6 +1916,37 @@ public class Main extends Activity {
         }
     }
 
+    private ArrayList<Class> readExcelFileXLSX(File f) {
+        try {
+            ArrayList<Class> classes = new ArrayList<>();
+            XSSFWorkbook myWorkBook = new XSSFWorkbook(new FileInputStream(f));
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+            int rows = mySheet.getLastRowNum();
+            int cols = mySheet.getRow(1).getLastCellNum();
+            for (int c = 1; c < cols; c++) {
+                ArrayList<Subject> subs = new ArrayList<>();
+                for (int r = 2; r < rows; r++) {
+                    Row row = mySheet.getRow(r);
+                    subs.add(new Subject(r - 2, row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+                }
+                classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(), subs));
+            }
+            return classes;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String readExcelDayXLSX(File f) {
+        try {
+            XSSFWorkbook myWorkBook = new XSSFWorkbook(new FileInputStream(f));
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+            return mySheet.getRow(0).getCell(0).getStringCellValue();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     static class Link {
         String url, name;
     }
@@ -1966,7 +2009,7 @@ class GetLink extends AsyncTask<String, String, String> {
             logAll("LINKGET", docu.outerHtml());
             String file = null;
             for (int i = 0; i < doc.size(); i++) {
-                if (doc.get(i).attr("href").endsWith(".xls")) {
+                if (doc.get(i).attr("href").endsWith(".xls") || doc.get(i).attr("href").endsWith(".xlsx")) {
                     file = doc.get(i).attr("href");
                     Log.i("FILE", file);
                     break;
