@@ -86,7 +86,6 @@ public class Main extends Activity {
     private final String serviceProvider = "http://handasaim.co.il";
     private int color = Color.parseColor("#1b5c96");
     private int secolor = color + 0x333333;
-    private final boolean messageSplash = false;
     private String day;
     private Class currentClass;
     private int textColor = Color.WHITE;
@@ -253,7 +252,7 @@ public class Main extends Activity {
     private void newsSplash(final ArrayList<Class> classes) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
-        if (sp.getBoolean("installed_pass_news_code", !messageSplash)) {
+        if (sp.getBoolean("installed_pass_news_code", false)) {
             view(classes);
         } else {
             if (sp.getBoolean("fontWhite", true)) {
@@ -1842,9 +1841,9 @@ public class Main extends Activity {
                                     day = readExcelDay(file);
                                 }
                                 /////
-                                file = new File(getApplicationContext().getFilesDir(), "hs.xlsx");
-                                classes = readExcelFileXLSX(file);
-                                day = readExcelDayXLSX(file);
+                                //                                file = new File(getApplicationContext().getFilesDir(), "hs.xlsx");
+                                //                                classes = readExcelFileXLSX(file);
+                                //                                day = readExcelDayXLSX(file);
                                 /////
                                 if (classes != null) {
                                     //                                    for (int cl = 0; cl < classes.size(); cl++) {
