@@ -1625,9 +1625,9 @@ public class Main extends Activity {
                 fsubj.setPadding(0, 0, 20, 0);
                 CheckBox che = new CheckBox(getApplicationContext());
                 che.setText(null);
-                if(textColor==Color.WHITE){
+                if (textColor == Color.WHITE) {
                     che.setButtonDrawable(getDrawable(R.drawable.checkbox_white));
-                }else {
+                } else {
                     che.setButtonDrawable(getDrawable(R.drawable.checkbox_black));
                 }
                 //                che.setButtonTintList(new ColorStateList());
