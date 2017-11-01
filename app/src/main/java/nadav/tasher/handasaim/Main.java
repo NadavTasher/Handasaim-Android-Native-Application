@@ -2117,8 +2117,13 @@ class GetMainSite extends AsyncTask<String, String, MainSite> {
                 if (!link.name.equals("")) news.add(link);
             }
             ms.news = news;
-            ms.princSaying = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").first().text();
-            ms.readMorePrics = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").select("a").first().attr("href");
+            try{
+                ms.princSaying = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").first().text();
+                ms.readMorePrics = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").select("a").first().attr("href");
+            }catch(NullPointerException e){
+                ms.princSaying = "No Value";
+                ms.readMorePrics = "http://handasaim.co.il";
+            }
             return ms;
         } catch (IOException e) {
             return null;
