@@ -1625,7 +1625,11 @@ public class Main extends Activity {
                 fsubj.setPadding(0, 0, 20, 0);
                 CheckBox che = new CheckBox(getApplicationContext());
                 che.setText(null);
-                che.setButtonDrawable(getDrawable(R.drawable.checkbox_b));
+                if(textColor==Color.WHITE){
+                    che.setButtonDrawable(getDrawable(R.drawable.checkbox_white));
+                }else {
+                    che.setButtonDrawable(getDrawable(R.drawable.checkbox_black));
+                }
                 //                che.setButtonTintList(new ColorStateList());
                 fsubj.addView(che);
                 fsubj.setBackground(getDrawable(R.drawable.backasbutton));
