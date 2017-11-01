@@ -358,6 +358,9 @@ public class Main extends Activity {
             try {
                 final MainSite ms = new GetMainSite().execute().get();
                 if (ms != null) {
+                    if (ms.readMorePrics == null && ms.princSaying == null) {
+                        view(classes);
+                    }
                     princibleSay.setText(ms.princSaying);
                     princibleSay.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -1838,6 +1841,11 @@ public class Main extends Activity {
                                     classes = readExcelFile(file);
                                     day = readExcelDay(file);
                                 }
+                                /////
+                                file = new File(getApplicationContext().getFilesDir(), "hs.xlsx");
+                                classes = readExcelFileXLSX(file);
+                                day = readExcelDayXLSX(file);
+                                /////
                                 if (classes != null) {
                                     //                                    for (int cl = 0; cl < classes.size(); cl++) {
                                     //                                        for (int su = 0; su < classes.get(cl).classes.size(); su++) {
@@ -2117,12 +2125,12 @@ class GetMainSite extends AsyncTask<String, String, MainSite> {
                 if (!link.name.equals("")) news.add(link);
             }
             ms.news = news;
-            try{
+            try {
                 ms.princSaying = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").first().text();
                 ms.readMorePrics = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").select("a").first().attr("href");
-            }catch(NullPointerException e){
-                ms.princSaying = "No Value";
-                ms.readMorePrics = "http://handasaim.co.il";
+            } catch (NullPointerException e) {
+                ms.princSaying = null;
+                ms.readMorePrics = null;
             }
             return ms;
         } catch (IOException e) {
