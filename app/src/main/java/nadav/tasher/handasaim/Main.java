@@ -282,7 +282,7 @@ public class Main extends Activity {
             newsAll.setOrientation(LinearLayout.VERTICAL);
             news.setOrientation(LinearLayout.VERTICAL);
             Button princibleSay = new Button(getApplicationContext());
-            princibleSay.setBackground(getDrawable(R.drawable.button));
+            princibleSay.setBackground(getDrawable(R.drawable.back_transparant));
             princibleSay.setTypeface(custom_font);
             princibleSay.setPadding(10, 10, 10, 10);
             princibleSay.setTextColor(textColor);
@@ -374,10 +374,12 @@ public class Main extends Activity {
                         Button newtopic = new Button(getApplicationContext());
                         newtopic.setText(ms.news.get(n).name);
                         newtopic.setEllipsize(TextUtils.TruncateAt.END);
-                        newtopic.setBackground(getDrawable(R.drawable.button));
+                        newtopic.setBackground(getDrawable(R.drawable.back_transparant));
                         newtopic.setTextColor(textColor);
                         newtopic.setTextSize(sp.getInt("font", 32) - 10);
-                        newtopic.setPadding(10, 10, 10, 10);
+                        newtopic.setPadding(20, 10, 20, 10);
+                        newtopic.setEllipsize(TextUtils.TruncateAt.END);
+                        newtopic.setLines(2);
                         newtopic.setTypeface(custom_font);
                         newtopic.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 8));
                         final int finalN = n;
