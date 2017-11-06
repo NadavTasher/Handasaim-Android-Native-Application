@@ -776,6 +776,7 @@ public class Main extends Activity {
         final LinearLayout.LayoutParams newsParms = new LinearLayout.LayoutParams(newsSize, newsSize);
         final LinearLayout.LayoutParams navParms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, navY);
         final HorizontalScrollView navSliderviewscroll = new HorizontalScrollView(this);
+        navbarAll.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setBackgroundColor(color);
