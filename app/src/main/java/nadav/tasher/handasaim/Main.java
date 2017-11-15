@@ -403,7 +403,7 @@ public class Main extends Activity {
                             ImageView imageView = new ImageView(this);
                             imageView.setImageBitmap(new PictureLoader(ms.news.get(n).imgurl).execute().get());
                             imageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 3));
-                            imageView.setPadding(20, 40, 20, 40);
+                            imageView.setPadding(20, 20, 20, 40);
                             final int finalN1 = n;
                             imageView.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -978,6 +978,36 @@ public class Main extends Activity {
                     });
                     oaa.start();
                 }
+            }
+        });
+        final Animation endless = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        endless.setDuration(5000);
+        endless.setRepeatCount(Animation.INFINITE);
+        endless.setRepeatMode(Animation.RESTART);
+        endless.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                if ((int) endless.getDuration() != 0) {
+                    endless.setDuration((long) (endless.getDuration() / 1.5));
+                } else {
+                    endless.setDuration(5000);
+                }
+            }
+        });
+        hideIcon.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(getApplicationContext(), "You Have Found Me...", Toast.LENGTH_LONG).show();
+                hideIcon.startAnimation(endless);
+                return true;
             }
         });
         navbarPermItems.setOrientation(LinearLayout.HORIZONTAL);
