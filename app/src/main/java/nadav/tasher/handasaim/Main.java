@@ -70,9 +70,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -373,7 +376,12 @@ public class Main extends Activity {
                         }
                     });
                     for (int n = 0; n < ms.news.size(); n++) {
+                        LinearLayout nt = new LinearLayout(this);
+                        nt.setOrientation(LinearLayout.VERTICAL);
+                        nt.setGravity(Gravity.CENTER);
                         Button newtopic = new Button(getApplicationContext());
+                        nt.addView(newtopic);
+                        nt.setBackground(getDrawable(R.drawable.back_transparant));
                         newtopic.setText(ms.news.get(n).name);
                         newtopic.setEllipsize(TextUtils.TruncateAt.END);
                         newtopic.setBackground(getDrawable(R.drawable.back_transparant));
@@ -383,6 +391,24 @@ public class Main extends Activity {
                         newtopic.setEllipsize(TextUtils.TruncateAt.END);
                         newtopic.setLines(2);
                         newtopic.setTypeface(custom_font);
+                        if (!ms.news.get(n).imgurl.equals("") || ms.news.get(n).imgurl != null) {
+                            Log.i("Image", ms.news.get(n).imgurl);
+                            ImageView imageView = new ImageView(this);
+                            imageView.setImageBitmap(new PictureLoader(ms.news.get(n).imgurl).execute().get());
+                            imageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 3));
+                            imageView.setPadding(20, 40, 20, 40);
+                            final int finalN1 = n;
+                            imageView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String url = ms.news.get(finalN1).url;
+                                    Intent i = new Intent(Intent.ACTION_VIEW);
+                                    i.setData(Uri.parse(url));
+                                    startActivity(i);
+                                }
+                            });
+                            nt.addView(imageView);
+                        }
                         newtopic.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 8));
                         final int finalN = n;
                         newtopic.setOnClickListener(new View.OnClickListener() {
@@ -394,9 +420,9 @@ public class Main extends Activity {
                                 startActivity(i);
                             }
                         });
-                        news.addView(newtopic);
+                        news.addView(nt);
                     }
-                    new CountDownTimer(11000, 1000) {
+                    new CountDownTimer(16000, 1000) {
 
                         @Override
                         public void onTick(long millisUntilFinished) {
@@ -1918,9 +1944,9 @@ public class Main extends Activity {
             case 8:
                 return "14:35";
             case 9:
-                return "15:25";
+                return "15:30";
             case 10:
-                return "16:10";
+                return "16:15";
             case 11:
                 return "17:00";
             case 12:
@@ -1950,9 +1976,9 @@ public class Main extends Activity {
             case 8:
                 return "15:20";
             case 9:
-                return "16:10";
+                return "16:15";
             case 10:
-                return "16:55";
+                return "17:00";
             case 11:
                 return "17:45";
             case 12:
@@ -1970,7 +1996,7 @@ public class Main extends Activity {
             case 6:
                 return 10;
             case 8:
-                return 5;
+                return 10;
             case 10:
                 return 5;
         }
@@ -2118,7 +2144,7 @@ public class Main extends Activity {
     }
 
     static class Link {
-        String url, name;
+        String url, name, imgurl;
     }
 
     private class Theme {
@@ -2454,11 +2480,13 @@ class GetMainSite extends AsyncTask<String, String, MainSite> {
             ArrayList<Main.Link> news = new ArrayList<>();
             String ser = "http://handasaim.co.il";
             Document docu = Jsoup.connect(ser).get();
-            Elements ahs = docu.getAllElements().select("div.carousel-inner").select("div.item").select("a");
-            for (int in = 0; in < ahs.size(); in++) {
+            Elements itemss = docu.getAllElements().select("div.carousel-inner").select("div.item");
+            for (int in = 0; in < itemss.size(); in++) {
                 Main.Link link = new Main.Link();
-                link.name = ahs.get(in).text();
-                link.url = ahs.get(in).attr("href");
+                link.name = itemss.get(in).select("a").first().text();
+                link.url = itemss.get(in).select("a").first().attr("href");
+                link.imgurl = itemss.get(in).select("img").attr("src");
+                Log.i("IMAGE_O", link.imgurl);
                 if (!link.name.equals("")) news.add(link);
             }
             ms.news = news;
@@ -2545,5 +2573,24 @@ class FileDownloader extends AsyncTask<String, String, String> {
         void onFinish(File output, boolean isAvailable);
 
         void onProgressChanged(File output, int percent);
+    }
+}
+
+class PictureLoader extends AsyncTask<String, String, Bitmap> {
+    private String furl;
+
+    PictureLoader(String url) {
+        furl = url;
+    }
+
+    @Override
+    protected Bitmap doInBackground(String... comment) {
+        try {
+            URL url = new URL(furl);
+            return BitmapFactory.decodeStream(url.openConnection().getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
