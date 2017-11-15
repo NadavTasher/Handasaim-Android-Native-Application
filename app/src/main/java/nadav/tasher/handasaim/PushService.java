@@ -108,12 +108,7 @@ public class PushService extends Service {
         TimeZone mTimeZone = mCalendar.getTimeZone();
         int mGMTOffset = mTimeZone.getRawOffset();
         //        timeH+=TimeUnit.HOURS.convert(mGMTOffset, TimeUnit.MILLISECONDS);
-        Notification notification = new NotificationCompat.Builder(getApplicationContext())
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(getResources().getString(R.string.app_name) + " at " + timeH + ":" + timeM + "GMT")
-                .setContentText(text)
-                .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
-                .build();
+        Notification notification = new NotificationCompat.Builder(getApplicationContext()).setSmallIcon(R.mipmap.ic_launcher).setContentTitle(getResources().getString(R.string.app_name) + " at " + timeH + ":" + timeM + "GMT").setContentText(text).setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE).build();
         manager.notify(new Random().nextInt(100), notification);
     }
 }

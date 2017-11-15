@@ -15,6 +15,7 @@
     <string name="rnew">Renew Special Settings:</string>
     <string name="cls">Close</string>
     <string name="push">Push Notifications</string>
+    <string name="dnd">Auto Mute</string>
     <string name="sv">Save</string>
     <string name="messageboard">Message Board</string>
     <string name="psay">Principal\'s Welcome</string>

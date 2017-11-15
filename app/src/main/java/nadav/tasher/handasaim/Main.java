@@ -6,9 +6,14 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -17,9 +22,12 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.provider.Settings;
+import android.support.v7.app.NotificationCompat;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -70,12 +78,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.Calendar;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -86,6 +92,7 @@ public class Main extends Activity {
     static final String keyProvider = "http://handasaim.thepuzik.com/keys/key.php";
     static final String puzProvider = "http://handasaim.thepuzik.com";
     static final String STOP_SERVICE = "nadav.tasher.handasaim.STOP_SERVICE";
+    static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
     private final String serviceProvider = "http://handasaim.co.il";
     private int color = Color.parseColor("#1b5c96");
     private int secolor = color + 0x333333;
@@ -608,18 +615,57 @@ public class Main extends Activity {
         pushNoti.setTextSize((float) 30);
         pushNoti.setTypeface(custom_font);
         pushNoti.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
+        final Switch automute = new Switch(this);
+        automute.setChecked(sp.getBoolean("auto_dnd", false));
+        automute.setText(R.string.dnd);
+        automute.setTextSize((float) 30);
+        automute.setTypeface(custom_font);
+        automute.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                boolean granted = ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).isNotificationPolicyAccessGranted();
+                if (!granted && isChecked) {
+                    AlertDialog.Builder pop = new AlertDialog.Builder(Main.this);
+                    pop.setCancelable(true);
+                    pop.setMessage("You need to enable 'Do Not Disturb' permissions for the app.");
+                    pop.setPositiveButton("Open Settings", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (Build.VERSION.SDK_INT >= 23)
+                                startActivityForResult(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), 0);
+                        }
+                    });
+                    pop.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            automute.setChecked(false);
+                        }
+                    });
+                    pop.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialogInterface) {
+                            automute.setChecked(false);
+                        }
+                    });
+                    pop.show();
+                }
+            }
+        });
+        automute.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         spcl.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 9, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
         part3.addView(spclSet);
         spcl.addView(showTimes);
         spcl.addView(showBreaks);
         spcl.addView(textCo);
         spcl.addView(pushNoti);
+        if (Build.VERSION.SDK_INT >= 23) spcl.addView(automute);
         part3.addView(spcl);
         part3.addView(done);
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 sp.edit().putBoolean("show_time", showTimes.isChecked()).commit();
+                sp.edit().putBoolean("auto_dnd", automute.isChecked()).commit();
                 sp.edit().putBoolean("fontWhite", textCo.isChecked()).commit();
                 sp.edit().putBoolean("breaks", textCo.isChecked()).commit();
                 sp.edit().putBoolean("push", pushNoti.isChecked()).commit();
@@ -1019,6 +1065,18 @@ public class Main extends Activity {
         bagswitch.setOrientation(LinearLayout.HORIZONTAL);
         navSliderview.addView(bagswitch);
         //
+        final LinearLayout auto_dnd = new LinearLayout(this);
+        auto_dnd.setBackground(getDrawable(R.drawable.back));
+        auto_dnd.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
+        ImageView auto_dnd_ic = new ImageView(getApplicationContext());
+        auto_dnd_ic.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
+        auto_dnd_ic.setImageDrawable(getDrawable(R.drawable.ic_auto_mute));
+        auto_dnd.addView(auto_dnd_ic);
+        auto_dnd.setPadding(20, 20, 20, 20);
+        auto_dnd.setGravity(Gravity.CENTER);
+        auto_dnd.setOrientation(LinearLayout.HORIZONTAL);
+        navSliderview.addView(auto_dnd);
+        //
         final LinearLayout colorText = new LinearLayout(this);
         colorText.setOrientation(LinearLayout.HORIZONTAL);
         colorText.setGravity(Gravity.CENTER);
@@ -1236,6 +1294,56 @@ public class Main extends Activity {
         };
         breakswitch.setOnClickListener(breakONC);
         breakswitch_ic.setOnClickListener(breakONC);
+        if (!sp.getBoolean("auto_dnd", false)) {
+            auto_dnd.setBackground(getDrawable(R.drawable.back));
+        } else {
+            auto_dnd.setBackground(getDrawable(R.drawable.back_2));
+        }
+        View.OnClickListener autodndoc = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sp.edit().putBoolean("auto_dnd", !sp.getBoolean("auto_dnd", false)).commit();
+                if (!sp.getBoolean("auto_dnd", false)) {
+                    auto_dnd.setBackground(getDrawable(R.drawable.back));
+                } else {
+                    boolean granted = ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).isNotificationPolicyAccessGranted();
+                    if (!granted) {
+                        AlertDialog.Builder pop = new AlertDialog.Builder(Main.this);
+                        pop.setCancelable(true);
+                        pop.setMessage("You need to enable 'Do Not Disturb' permissions for the app.");
+                        pop.setPositiveButton("Open Settings", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                if (Build.VERSION.SDK_INT >= 23) {
+                                    startActivityForResult(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), 0);
+                                    auto_dnd.setBackground(getDrawable(R.drawable.back_2));
+                                }
+                            }
+                        });
+                        pop.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                sp.edit().putBoolean("auto_dnd", false).commit();
+                                auto_dnd.setBackground(getDrawable(R.drawable.back));
+                            }
+                        });
+                        pop.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialogInterface) {
+                                sp.edit().putBoolean("auto_dnd", false).commit();
+                                auto_dnd.setBackground(getDrawable(R.drawable.back));
+                            }
+                        });
+                        pop.show();
+                    } else {
+                        auto_dnd.setBackground(getDrawable(R.drawable.back_2));
+                    }
+                    ////
+                }
+            }
+        };
+        auto_dnd_ic.setOnClickListener(autodndoc);
+        auto_dnd.setOnClickListener(autodndoc);
         if (sp.getBoolean("fontWhite", true)) {
             colorText.setBackground(getDrawable(R.drawable.back));
         } else {
@@ -2003,6 +2111,14 @@ public class Main extends Activity {
         return -1;
     }
 
+    static void startDND(Context context) {
+        context.sendBroadcast(new Intent(KILL_DND));
+        IntentFilter o = new IntentFilter();
+        o.addAction(Intent.ACTION_TIME_TICK);
+        o.addAction(KILL_DND);
+        context.registerReceiver(new DNDReceiver(), o);
+    }
+
     private void openApp() {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/index.php";
@@ -2044,7 +2160,9 @@ public class Main extends Activity {
                                             welcome(classes, true);
                                         } else {
                                             //                                            view(classes);
+                                            //                                            welcome(classes, true);
                                             newsSplash(classes);
+                                            startDND(getApplicationContext());
                                             startPush();
                                         }
                                     } else {
@@ -2591,6 +2709,48 @@ class PictureLoader extends AsyncTask<String, String, Bitmap> {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+}
+
+class DNDReceiver extends BroadcastReceiver {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (intent.getAction().equals(Main.KILL_DND)) {
+            context.unregisterReceiver(this);
+        }
+        final SharedPreferences sp = context.getSharedPreferences("app", Context.MODE_PRIVATE);
+        if (sp.getBoolean("auto_dnd", false)) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                boolean granted = ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).isNotificationPolicyAccessGranted();
+                if (granted) {
+                    checkTime(context);
+                } else {
+                    sendNoPermissionNotification(context);
+                }
+            }
+        }
+    }
+
+    void checkTime(Context context) {
+        Log.i("DNDReceiver", "Called!");
+        Calendar c = Calendar.getInstance();
+        if (c.get(Calendar.MINUTE) == 30 && c.get(Calendar.HOUR_OF_DAY) == 8) {
+            Log.i("DND", "Enabled!");
+            NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
+        } else if (c.get(Calendar.MINUTE) == 15 && c.get(Calendar.HOUR_OF_DAY) == 16) {
+            NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
+        }
+    }
+
+    void sendNoPermissionNotification(Context c) {
+        NotificationManager manager = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification notification = new NotificationCompat.Builder(c).setSmallIcon(R.mipmap.ic_launcher).setContentTitle(c.getResources().getString(R.string.app_name) + " Warning").setContentText("The app does not have 'Do Not Disturb' permissions.").setContentIntent(PendingIntent.getActivity(c, 0, new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), PendingIntent.FLAG_UPDATE_CURRENT)).build();
+        if (manager != null) {
+            manager.notify(new Random().nextInt(100), notification);
         }
     }
 }
