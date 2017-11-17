@@ -2516,7 +2516,7 @@ public class Main extends Activity {
                 ArrayList<Subject> subjs = c.classes;
                 for (int subj = 0; subj < subjs.size(); subj++) {
                     Subject subject = subjs.get(subj);
-                    Log.i("Subj", subject.fullName.split("\\r?\\n")[0]);
+                    //                    Log.i("Subj", subject.fullName.split("\\r?\\n")[0]);
                     String teachOrTcrs = subject.fullName.substring(subject.fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0];
                     ArrayList<String> teacherNames = Light.Stringer.cutOnEvery(teachOrTcrs, ",");
                     for (int tcrName = 0; tcrName < teacherNames.size(); tcrName++) {
@@ -2529,13 +2529,22 @@ public class Main extends Activity {
                             }
                         }
                         if (foundTeacher != null) {
-                            if (subject.name != null && !subject.name.equals("")) {
-                                if (foundTeacher.mainSubject != null) {
-                                    if (foundTeacher.mainSubject.contains(subject.name) || subject.name.contains(foundTeacher.mainSubject))
+                            boolean teacherIs = false;
+                            for (int sfn = 0; sfn < teacherNames.size(); sfn++) {
+                                if (teacherNames.get(sfn).equals(foundTeacher.mainName) || teacherNames.get(sfn).contains(foundTeacher.mainName)) {
+                                    teacherIs = true;
+                                    break;
+                                }
+                            }
+                            if (teacherIs) {
+                                if (subject.name != null && !subject.name.equals("")) {
+                                    if (foundTeacher.mainSubject != null) {
+                                        if (foundTeacher.mainSubject.contains(subject.name) || subject.name.contains(foundTeacher.mainSubject))
+                                            foundTeacher.teaching.add(new TeacherClass(c.name, subject.name, subject.hour));
+                                    } else {
                                         foundTeacher.teaching.add(new TeacherClass(c.name, subject.name, subject.hour));
-                                } else {
-                                    foundTeacher.teaching.add(new TeacherClass(c.name, subject.name, subject.hour));
-                                    foundTeacher.mainSubject = subject.name;
+                                        foundTeacher.mainSubject = subject.name;
+                                    }
                                 }
                             }
                         } else {
@@ -2843,8 +2852,8 @@ public class Main extends Activity {
             Log.i("DNDReceiver", "Called!");
             Calendar c = Calendar.getInstance();
             File excel = new File(context.getFilesDir(), sp.getString("latest_file_name", "hs.xls"));
-            ArrayList<ClassTime> classTimes = new ArrayList<>();
             String name = sp.getString("latest_file_name", "");
+            ArrayList<ClassTime> classTimes = new ArrayList<>();
             ArrayList<Class> classes;
             if (!name.equals("")) {
                 if (name.endsWith(".xlsx")) {
@@ -2855,16 +2864,34 @@ public class Main extends Activity {
             } else {
                 classes = new ArrayList<>();
             }
-            if (sp.getString("favorite_class", null) != null) {
-                if (classes != null) {
-                    for (int fc = 0; fc < classes.size(); fc++) {
-                        if (sp.getString("favorite_class", "").equals(classes.get(fc).name)) {
-                            ArrayList<Subject> subjects = classes.get(fc).classes;
-                            for (int sub = 0; sub < subjects.size(); sub++) {
-                                classTimes.add(Main.getTimeForLesson(subjects.get(sub).hour));
-                                //                            Log.i("TIMES",classTimes.get(sub).startH+":"+classTimes.get(sub).startM+"-"+classTimes.get(sub).finishH+":"+classTimes.get(sub).finishM);
+            if (!sp.getBoolean("teacher_mode", false)) {
+                if (sp.getString("favorite_class", null) != null) {
+                    if (classes != null) {
+                        for (int fc = 0; fc < classes.size(); fc++) {
+                            if (sp.getString("favorite_class", "").equals(classes.get(fc).name)) {
+                                ArrayList<Subject> subjects = classes.get(fc).classes;
+                                for (int sub = 0; sub < subjects.size(); sub++) {
+                                    classTimes.add(Main.getTimeForLesson(subjects.get(sub).hour));
+                                    //                            Log.i("TIMES",classTimes.get(sub).startH+":"+classTimes.get(sub).startM+"-"+classTimes.get(sub).finishH+":"+classTimes.get(sub).finishM);
+                                }
+                                break;
                             }
-                            break;
+                        }
+                    }
+                }
+            } else {
+                ArrayList<ForTeachers.Teacher> teachers = ForTeachers.getTeacherSchudleForClasses(classes);
+                if (sp.getString("favorite_teacher", null) != null) {
+                    if (teachers != null) {
+                        for (int fc = 0; fc < teachers.size(); fc++) {
+                            if (sp.getString("favorite_teacher", "").equals(teachers.get(fc).mainName)) {
+                                ArrayList<ForTeachers.TeacherClass> subjects = teachers.get(fc).teaching;
+                                for (int sub = 0; sub < subjects.size(); sub++) {
+                                    classTimes.add(Main.getTimeForLesson(subjects.get(sub).hour));
+                                    //                            Log.i("TIMES",classTimes.get(sub).startH+":"+classTimes.get(sub).startM+"-"+classTimes.get(sub).finishH+":"+classTimes.get(sub).finishM);
+                                }
+                                break;
+                            }
                         }
                     }
                 }
