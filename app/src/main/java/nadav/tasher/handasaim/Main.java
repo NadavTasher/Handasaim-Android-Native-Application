@@ -17,7 +17,11 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -39,6 +43,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -94,7 +99,7 @@ public class Main extends Activity {
     static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
     static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
     private final String serviceProvider = "http://handasaim.co.il";
-    private int color = Color.parseColor("#1b5c96");
+    private int color = Color.parseColor("#317582");
     private int secolor = color + 0x333333;
     private String day;
     private Class currentClass;
@@ -102,7 +107,7 @@ public class Main extends Activity {
     static int textColor = Color.WHITE;
     private int countheme = 0;
     private boolean mode = false;
-    private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
+    private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#1b5c96"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
     private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
     private String[] infact = new String[]{"Every year more than 2500 left-handed people are killed from using right-handed products.", "In 1895 Hampshire police handed out the first ever speeding ticket, fining a man for doing 6mph!", "Over 1000 birds a year die from smashing into windows.", "Squirrels forget where they hide about half of their nuts.", "The average person walks the equivalent of twice around the world in a lifetime.", "A company in Taiwan makes dinnerware out of wheat, so you can eat your plate!", "An apple, potato, and onion all taste the same if you eat them with your nose plugged.", "Dying is illegal in the Houses of Parliaments – This has been voted as the most ridiculous law by the British citizens.", "The first alarm clock could only ring at 4am.", "If you leave everything to the last minute… it will only take a minute.", "Every human spent about half an hour as a single cell.", "The Twitter bird actually has a name – Larry.", "Sea otters hold hands when they sleep so they don’t drift away from each other.", "The French language has seventeen different words for ‘surrender’.", "The Titanic was the first ship to use the SOS signal.", "A baby octopus is about the size of a flea when it is born.", "You cannot snore and dream at the same time.", "A toaster uses almost half as much energy as a full-sized oven.", "If you consistently fart for 6 years & 9 months, enough gas is produced to create the energy of an atomic bomb!", "An eagle can kill a young deer and fly away with it.", "Polar bears can eat as many as 86 penguins in a single sitting.", "If Pinokio says “My Nose Will Grow Now”, it would cause a paradox.", "Bananas are curved because they grow towards the sun.", "Human saliva has a boiling point three times that of regular water.", "Cherophobia is the fear of fun.", "When hippos are upset, their sweat turns red.", "Pteronophobia is the fear of being tickled by feathers!", "Banging your head against a wall burns 150 calories an hour."};
     private int keyentering = 0;
@@ -156,9 +161,13 @@ public class Main extends Activity {
         ll.addView(icon);
         final ProgressBar pb = new ProgressBar(this);
         pb.setIndeterminate(true);
-        ll.addView(pb);
         pb.setVisibility(View.GONE);
         pb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
+        //        ll.addView(pb);
+        final CurvedTextView ctv = new CurvedTextView(this, getString(R.string.app_name), 40, 0xffff6600, Light.Device.screenX(this), (int) (Light.Device.screenY(getApplicationContext()) * 0.2), (int) (Light.Device.screenY(getApplicationContext()) * 0.10) / 2);
+        ctv.setVisibility(View.GONE);
+        ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
+        ll.addView(ctv);
         final TextView tv = new TextView(getApplicationContext());
         tv.setGravity(Gravity.CENTER);
         tv.setTextColor(Color.WHITE);
@@ -178,7 +187,12 @@ public class Main extends Activity {
             @Override
             public void onAnimationEnd(Animator animator) {
                 tv.setVisibility(View.GONE);
-                pb.setVisibility(View.VISIBLE);
+                RotateAnimation rotateAnimation = new RotateAnimation(0, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                rotateAnimation.setInterpolator(new LinearInterpolator());
+                rotateAnimation.setDuration(2500);
+                rotateAnimation.setRepeatCount(Animation.INFINITE);
+                ctv.startAnimation(rotateAnimation);
+                ctv.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -542,13 +556,13 @@ public class Main extends Activity {
         final Switch showTimes = new Switch(this);
         showTimes.setChecked(sp.getBoolean("show_time", false));
         showTimes.setText(R.string.sct);
-        showTimes.setTextSize((float) 30);
+        showTimes.setTextSize((float) 23);
         showTimes.setTypeface(custom_font);
         showTimes.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch textCo = new Switch(this);
         textCo.setChecked(sp.getBoolean("fontWhite", true));
         textCo.setText(R.string.white);
-        textCo.setTextSize((float) 30);
+        textCo.setTextSize((float) 23);
         textCo.setTypeface(custom_font);
         textCo.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         textCo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -566,19 +580,19 @@ public class Main extends Activity {
         final Switch showBreaks = new Switch(this);
         showBreaks.setChecked(sp.getBoolean("breaks", true));
         showBreaks.setText(R.string.showbrk);
-        showBreaks.setTextSize((float) 30);
+        showBreaks.setTextSize((float) 23);
         showBreaks.setTypeface(custom_font);
         showBreaks.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch pushNoti = new Switch(this);
         pushNoti.setChecked(sp.getBoolean("push", true));
         pushNoti.setText(R.string.push);
-        pushNoti.setTextSize((float) 30);
+        pushNoti.setTextSize((float) 23);
         pushNoti.setTypeface(custom_font);
         pushNoti.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch automute = new Switch(this);
         automute.setChecked(sp.getBoolean("auto_dnd", false));
         automute.setText(R.string.dnd);
-        automute.setTextSize((float) 30);
+        automute.setTextSize((float) 23);
         automute.setTypeface(custom_font);
         automute.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -861,7 +875,7 @@ public class Main extends Activity {
                 hideIcon.setEnabled(false);
                 opened = !opened;
                 if (opened) {
-                    final Animation rotating = new RotateAnimation(270, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                    final Animation rotating = new RotateAnimation(180, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                     rotating.setDuration(500);
                     ObjectAnimator oa = ObjectAnimator.ofFloat(navbarPermItems, View.TRANSLATION_X, 0, -(Light.Device.screenX(getApplicationContext()) - navbarPermItems.getWidth()) / 2 + 10/*padding*/);
                     oa.setDuration(500);
@@ -891,7 +905,7 @@ public class Main extends Activity {
                     });
                     oa.start();
                 } else {
-                    final Animation rotating = new RotateAnimation(90, 270, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                    final Animation rotating = new RotateAnimation(0, 180, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                     rotating.setDuration(500);
                     final ObjectAnimator oa = ObjectAnimator.ofFloat(navbarPermItems, View.TRANSLATION_X, 0, (Light.Device.screenX(getApplicationContext()) - navbarPermItems.getWidth() - 20) / 2/*padding*/);
                     oa.setDuration(500);
@@ -2882,6 +2896,35 @@ public class Main extends Activity {
             if (manager != null) {
                 manager.notify(new Random().nextInt(100), notification);
             }
+        }
+    }
+
+    static public class CurvedTextView extends View {
+        private Path circle;
+        private Paint tPaint;
+        private Paint cPaint;
+        private String text;
+
+        public CurvedTextView(Context context, String text, float textSize, int textColor, int sizeX, int sizeY, int radius) {
+            super(context);
+            this.text = text;
+            circle = new Path();
+            circle.addCircle(((sizeX - radius * 2) / 2) + radius, ((sizeY - radius * 2) / 2) + radius, radius, Path.Direction.CW);
+            cPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            cPaint.setStyle(Paint.Style.STROKE);
+            cPaint.setColor(Color.LTGRAY);
+            cPaint.setStrokeWidth(3);
+            tPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+            tPaint.setColor(textColor);
+            tPaint.setTextSize(textSize);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            Log.i("CURVE", "Made Curve With Text:" + text);
+            canvas.drawTextOnPath(text, circle, 0, 0, tPaint);
+            invalidate();
         }
     }
 }

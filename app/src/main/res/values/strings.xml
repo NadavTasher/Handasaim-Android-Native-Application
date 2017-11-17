@@ -7,7 +7,7 @@
     <string name="scla">Select Class</string>
     <string name="dn">Done</string>
     <string name="spclstt">Special Settings</string>
-    <string name="sct">Show Class Times</string>
+    <string name="sct">Show Lesson Times</string>
     <string name="white">White Text</string>
     <string name="black">Black Text</string>
     <string name="brkk">Break</string>
@@ -15,7 +15,7 @@
     <string name="rnew">Renew Special Settings:</string>
     <string name="cls">Close</string>
     <string name="push">Push Notifications</string>
-    <string name="dnd">Auto Mute</string>
+    <string name="dnd">Auto Mute and Unmute</string>
     <string name="sv">Save</string>
     <string name="messageboard">Message Board</string>
     <string name="psay">Principal\'s Welcome</string>
