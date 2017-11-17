@@ -21,7 +21,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -2935,6 +2934,22 @@ public class Main extends Activity {
         private Paint tPaint;
         private Paint cPaint;
         private String text;
+
+        public CurvedTextView(Context c) {
+            super(c);
+            this.text = "Example";
+            circle = new Path();
+            int sizeX = 100, sizeY = 100, radius = 50, textColor = Color.WHITE, textSize = 20;
+            circle.addCircle(((sizeX - radius * 2) / 2) + radius, ((sizeY - radius * 2) / 2) + radius, radius, Path.Direction.CW);
+            cPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            cPaint.setStyle(Paint.Style.STROKE);
+            cPaint.setColor(Color.LTGRAY);
+            cPaint.setStrokeWidth(3);
+            tPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+            tPaint.setColor(textColor);
+            tPaint.setTextSize(textSize);
+        }
 
         public CurvedTextView(Context context, String text, float textSize, int textColor, int sizeX, int sizeY, int radius) {
             super(context);
