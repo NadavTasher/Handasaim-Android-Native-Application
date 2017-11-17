@@ -193,6 +193,10 @@ public class Main extends Activity {
                 rotateAnimation.setRepeatCount(Animation.INFINITE);
                 ctv.startAnimation(rotateAnimation);
                 ctv.setVisibility(View.VISIBLE);
+                ctv.setAlpha(0);
+                ObjectAnimator oa = ObjectAnimator.ofFloat(ctv, View.ALPHA, Light.Animations.INVISIBLE_TO_VISIBLE);
+                oa.setDuration(300);
+                oa.start();
             }
 
             @Override
