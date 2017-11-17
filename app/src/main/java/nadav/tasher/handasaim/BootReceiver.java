@@ -14,6 +14,6 @@ public class BootReceiver extends BroadcastReceiver {
         if (sp.getBoolean("push", false)) {
             context.startService(new Intent(context, PushService.class));
         }
-        Main.startDND(context);
+        Main.beginDND(context);
     }
 }

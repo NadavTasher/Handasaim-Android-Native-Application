@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -93,6 +92,7 @@ public class Main extends Activity {
     static final String puzProvider = "http://handasaim.thepuzik.com";
     static final String STOP_SERVICE = "nadav.tasher.handasaim.STOP_SERVICE";
     static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
+    static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
     private final String serviceProvider = "http://handasaim.co.il";
     private int color = Color.parseColor("#1b5c96");
     private int secolor = color + 0x333333;
@@ -106,48 +106,7 @@ public class Main extends Activity {
     private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
     private String[] infact = new String[]{"Every year more than 2500 left-handed people are killed from using right-handed products.", "In 1895 Hampshire police handed out the first ever speeding ticket, fining a man for doing 6mph!", "Over 1000 birds a year die from smashing into windows.", "Squirrels forget where they hide about half of their nuts.", "The average person walks the equivalent of twice around the world in a lifetime.", "A company in Taiwan makes dinnerware out of wheat, so you can eat your plate!", "An apple, potato, and onion all taste the same if you eat them with your nose plugged.", "Dying is illegal in the Houses of Parliaments – This has been voted as the most ridiculous law by the British citizens.", "The first alarm clock could only ring at 4am.", "If you leave everything to the last minute… it will only take a minute.", "Every human spent about half an hour as a single cell.", "The Twitter bird actually has a name – Larry.", "Sea otters hold hands when they sleep so they don’t drift away from each other.", "The French language has seventeen different words for ‘surrender’.", "The Titanic was the first ship to use the SOS signal.", "A baby octopus is about the size of a flea when it is born.", "You cannot snore and dream at the same time.", "A toaster uses almost half as much energy as a full-sized oven.", "If you consistently fart for 6 years & 9 months, enough gas is produced to create the energy of an atomic bomb!", "An eagle can kill a young deer and fly away with it.", "Polar bears can eat as many as 86 penguins in a single sitting.", "If Pinokio says “My Nose Will Grow Now”, it would cause a paradox.", "Bananas are curved because they grow towards the sun.", "Human saliva has a boiling point three times that of regular water.", "Cherophobia is the fear of fun.", "When hippos are upset, their sweat turns red.", "Pteronophobia is the fear of being tickled by feathers!", "Banging your head against a wall burns 150 calories an hour."};
     private int keyentering = 0;
-    private InputFilter filter = new InputFilter() {
-
-        @Override
-        public CharSequence filter(CharSequence charSequence, int i, int i1, Spanned spanned, int i2, int i3) {
-            if (charSequence != null) {
-                for (int c = 0; c < charSequence.length(); c++) {
-                    boolean charAllowed = false;
-                    String allowed = "0123456789ABCDEFabcdef";
-                    for (int a = 0; a < allowed.length(); a++) {
-                        if (charSequence.charAt(c) == allowed.charAt(a)) {
-                            charAllowed = true;
-                            break;
-                        }
-                    }
-                    if (!charAllowed) return "";
-                }
-                return null;
-            }
-            return null;
-        }
-    };
-    private InputFilter codeFilter = new InputFilter() {
-
-        @Override
-        public CharSequence filter(CharSequence charSequence, int i, int i1, Spanned spanned, int i2, int i3) {
-            if (charSequence != null) {
-                for (int c = 0; c < charSequence.length(); c++) {
-                    boolean charAllowed = false;
-                    String allowed = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
-                    for (int a = 0; a < allowed.length(); a++) {
-                        if (charSequence.charAt(c) == allowed.charAt(a)) {
-                            charAllowed = true;
-                            break;
-                        }
-                    }
-                    if (!charAllowed) return "";
-                }
-                return null;
-            }
-            return null;
-        }
-    };
+    private boolean opened = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -400,8 +359,9 @@ public class Main extends Activity {
                         newtopic.setTypeface(custom_font);
                         if (!ms.news.get(n).imgurl.equals("") || ms.news.get(n).imgurl != null) {
                             Log.i("Image", ms.news.get(n).imgurl);
+                            Bitmap bm = new PictureLoader(ms.news.get(n).imgurl).execute().get();
                             ImageView imageView = new ImageView(this);
-                            imageView.setImageBitmap(new PictureLoader(ms.news.get(n).imgurl).execute().get());
+                            imageView.setImageBitmap(bm);
                             imageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 3));
                             imageView.setPadding(20, 20, 20, 40);
                             final int finalN1 = n;
@@ -414,7 +374,7 @@ public class Main extends Activity {
                                     startActivity(i);
                                 }
                             });
-                            nt.addView(imageView);
+                            if (bm != null) nt.addView(imageView);
                         }
                         newtopic.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 8));
                         final int finalN = n;
@@ -623,7 +583,11 @@ public class Main extends Activity {
         automute.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                boolean granted = ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).isNotificationPolicyAccessGranted();
+                NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                boolean granted = false;
+                if (nm != null) {
+                    granted = nm.isNotificationPolicyAccessGranted();
+                }
                 if (!granted && isChecked) {
                     AlertDialog.Builder pop = new AlertDialog.Builder(Main.this);
                     pop.setCancelable(true);
@@ -803,7 +767,7 @@ public class Main extends Activity {
         pop.setCancelable(true);
         pop.setTitle("Enter Unlock Key");
         final EditText key = new EditText(this);
-        key.setFilters(new InputFilter[]{codeFilter, new InputFilter.AllCaps()});
+        key.setFilters(new InputFilter[]{Filters.codeFilter, new InputFilter.AllCaps()});
         pop.setView(key);
         key.setLayoutParams(new WindowManager.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         pop.setPositiveButton("Unlock", new DialogInterface.OnClickListener() {
@@ -826,8 +790,6 @@ public class Main extends Activity {
             Toast.makeText(getApplicationContext(), "\"" + ees[newrand] + "\"", Toast.LENGTH_LONG).show();
         }
     }
-
-    private boolean opened = false;
 
     private void view(final ArrayList<Class> classes) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
@@ -1197,20 +1159,6 @@ public class Main extends Activity {
         navSliderview.addView(share);
         navSliderview.addView(fontS);
         //
-        int selectedClass = 0;
-        if (sp.getString("favorite_class", null) != null) {
-            if (classes != null) {
-                for (int fc = 0; fc < classes.size(); fc++) {
-                    if (sp.getString("favorite_class", "").equals(classes.get(fc).name)) {
-                        selectedClass = fc;
-                        break;
-                    }
-                }
-            } else {
-                //                popup("Downloaded Excel File Is Corrupted");
-                startApp();
-            }
-        }
         ScrollView sv = new ScrollView(this);
         sv.addView(all);
         sall.addView(sv);
@@ -1336,7 +1284,11 @@ public class Main extends Activity {
                 if (!sp.getBoolean("auto_dnd", false)) {
                     auto_dnd.setBackground(getDrawable(R.drawable.back));
                 } else {
-                    boolean granted = ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).isNotificationPolicyAccessGranted();
+                    NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    boolean granted = false;
+                    if (nm != null) {
+                        granted = nm.isNotificationPolicyAccessGranted();
+                    }
                     if (!granted) {
                         AlertDialog.Builder pop = new AlertDialog.Builder(Main.this);
                         pop.setCancelable(true);
@@ -1368,7 +1320,6 @@ public class Main extends Activity {
                     } else {
                         auto_dnd.setBackground(getDrawable(R.drawable.back_2));
                     }
-                    ////
                 }
             }
         };
@@ -1441,7 +1392,7 @@ public class Main extends Activity {
                 layerer.setOrientation(LinearLayout.VERTICAL);
                 final EditText colorEditor = new EditText(getApplicationContext());
                 colorEditor.setAllCaps(true);
-                colorEditor.setFilters(new InputFilter[]{filter});
+                colorEditor.setFilters(new InputFilter[]{Filters.colorFilter});
                 TextView hashv = new TextView(getApplicationContext());
                 hashv.setText("#");
                 hashv.setTextSize((float) fontSize);
@@ -1574,6 +1525,20 @@ public class Main extends Activity {
                 popupNews();
             }
         });
+        int selectedClass = 0;
+        if (sp.getString("favorite_class", null) != null) {
+            if (classes != null) {
+                for (int fc = 0; fc < classes.size(); fc++) {
+                    if (sp.getString("favorite_class", "").equals(classes.get(fc).name)) {
+                        selectedClass = fc;
+                        break;
+                    }
+                }
+            } else {
+                //                popup("Downloaded Excel File Is Corrupted");
+                startApp();
+            }
+        }
         if (classes != null)
             showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
         setContentView(sall);
@@ -2125,6 +2090,38 @@ public class Main extends Activity {
         return null;
     }
 
+    static ClassTime getTimeForLesson(int hour) {
+        switch (hour) {
+            case 0:
+                return new ClassTime(7, 8, 45, 30);
+            case 1:
+                return new ClassTime(8, 9, 30, 15);
+            case 2:
+                return new ClassTime(9, 10, 15, 0);
+            case 3:
+                return new ClassTime(10, 11, 15, 0);
+            case 4:
+                return new ClassTime(11, 11, 0, 45);
+            case 5:
+                return new ClassTime(12, 12, 10, 55);
+            case 6:
+                return new ClassTime(12, 13, 55, 40);
+            case 7:
+                return new ClassTime(13, 14, 50, 35);
+            case 8:
+                return new ClassTime(14, 15, 0, 20);
+            case 9:
+                return new ClassTime(15, 16, 30, 15);
+            case 10:
+                return new ClassTime(16, 17, 15, 0);
+            case 11:
+                return new ClassTime(17, 17, 0, 45);
+            case 12:
+                return new ClassTime(17, 18, 45, 30);
+        }
+        return null;
+    }
+
     static int getBreak(int washour) {
         switch (washour) {
             case 2:
@@ -2141,12 +2138,9 @@ public class Main extends Activity {
         return -1;
     }
 
-    static void startDND(Context context) {
-        context.sendBroadcast(new Intent(KILL_DND));
-        IntentFilter o = new IntentFilter();
-        o.addAction(Intent.ACTION_TIME_TICK);
-        o.addAction(KILL_DND);
-        context.registerReceiver(new DNDReceiver(), o);
+    static void beginDND(Context c) {
+        c.sendBroadcast(new Intent(KILL_DND_SERVICE));
+        c.startService(new Intent(c, DNDService.class));
     }
 
     private void openApp() {
@@ -2161,6 +2155,7 @@ public class Main extends Activity {
                     if (link.endsWith(".xlsx")) {
                         fileName = "hs.xlsx";
                     }
+                    sp.edit().putString("latest_file_name", fileName).commit();
                     final String finalFileName = fileName;
                     new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
                         @Override
@@ -2192,7 +2187,7 @@ public class Main extends Activity {
                                             //                                            view(classes);
                                             //                                            welcome(classes, true);
                                             newsSplash(classes);
-                                            startDND(getApplicationContext());
+                                            beginDND(getApplicationContext());
                                             startPush();
                                         }
                                     } else {
@@ -2227,7 +2222,7 @@ public class Main extends Activity {
         }).execute();
     }
 
-    private ArrayList<Class> readExcelFile(File f) {
+    static ArrayList<Class> readExcelFile(File f) {
         try {
             ArrayList<Class> classes = new ArrayList<>();
             POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
@@ -2260,7 +2255,7 @@ public class Main extends Activity {
         }
     }
 
-    private ArrayList<Class> readExcelFileXLSX(File f) {
+    static ArrayList<Class> readExcelFileXLSX(File f) {
         try {
             ArrayList<Class> classes = new ArrayList<>();
             XSSFWorkbook myWorkBook = new XSSFWorkbook(new FileInputStream(f));
@@ -2291,6 +2286,17 @@ public class Main extends Activity {
         }
     }
 
+    static class ClassTime {
+        int startH, finishH, startM, finishM;
+
+        ClassTime(int sh, int fh, int sm, int fm) {
+            startH = sh;
+            startM = sm;
+            finishH = fh;
+            finishM = fm;
+        }
+    }
+
     static class Link {
         String url, name, imgurl;
     }
@@ -2307,7 +2313,52 @@ public class Main extends Activity {
         }
     }
 
-    private class Class {
+    static class Filters {
+        static InputFilter colorFilter = new InputFilter() {
+
+            @Override
+            public CharSequence filter(CharSequence charSequence, int i, int i1, Spanned spanned, int i2, int i3) {
+                if (charSequence != null) {
+                    for (int c = 0; c < charSequence.length(); c++) {
+                        boolean charAllowed = false;
+                        String allowed = "0123456789ABCDEFabcdef";
+                        for (int a = 0; a < allowed.length(); a++) {
+                            if (charSequence.charAt(c) == allowed.charAt(a)) {
+                                charAllowed = true;
+                                break;
+                            }
+                        }
+                        if (!charAllowed) return "";
+                    }
+                    return null;
+                }
+                return null;
+            }
+        };
+        static InputFilter codeFilter = new InputFilter() {
+
+            @Override
+            public CharSequence filter(CharSequence charSequence, int i, int i1, Spanned spanned, int i2, int i3) {
+                if (charSequence != null) {
+                    for (int c = 0; c < charSequence.length(); c++) {
+                        boolean charAllowed = false;
+                        String allowed = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
+                        for (int a = 0; a < allowed.length(); a++) {
+                            if (charSequence.charAt(c) == allowed.charAt(a)) {
+                                charAllowed = true;
+                                break;
+                            }
+                        }
+                        if (!charAllowed) return "";
+                    }
+                    return null;
+                }
+                return null;
+            }
+        };
+    }
+
+    static class Class {
         String name;
         ArrayList<Subject> classes;
 
@@ -2317,7 +2368,7 @@ public class Main extends Activity {
         }
     }
 
-    private class Subject {
+    static class Subject {
         int hour;
         String name, fullName;
 
@@ -2503,284 +2554,334 @@ public class Main extends Activity {
             }
         }
     }
-}
 
-class MainSite {
-    String princSaying;
-    String readMorePrics;
-    ArrayList<Main.Link> news;
-}
-
-class GetLink extends AsyncTask<String, String, String> {
-    private String ser;
-    private GotLink gotlink;
-    private boolean success;
-
-    GetLink(String service, GotLink gl) {
-        ser = service;
-        gotlink = gl;
+    static class MainSite {
+        String princSaying;
+        String readMorePrics;
+        ArrayList<Main.Link> news;
     }
 
-    @Override
-    protected String doInBackground(String... strings) {
-        try {
-            Document docu = Jsoup.connect(ser).get();
-            Elements doc = docu.select("a");
-            logAll("LINKGET", docu.outerHtml());
-            String file = null;
-            for (int i = 0; i < doc.size(); i++) {
-                if (doc.get(i).attr("href").endsWith(".xls") || doc.get(i).attr("href").endsWith(".xlsx")) {
-                    file = doc.get(i).attr("href");
-                    Log.i("FILE", file);
-                    break;
-                }
-            }
-            success = true;
-            return file;
-        } catch (IOException e) {
-            success = false;
-            return e.getMessage();
+    static class GetLink extends AsyncTask<String, String, String> {
+        private String ser;
+        private GotLink gotlink;
+        private boolean success;
+
+        GetLink(String service, GotLink gl) {
+            ser = service;
+            gotlink = gl;
         }
-    }
 
-    private void logAll(String TAG, String longString) {
-        int splitSize = 300;
-        if (longString.length() > splitSize) {
-            int index = 0;
-            while (index < longString.length() - splitSize) {
-                Log.e(TAG, longString.substring(index, index + splitSize));
-                index += splitSize;
-            }
-            Log.e(TAG, longString.substring(index, longString.length()));
-        } else {
-            Log.e(TAG, longString);
-        }
-    }
-
-    @Override
-    protected void onPostExecute(String s) {
-        if (success) {
-            gotlink.onLinkGet(s);
-        } else {
-            gotlink.onFail(s);
-        }
-    }
-
-    interface GotLink {
-        void onLinkGet(String link);
-
-        void onFail(String e);
-    }
-}
-
-class GetNews extends AsyncTask<String, String, ArrayList<Main.Link>> {
-    private String ser;
-    private GotNews gotlink;
-    private boolean success;
-
-    GetNews(String service, GotNews gl) {
-        ser = service;
-        gotlink = gl;
-    }
-
-    @Override
-    protected ArrayList<Main.Link> doInBackground(String... strings) {
-        try {
-            ArrayList<Main.Link> file = new ArrayList<>();
-            Document docu = Jsoup.connect(ser).get();
-            Elements ahs = docu.getAllElements().select("div.carousel-inner").select("div.item").select("a");
-            for (int in = 0; in < ahs.size(); in++) {
-                Main.Link link = new Main.Link();
-                link.name = ahs.get(in).text();
-                link.url = ahs.get(in).attr("href");
-                if (!link.name.equals("")) file.add(link);
-            }
-            success = true;
-            return file;
-        } catch (IOException e) {
-            success = false;
-            return null;
-        }
-    }
-
-    @Override
-    protected void onPostExecute(ArrayList<Main.Link> s) {
-        if (success) {
-            if (gotlink != null) gotlink.onNewsGet(s);
-        } else {
-            if (gotlink != null) gotlink.onFail(s);
-        }
-    }
-
-    interface GotNews {
-        void onNewsGet(ArrayList<Main.Link> link);
-
-        void onFail(ArrayList<Main.Link> e);
-    }
-}
-
-class GetMainSite extends AsyncTask<String, String, MainSite> {
-
-    @Override
-    protected MainSite doInBackground(String... strings) {
-        try {
-            MainSite ms = new MainSite();
-            ArrayList<Main.Link> news = new ArrayList<>();
-            String ser = "http://handasaim.co.il";
-            Document docu = Jsoup.connect(ser).get();
-            Elements itemss = docu.getAllElements().select("div.carousel-inner").select("div.item");
-            for (int in = 0; in < itemss.size(); in++) {
-                Main.Link link = new Main.Link();
-                link.name = itemss.get(in).select("a").first().text();
-                link.url = itemss.get(in).select("a").first().attr("href");
-                link.imgurl = itemss.get(in).select("img").attr("src");
-                Log.i("IMAGE_O", link.imgurl);
-                if (!link.name.equals("")) news.add(link);
-            }
-            ms.news = news;
+        @Override
+        protected String doInBackground(String... strings) {
             try {
-                ms.princSaying = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").first().text();
-                ms.readMorePrics = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").select("a").first().attr("href");
-            } catch (NullPointerException e) {
-                ms.princSaying = null;
-                ms.readMorePrics = null;
-            }
-            return ms;
-        } catch (IOException e) {
-            return null;
-        }
-    }
-}
-
-class FileDownloader extends AsyncTask<String, String, String> {
-    private String furl;
-    private File fdpath;
-    private boolean available;
-    private FileDownloader.OnDownload oe;
-
-    FileDownloader(String url, File path, FileDownloader.OnDownload onfile) {
-        oe = onfile;
-        furl = url;
-        fdpath = path;
-    }
-
-    private boolean check() {
-        try {
-            HttpURLConnection.setFollowRedirects(false);
-            HttpURLConnection con = (HttpURLConnection) new URL(furl).openConnection();
-            return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    @Override
-    protected String doInBackground(String... comment) {
-        int perc = 0;
-        if (check()) {
-            available = true;
-            int count;
-            try {
-                URL url = new URL(furl);
-                URLConnection conection = url.openConnection();
-                conection.connect();
-                int lenghtOfFile = conection.getContentLength();
-                InputStream input = new BufferedInputStream(url.openStream(), 8192);
-                OutputStream output = new FileOutputStream(fdpath);
-                byte data[] = new byte[1024];
-                long total = 0;
-                while ((count = input.read(data)) != -1) {
-                    output.write(data, 0, count);
-                    total += count;
-                    if (perc < (int) (total * 100 / lenghtOfFile)) {
-                        perc++;
-                        oe.onProgressChanged(fdpath, (int) (total * 100 / lenghtOfFile));
+                Document docu = Jsoup.connect(ser).get();
+                Elements doc = docu.select("a");
+                logAll("LINKGET", docu.outerHtml());
+                String file = null;
+                for (int i = 0; i < doc.size(); i++) {
+                    if (doc.get(i).attr("href").endsWith(".xls") || doc.get(i).attr("href").endsWith(".xlsx")) {
+                        file = doc.get(i).attr("href");
+                        Log.i("FILE", file);
+                        break;
                     }
                 }
-                output.flush();
-                output.close();
-                input.close();
-            } catch (Exception e) {
-                Log.e("Error: ", e.getMessage());
+                success = true;
+                return file;
+            } catch (IOException e) {
+                success = false;
+                return e.getMessage();
             }
-        } else {
-            available = false;
         }
-        return null;
-    }
 
-    @Override
-    protected void onPostExecute(String file_url) {
-        if (oe != null) {
-            oe.onFinish(fdpath, available);
+        private void logAll(String TAG, String longString) {
+            int splitSize = 300;
+            if (longString.length() > splitSize) {
+                int index = 0;
+                while (index < longString.length() - splitSize) {
+                    Log.e(TAG, longString.substring(index, index + splitSize));
+                    index += splitSize;
+                }
+                Log.e(TAG, longString.substring(index, longString.length()));
+            } else {
+                Log.e(TAG, longString);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            if (success) {
+                gotlink.onLinkGet(s);
+            } else {
+                gotlink.onFail(s);
+            }
+        }
+
+        interface GotLink {
+            void onLinkGet(String link);
+
+            void onFail(String e);
         }
     }
 
-    interface OnDownload {
-        void onFinish(File output, boolean isAvailable);
+    static class GetNews extends AsyncTask<String, String, ArrayList<Main.Link>> {
+        private String ser;
+        private GotNews gotlink;
+        private boolean success;
 
-        void onProgressChanged(File output, int percent);
+        GetNews(String service, GotNews gl) {
+            ser = service;
+            gotlink = gl;
+        }
+
+        @Override
+        protected ArrayList<Main.Link> doInBackground(String... strings) {
+            try {
+                ArrayList<Main.Link> file = new ArrayList<>();
+                Document docu = Jsoup.connect(ser).get();
+                Elements ahs = docu.getAllElements().select("div.carousel-inner").select("div.item").select("a");
+                for (int in = 0; in < ahs.size(); in++) {
+                    Main.Link link = new Main.Link();
+                    link.name = ahs.get(in).text();
+                    link.url = ahs.get(in).attr("href");
+                    if (!link.name.equals("")) file.add(link);
+                }
+                success = true;
+                return file;
+            } catch (IOException e) {
+                success = false;
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Main.Link> s) {
+            if (success) {
+                if (gotlink != null) gotlink.onNewsGet(s);
+            } else {
+                if (gotlink != null) gotlink.onFail(s);
+            }
+        }
+
+        interface GotNews {
+            void onNewsGet(ArrayList<Main.Link> link);
+
+            void onFail(ArrayList<Main.Link> e);
+        }
     }
-}
 
-class PictureLoader extends AsyncTask<String, String, Bitmap> {
-    private String furl;
+    static class GetMainSite extends AsyncTask<String, String, MainSite> {
 
-    PictureLoader(String url) {
-        furl = url;
+        @Override
+        protected MainSite doInBackground(String... strings) {
+            try {
+                MainSite ms = new MainSite();
+                ArrayList<Main.Link> news = new ArrayList<>();
+                String ser = "http://handasaim.co.il";
+                Document docu = Jsoup.connect(ser).get();
+                Elements itemss = docu.getAllElements().select("div.carousel-inner").select("div.item");
+                for (int in = 0; in < itemss.size(); in++) {
+                    Main.Link link = new Main.Link();
+                    link.name = itemss.get(in).select("a").first().text();
+                    link.url = itemss.get(in).select("a").first().attr("href");
+                    link.imgurl = itemss.get(in).select("img").attr("src");
+                    Log.i("IMAGE_O", link.imgurl);
+                    if (!link.name.equals("")) news.add(link);
+                }
+                ms.news = news;
+                try {
+                    ms.princSaying = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").first().text();
+                    ms.readMorePrics = docu.select("div.pt-cv-ifield").select("div.pt-cv-content").select("a").first().attr("href");
+                } catch (NullPointerException e) {
+                    ms.princSaying = null;
+                    ms.readMorePrics = null;
+                }
+                return ms;
+            } catch (IOException e) {
+                return null;
+            }
+        }
     }
 
-    @Override
-    protected Bitmap doInBackground(String... comment) {
-        try {
-            URL url = new URL(furl);
-            return BitmapFactory.decodeStream(url.openConnection().getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
+    static class FileDownloader extends AsyncTask<String, String, String> {
+        private String furl;
+        private File fdpath;
+        private boolean available;
+        private FileDownloader.OnDownload oe;
+
+        FileDownloader(String url, File path, FileDownloader.OnDownload onfile) {
+            oe = onfile;
+            furl = url;
+            fdpath = path;
+        }
+
+        private boolean check() {
+            try {
+                HttpURLConnection.setFollowRedirects(false);
+                HttpURLConnection con = (HttpURLConnection) new URL(furl).openConnection();
+                return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        protected String doInBackground(String... comment) {
+            int perc = 0;
+            if (check()) {
+                available = true;
+                int count;
+                try {
+                    URL url = new URL(furl);
+                    URLConnection conection = url.openConnection();
+                    conection.connect();
+                    int lenghtOfFile = conection.getContentLength();
+                    InputStream input = new BufferedInputStream(url.openStream(), 8192);
+                    OutputStream output = new FileOutputStream(fdpath);
+                    byte data[] = new byte[1024];
+                    long total = 0;
+                    while ((count = input.read(data)) != -1) {
+                        output.write(data, 0, count);
+                        total += count;
+                        if (perc < (int) (total * 100 / lenghtOfFile)) {
+                            perc++;
+                            oe.onProgressChanged(fdpath, (int) (total * 100 / lenghtOfFile));
+                        }
+                    }
+                    output.flush();
+                    output.close();
+                    input.close();
+                } catch (Exception e) {
+                    Log.e("Error: ", e.getMessage());
+                }
+            } else {
+                available = false;
+            }
             return null;
         }
-    }
-}
 
-class DNDReceiver extends BroadcastReceiver {
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals(Main.KILL_DND)) {
-            context.unregisterReceiver(this);
+        @Override
+        protected void onPostExecute(String file_url) {
+            if (oe != null) {
+                oe.onFinish(fdpath, available);
+            }
         }
-        final SharedPreferences sp = context.getSharedPreferences("app", Context.MODE_PRIVATE);
-        if (sp.getBoolean("auto_dnd", false)) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                boolean granted = ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).isNotificationPolicyAccessGranted();
-                if (granted) {
-                    checkTime(context);
-                } else {
-                    sendNoPermissionNotification(context);
+
+        interface OnDownload {
+            void onFinish(File output, boolean isAvailable);
+
+            void onProgressChanged(File output, int percent);
+        }
+    }
+
+    static class PictureLoader extends AsyncTask<String, String, Bitmap> {
+        private String furl;
+
+        PictureLoader(String url) {
+            furl = url;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... comment) {
+            try {
+                URL url = new URL(furl);
+                return BitmapFactory.decodeStream(url.openConnection().getInputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    }
+
+    static class DNDReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() != null) {
+                if (intent.getAction().equals(Main.KILL_DND)) {
+                    context.unregisterReceiver(this);
+                }
+            }
+            final SharedPreferences sp = context.getSharedPreferences("app", Context.MODE_PRIVATE);
+            if (sp.getBoolean("auto_dnd", false)) {
+                if (Build.VERSION.SDK_INT >= 23) {
+                    NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    boolean granted = false;
+                    if (nm != null) {
+                        granted = nm.isNotificationPolicyAccessGranted();
+                    }
+                    Calendar c = Calendar.getInstance();
+                    if (c.get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY && c.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
+                        if (granted) {
+                            checkTime(context, sp);
+                        } else {
+                            sendNoPermissionNotification(context);
+                        }
+                    }
                 }
             }
         }
-    }
 
-    void checkTime(Context context) {
-        Log.i("DNDReceiver", "Called!");
-        Calendar c = Calendar.getInstance();
-        if (c.get(Calendar.MINUTE) == 30 && c.get(Calendar.HOUR_OF_DAY) == 8) {
-            Log.i("DND", "Enabled!");
-            NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
-        } else if (c.get(Calendar.MINUTE) == 15 && c.get(Calendar.HOUR_OF_DAY) == 16) {
-            NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
+        void checkTime(Context context, SharedPreferences sp) {
+            Log.i("DNDReceiver", "Called!");
+            Calendar c = Calendar.getInstance();
+            File excel = new File(context.getFilesDir(), sp.getString("latest_file_name", "hs.xls"));
+            ArrayList<ClassTime> classTimes = new ArrayList<>();
+            String name = sp.getString("latest_file_name", "");
+            ArrayList<Class> classes;
+            if (!name.equals("")) {
+                if (name.endsWith(".xlsx")) {
+                    classes = Main.readExcelFileXLSX(excel);
+                } else {
+                    classes = Main.readExcelFile(excel);
+                }
+            } else {
+                classes = new ArrayList<>();
+            }
+            if (sp.getString("favorite_class", null) != null) {
+                if (classes != null) {
+                    for (int fc = 0; fc < classes.size(); fc++) {
+                        if (sp.getString("favorite_class", "").equals(classes.get(fc).name)) {
+                            ArrayList<Subject> subjects = classes.get(fc).classes;
+                            for (int sub = 0; sub < subjects.size(); sub++) {
+                                classTimes.add(Main.getTimeForLesson(subjects.get(sub).hour));
+                                //                            Log.i("TIMES",classTimes.get(sub).startH+":"+classTimes.get(sub).startM+"-"+classTimes.get(sub).finishH+":"+classTimes.get(sub).finishM);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            for (int ct = 0; ct < classTimes.size(); ct++) {
+                ClassTime classTime = classTimes.get(ct);
+                if (c.get(Calendar.MINUTE) == classTime.startM && c.get(Calendar.HOUR_OF_DAY) == classTime.startH) {
+                    Log.i("DND", "Enabled!");
+                    NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (mNotificationManager != null) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            mNotificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
+                        }
+                    }
+                } else if (c.get(Calendar.MINUTE) == classTime.finishM && c.get(Calendar.HOUR_OF_DAY) == classTime.finishH) {
+                    Log.i("DND", "Disabled!");
+                    NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (mNotificationManager != null) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            mNotificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
+                        }
+                    }
+                }
+            }
         }
-    }
 
-    void sendNoPermissionNotification(Context c) {
-        NotificationManager manager = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notification = new NotificationCompat.Builder(c).setSmallIcon(R.mipmap.ic_launcher).setContentTitle(c.getResources().getString(R.string.app_name) + " Warning").setContentText("The app does not have 'Do Not Disturb' permissions.").setContentIntent(PendingIntent.getActivity(c, 0, new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), PendingIntent.FLAG_UPDATE_CURRENT)).build();
-        if (manager != null) {
-            manager.notify(new Random().nextInt(100), notification);
+        void sendNoPermissionNotification(Context c) {
+            NotificationManager manager = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+            Notification notification = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                notification = new NotificationCompat.Builder(c).setSmallIcon(R.mipmap.ic_launcher).setContentTitle(c.getResources().getString(R.string.app_name) + " Warning").setContentText("The app does not have 'Do Not Disturb' permissions.").setContentIntent(PendingIntent.getActivity(c, 0, new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), PendingIntent.FLAG_UPDATE_CURRENT)).build();
+            }
+            if (manager != null) {
+                manager.notify(new Random().nextInt(100), notification);
+            }
         }
     }
 }

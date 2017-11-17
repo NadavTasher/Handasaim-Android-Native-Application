@@ -31,7 +31,9 @@
 
         <service android:name=".PushService">
         </service>
-
+        <service
+            android:name=".DNDService">
+        </service>
     </application>
 
 </manifest>
