@@ -97,6 +97,8 @@ public class Main extends Activity {
     static final String STOP_SERVICE = "nadav.tasher.handasaim.STOP_SERVICE";
     static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
     static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
+    static final String fontName = "arimo.ttf";
+    static final int defaultSize = 30;
     private final String serviceProvider = "http://handasaim.co.il";
     private int color = Color.parseColor("#317582");
     private int secolor = color + 0x333333;
@@ -170,7 +172,7 @@ public class Main extends Activity {
         tv.setGravity(Gravity.CENTER);
         tv.setTextColor(Color.WHITE);
         tv.setTextSize(21);
-        final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+        final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
         tv.setTypeface(custom_font);
         String versionin = "v" + Light.Device.getVersionName(getApplicationContext(), getPackageName());
         tv.setText(versionin);
@@ -238,7 +240,7 @@ public class Main extends Activity {
 
     private void newsSplash(final ArrayList<Class> classes) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-        final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+        final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
         if (sp.getBoolean("installed_pass_news_code", false)) {
             view(classes);
         } else {
@@ -258,7 +260,7 @@ public class Main extends Activity {
             loadingText.setText(R.string.loadingtext);
             loadingText.setTextColor(textColor);
             loadingText.setTypeface(custom_font);
-            loadingText.setTextSize(sp.getInt("font", 32) + 4);
+            loadingText.setTextSize(sp.getInt("font", defaultSize) + 4);
             loadingText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
             newsAll.addView(loadingText);
             messBoardTitle.setText(R.string.messageboard);
@@ -267,8 +269,8 @@ public class Main extends Activity {
             messBoardTitle.setGravity(Gravity.CENTER);
             prinSays.setTypeface(custom_font);
             messBoardTitle.setTypeface(custom_font);
-            messBoardTitle.setTextSize(sp.getInt("font", 32) + 2);
-            prinSays.setTextSize(sp.getInt("font", 32) + 2);
+            messBoardTitle.setTextSize(sp.getInt("font", defaultSize) + 2);
+            prinSays.setTextSize(sp.getInt("font", defaultSize) + 2);
             prinSays.setTextColor(textColor);
             messBoardTitle.setTextColor(textColor);
             final LinearLayout news = new LinearLayout(getApplicationContext());
@@ -280,7 +282,7 @@ public class Main extends Activity {
             princibleSay.setTypeface(custom_font);
             princibleSay.setPadding(10, 10, 10, 10);
             princibleSay.setTextColor(textColor);
-            princibleSay.setTextSize(sp.getInt("font", 32) - 15);
+            princibleSay.setTextSize(sp.getInt("font", defaultSize) - 15);
             princibleSay.setEllipsize(TextUtils.TruncateAt.END);
             princibleSay.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 4));
             //            newsAll.setPadding(0, 20, 0, 20);
@@ -320,8 +322,8 @@ public class Main extends Activity {
             nextButton.setVisibility(View.GONE);
             instructions.setTextColor(textColor);
             waiting.setTextColor(textColor);
-            instructions.setTextSize(sp.getInt("font", 32) - 10);
-            waiting.setTextSize(sp.getInt("font", 32) - 10);
+            instructions.setTextSize(sp.getInt("font", defaultSize) - 10);
+            waiting.setTextSize(sp.getInt("font", defaultSize) - 10);
             instructions.setText(R.string.instructions);
             instructions.setTypeface(custom_font);
             waiting.setTypeface(custom_font);
@@ -336,7 +338,7 @@ public class Main extends Activity {
             nextButton.setText(R.string.nxt);
             nextButton.setBackground(getDrawable(R.drawable.back_transparant));
             nextButton.setTypeface(custom_font);
-            nextButton.setTextSize(sp.getInt("font", 32) - 10);
+            nextButton.setTextSize(sp.getInt("font", defaultSize) - 10);
             nextButton.setTextColor(textColor);
             nextLayout.setBackground(getDrawable(R.drawable.back_transparant));
             nextLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 15 * 2));
@@ -382,7 +384,7 @@ public class Main extends Activity {
                             newtopic.setEllipsize(TextUtils.TruncateAt.END);
                             newtopic.setBackground(getDrawable(R.drawable.back_transparant));
                             newtopic.setTextColor(textColor);
-                            newtopic.setTextSize(sp.getInt("font", 32) - 10);
+                            newtopic.setTextSize(sp.getInt("font", defaultSize) - 10);
                             newtopic.setPadding(20, 10, 20, 10);
                             newtopic.setEllipsize(TextUtils.TruncateAt.END);
                             newtopic.setLines(2);
@@ -464,12 +466,13 @@ public class Main extends Activity {
         part1.setBackgroundColor(color);
         part2.setBackgroundColor(color);
         part3.setBackgroundColor(color);
-        final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+        final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
         //part1
         ImageView icon = new ImageView(this);
         final Button setup = new Button(this);
         final TextView welcome = new TextView(this);
         setup.setTypeface(custom_font);
+        setup.setAllCaps(false);
         welcome.setTypeface(custom_font);
         setup.setText(R.string.set);
         setup.setAlpha(0);
@@ -509,6 +512,7 @@ public class Main extends Activity {
             }
         });
         iconSlide.start();
+
         part1.addView(welcome);
         part1.addView(icon);
         part1.addView(setup);
@@ -526,6 +530,7 @@ public class Main extends Activity {
         clascroll.addView(classs);
         Button next = new Button(this);
         next.setTypeface(custom_font);
+        next.setAllCaps(false);
         selClas.setTypeface(custom_font);
         next.setBackgroundColor(Color.TRANSPARENT);
         next.setTextSize((float) 30);
@@ -567,6 +572,7 @@ public class Main extends Activity {
         spclSet.setTypeface(custom_font);
         done.setBackgroundColor(Color.TRANSPARENT);
         done.setTextSize((float) 30);
+        done.setAllCaps(false);
         spclSet.setGravity(Gravity.CENTER);
         spclSet.setTextSize((float) 29);
         spclSet.setTextColor(Color.WHITE);
@@ -1132,7 +1138,7 @@ public class Main extends Activity {
         final TextView size = new TextView(this);
         ImageButton plus = new ImageButton(this);
         size.setTextColor(Color.WHITE);
-        size.setText(String.valueOf(sp.getInt("font", 32)));
+        size.setText(String.valueOf(sp.getInt("font", defaultSize)));
         plus.setImageDrawable(getDrawable(R.drawable.ic_plus));
         minus.setImageDrawable(getDrawable(R.drawable.ic_minus));
         plus.setBackgroundColor(Color.TRANSPARENT);
@@ -1190,7 +1196,7 @@ public class Main extends Activity {
                 } else {
                     lessonNameSwitchLL.setBackground(getDrawable(R.drawable.back_2));
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("show_names", false), sp.getBoolean("teacher_mode", false));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("show_names", false), sp.getBoolean("teacher_mode", false));
             }
         };
         lessonNameSwitch.setOnClickListener(lessnamesw);
@@ -1219,7 +1225,7 @@ public class Main extends Activity {
                     lessonNameSwitchLL.setVisibility(View.VISIBLE);
                     bagswitch.setVisibility(View.GONE);
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
             }
         };
         teacher_ic.setOnClickListener(teacherModeONC);
@@ -1238,7 +1244,7 @@ public class Main extends Activity {
                 } else {
                     timeswitch.setBackground(getDrawable(R.drawable.back_2));
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
             }
         };
         clock_ic.setOnClickListener(timeONC);
@@ -1257,7 +1263,7 @@ public class Main extends Activity {
                 } else {
                     bagswitch.setBackground(getDrawable(R.drawable.back_2));
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
             }
         };
         bagswitch_ic.setOnClickListener(bagONC);
@@ -1276,7 +1282,7 @@ public class Main extends Activity {
                 } else {
                     breakswitch.setBackground(getDrawable(R.drawable.back_2));
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
             }
         };
         breakswitch.setOnClickListener(breakONC);
@@ -1355,7 +1361,7 @@ public class Main extends Activity {
                     switchc.setImageDrawable(getDrawable(R.drawable.ic_black));
                     textColor = Color.BLACK;
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
             }
         };
         colorText.setOnClickListener(textCONC);
@@ -1382,14 +1388,14 @@ public class Main extends Activity {
                 } else {
                     countheme = 0;
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
+                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
             }
         };
         View.OnLongClickListener themelong = new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
-                final int fontSize = sp.getInt("font", 32);
+                final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
+                final int fontSize = sp.getInt("font", defaultSize);
                 final LinearLayout newsll = new LinearLayout(getApplicationContext());
                 final LinearLayout bts = new LinearLayout(getApplicationContext());
                 final LinearLayout layerer = new LinearLayout(getApplicationContext());
@@ -1462,7 +1468,7 @@ public class Main extends Activity {
                             navbarAll.setBackgroundColor(secolor);
                             dialog.dismiss();
                             taskDesc();
-                            showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
+                            showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
                         } else {
                             Toast.makeText(getApplicationContext(), "Color Has To Include 6 Characters.", Toast.LENGTH_SHORT).show();
                         }
@@ -1507,7 +1513,7 @@ public class Main extends Activity {
         plus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int fontSize = sp.getInt("font", 32);
+                int fontSize = sp.getInt("font", defaultSize);
                 fontSize++;
                 if (fontSize <= 50) {
                     sp.edit().putInt("font", fontSize).commit();
@@ -1519,7 +1525,7 @@ public class Main extends Activity {
         minus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int fontSize = sp.getInt("font", 32);
+                int fontSize = sp.getInt("font", defaultSize);
                 fontSize--;
                 if (fontSize >= 1) {
                     sp.edit().putInt("font", fontSize).commit();
@@ -1549,14 +1555,14 @@ public class Main extends Activity {
             }
         }
         if (classes != null)
-            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", 32), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
+            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
         setContentView(sall);
     }
 
     private void popupNews() {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-        final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
-        final int fontSize = sp.getInt("font", 32);
+        final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
+        final int fontSize = sp.getInt("font", defaultSize);
         final Dialog dialog = new Dialog(Main.this);
         dialog.setCancelable(true);
         LinearLayout fullPage = new LinearLayout(getApplicationContext());
@@ -1710,7 +1716,7 @@ public class Main extends Activity {
         currentClass = c;
         if (!teacherMode) {
             hsplace.removeAllViews();
-            final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+            final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
             final Button className = new Button(this);
             className.setTextSize((float) fontSize);
             //        className.setBackgroundColor(Color.TRANSPARENT);
@@ -1805,7 +1811,7 @@ public class Main extends Activity {
                 currentTeacher = teachers.get(selectedClass);
             }
             hsplace.removeAllViews();
-            final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+            final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
             final Button className = new Button(this);
             className.setTextSize((float) fontSize);
             className.setGravity(Gravity.CENTER);
@@ -1887,7 +1893,7 @@ public class Main extends Activity {
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
         all.setPadding(10, 10, 10, 10);
-        final Typeface custom_font = Typeface.createFromAsset(getAssets(), "gisha.ttf");
+        final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
         for (int s = 0; s < fclass.classes.size(); s++) {
             if (getBreak(fclass.classes.get(s).hour - 1) != -1 && breakTimes) {
                 final Button breakt = new Button(this);
@@ -2204,11 +2210,13 @@ public class Main extends Activity {
     }
 
     TextView getTv(String text, int size, @Nullable LinearLayout.LayoutParams p) {
+        final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
         TextView tv = new TextView(getApplicationContext());
         tv.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         tv.setTextSize(size);
         tv.setTextColor(Color.LTGRAY);
         tv.setText(text);
+        tv.setTypeface(custom_font);
         if (p != null) tv.setLayoutParams(p);
         return tv;
     }
@@ -2468,7 +2476,7 @@ public class Main extends Activity {
             all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
             all.setOrientation(LinearLayout.VERTICAL);
             all.setPadding(10, 10, 10, 10);
-            final Typeface custom_font = Typeface.createFromAsset(c.getAssets(), "gisha.ttf");
+            final Typeface custom_font = Typeface.createFromAsset(c.getAssets(), fontName);
             for (int h = 0; h <= 12; h++) {
                 final LinearLayout fsubj = new LinearLayout(c);
                 fsubj.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
@@ -3051,6 +3059,7 @@ public class Main extends Activity {
             tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
             tPaint.setColor(textColor);
             tPaint.setTextSize(textSize);
+            tPaint.setTypeface(Typeface.createFromAsset(c.getAssets(), fontName));
         }
 
         public CurvedTextView(Context context, String text, float textSize, int textColor, int sizeX, int sizeY, int radius) {
@@ -3066,6 +3075,7 @@ public class Main extends Activity {
             tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
             tPaint.setColor(textColor);
             tPaint.setTextSize(textSize);
+            tPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), fontName));
         }
 
         @Override
