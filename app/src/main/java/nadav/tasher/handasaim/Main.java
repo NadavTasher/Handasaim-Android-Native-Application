@@ -2914,7 +2914,7 @@ public class Main extends Activity {
                 URL url = new URL(furl);
                 return BitmapFactory.decodeStream(url.openConnection().getInputStream());
             } catch (IOException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
                 return null;
             }
         }
