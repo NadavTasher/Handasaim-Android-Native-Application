@@ -512,7 +512,6 @@ public class Main extends Activity {
             }
         });
         iconSlide.start();
-
         part1.addView(welcome);
         part1.addView(icon);
         part1.addView(setup);
