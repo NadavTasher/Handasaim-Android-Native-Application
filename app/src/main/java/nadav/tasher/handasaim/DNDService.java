@@ -13,27 +13,34 @@ public class DNDService extends Service {
     public IBinder onBind(Intent intent) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
-    private BroadcastReceiver stopReceiver;
+    private BroadcastReceiver stopReceiver,dndReceiver;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i("DNDService","Started!");
         stopReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                if(dndReceiver!=null){
+                    unregisterReceiver(dndReceiver);
+                }
                 sendBroadcast(new Intent(Main.KILL_DND));
                 unregisterReceiver(this);
                 stopSelf();
             }
         };
         registerReceiver(stopReceiver, new IntentFilter(Main.KILL_DND_SERVICE));
-        startDND(this);
+        startDND();
         return START_STICKY;
     }
-    static void startDND(Context context){
-            context.sendBroadcast(new Intent(Main.KILL_DND));
+    void startDND(){
+            if(dndReceiver!=null){
+                unregisterReceiver(dndReceiver);
+            }
+            sendBroadcast(new Intent(Main.KILL_DND));
             IntentFilter o = new IntentFilter();
             o.addAction(Intent.ACTION_TIME_TICK);
             o.addAction(Main.KILL_DND);
-            context.registerReceiver(new Main.DNDReceiver(), o);
+            dndReceiver=new Main.DNDReceiver();
+            registerReceiver(dndReceiver, o);
     }
 }
