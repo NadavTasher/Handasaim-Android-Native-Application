@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -252,13 +253,13 @@ public class Main extends Activity {
             full.setPadding(10, 10, 10, 10);
             LinearLayout newsAll = new LinearLayout(getApplicationContext());
             newsAll.setGravity(Gravity.CENTER);
-            final TextView messBoardTitle = new TextView(getApplicationContext()), prinSays = new TextView(getApplicationContext()),loadingText=new TextView(getApplicationContext());
+            final TextView messBoardTitle = new TextView(getApplicationContext()), prinSays = new TextView(getApplicationContext()), loadingText = new TextView(getApplicationContext());
             loadingText.setGravity(Gravity.CENTER);
             loadingText.setText(R.string.loadingtext);
             loadingText.setTextColor(textColor);
             loadingText.setTypeface(custom_font);
             loadingText.setTextSize(sp.getInt("font", 32) + 4);
-            loadingText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext())*0.7)));
+            loadingText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
             newsAll.addView(loadingText);
             messBoardTitle.setText(R.string.messageboard);
             prinSays.setText(R.string.psay);
@@ -650,11 +651,19 @@ public class Main extends Activity {
         automute.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         spcl.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 9, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
         part3.addView(spclSet);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT);
         spcl.addView(showTimes);
+        spcl.addView(getTv("Show lesson's start time near lesson's name", 15, p));
         spcl.addView(showBreaks);
+        spcl.addView(getTv("Show breaks in schedule, between lessons", 15, p));
         spcl.addView(textCo);
+        spcl.addView(getTv("Text color (black/white)", 15, p));
         spcl.addView(pushNoti);
-        if (Build.VERSION.SDK_INT >= 23) spcl.addView(automute);
+        spcl.addView(getTv("Enable instant notifications that vibrate your device and make a sound.", 15, p));
+        if (Build.VERSION.SDK_INT >= 23) {
+            spcl.addView(automute);
+            spcl.addView(getTv("AutoMute is a feature that mutes your phone when a lesson begins And unmutes it at breaks.", 15, p));
+        }
         part3.addView(spcl);
         part3.addView(done);
         done.setOnClickListener(new View.OnClickListener() {
@@ -860,7 +869,7 @@ public class Main extends Activity {
             public void onClick(View view) {
                 AlertDialog.Builder ab = new AlertDialog.Builder(Main.this);
                 ab.setTitle(R.string.app_name);
-                ab.setMessage("This App Was Made By NadavTasher\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
+                ab.setMessage("Made By NadavTasher\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
                 ab.setCancelable(true);
                 ab.setPositiveButton("Close", null);
                 keyentering++;
@@ -970,36 +979,6 @@ public class Main extends Activity {
                     });
                     oaa.start();
                 }
-            }
-        });
-        final Animation endless = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        endless.setDuration(5000);
-        endless.setRepeatCount(Animation.INFINITE);
-        endless.setRepeatMode(Animation.RESTART);
-        endless.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-                if ((int) endless.getDuration() != 0) {
-                    endless.setDuration((long) (endless.getDuration() / 1.5));
-                } else {
-                    endless.setDuration(5000);
-                }
-            }
-        });
-        hideIcon.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Toast.makeText(getApplicationContext(), "You Have Found Me...", Toast.LENGTH_LONG).show();
-                hideIcon.startAnimation(endless);
-                return true;
             }
         });
         navbarPermItems.setOrientation(LinearLayout.HORIZONTAL);
@@ -1751,7 +1730,7 @@ public class Main extends Activity {
                     dialog.setCancelable(true);
                     ScrollView classesllss = new ScrollView(getApplicationContext());
                     classesllss.addView(classesll);
-                    classesll.setPadding(10,10,10,10);
+                    classesll.setPadding(10, 10, 10, 10);
                     classesll.setBackground(getDrawable(R.drawable.back_transparant));
                     Button close = new Button(getApplicationContext());
                     close.setText(R.string.cls);
@@ -1766,16 +1745,15 @@ public class Main extends Activity {
                             dialog.dismiss();
                         }
                     });
-                    close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext())*0.8), (Light.Device.screenY(getApplicationContext()) / 10)));
-                    LinearLayout full=new LinearLayout(getApplicationContext());
+                    close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 10)));
+                    LinearLayout full = new LinearLayout(getApplicationContext());
                     full.setOrientation(LinearLayout.VERTICAL);
                     full.setGravity(Gravity.CENTER);
-                    full.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext())*0.7)));
-                    classesllss.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) ((Light.Device.screenY(getApplicationContext())*0.7)-Light.Device.screenY(getApplicationContext())/9)));
+                    full.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
+                    classesllss.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) ((Light.Device.screenY(getApplicationContext()) * 0.7) - Light.Device.screenY(getApplicationContext()) / 9)));
                     full.addView(classesllss);
                     full.addView(close);
                     full.setBackgroundColor(color);
-
                     dialog.setContentView(full);
                     for (int cs = 0; cs < classes.size(); cs++) {
                         if (classes.get(cs) != c) {
@@ -1785,7 +1763,7 @@ public class Main extends Activity {
                             cls.setText(classes.get(cs).name);
                             cls.setTextColor(textColor);
                             cls.setBackground(getDrawable(R.drawable.back_transparant));
-                            cls.setPadding(10,5,10,5);
+                            cls.setPadding(10, 0, 10, 0);
                             cls.setTypeface(custom_font);
                             cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Light.Device.screenY(getApplicationContext()) / 10)));
                             classesll.addView(cls);
@@ -1846,7 +1824,30 @@ public class Main extends Activity {
                     dialog.setCancelable(true);
                     ScrollView classesllss = new ScrollView(getApplicationContext());
                     classesllss.addView(classesll);
-                    dialog.setContentView(classesllss);
+                    classesll.setBackground(getDrawable(R.drawable.back_transparant));
+                    Button close = new Button(getApplicationContext());
+                    close.setText(R.string.cls);
+                    close.setAllCaps(false);
+                    close.setBackground(getDrawable(R.drawable.back_transparant));
+                    close.setTextSize((float) 22);
+                    close.setTextColor(textColor);
+                    close.setTypeface(custom_font);
+                    close.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
+                        }
+                    });
+                    close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 10)));
+                    LinearLayout full = new LinearLayout(getApplicationContext());
+                    full.setOrientation(LinearLayout.VERTICAL);
+                    full.setGravity(Gravity.CENTER);
+                    full.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
+                    classesllss.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) ((Light.Device.screenY(getApplicationContext()) * 0.7) - Light.Device.screenY(getApplicationContext()) / 9)));
+                    full.addView(classesllss);
+                    full.addView(close);
+                    full.setBackgroundColor(color);
+                    dialog.setContentView(full);
                     if (teachers != null) {
                         for (int cs = 0; cs < teachers.size(); cs++) {
                             if (teachers.get(cs) != currentTeacher) {
@@ -1855,7 +1856,8 @@ public class Main extends Activity {
                                 cls.setGravity(Gravity.CENTER);
                                 cls.setText(teachers.get(cs).mainName);
                                 cls.setTextColor(textColor);
-                                cls.setBackgroundColor(Color.TRANSPARENT);
+                                cls.setBackground(getDrawable(R.drawable.back_transparant));
+                                cls.setPadding(10, 0, 10, 0);
                                 cls.setTypeface(custom_font);
                                 cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
                                 classesll.addView(cls);
@@ -1891,7 +1893,7 @@ public class Main extends Activity {
                 final Button breakt = new Button(this);
                 String btext = "הפסקה, " + getBreak(fclass.classes.get(s).hour - 1) + " דקות";
                 breakt.setText(btext);
-                breakt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                breakt.setGravity(Gravity.CENTER);
                 breakt.setTextSize((float) fontSize - 2);
                 breakt.setTextColor(textColor);
                 breakt.setBackground(getDrawable(R.drawable.button));
@@ -1963,6 +1965,16 @@ public class Main extends Activity {
             fsubj.setGravity(Gravity.CENTER);
             //            fsubj.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);
             fsubj.setOrientation(LinearLayout.HORIZONTAL);
+            ClassTime classTime = getTimeForLesson(fclass.classes.get(s).hour);
+            boolean isCurrent = false;
+            Calendar c = Calendar.getInstance();
+            int minute = c.get(Calendar.MINUTE);
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            if (classTime != null) {
+                if (minuteOfDay(hour, minute) >= minuteOfDay(classTime.startH, classTime.startM) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.finishH, classTime.finishM)) {
+                    isCurrent = true;
+                }
+            }
             Button subj = new Button(this);
             if (showOrgC) {
                 fsubj.setPadding(0, 0, 20, 0);
@@ -1975,10 +1987,19 @@ public class Main extends Activity {
                 }
                 //                che.setButtonTintList(new ColorStateList());
                 fsubj.addView(che);
-                fsubj.setBackground(getDrawable(R.drawable.backasbutton));
-                subj.setBackground(getDrawable(R.drawable.button_alpha));
+                if (!isCurrent) {
+                    fsubj.setBackground(getDrawable(R.drawable.backasbutton));
+                    subj.setBackground(getDrawable(R.drawable.button_alpha));
+                } else {
+                    fsubj.setBackground(getDrawable(R.drawable.backasbutton_dark));
+                    subj.setBackground(getDrawable(R.drawable.button_alpha_dark));
+                }
             } else {
-                subj.setBackground(getDrawable(R.drawable.button));
+                if (!isCurrent) {
+                    subj.setBackground(getDrawable(R.drawable.button));
+                } else {
+                    subj.setBackground(getDrawable(R.drawable.button_dark));
+                }
             }
             String before;
             if (showTime) {
@@ -2146,6 +2167,10 @@ public class Main extends Activity {
         return null;
     }
 
+    static int minuteOfDay(int h, int m) {
+        return h * 60 + m;
+    }
+
     static ClassTime getTimeForLesson(int hour) {
         switch (hour) {
             case 0:
@@ -2176,6 +2201,16 @@ public class Main extends Activity {
                 return new ClassTime(17, 18, 45, 30);
         }
         return null;
+    }
+
+    TextView getTv(String text, int size, @Nullable LinearLayout.LayoutParams p) {
+        TextView tv = new TextView(getApplicationContext());
+        tv.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        tv.setTextSize(size);
+        tv.setTextColor(Color.LTGRAY);
+        tv.setText(text);
+        if (p != null) tv.setLayoutParams(p);
+        return tv;
     }
 
     static int getBreak(int washour) {
@@ -2237,6 +2272,7 @@ public class Main extends Activity {
                                             //                                            view(classes);
                                             //                                            welcome(classes, true);
                                             newsSplash(classes);
+                                            //                                            welcome(classes, true);
                                             beginDND(getApplicationContext());
                                             startPush();
                                         }
@@ -2440,7 +2476,6 @@ public class Main extends Activity {
                 //            fsubj.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);
                 fsubj.setOrientation(LinearLayout.HORIZONTAL);
                 final Button subj = new Button(c);
-                subj.setBackground(c.getDrawable(R.drawable.button));
                 subj.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                 subj.setText(null);
                 subj.setTextSize((float) fontSize - 2);
@@ -2454,6 +2489,22 @@ public class Main extends Activity {
                 for (int s = 0; s < fclass.teaching.size(); s++) {
                     final int finalS = s;
                     if (fclass.teaching.get(s).hour == h) {
+                        ClassTime classTime = getTimeForLesson(h);
+                        boolean isCurrent = false;
+                        Calendar ca = Calendar.getInstance();
+                        int minute = ca.get(Calendar.MINUTE);
+                        int hour = ca.get(Calendar.HOUR_OF_DAY);
+                        if (classTime != null) {
+                            if (minuteOfDay(hour, minute) >= minuteOfDay(classTime.startH, classTime.startM) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.finishH, classTime.finishM)) {
+                                isCurrent = true;
+                            }
+                        }
+                        if (!isCurrent) {
+                            subj.setBackground(c.getDrawable(R.drawable.button));
+                        } else {
+                            Log.i("Reached Current", "This Is The " + h);
+                            subj.setBackground(c.getDrawable(R.drawable.button_dark));
+                        }
                         subj.setOnLongClickListener(new View.OnLongClickListener() {
                             @Override
                             public boolean onLongClick(View view) {
@@ -2489,7 +2540,7 @@ public class Main extends Activity {
                         final Button breakt = new Button(c);
                         String txt = "הפסקה, " + getBreak(h - 1) + " דקות";
                         breakt.setText(txt);
-                        breakt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                        breakt.setGravity(Gravity.CENTER);
                         breakt.setTextSize((float) fontSize - 2);
                         breakt.setTextColor(textColor);
                         breakt.setBackground(c.getDrawable(R.drawable.button));
@@ -2681,14 +2732,14 @@ public class Main extends Activity {
                     Main.Link link = new Main.Link();
                     link.name = ahs.get(in).text();
                     link.url = ahs.get(in).attr("href");
-                    boolean doesContain=false;
-                    for(int containC=0;containC<file.size();containC++){
-                        if(file.get(containC).name.equals(link.name)){
-                            doesContain=true;
+                    boolean doesContain = false;
+                    for (int containC = 0; containC < file.size(); containC++) {
+                        if (file.get(containC).name.equals(link.name)) {
+                            doesContain = true;
                             break;
                         }
                     }
-                    if (!link.name.equals("")&&!doesContain) file.add(link);
+                    if (!link.name.equals("") && !doesContain) file.add(link);
                 }
                 success = true;
                 return file;
@@ -2734,14 +2785,14 @@ public class Main extends Activity {
                     link.name = itemss.get(in).select("a").first().text();
                     link.url = itemss.get(in).select("a").first().attr("href");
                     link.imgurl = itemss.get(in).select("img").attr("src");
-                    boolean doesContain=false;
-                    for(int containC=0;containC<news.size();containC++){
-                        if(news.get(containC).name.equals(link.name)){
-                            doesContain=true;
+                    boolean doesContain = false;
+                    for (int containC = 0; containC < news.size(); containC++) {
+                        if (news.get(containC).name.equals(link.name)) {
+                            doesContain = true;
                             break;
                         }
                     }
-                    if (!link.name.equals("")&&!doesContain) news.add(link);
+                    if (!link.name.equals("") && !doesContain) news.add(link);
                 }
                 ms.news = news;
                 try {

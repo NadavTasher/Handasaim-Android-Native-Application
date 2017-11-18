@@ -6,13 +6,13 @@
     <string name="nxt">Next</string>
     <string name="scla">Select Class</string>
     <string name="dn">Done</string>
-    <string name="spclstt">Special Settings</string>
+    <string name="spclstt">Settings</string>
     <string name="sct">Show Lesson Times</string>
     <string name="white">White Text</string>
     <string name="black">Black Text</string>
     <string name="brkk">Break</string>
     <string name="showbrk">Show Break Times</string>
-    <string name="rnew">Renew Special Settings:</string>
+    <string name="rnew">Renew Settings:</string>
     <string name="cls">Close</string>
     <string name="push">Push Notifications</string>
     <string name="dnd">Auto Mute and Unmute</string>
@@ -23,5 +23,5 @@
     <string name="secondsleft">15s</string>
     <string name="pushmess">Push Messages</string>
     <string name="news">News</string>
-    <string name="loadingtext">Loading...</string>
+    <string name="loadingtext">Loading…</string>
 </resources>
