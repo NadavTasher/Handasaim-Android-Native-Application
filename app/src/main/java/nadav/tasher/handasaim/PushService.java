@@ -17,18 +17,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Random;
-import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import nadav.tasher.lightool.Light;
 
 public class PushService extends Service {
-
-    private BroadcastReceiver stopReceiver;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -38,7 +33,7 @@ public class PushService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        stopReceiver = new BroadcastReceiver() {
+        BroadcastReceiver stopReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 unregisterReceiver(this);
@@ -62,7 +57,7 @@ public class PushService extends Service {
                     @Override
                     public void onPost(String s) {
                         try {
-                            Log.i("HandasaimPushService", "Loop");
+                            //                            Log.i("HandasaimPushService", "Loop");
                             JSONObject mainObject = new JSONObject(s);
                             boolean success = mainObject.getBoolean("success");
                             if (success) {
@@ -104,11 +99,9 @@ public class PushService extends Service {
 
     private void sendNotification(String text, String timeH, String timeM) {
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Calendar mCalendar = new GregorianCalendar();
-        TimeZone mTimeZone = mCalendar.getTimeZone();
-        int mGMTOffset = mTimeZone.getRawOffset();
-        //        timeH+=TimeUnit.HOURS.convert(mGMTOffset, TimeUnit.MILLISECONDS);
         Notification notification = new NotificationCompat.Builder(getApplicationContext()).setSmallIcon(R.mipmap.ic_launcher).setContentTitle(getResources().getString(R.string.app_name) + " at " + timeH + ":" + timeM + "GMT").setContentText(text).setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE).build();
-        manager.notify(new Random().nextInt(100), notification);
+        if (manager != null) {
+            manager.notify(new Random().nextInt(100), notification);
+        }
     }
 }

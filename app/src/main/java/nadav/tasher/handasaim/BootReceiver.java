@@ -3,8 +3,8 @@ package nadav.tasher.handasaim;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 
 public class BootReceiver extends BroadcastReceiver {
 
@@ -14,6 +14,6 @@ public class BootReceiver extends BroadcastReceiver {
         if (sp.getBoolean("push", false)) {
             context.startService(new Intent(context, PushService.class));
         }
-        Main.beginDND(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) Main.beginDND(context);
     }
 }
