@@ -86,7 +86,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 import nadav.tasher.lightool.Light;
 
@@ -129,7 +128,6 @@ public class Main extends Activity {
         if (sp.getBoolean("push", false)) {
             sendBroadcast(new Intent(STOP_SERVICE));
             startService(new Intent(getApplicationContext(), PushService.class));
-            Log.i("SERVICE-STARTED", "Started Push");
         }
     }
 
@@ -253,8 +251,15 @@ public class Main extends Activity {
             full.setOrientation(LinearLayout.VERTICAL);
             full.setPadding(10, 10, 10, 10);
             LinearLayout newsAll = new LinearLayout(getApplicationContext());
-            newsAll.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START);
-            TextView messBoardTitle = new TextView(getApplicationContext()), prinSays = new TextView(getApplicationContext());
+            newsAll.setGravity(Gravity.CENTER);
+            final TextView messBoardTitle = new TextView(getApplicationContext()), prinSays = new TextView(getApplicationContext()),loadingText=new TextView(getApplicationContext());
+            loadingText.setGravity(Gravity.CENTER);
+            loadingText.setText(R.string.loadingtext);
+            loadingText.setTextColor(textColor);
+            loadingText.setTypeface(custom_font);
+            loadingText.setTextSize(sp.getInt("font", 32) + 4);
+            loadingText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext())*0.7)));
+            newsAll.addView(loadingText);
             messBoardTitle.setText(R.string.messageboard);
             prinSays.setText(R.string.psay);
             prinSays.setGravity(Gravity.CENTER);
@@ -265,11 +270,11 @@ public class Main extends Activity {
             prinSays.setTextSize(sp.getInt("font", 32) + 2);
             prinSays.setTextColor(textColor);
             messBoardTitle.setTextColor(textColor);
-            LinearLayout news = new LinearLayout(getApplicationContext());
+            final LinearLayout news = new LinearLayout(getApplicationContext());
             news.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START);
             newsAll.setOrientation(LinearLayout.VERTICAL);
             news.setOrientation(LinearLayout.VERTICAL);
-            Button princibleSay = new Button(getApplicationContext());
+            final Button princibleSay = new Button(getApplicationContext());
             princibleSay.setBackground(getDrawable(R.drawable.back_transparant));
             princibleSay.setTypeface(custom_font);
             princibleSay.setPadding(10, 10, 10, 10);
@@ -283,7 +288,7 @@ public class Main extends Activity {
             news.setBackground(getDrawable(R.drawable.back_transparant));
             //        news.setAlpha(0.5f);
             newsAll.addView(news);
-            LinearLayout principals = new LinearLayout(getApplicationContext());
+            final LinearLayout principals = new LinearLayout(getApplicationContext());
             principals.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START);
             principals.setOrientation(LinearLayout.VERTICAL);
             principals.addView(prinSays);
@@ -341,96 +346,106 @@ public class Main extends Activity {
                     view(classes);
                 }
             });
+            principals.setVisibility(View.GONE);
+            news.setVisibility(View.GONE);
             setContentView(full);
-            try {
-                final MainSite ms = new GetMainSite().execute().get();
-                if (ms != null) {
-                    if (ms.readMorePrics == null && ms.princSaying == null) {
-                        view(classes);
-                    }
-                    princibleSay.setText(ms.princSaying);
-                    princibleSay.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            String url = ms.readMorePrics;
-                            Intent i = new Intent(Intent.ACTION_VIEW);
-                            i.setData(Uri.parse(url));
-                            startActivity(i);
+            new GetMainSite(new GetMainSite.OnGet() {
+
+                @Override
+                public void onGet(final MainSite ms) {
+                    if (ms != null) {
+                        loadingText.setVisibility(View.GONE);
+                        if (ms.readMorePrics == null && ms.princSaying == null) {
+                            view(classes);
                         }
-                    });
-                    for (int n = 0; n < ms.news.size(); n++) {
-                        LinearLayout nt = new LinearLayout(this);
-                        nt.setOrientation(LinearLayout.VERTICAL);
-                        nt.setGravity(Gravity.CENTER);
-                        Button newtopic = new Button(getApplicationContext());
-                        nt.addView(newtopic);
-                        nt.setBackground(getDrawable(R.drawable.back_transparant));
-                        newtopic.setText(ms.news.get(n).name);
-                        newtopic.setEllipsize(TextUtils.TruncateAt.END);
-                        newtopic.setBackground(getDrawable(R.drawable.back_transparant));
-                        newtopic.setTextColor(textColor);
-                        newtopic.setTextSize(sp.getInt("font", 32) - 10);
-                        newtopic.setPadding(20, 10, 20, 10);
-                        newtopic.setEllipsize(TextUtils.TruncateAt.END);
-                        newtopic.setLines(2);
-                        newtopic.setTypeface(custom_font);
-                        if (!ms.news.get(n).imgurl.equals("") || ms.news.get(n).imgurl != null) {
-                            Log.i("Image", ms.news.get(n).imgurl);
-                            Bitmap bm = new PictureLoader(ms.news.get(n).imgurl).execute().get();
-                            ImageView imageView = new ImageView(this);
-                            imageView.setImageBitmap(bm);
-                            imageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 3));
-                            imageView.setPadding(20, 20, 20, 40);
-                            final int finalN1 = n;
-                            imageView.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    String url = ms.news.get(finalN1).url;
-                                    Intent i = new Intent(Intent.ACTION_VIEW);
-                                    i.setData(Uri.parse(url));
-                                    startActivity(i);
-                                }
-                            });
-                            if (bm != null) nt.addView(imageView);
-                        }
-                        newtopic.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 8));
-                        final int finalN = n;
-                        newtopic.setOnClickListener(new View.OnClickListener() {
+                        princibleSay.setText(ms.princSaying);
+                        principals.setVisibility(View.VISIBLE);
+                        princibleSay.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                String url = ms.news.get(finalN).url;
+                                String url = ms.readMorePrics;
                                 Intent i = new Intent(Intent.ACTION_VIEW);
                                 i.setData(Uri.parse(url));
                                 startActivity(i);
                             }
                         });
-                        news.addView(nt);
-                    }
-                    new CountDownTimer(16000, 1000) {
+                        news.setVisibility(View.VISIBLE);
+                        for (int n = 0; n < ms.news.size(); n++) {
+                            final LinearLayout nt = new LinearLayout(getApplicationContext());
+                            nt.setOrientation(LinearLayout.VERTICAL);
+                            nt.setGravity(Gravity.CENTER);
+                            Button newtopic = new Button(getApplicationContext());
+                            nt.addView(newtopic);
+                            nt.setBackground(getDrawable(R.drawable.back_transparant));
+                            newtopic.setText(ms.news.get(n).name);
+                            newtopic.setEllipsize(TextUtils.TruncateAt.END);
+                            newtopic.setBackground(getDrawable(R.drawable.back_transparant));
+                            newtopic.setTextColor(textColor);
+                            newtopic.setTextSize(sp.getInt("font", 32) - 10);
+                            newtopic.setPadding(20, 10, 20, 10);
+                            newtopic.setEllipsize(TextUtils.TruncateAt.END);
+                            newtopic.setLines(2);
+                            newtopic.setTypeface(custom_font);
+                            if (!ms.news.get(n).imgurl.equals("") || ms.news.get(n).imgurl != null) {
+                                final int finalN1 = n;
+                                new PictureLoader(ms.news.get(n).imgurl, new PictureLoader.GotImage() {
 
-                        @Override
-                        public void onTick(long millisUntilFinished) {
-                            String text = String.valueOf((millisUntilFinished / 1000) - 1) + "s";
-                            waiting.setText(text);
-                            if (millisUntilFinished <= 2000) {
-                                waiting.setVisibility(View.GONE);
-                                nextButton.setVisibility(View.VISIBLE);
+                                    @Override
+                                    public void onGet(Bitmap image) {
+                                        ImageView imageView = new ImageView(getApplicationContext());
+                                        imageView.setImageBitmap(image);
+                                        imageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 3));
+                                        imageView.setPadding(20, 20, 20, 40);
+                                        imageView.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                String url = ms.news.get(finalN1).url;
+                                                Intent i = new Intent(Intent.ACTION_VIEW);
+                                                i.setData(Uri.parse(url));
+                                                startActivity(i);
+                                            }
+                                        });
+                                        if (image != null) nt.addView(imageView);
+                                    }
+                                }).execute();
                             }
+                            newtopic.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 8));
+                            final int finalN = n;
+                            newtopic.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String url = ms.news.get(finalN).url;
+                                    Intent i = new Intent(Intent.ACTION_VIEW);
+                                    i.setData(Uri.parse(url));
+                                    startActivity(i);
+                                }
+                            });
+                            news.addView(nt);
+                            newsAllSV.setScrollY(0);
                         }
-
-                        @Override
-                        public void onFinish() {
-                            //                            waiting.setVisibility(View.GONE);
-                            //                            nextButton.setVisibility(View.VISIBLE);
-                        }
-                    }.start();
-                } else {
-                    view(classes);
+                    } else {
+                        view(classes);
+                    }
                 }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-                view(classes);
-            }
+            }).execute();
+            new CountDownTimer(16000, 1000) {
+
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    String text = String.valueOf((millisUntilFinished / 1000) - 1) + "s";
+                    waiting.setText(text);
+                    if (millisUntilFinished <= 2000) {
+                        waiting.setVisibility(View.GONE);
+                        nextButton.setVisibility(View.VISIBLE);
+                    }
+                }
+
+                @Override
+                public void onFinish() {
+                    //                            waiting.setVisibility(View.GONE);
+                    //                            nextButton.setVisibility(View.VISIBLE);
+                }
+            }.start();
         }
     }
 
@@ -662,7 +677,6 @@ public class Main extends Activity {
                                 new Light.Net.PHP.Post("http://handasaim.thepuzik.com/new.php", parms, new Light.Net.PHP.Post.OnPost() {
                                     @Override
                                     public void onPost(String s) {
-                                        //                                        Log.i("COUNT", s);
                                         view(classes);
                                     }
                                 }).execute();
@@ -750,7 +764,6 @@ public class Main extends Activity {
                     new Light.Net.PHP.Post(keyProvider, parms, new Light.Net.PHP.Post.OnPost() {
                         @Override
                         public void onPost(String s) {
-                            Log.i("Response", s);
                             try {
                                 JSONObject o = new JSONObject(s);
                                 if (o.getBoolean("success")) {
@@ -1738,7 +1751,32 @@ public class Main extends Activity {
                     dialog.setCancelable(true);
                     ScrollView classesllss = new ScrollView(getApplicationContext());
                     classesllss.addView(classesll);
-                    dialog.setContentView(classesllss);
+                    classesll.setPadding(10,10,10,10);
+                    classesll.setBackground(getDrawable(R.drawable.back_transparant));
+                    Button close = new Button(getApplicationContext());
+                    close.setText(R.string.cls);
+                    close.setAllCaps(false);
+                    close.setBackground(getDrawable(R.drawable.back_transparant));
+                    close.setTextSize((float) 22);
+                    close.setTextColor(textColor);
+                    close.setTypeface(custom_font);
+                    close.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
+                        }
+                    });
+                    close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext())*0.8), (Light.Device.screenY(getApplicationContext()) / 10)));
+                    LinearLayout full=new LinearLayout(getApplicationContext());
+                    full.setOrientation(LinearLayout.VERTICAL);
+                    full.setGravity(Gravity.CENTER);
+                    full.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext())*0.7)));
+                    classesllss.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) ((Light.Device.screenY(getApplicationContext())*0.7)-Light.Device.screenY(getApplicationContext())/9)));
+                    full.addView(classesllss);
+                    full.addView(close);
+                    full.setBackgroundColor(color);
+
+                    dialog.setContentView(full);
                     for (int cs = 0; cs < classes.size(); cs++) {
                         if (classes.get(cs) != c) {
                             Button cls = new Button(getApplicationContext());
@@ -1746,9 +1784,10 @@ public class Main extends Activity {
                             cls.setGravity(Gravity.CENTER);
                             cls.setText(classes.get(cs).name);
                             cls.setTextColor(textColor);
-                            cls.setBackgroundColor(Color.TRANSPARENT);
+                            cls.setBackground(getDrawable(R.drawable.back_transparant));
+                            cls.setPadding(10,5,10,5);
                             cls.setTypeface(custom_font);
-                            cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
+                            cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Light.Device.screenY(getApplicationContext()) / 10)));
                             classesll.addView(cls);
                             final int finalCs = cs;
                             cls.setOnClickListener(new View.OnClickListener() {
@@ -2167,7 +2206,6 @@ public class Main extends Activity {
             @Override
             public void onLinkGet(String link) {
                 if (link != null) {
-                    //                    Log.i("LINK", link);
                     String fileName = "hs.xls";
                     if (link.endsWith(".xlsx")) {
                         fileName = "hs.xlsx";
@@ -2192,11 +2230,6 @@ public class Main extends Activity {
                                 //                                day = readExcelDayXLSX(file);
                                 /////
                                 if (classes != null) {
-                                    //                                    for (int cl = 0; cl < classes.size(); cl++) {
-                                    //                                        for (int su = 0; su < classes.get(cl).classes.size(); su++) {
-                                    //                                            Log.i(classes.get(cl).name + " " + classes.get(cl).classes.get(su).hour, classes.get(cl).classes.get(su).name);
-                                    //                                        }
-                                    //                                    }
                                     if (!sp.getBoolean("first", true)) {
                                         if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
                                             welcome(classes, true);
@@ -2219,10 +2252,6 @@ public class Main extends Activity {
 
                         @Override
                         public void onProgressChanged(File file, int i) {
-                            //                            Log.i("Downloader","Progress "+i);
-                            //                            pb.setIndeterminate(false);
-                            //                            pb.setMax(100);
-                            //                            pb.setProgress(i);
                         }
                     }).execute();
                 } else {
@@ -2515,7 +2544,6 @@ public class Main extends Activity {
                 ArrayList<Subject> subjs = c.classes;
                 for (int subj = 0; subj < subjs.size(); subj++) {
                     Subject subject = subjs.get(subj);
-                    //                    Log.i("Subj", subject.fullName.split("\\r?\\n")[0]);
                     String teachOrTcrs = subject.fullName.substring(subject.fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0];
                     ArrayList<String> teacherNames = Light.Stringer.cutOnEvery(teachOrTcrs, ",");
                     for (int tcrName = 0; tcrName < teacherNames.size(); tcrName++) {
@@ -2602,12 +2630,10 @@ public class Main extends Activity {
             try {
                 Document docu = Jsoup.connect(ser).get();
                 Elements doc = docu.select("a");
-                logAll("LINKGET", docu.outerHtml());
                 String file = null;
                 for (int i = 0; i < doc.size(); i++) {
                     if (doc.get(i).attr("href").endsWith(".xls") || doc.get(i).attr("href").endsWith(".xlsx")) {
                         file = doc.get(i).attr("href");
-                        Log.i("FILE", file);
                         break;
                     }
                 }
@@ -2616,20 +2642,6 @@ public class Main extends Activity {
             } catch (IOException e) {
                 success = false;
                 return e.getMessage();
-            }
-        }
-
-        private void logAll(String TAG, String longString) {
-            int splitSize = 300;
-            if (longString.length() > splitSize) {
-                int index = 0;
-                while (index < longString.length() - splitSize) {
-                    Log.e(TAG, longString.substring(index, index + splitSize));
-                    index += splitSize;
-                }
-                Log.e(TAG, longString.substring(index, longString.length()));
-            } else {
-                Log.e(TAG, longString);
             }
         }
 
@@ -2669,7 +2681,14 @@ public class Main extends Activity {
                     Main.Link link = new Main.Link();
                     link.name = ahs.get(in).text();
                     link.url = ahs.get(in).attr("href");
-                    if (!link.name.equals("")) file.add(link);
+                    boolean doesContain=false;
+                    for(int containC=0;containC<file.size();containC++){
+                        if(file.get(containC).name.equals(link.name)){
+                            doesContain=true;
+                            break;
+                        }
+                    }
+                    if (!link.name.equals("")&&!doesContain) file.add(link);
                 }
                 success = true;
                 return file;
@@ -2696,6 +2715,11 @@ public class Main extends Activity {
     }
 
     static class GetMainSite extends AsyncTask<String, String, MainSite> {
+        OnGet onGet;
+
+        GetMainSite(OnGet og) {
+            onGet = og;
+        }
 
         @Override
         protected MainSite doInBackground(String... strings) {
@@ -2710,8 +2734,14 @@ public class Main extends Activity {
                     link.name = itemss.get(in).select("a").first().text();
                     link.url = itemss.get(in).select("a").first().attr("href");
                     link.imgurl = itemss.get(in).select("img").attr("src");
-                    Log.i("IMAGE_O", link.imgurl);
-                    if (!link.name.equals("")) news.add(link);
+                    boolean doesContain=false;
+                    for(int containC=0;containC<news.size();containC++){
+                        if(news.get(containC).name.equals(link.name)){
+                            doesContain=true;
+                            break;
+                        }
+                    }
+                    if (!link.name.equals("")&&!doesContain) news.add(link);
                 }
                 ms.news = news;
                 try {
@@ -2725,6 +2755,17 @@ public class Main extends Activity {
             } catch (IOException e) {
                 return null;
             }
+        }
+
+        @Override
+        protected void onPostExecute(MainSite mainSite) {
+            if (onGet != null) {
+                onGet.onGet(mainSite);
+            }
+        }
+
+        interface OnGet {
+            void onGet(MainSite ms);
         }
     }
 
@@ -2802,9 +2843,11 @@ public class Main extends Activity {
 
     static class PictureLoader extends AsyncTask<String, String, Bitmap> {
         private String furl;
+        private GotImage ong;
 
-        PictureLoader(String url) {
+        PictureLoader(String url, GotImage og) {
             furl = url;
+            ong = og;
         }
 
         @Override
@@ -2816,6 +2859,17 @@ public class Main extends Activity {
                 e.printStackTrace();
                 return null;
             }
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if (ong != null) {
+                ong.onGet(bitmap);
+            }
+        }
+
+        interface GotImage {
+            void onGet(Bitmap image);
         }
     }
 
@@ -2848,7 +2902,6 @@ public class Main extends Activity {
         }
 
         void checkTime(Context context, SharedPreferences sp) {
-            Log.i("DNDReceiver", "Called!");
             Calendar c = Calendar.getInstance();
             File excel = new File(context.getFilesDir(), sp.getString("latest_file_name", "hs.xls"));
             String name = sp.getString("latest_file_name", "");
@@ -2898,7 +2951,6 @@ public class Main extends Activity {
             for (int ct = 0; ct < classTimes.size(); ct++) {
                 ClassTime classTime = classTimes.get(ct);
                 if (c.get(Calendar.MINUTE) == classTime.startM && c.get(Calendar.HOUR_OF_DAY) == classTime.startH) {
-                    Log.i("DND", "Enabled!");
                     NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     if (mNotificationManager != null) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -2906,7 +2958,6 @@ public class Main extends Activity {
                         }
                     }
                 } else if (c.get(Calendar.MINUTE) == classTime.finishM && c.get(Calendar.HOUR_OF_DAY) == classTime.finishH) {
-                    Log.i("DND", "Disabled!");
                     NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     if (mNotificationManager != null) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -2968,7 +3019,6 @@ public class Main extends Activity {
 
         @Override
         protected void onDraw(Canvas canvas) {
-            Log.i("CURVE", "Made Curve With Text:" + text);
             canvas.drawTextOnPath(text, circle, 0, 0, tPaint);
             invalidate();
         }
