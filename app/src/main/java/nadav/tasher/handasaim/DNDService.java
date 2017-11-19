@@ -33,9 +33,6 @@ public class DNDService extends Service {
         return START_STICKY;
     }
     void startDND(){
-            if(dndReceiver!=null){
-                unregisterReceiver(dndReceiver);
-            }
             sendBroadcast(new Intent(Main.KILL_DND));
             IntentFilter o = new IntentFilter();
             o.addAction(Intent.ACTION_TIME_TICK);
