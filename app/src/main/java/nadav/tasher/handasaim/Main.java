@@ -2932,11 +2932,19 @@ public class Main extends Activity {
     }
 
     static class DNDReceiver extends BroadcastReceiver {
+        private boolean isAlive=true;
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction() != null) {
                 if (intent.getAction().equals(Main.KILL_DND)) {
-                    context.unregisterReceiver(this);
+                    if(isAlive) {
+                        isAlive=false;
+                        try{
+                            context.unregisterReceiver(this);
+                        }catch (IllegalArgumentException e){
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
             final SharedPreferences sp = context.getSharedPreferences("app", Context.MODE_PRIVATE);

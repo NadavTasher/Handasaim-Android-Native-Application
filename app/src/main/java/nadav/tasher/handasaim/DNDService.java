@@ -40,4 +40,9 @@ public class DNDService extends Service {
             dndReceiver=new Main.DNDReceiver();
             registerReceiver(dndReceiver, o);
     }
+
+    @Override
+    public void onDestroy() {
+        sendBroadcast(new Intent(Main.KILL_DND));
+    }
 }
