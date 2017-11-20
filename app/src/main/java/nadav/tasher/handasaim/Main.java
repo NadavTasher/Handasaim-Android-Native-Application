@@ -255,14 +255,25 @@ public class Main extends Activity {
             full.setPadding(10, 10, 10, 10);
             LinearLayout newsAll = new LinearLayout(getApplicationContext());
             newsAll.setGravity(Gravity.CENTER);
-            final TextView messBoardTitle = new TextView(getApplicationContext()), prinSays = new TextView(getApplicationContext()), loadingText = new TextView(getApplicationContext());
+            final LinearLayout loadingTView = new LinearLayout(getApplicationContext());
+            loadingTView.setGravity(Gravity.CENTER);
+            loadingTView.setOrientation(LinearLayout.VERTICAL);
+            final TextView messBoardTitle = new TextView(getApplicationContext()), prinSays = new TextView(getApplicationContext()), loadingText = new TextView(getApplicationContext()), egg = new TextView(getApplicationContext());
             loadingText.setGravity(Gravity.CENTER);
             loadingText.setText(R.string.loadingtext);
             loadingText.setTextColor(textColor);
             loadingText.setTypeface(custom_font);
             loadingText.setTextSize(sp.getInt("font", defaultSize) + 4);
-            loadingText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
-            newsAll.addView(loadingText);
+            loadingTView.addView(loadingText);
+            egg.setGravity(Gravity.CENTER);
+            egg.setText(getEasterEgg());
+            egg.setTextColor(Color.LTGRAY);
+            egg.setTypeface(custom_font);
+            egg.setTextSize(sp.getInt("font", defaultSize) - 8);
+            egg.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.7), ViewGroup.LayoutParams.WRAP_CONTENT));
+            loadingTView.addView(egg);
+            loadingTView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
+            newsAll.addView(loadingTView);
             messBoardTitle.setText(R.string.messageboard);
             prinSays.setText(R.string.psay);
             prinSays.setGravity(Gravity.CENTER);
@@ -357,7 +368,7 @@ public class Main extends Activity {
                 @Override
                 public void onGet(final MainSite ms) {
                     if (ms != null) {
-                        loadingText.setVisibility(View.GONE);
+                        loadingTView.setVisibility(View.GONE);
                         if (ms.readMorePrics == null && ms.princSaying == null) {
                             view(classes);
                         }
@@ -677,7 +688,7 @@ public class Main extends Activity {
                 sp.edit().putBoolean("show_time", showTimes.isChecked()).commit();
                 sp.edit().putBoolean("auto_dnd", automute.isChecked()).commit();
                 sp.edit().putBoolean("fontWhite", textCo.isChecked()).commit();
-                sp.edit().putBoolean("breaks", textCo.isChecked()).commit();
+                sp.edit().putBoolean("breaks", showBreaks.isChecked()).commit();
                 sp.edit().putBoolean("push", pushNoti.isChecked()).commit();
                 sp.edit().putInt("last_recorded_version_code", Light.Device.getVersionCode(getApplicationContext(), getPackageName())).commit();
                 sp.edit().putBoolean("first", false).commit();
@@ -824,15 +835,19 @@ public class Main extends Activity {
         pop.show();
     }
 
-    private void showEasterEgg() {
+    private String getEasterEgg() {
         int which = new Random().nextInt(2);
         if (which == 0) {
             int newrand = new Random().nextInt(infact.length);
-            Toast.makeText(getApplicationContext(), infact[newrand], Toast.LENGTH_LONG).show();
+            return "Did You Know: " + infact[newrand];
         } else {
             int newrand = new Random().nextInt(ees.length);
-            Toast.makeText(getApplicationContext(), "\"" + ees[newrand] + "\"", Toast.LENGTH_LONG).show();
+            return "\"" + ees[newrand] + "\"";
         }
+    }
+
+    private void showEasterEgg() {
+        Toast.makeText(getApplicationContext(), getEasterEgg(), Toast.LENGTH_LONG).show();
     }
 
     private void view(final ArrayList<Class> classes) {
@@ -2195,7 +2210,7 @@ public class Main extends Activity {
             case 7:
                 return new ClassTime(13, 14, 50, 35);
             case 8:
-                return new ClassTime(14, 15, 0, 20);
+                return new ClassTime(14, 15, 35, 20);
             case 9:
                 return new ClassTime(15, 16, 30, 15);
             case 10:
@@ -2276,8 +2291,6 @@ public class Main extends Activity {
                                         if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
                                             welcome(classes, true);
                                         } else {
-                                            //                                            view(classes);
-                                            //                                            welcome(classes, true);
                                             newsSplash(classes);
                                             //                                            welcome(classes, true);
                                             beginDND(getApplicationContext());
@@ -2914,7 +2927,7 @@ public class Main extends Activity {
                 URL url = new URL(furl);
                 return BitmapFactory.decodeStream(url.openConnection().getInputStream());
             } catch (IOException e) {
-//                e.printStackTrace();
+                //                e.printStackTrace();
                 return null;
             }
         }
@@ -2932,16 +2945,17 @@ public class Main extends Activity {
     }
 
     static class DNDReceiver extends BroadcastReceiver {
-        private boolean isAlive=true;
+        private boolean isAlive = true;
+
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction() != null) {
                 if (intent.getAction().equals(Main.KILL_DND)) {
-                    if(isAlive) {
-                        isAlive=false;
-                        try{
+                    if (isAlive) {
+                        isAlive = false;
+                        try {
                             context.unregisterReceiver(this);
-                        }catch (IllegalArgumentException e){
+                        } catch (IllegalArgumentException e) {
                             e.printStackTrace();
                         }
                     }
