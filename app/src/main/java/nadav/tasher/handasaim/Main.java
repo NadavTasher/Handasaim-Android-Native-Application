@@ -244,7 +244,7 @@ public class Main extends Activity {
     private void newsSplash(final ArrayList<Class> classes) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
-        if (sp.getBoolean("installed_pass_news_code", false)) {
+        if (sp.getBoolean("installed_pass_news_code_ver2", false)) {
             view(classes);
         } else {
             if (sp.getBoolean("fontWhite", true)) {
@@ -771,7 +771,7 @@ public class Main extends Activity {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         switch (type) {
             case 1:
-                sp.edit().putBoolean("installed_pass_news_code", true).commit();
+                sp.edit().putBoolean("installed_pass_news_code_ver2", true).commit();
                 break;
             case 2:
                 sp.edit().putBoolean("installed_pass_teacher_mode", true).commit();
@@ -1911,10 +1911,10 @@ public class Main extends Activity {
         all.setOrientation(LinearLayout.VERTICAL);
         all.setPadding(10, 10, 10, 10);
         final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
-        for (int s = 0; s < fclass.classes.size(); s++) {
-            if (getBreak(fclass.classes.get(s).hour - 1) != -1 && breakTimes) {
+        for (int s = 0; s < fclass.subjects.size(); s++) {
+            if (getBreak(fclass.subjects.get(s).hour - 1) != -1 && breakTimes) {
                 final Button breakt = new Button(this);
-                String btext = "הפסקה, " + getBreak(fclass.classes.get(s).hour - 1) + " דקות";
+                String btext = "הפסקה, " + getBreak(fclass.subjects.get(s).hour - 1) + " דקות";
                 breakt.setText(btext);
                 breakt.setGravity(Gravity.CENTER);
                 breakt.setTextSize((float) fontSize - 2);
@@ -1924,7 +1924,7 @@ public class Main extends Activity {
                 breakt.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
                 breakt.setTypeface(custom_font);
                 breakt.setAllCaps(false);
-                if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
+                if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
                     all.addView(breakt);
                 }
                 final int finalS1 = s;
@@ -1939,9 +1939,9 @@ public class Main extends Activity {
                         TextView fullInfo = new TextView(getApplicationContext());
                         subjName.setText(R.string.brkk);
                         //fclass.classes.get(s)
-                        String txt = getRealEndTimeForHourNumber(fclass.classes.get(finalS1).hour - 1) + "-" + getRealTimeForHourNumber(fclass.classes.get(finalS1).hour);
+                        String txt = getRealEndTimeForHourNumber(fclass.subjects.get(finalS1).hour - 1) + "-" + getRealTimeForHourNumber(fclass.subjects.get(finalS1).hour);
                         hours.setText(txt);
-                        String fulltext = getBreak(fclass.classes.get(finalS1).hour - 1) + " Minutes";
+                        String fulltext = getBreak(fclass.subjects.get(finalS1).hour - 1) + " Minutes";
                         fullInfo.setText(fulltext);
                         di.setGravity(Gravity.CENTER);
                         di.setOrientation(LinearLayout.VERTICAL);
@@ -1988,7 +1988,7 @@ public class Main extends Activity {
             fsubj.setGravity(Gravity.CENTER);
             //            fsubj.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);
             fsubj.setOrientation(LinearLayout.HORIZONTAL);
-            ClassTime classTime = getTimeForLesson(fclass.classes.get(s).hour);
+            ClassTime classTime = getTimeForLesson(fclass.subjects.get(s).hour);
             boolean isCurrent = false;
             Calendar c = Calendar.getInstance();
             int minute = c.get(Calendar.MINUTE);
@@ -2026,11 +2026,11 @@ public class Main extends Activity {
             }
             String before;
             if (showTime) {
-                before = "(" + getRealTimeForHourNumber(fclass.classes.get(s).hour) + ") " + fclass.classes.get(s).hour + ". ";
+                before = "(" + getRealTimeForHourNumber(fclass.subjects.get(s).hour) + ") " + fclass.subjects.get(s).hour + ". ";
             } else {
-                before = fclass.classes.get(s).hour + ". ";
+                before = fclass.subjects.get(s).hour + ". ";
             }
-            String total = before + fclass.classes.get(s).name;
+            String total = before + fclass.subjects.get(s).name;
             String main = "\u200F" + total;
             subj.setText(main);
             subj.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
@@ -2051,11 +2051,11 @@ public class Main extends Activity {
                     TextView subjName = new TextView(getApplicationContext());
                     TextView hours = new TextView(getApplicationContext());
                     TextView fullInfo = new TextView(getApplicationContext());
-                    subjName.setText(fclass.classes.get(finalS).name);
+                    subjName.setText(fclass.subjects.get(finalS).name);
                     //fclass.classes.get(s)
-                    String txt = getRealTimeForHourNumber(fclass.classes.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.classes.get(finalS).hour);
+                    String txt = getRealTimeForHourNumber(fclass.subjects.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.subjects.get(finalS).hour);
                     hours.setText(txt);
-                    fullInfo.setText(fclass.classes.get(finalS).fullName);
+                    fullInfo.setText(fclass.subjects.get(finalS).fullName);
                     di.setGravity(Gravity.CENTER);
                     di.setOrientation(LinearLayout.VERTICAL);
                     di.addView(subjName);
@@ -2097,11 +2097,11 @@ public class Main extends Activity {
             subj.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    Toast.makeText(getApplicationContext(), getRealTimeForHourNumber(fclass.classes.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.classes.get(finalS).hour), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getRealTimeForHourNumber(fclass.subjects.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.subjects.get(finalS).hour), Toast.LENGTH_LONG).show();
                     return true;
                 }
             });
-            if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
+            if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
                 fsubj.addView(subj);
                 all.addView(fsubj);
             }
@@ -2111,15 +2111,15 @@ public class Main extends Activity {
 
     private String hourSystemForClassString(Class fclass, boolean showTime) {
         String allsubj = "";
-        for (int s = 0; s < fclass.classes.size(); s++) {
+        for (int s = 0; s < fclass.subjects.size(); s++) {
             String before;
             if (showTime) {
-                before = "(" + getRealTimeForHourNumber(fclass.classes.get(s).hour) + ") " + fclass.classes.get(s).hour + ". ";
+                before = "(" + getRealTimeForHourNumber(fclass.subjects.get(s).hour) + ") " + fclass.subjects.get(s).hour + ". ";
             } else {
-                before = fclass.classes.get(s).hour + ". ";
+                before = fclass.subjects.get(s).hour + ". ";
             }
-            String total = before + fclass.classes.get(s).name;
-            if (fclass.classes.get(s).name != null && !fclass.classes.get(s).name.equals("")) {
+            String total = before + fclass.subjects.get(s).name;
+            if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
                 allsubj += total + "\n";
             }
         }
@@ -2465,11 +2465,11 @@ public class Main extends Activity {
 
     static class Class {
         String name;
-        ArrayList<Subject> classes;
+        ArrayList<Subject> subjects;
 
-        Class(String name, ArrayList<Subject> classes) {
+        Class(String name, ArrayList<Subject> subjects) {
             this.name = name;
-            this.classes = classes;
+            this.subjects = subjects;
         }
     }
 
@@ -2509,6 +2509,7 @@ public class Main extends Activity {
                 subj.setSingleLine(true);
                 subj.setEllipsize(TextUtils.TruncateAt.END);
                 String subjectName = null;
+                ArrayList<TeacherLesson> currentLesson = new ArrayList<>();
                 for (int s = 0; s < fclass.teaching.size(); s++) {
                     final int finalS = s;
                     if (fclass.teaching.get(s).hour == h) {
@@ -2525,7 +2526,6 @@ public class Main extends Activity {
                         if (!isCurrent) {
                             subj.setBackground(c.getDrawable(R.drawable.button));
                         } else {
-                            Log.i("Reached Current", "This Is The " + h);
                             subj.setBackground(c.getDrawable(R.drawable.button_dark));
                         }
                         subj.setOnLongClickListener(new View.OnLongClickListener() {
@@ -2548,7 +2548,13 @@ public class Main extends Activity {
                             String textt = subj.getText().toString() + ", " + Light.Stringer.cutOnEvery(fclass.teaching.get(s).className, " ").get(0);
                             subj.setText(textt);
                         }
+                        currentLesson.add(fclass.teaching.get(s));
                         subjectName = fclass.teaching.get(s).lessonName;
+                    }
+                }
+                if (currentLesson.size() > 1) {
+                    if (getGrade(currentLesson) != -1) {
+                        subj.setText(getGrade(getGrade(currentLesson)));
                     }
                 }
                 String before;
@@ -2612,70 +2618,145 @@ public class Main extends Activity {
         }
 
         static ArrayList<Teacher> getTeacherSchudleForClasses(ArrayList<Class> classes) {
-            ArrayList<Teacher> allTeachers = new ArrayList<>();
-            for (int classof = 0; classof < classes.size(); classof++) {
-                Class c = classes.get(classof);
-                ArrayList<Subject> subjs = c.classes;
-                for (int subj = 0; subj < subjs.size(); subj++) {
-                    Subject subject = subjs.get(subj);
-                    String teachOrTcrs = subject.fullName.substring(subject.fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0];
-                    ArrayList<String> teacherNames = Light.Stringer.cutOnEvery(teachOrTcrs, ",");
-                    for (int tcrName = 0; tcrName < teacherNames.size(); tcrName++) {
-                        String teacherName = teacherNames.get(tcrName);
-                        Teacher foundTeacher = null;
-                        for (int teacher = 0; teacher < allTeachers.size(); teacher++) {
-                            if (allTeachers.get(teacher).mainName.equals(teacherName) || allTeachers.get(teacher).mainName.contains(teacherName)) {
-                                foundTeacher = allTeachers.get(teacher);
-                                break;
-                            }
-                        }
-                        if (foundTeacher != null) {
-                            boolean teacherIs = false;
-                            for (int sfn = 0; sfn < teacherNames.size(); sfn++) {
-                                if (teacherNames.get(sfn).equals(foundTeacher.mainName) || teacherNames.get(sfn).contains(foundTeacher.mainName)) {
-                                    teacherIs = true;
+            ArrayList<Teacher> teacherList = new ArrayList<>();
+            for (int currentClass = 0; currentClass < classes.size(); currentClass++) {
+                Class cClass = classes.get(currentClass);
+                cClass.name = Light.Stringer.cutOnEvery(cClass.name, " ").get(0);
+                for (int currentSubject = 0; currentSubject < cClass.subjects.size(); currentSubject++) {
+                    Subject cSubject = cClass.subjects.get(currentSubject);
+                    ArrayList<String> cSubjectTeachers = Light.Stringer.cutOnEvery(cSubject.fullName.substring(cSubject.fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0], ",");
+                    TeacherLesson cLesson = new TeacherLesson(cClass.name, cSubject.name, cSubject.hour);
+                    for (int currentTeacherOfSubject = 0; currentTeacherOfSubject < cSubjectTeachers.size(); currentTeacherOfSubject++) {
+                        String nameOfTeacher = cSubjectTeachers.get(currentTeacherOfSubject);
+                        boolean foundTeacher = false;
+                        if (!cSubject.name.equals("")) {
+                            for (int currentTeacher = 0; currentTeacher < teacherList.size(); currentTeacher++) {
+                                Teacher cTeacher = teacherList.get(currentTeacher);
+                                Log.i("MEME", String.valueOf(isTheSameTeacher(cTeacher.mainName, nameOfTeacher)));
+                                if (isTheSameTeacher(cTeacher.mainName, nameOfTeacher) == 1) {
+                                    if (!cTeacher.mainName.equals(nameOfTeacher)) {
+                                        if (cTeacher.teaches(cSubject.name)) {
+                                            cTeacher.teaching.add(cLesson);
+                                            foundTeacher = true;
+                                            break;
+                                        }
+                                    } else {
+                                        if (!cTeacher.teaches(cSubject.name)) {
+                                            cTeacher.subjects.add(cSubject.name);
+                                        }
+                                        cTeacher.teaching.add(cLesson);
+                                        foundTeacher = true;
+                                        break;
+                                    }
+                                } else if (isTheSameTeacher(cTeacher.mainName, nameOfTeacher) == 2) {
+                                    if (!cTeacher.teaches(cSubject.name)) {
+                                        cTeacher.subjects.add(cSubject.name);
+                                    }
+                                    cTeacher.teaching.add(cLesson);
+                                    foundTeacher = true;
                                     break;
                                 }
                             }
-                            if (teacherIs) {
-                                if (subject.name != null && !subject.name.equals("")) {
-                                    if (foundTeacher.mainSubject != null) {
-                                        if (foundTeacher.mainSubject.contains(subject.name) || subject.name.contains(foundTeacher.mainSubject))
-                                            foundTeacher.teaching.add(new TeacherClass(c.name, subject.name, subject.hour));
-                                    } else {
-                                        foundTeacher.teaching.add(new TeacherClass(c.name, subject.name, subject.hour));
-                                        foundTeacher.mainSubject = subject.name;
-                                    }
-                                }
-                            }
-                        } else {
-                            foundTeacher = new Teacher();
-                            foundTeacher.mainName = teacherName;
-                            foundTeacher.teaching = new ArrayList<>();
-                            if (subject.name != null && !subject.name.equals("")) {
-                                foundTeacher.teaching.add(new TeacherClass(c.name, subject.name, subject.hour));
-                                foundTeacher.mainSubject = subject.name;
-                            }
-                            if (!foundTeacher.mainName.equals("")) {
-                                allTeachers.add(foundTeacher);
+                            if (!foundTeacher) {
+                                Teacher teacher = new Teacher();
+                                teacher.mainName = nameOfTeacher;
+                                teacher.subjects = new ArrayList<>();
+                                teacher.subjects.add(cSubject.name);
+                                teacher.teaching = new ArrayList<>();
+                                teacher.teaching.add(cLesson);
+                                if (!nameOfTeacher.equals(""))
+                                    teacherList.add(teacher);
                             }
                         }
                     }
                 }
             }
-            return allTeachers;
+            return teacherList;
+        }
+
+        static int isTheSameTeacher(String a, String b) {
+            ArrayList<String> aSplit = Light.Stringer.cutOnEvery(a, " ");
+            ArrayList<String> bSplit = Light.Stringer.cutOnEvery(b, " ");
+            if (aSplit.size() > 1 && bSplit.size() > 1) {
+                if (aSplit.get(0).equals(bSplit.get(0))) {
+                    if (aSplit.get(1).contains(bSplit.get(1))) {
+                        return 2;
+                    } else if (bSplit.get(1).contains(aSplit.get(1))) {
+                        return 2;
+                    } else {
+                        return 0;
+                    }
+                }
+                return 0;
+            } else if (a.contains(b) || b.contains(a)) {
+                return 1;
+            }
+            return 0;
         }
 
         static class Teacher {
-            ArrayList<TeacherClass> teaching;
-            String mainName, mainSubject;
+            ArrayList<TeacherLesson> teaching;
+            ArrayList<String> subjects;
+            String mainName;
+
+            boolean teaches(String l) {
+                for (int tc = 0; tc < subjects.size(); tc++) {
+                    if (subjects.get(tc).equals(l) || subjects.get(tc).contains(l) || l.contains(subjects.get(tc))) {
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
 
-        static class TeacherClass {
+        static int getGrade(ArrayList<TeacherLesson> classNames) {
+            if (classNames.size() > 0) {
+                int grade = getGrade(classNames.get(0));
+                for (int cTl = 1; cTl < classNames.size(); cTl++) {
+                    int cGrade = getGrade(classNames.get(cTl));
+                    if (cGrade != grade) {
+                        return -1;
+                    }
+                }
+                return grade;
+            }
+            return -1;
+        }
+
+        static int getGrade(TeacherLesson s) {
+            String parsing = s.className;
+            if (parsing.contains("י")) {
+                if (parsing.contains("א")) {
+                    return 2;
+                } else if (parsing.contains("ב")) {
+                    return 3;
+                } else {
+                    return 1;
+                }
+            } else {
+                return 0;
+            }
+        }
+
+        static String getGrade(int grade) {
+            switch (grade) {
+                case 0:
+                    return "ט'";
+                case 1:
+                    return "י'";
+                case 2:
+                    return "יא'";
+                case 3:
+                    return "יב'";
+            }
+            return "No Value";
+        }
+
+        static class TeacherLesson {
             String className, lessonName;
             int hour;
 
-            TeacherClass(String className, String lessonName, int hour) {
+            TeacherLesson(String className, String lessonName, int hour) {
                 this.hour = hour;
                 this.className = className;
                 this.lessonName = lessonName;
@@ -3004,7 +3085,7 @@ public class Main extends Activity {
                     if (classes != null) {
                         for (int fc = 0; fc < classes.size(); fc++) {
                             if (sp.getString("favorite_class", "").equals(classes.get(fc).name)) {
-                                ArrayList<Subject> subjects = classes.get(fc).classes;
+                                ArrayList<Subject> subjects = classes.get(fc).subjects;
                                 for (int sub = 0; sub < subjects.size(); sub++) {
                                     classTimes.add(Main.getTimeForLesson(subjects.get(sub).hour));
                                     //                            Log.i("TIMES",classTimes.get(sub).startH+":"+classTimes.get(sub).startM+"-"+classTimes.get(sub).finishH+":"+classTimes.get(sub).finishM);
@@ -3020,7 +3101,7 @@ public class Main extends Activity {
                     if (teachers != null) {
                         for (int fc = 0; fc < teachers.size(); fc++) {
                             if (sp.getString("favorite_teacher", "").equals(teachers.get(fc).mainName)) {
-                                ArrayList<ForTeachers.TeacherClass> subjects = teachers.get(fc).teaching;
+                                ArrayList<ForTeachers.TeacherLesson> subjects = teachers.get(fc).teaching;
                                 for (int sub = 0; sub < subjects.size(); sub++) {
                                     classTimes.add(Main.getTimeForLesson(subjects.get(sub).hour));
                                     //                            Log.i("TIMES",classTimes.get(sub).startH+":"+classTimes.get(sub).startM+"-"+classTimes.get(sub).finishH+":"+classTimes.get(sub).finishM);
