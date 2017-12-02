@@ -2468,7 +2468,7 @@ public class Main extends Activity {
         ArrayList<Subject> subjects;
 
         Class(String name, ArrayList<Subject> subjects) {
-            this.name = name;
+            this.name = Light.Stringer.cutOnEvery(name, " ").get(0);
             this.subjects = subjects;
         }
     }
@@ -2601,6 +2601,8 @@ public class Main extends Activity {
                 } else {
                     before = h + ". ";
                 }
+                int gradeSoFar = -2;
+                int classCount = 0;
                 for (int s = 0; s < fclass.teaching.size(); s++) {
                     if (fclass.teaching.get(s).hour == h) {
                         if (subjText.equals("")) {
@@ -2608,7 +2610,18 @@ public class Main extends Activity {
                         } else {
                             subjText += ", " + Light.Stringer.cutOnEvery(fclass.teaching.get(s).className, " ").get(0);
                         }
+                        if (gradeSoFar == -2) {
+                            gradeSoFar = getGrade(new TeacherLesson(Light.Stringer.cutOnEvery(fclass.teaching.get(s).className, " ").get(0), null, 0));
+                        } else {
+                            if (gradeSoFar != getGrade(new TeacherLesson(Light.Stringer.cutOnEvery(fclass.teaching.get(s).className, " ").get(0), null, 0))) {
+                                gradeSoFar = -1;
+                            }
+                        }
+                        classCount++;
                     }
+                }
+                if (gradeSoFar != -1 && classCount > 1) {
+                    subjText = getGrade(gradeSoFar);
                 }
                 if (!subjText.equals("")) {
                     allsubj += before + subjText + "\n";
@@ -2749,7 +2762,7 @@ public class Main extends Activity {
                 case 3:
                     return "יב'";
             }
-            return "No Value";
+            return "";
         }
 
         static class TeacherLesson {
