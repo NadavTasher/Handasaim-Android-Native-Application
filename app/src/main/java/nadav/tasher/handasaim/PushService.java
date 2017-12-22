@@ -94,7 +94,7 @@ public class PushService extends Service {
                     }).execute("http://handasaim.thepuzik.com");
                 }
             }
-        }, 0, 1000 * 60 * 2);
+        }, 0, 1000 * 60 * 10);
     }
 
     private void sendNotification(String text, String timeH, String timeM) {

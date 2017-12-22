@@ -2223,7 +2223,7 @@ public class Main extends Activity {
             case 12:
                 return new ClassTime(17, 18, 45, 30);
         }
-        return null;
+        return new ClassTime(-1, -1, -1, -1);
     }
 
     TextView getTv(String text, int size, @Nullable LinearLayout.LayoutParams p) {
