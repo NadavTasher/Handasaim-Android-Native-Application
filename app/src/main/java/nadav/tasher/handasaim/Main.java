@@ -94,7 +94,6 @@ public class Main extends Activity {
     static final String pushProvider = "http://handasaim.nockio.com/push/push.php";
     static final String keyProvider = "http://handasaim.nockio.com/keys/index.php";
     static final String puzProvider = "http://handasaim.nockio.com";
-    static final String STOP_SERVICE = "nadav.tasher.handasaim.STOP_SERVICE";
     static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
     static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
     static final String fontName = "arimo.ttf";
@@ -127,14 +126,6 @@ public class Main extends Activity {
         Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
         ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, secolor);
         setTaskDescription(taskDesc);
-    }
-
-    private void startPush() {
-        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-        if (sp.getBoolean("push", false)) {
-            sendBroadcast(new Intent(STOP_SERVICE));
-            startService(new Intent(getApplicationContext(), PushService.class));
-        }
     }
 
     private void splash() {
@@ -2250,7 +2241,6 @@ public class Main extends Activity {
                                             newsSplash(classes);
                                             //                                            welcome(classes, true);
                                             beginDND(getApplicationContext());
-                                            startPush();
                                         }
                                     } else {
                                         welcome(classes, false);
@@ -2471,10 +2461,8 @@ public class Main extends Activity {
                         Calendar ca = Calendar.getInstance();
                         int minute = ca.get(Calendar.MINUTE);
                         int hour = ca.get(Calendar.HOUR_OF_DAY);
-                        if (classTime != null) {
-                            if (minuteOfDay(hour, minute) >= minuteOfDay(classTime.startH, classTime.startM) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.finishH, classTime.finishM)) {
-                                isCurrent = true;
-                            }
+                        if (minuteOfDay(hour, minute) >= minuteOfDay(classTime.startH, classTime.startM) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.finishH, classTime.finishM)) {
+                            isCurrent = true;
                         }
                         if (!isCurrent) {
                             subj.setBackground(c.getDrawable(R.drawable.button));
