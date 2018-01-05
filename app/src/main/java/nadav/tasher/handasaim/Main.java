@@ -91,9 +91,9 @@ import java.util.Random;
 import nadav.tasher.lightool.Light;
 
 public class Main extends Activity {
-    static final String pushProvider = "http://handasaim.thepuzik.com/push/push.php";
-    static final String keyProvider = "http://handasaim.thepuzik.com/keys/key.php";
-    static final String puzProvider = "http://handasaim.thepuzik.com";
+    static final String pushProvider = "http://handasaim.nockio.com/push/push.php";
+    static final String keyProvider = "http://handasaim.nockio.com/keys/index.php";
+    static final String puzProvider = "http://handasaim.nockio.com";
     static final String STOP_SERVICE = "nadav.tasher.handasaim.STOP_SERVICE";
     static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
     static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
@@ -621,12 +621,6 @@ public class Main extends Activity {
         showBreaks.setTextSize((float) 23);
         showBreaks.setTypeface(custom_font);
         showBreaks.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
-        final Switch pushNoti = new Switch(this);
-        pushNoti.setChecked(sp.getBoolean("push", true));
-        pushNoti.setText(R.string.push);
-        pushNoti.setTextSize((float) 23);
-        pushNoti.setTypeface(custom_font);
-        pushNoti.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch automute = new Switch(this);
         automute.setChecked(sp.getBoolean("auto_dnd", false));
         automute.setText(R.string.dnd);
@@ -677,8 +671,6 @@ public class Main extends Activity {
         spcl.addView(getTv("Show breaks in schedule, between lessons", 15, p));
         spcl.addView(textCo);
         spcl.addView(getTv("Text color (black/white)", 15, p));
-        spcl.addView(pushNoti);
-        spcl.addView(getTv("Enable instant notifications that vibrate your device and make a sound.", 15, p));
         if (Build.VERSION.SDK_INT >= 23) {
             spcl.addView(automute);
             spcl.addView(getTv("AutoMute is a feature that mutes your phone when a lesson begins And unmutes it at breaks.", 15, p));
@@ -692,7 +684,6 @@ public class Main extends Activity {
                 sp.edit().putBoolean("auto_dnd", automute.isChecked()).commit();
                 sp.edit().putBoolean("fontWhite", textCo.isChecked()).commit();
                 sp.edit().putBoolean("breaks", showBreaks.isChecked()).commit();
-                sp.edit().putBoolean("push", pushNoti.isChecked()).commit();
                 sp.edit().putInt("last_recorded_version_code", Light.Device.getVersionCode(getApplicationContext(), getPackageName())).commit();
                 sp.edit().putBoolean("first", false).commit();
                 if (!renew) {
@@ -702,7 +693,7 @@ public class Main extends Activity {
                             if (b) {
                                 ArrayList<Light.Net.PHP.Post.PHPParameter> parms = new ArrayList<>();
                                 parms.add(new Light.Net.PHP.Post.PHPParameter("install", "true"));
-                                new Light.Net.PHP.Post("http://handasaim.thepuzik.com/new.php", parms, new Light.Net.PHP.Post.OnPost() {
+                                new Light.Net.PHP.Post("http://handasaim.nockio.com/new.php", parms, new Light.Net.PHP.Post.OnPost() {
                                     @Override
                                     public void onPost(String s) {
                                         view(classes);
@@ -712,7 +703,7 @@ public class Main extends Activity {
                                 view(classes);
                             }
                         }
-                    }).execute("http://handasaim.thepuzik.com");
+                    }).execute(puzProvider);
                 } else {
                     view(classes);
                 }
@@ -779,7 +770,7 @@ public class Main extends Activity {
             default:
                 break;
         }
-        Toast.makeText(getApplicationContext(), "Key Loaded Successfully.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Key loaded successfully.", Toast.LENGTH_SHORT).show();
     }
 
     private void checkAndLoadKey(final String key) {
@@ -788,33 +779,30 @@ public class Main extends Activity {
             public void onPing(String s, boolean b) {
                 if (b) {
                     ArrayList<Light.Net.PHP.Post.PHPParameter> parms = new ArrayList<>();
-                    parms.add(new Light.Net.PHP.Post.PHPParameter("enable", key));
+                    parms.add(new Light.Net.PHP.Post.PHPParameter("deactivate", key));
                     new Light.Net.PHP.Post(keyProvider, parms, new Light.Net.PHP.Post.OnPost() {
                         @Override
                         public void onPost(String s) {
+                            Log.i("DEBUG",s);
                             try {
                                 JSONObject o = new JSONObject(s);
                                 if (o.getBoolean("success")) {
-                                    if (o.getBoolean("enable")) {
                                         if (o.getString("key").equals(key)) {
                                             loadKey(o.getInt("type"));
                                         } else {
-                                            Toast.makeText(getApplicationContext(), "Key Comparison Failed.", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getApplicationContext(), "Key comparison failed.", Toast.LENGTH_SHORT).show();
                                         }
-                                    } else {
-                                        Toast.makeText(getApplicationContext(), "Key Already Used.", Toast.LENGTH_SHORT).show();
-                                    }
                                 } else {
-                                    Toast.makeText(getApplicationContext(), "Key Does Not Exist.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), "Key does not exist, or already used", Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                Toast.makeText(getApplicationContext(), "Key Verification Failed.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Key verification failed.", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }).execute();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Key Provider Unreachable.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Key provider unreachable.", Toast.LENGTH_SHORT).show();
                 }
             }
         }).execute(puzProvider);
@@ -1133,18 +1121,6 @@ public class Main extends Activity {
         tsw.setGravity(Gravity.CENTER);
         tsw.setOrientation(LinearLayout.HORIZONTAL);
         navSliderview.addView(tsw);
-        //
-        final LinearLayout pushSwitch = new LinearLayout(this);
-        pushSwitch.setBackground(getDrawable(R.drawable.back));
-        pushSwitch.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
-        final ImageView pushSwitch_ic = new ImageView(getApplicationContext());
-        pushSwitch_ic.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
-        pushSwitch_ic.setImageDrawable(getDrawable(R.drawable.ic_info_sett));
-        pushSwitch.addView(pushSwitch_ic);
-        pushSwitch.setPadding(20, 20, 20, 20);
-        pushSwitch.setGravity(Gravity.CENTER);
-        pushSwitch.setOrientation(LinearLayout.HORIZONTAL);
-        navSliderview.addView(pushSwitch);
         //
         LinearLayout fontS = new LinearLayout(this);
         fontS.setOrientation(LinearLayout.HORIZONTAL);
@@ -1506,27 +1482,6 @@ public class Main extends Activity {
         tsw_ic.setOnClickListener(themeONC);
         tsw_ic.setOnLongClickListener(themelong);
         tsw.setOnLongClickListener(themelong);
-        if (!sp.getBoolean("push", false)) {
-            pushSwitch.setBackground(getDrawable(R.drawable.back));
-        } else {
-            pushSwitch.setBackground(getDrawable(R.drawable.back_2));
-        }
-        View.OnClickListener pushONC = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sp.edit().putBoolean("push", !sp.getBoolean("push", false)).commit();
-                if (!sp.getBoolean("push", false)) {
-                    pushSwitch.setBackground(getDrawable(R.drawable.back));
-                    sendBroadcast(new Intent(STOP_SERVICE));
-                } else {
-                    pushSwitch.setBackground(getDrawable(R.drawable.back_2));
-                    sendBroadcast(new Intent(STOP_SERVICE));
-                    startService(new Intent(getApplicationContext(), PushService.class));
-                }
-            }
-        };
-        pushSwitch.setOnClickListener(pushONC);
-        pushSwitch_ic.setOnClickListener(pushONC);
         plus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1993,10 +1948,8 @@ public class Main extends Activity {
             Calendar c = Calendar.getInstance();
             int minute = c.get(Calendar.MINUTE);
             int hour = c.get(Calendar.HOUR_OF_DAY);
-            if (classTime != null) {
-                if (minuteOfDay(hour, minute) >= minuteOfDay(classTime.startH, classTime.startM) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.finishH, classTime.finishM)) {
-                    isCurrent = true;
-                }
+            if (minuteOfDay(hour, minute) > minuteOfDay(classTime.startH, classTime.startM) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.finishH, classTime.finishM)) {
+                isCurrent = true;
             }
             Button subj = new Button(this);
             if (showOrgC) {

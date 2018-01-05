@@ -28,8 +28,6 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".PushService">
-        </service>
         <service
             android:name=".DNDService">
         </service>
