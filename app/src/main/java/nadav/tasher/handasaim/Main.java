@@ -9,7 +9,10 @@ import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -98,22 +101,26 @@ public class Main extends Activity {
     static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
     static final String fontName = "arimo.ttf";
     static final int defaultSize = 30;
-    private final String serviceProvider = "http://handasaim.co.il";
-    private int color = Color.parseColor("#2c7cb4");
-    private int secolor = color + 0x333333;
-    private String day;
-    private Class currentClass;
-    private ForTeachers.Teacher currentTeacher;
+    static final int pushLoop=1000*60*10;
     static int textColor = Color.WHITE;
-    private int countheme = 0;
-    private boolean mode = false;
-    private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#1b5c96"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
-    private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
-    private String[] infact = new String[]{"Every year more than 2500 left-handed people are killed from using right-handed products.", "In 1895 Hampshire police handed out the first ever speeding ticket, fining a man for doing 6mph!", "Over 1000 birds a year die from smashing into windows.", "Squirrels forget where they hide about half of their nuts.", "The average person walks the equivalent of twice around the world in a lifetime.", "A company in Taiwan makes dinnerware out of wheat, so you can eat your plate!", "An apple, potato, and onion all taste the same if you eat them with your nose plugged.", "Dying is illegal in the Houses of Parliaments – This has been voted as the most ridiculous law by the British citizens.", "The first alarm clock could only ring at 4am.", "If you leave everything to the last minute… it will only take a minute.", "Every human spent about half an hour as a single cell.", "The Twitter bird actually has a name – Larry.", "Sea otters hold hands when they sleep so they don’t drift away from each other.", "The French language has seventeen different words for ‘surrender’.", "The Titanic was the first ship to use the SOS signal.", "A baby octopus is about the size of a flea when it is born.", "You cannot snore and dream at the same time.", "A toaster uses almost half as much energy as a full-sized oven.", "If you consistently fart for 6 years & 9 months, enough gas is produced to create the energy of an atomic bomb!", "An eagle can kill a young deer and fly away with it.", "Polar bears can eat as many as 86 penguins in a single sitting.", "If Pinokio says “My Nose Will Grow Now”, it would cause a paradox.", "Bananas are curved because they grow towards the sun.", "Human saliva has a boiling point three times that of regular water.", "Cherophobia is the fear of fun.", "When hippos are upset, their sweat turns red.", "Pteronophobia is the fear of being tickled by feathers!", "Banging your head against a wall burns 150 calories an hour."};
-    private int keyentering = 0;
     private final int maxKeyEntering = 4;
     private final int waitTime = 10;
     private final int bakedIconColor = 0xffdd8833;
+    private final String serviceProvider = "http://handasaim.co.il";
+    private int color = Color.parseColor("#2c7cb4");
+    private int secolor = color + 0x333333;
+    private int countheme = 0;
+    private int keyentering = 0;
+    private boolean mode = false;
+    private String day;
+    private Class currentClass;
+    private ForTeachers.Teacher currentTeacher;
+
+
+    private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#1b5c96"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
+    private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
+    private String[] infact = new String[]{"Every year more than 2500 left-handed people are killed from using right-handed products.", "In 1895 Hampshire police handed out the first ever speeding ticket, fining a man for doing 6mph!", "Over 1000 birds a year die from smashing into windows.", "Squirrels forget where they hide about half of their nuts.", "The average person walks the equivalent of twice around the world in a lifetime.", "A company in Taiwan makes dinnerware out of wheat, so you can eat your plate!", "An apple, potato, and onion all taste the same if you eat them with your nose plugged.", "Dying is illegal in the Houses of Parliaments – This has been voted as the most ridiculous law by the British citizens.", "The first alarm clock could only ring at 4am.", "If you leave everything to the last minute… it will only take a minute.", "Every human spent about half an hour as a single cell.", "The Twitter bird actually has a name – Larry.", "Sea otters hold hands when they sleep so they don’t drift away from each other.", "The French language has seventeen different words for ‘surrender’.", "The Titanic was the first ship to use the SOS signal.", "A baby octopus is about the size of a flea when it is born.", "You cannot snore and dream at the same time.", "A toaster uses almost half as much energy as a full-sized oven.", "If you consistently fart for 6 years & 9 months, enough gas is produced to create the energy of an atomic bomb!", "An eagle can kill a young deer and fly away with it.", "Polar bears can eat as many as 86 penguins in a single sitting.", "If Pinokio says “My Nose Will Grow Now”, it would cause a paradox.", "Bananas are curved because they grow towards the sun.", "Human saliva has a boiling point three times that of regular water.", "Cherophobia is the fear of fun.", "When hippos are upset, their sweat turns red.", "Pteronophobia is the fear of being tickled by feathers!", "Banging your head against a wall burns 150 calories an hour."};
+
     private boolean opened = false;
 
     @Override
@@ -677,27 +684,8 @@ public class Main extends Activity {
                 sp.edit().putBoolean("breaks", showBreaks.isChecked()).commit();
                 sp.edit().putInt("last_recorded_version_code", Light.Device.getVersionCode(getApplicationContext(), getPackageName())).commit();
                 sp.edit().putBoolean("first", false).commit();
-                if (!renew) {
-                    new Light.Net.Pinger(2000, new Light.Net.Pinger.OnEnd() {
-                        @Override
-                        public void onPing(String s, boolean b) {
-                            if (b) {
-                                ArrayList<Light.Net.PHP.Post.PHPParameter> parms = new ArrayList<>();
-                                parms.add(new Light.Net.PHP.Post.PHPParameter("install", "true"));
-                                new Light.Net.PHP.Post("http://handasaim.nockio.com/new.php", parms, new Light.Net.PHP.Post.OnPost() {
-                                    @Override
-                                    public void onPost(String s) {
-                                        view(classes);
-                                    }
-                                }).execute();
-                            } else {
-                                view(classes);
-                            }
-                        }
-                    }).execute(puzProvider);
-                } else {
-                    view(classes);
-                }
+                startPush(getApplicationContext());
+                view(classes);
                 //                view(classes);
             }
         });
@@ -774,15 +762,15 @@ public class Main extends Activity {
                     new Light.Net.PHP.Post(keyProvider, parms, new Light.Net.PHP.Post.OnPost() {
                         @Override
                         public void onPost(String s) {
-                            Log.i("DEBUG",s);
+                            Log.i("DEBUG", s);
                             try {
                                 JSONObject o = new JSONObject(s);
                                 if (o.getBoolean("success")) {
-                                        if (o.getString("key").equals(key)) {
-                                            loadKey(o.getInt("type"));
-                                        } else {
-                                            Toast.makeText(getApplicationContext(), "Key comparison failed.", Toast.LENGTH_SHORT).show();
-                                        }
+                                    if (o.getString("key").equals(key)) {
+                                        loadKey(o.getInt("type"));
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "Key comparison failed.", Toast.LENGTH_SHORT).show();
+                                    }
                                 } else {
                                     Toast.makeText(getApplicationContext(), "Key does not exist, or already used", Toast.LENGTH_SHORT).show();
                                 }
@@ -2216,7 +2204,7 @@ public class Main extends Activity {
                         fileName = "hs.xlsx";
                     }
                     final String finalFileName = fileName;
-                    final DoAfter da=new DoAfter() {
+                    final DoAfter da = new DoAfter() {
                         @Override
                         public void doAfter(File f, boolean b) {
                             if (b) {
@@ -2238,8 +2226,8 @@ public class Main extends Activity {
                                         if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
                                             welcome(classes, true);
                                         } else {
-//                                            newsSplash(classes);
-                                                                                        welcome(classes, true);
+                                            //                                            newsSplash(classes);
+                                            welcome(classes, true);
                                             beginDND(getApplicationContext());
                                         }
                                     } else {
@@ -2252,24 +2240,23 @@ public class Main extends Activity {
                             }
                         }
                     };
-                    String date=link.split("/")[link.split("/").length-1].split("\\.")[0];
-                    if(!sp.getString("latest_file_date","").equals(date)) {
+                    String date = link.split("/")[link.split("/").length - 1].split("\\.")[0];
+                    if (!sp.getString("latest_file_date", "").equals(date)) {
                         sp.edit().putString("latest_file_name", fileName).commit();
                         sp.edit().putString("latest_file_date", date).commit();
                         new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
                             @Override
                             public void onFinish(File file, boolean b) {
-                                da.doAfter(file,b);
+                                da.doAfter(file, b);
                             }
 
                             @Override
                             public void onProgressChanged(File file, int i) {
                             }
                         }).execute();
-                    }else{
-                        da.doAfter(new File(getApplicationContext().getFilesDir(), fileName),true);
+                    } else {
+                        da.doAfter(new File(getApplicationContext().getFilesDir(), fileName), true);
                     }
-
                 } else {
                     //                    popup("Could Not Fetch Link, Please Try Disconnecting From Wi-Fi");
                     openApp();
@@ -2348,8 +2335,16 @@ public class Main extends Activity {
         }
     }
 
-    private interface DoAfter{
-        void doAfter(File f,boolean b);
+    public static void startPush(Context c) {
+        ComponentName serviceComponent = new ComponentName(c, Push.class);
+        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
+        builder.setMinimumLatency(pushLoop);
+        JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
+        jobScheduler.schedule(builder.build());
+    }
+
+    private interface DoAfter {
+        void doAfter(File f, boolean b);
     }
 
     static class ClassTime {

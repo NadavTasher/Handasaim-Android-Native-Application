@@ -28,8 +28,12 @@
             </intent-filter>
         </receiver>
 
+        <service android:name=".DNDService">
+        </service>
         <service
-            android:name=".DNDService">
+            android:name=".Push"
+            android:label="Push Service"
+            android:permission="android.permission.BIND_JOB_SERVICE">
         </service>
     </application>
 
