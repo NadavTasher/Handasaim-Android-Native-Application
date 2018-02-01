@@ -2207,6 +2207,7 @@ public class Main extends Activity {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/index.php";
         new GetLink(service, new GetLink.GotLink() {
+
             @Override
             public void onLinkGet(String link) {
                 if (link != null) {
@@ -2214,19 +2215,18 @@ public class Main extends Activity {
                     if (link.endsWith(".xlsx")) {
                         fileName = "hs.xlsx";
                     }
-                    sp.edit().putString("latest_file_name", fileName).commit();
                     final String finalFileName = fileName;
-                    new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
+                    final DoAfter da=new DoAfter() {
                         @Override
-                        public void onFinish(File file, boolean b) {
+                        public void doAfter(File f, boolean b) {
                             if (b) {
                                 ArrayList<Class> classes;
                                 if (finalFileName.endsWith(".xlsx")) {
-                                    classes = readExcelFileXLSX(file);
-                                    day = readExcelDayXLSX(file);
+                                    classes = readExcelFileXLSX(f);
+                                    day = readExcelDayXLSX(f);
                                 } else {
-                                    classes = readExcelFile(file);
-                                    day = readExcelDay(file);
+                                    classes = readExcelFile(f);
+                                    day = readExcelDay(f);
                                 }
                                 /////
                                 //                                file = new File(getApplicationContext().getFilesDir(), "hs.xlsx");
@@ -2238,8 +2238,8 @@ public class Main extends Activity {
                                         if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
                                             welcome(classes, true);
                                         } else {
-                                            newsSplash(classes);
-                                            //                                            welcome(classes, true);
+//                                            newsSplash(classes);
+                                                                                        welcome(classes, true);
                                             beginDND(getApplicationContext());
                                         }
                                     } else {
@@ -2251,11 +2251,25 @@ public class Main extends Activity {
                                 openApp();
                             }
                         }
+                    };
+                    String date=link.split("/")[link.split("/").length-1].split("\\.")[0];
+                    if(!sp.getString("latest_file_date","").equals(date)) {
+                        sp.edit().putString("latest_file_name", fileName).commit();
+                        sp.edit().putString("latest_file_date", date).commit();
+                        new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
+                            @Override
+                            public void onFinish(File file, boolean b) {
+                                da.doAfter(file,b);
+                            }
 
-                        @Override
-                        public void onProgressChanged(File file, int i) {
-                        }
-                    }).execute();
+                            @Override
+                            public void onProgressChanged(File file, int i) {
+                            }
+                        }).execute();
+                    }else{
+                        da.doAfter(new File(getApplicationContext().getFilesDir(), fileName),true);
+                    }
+
                 } else {
                     //                    popup("Could Not Fetch Link, Please Try Disconnecting From Wi-Fi");
                     openApp();
@@ -2332,6 +2346,10 @@ public class Main extends Activity {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private interface DoAfter{
+        void doAfter(File f,boolean b);
     }
 
     static class ClassTime {
