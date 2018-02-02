@@ -78,13 +78,16 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -94,19 +97,22 @@ import java.util.Random;
 import nadav.tasher.lightool.Light;
 
 public class Main extends Activity {
-    static final String pushProvider = "http://handasaim.nockio.com/push/push.php";
-    static final String keyProvider = "http://handasaim.nockio.com/keys/index.php";
-    static final String puzProvider = "http://handasaim.nockio.com";
+    static final String pushProvider = "http://h.nockio.com/pushes.json";
+    static final String keyProvider = "http://h.nockio.com/keys/index.php";
+    static final String puzProvider = "http://h.nockio.com";
     static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
     static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
     static final String fontName = "arimo.ttf";
+    static final String prefPush = "push_service";
+    static final String prefPushNotif = "push_id_";
+    static final boolean prefPushDefault = true;
     static final int defaultSize = 30;
-    static final int pushLoop=1000*60*10;
+    static final int pushLoop = 1000 * 10;
     static int textColor = Color.WHITE;
     private final int maxKeyEntering = 4;
     private final int waitTime = 10;
     private final int bakedIconColor = 0xffdd8833;
-    private final String serviceProvider = "http://handasaim.co.il";
+    private static final String serviceProvider = "http://handasaim.co.il";
     private int color = Color.parseColor("#2c7cb4");
     private int secolor = color + 0x333333;
     private int countheme = 0;
@@ -115,7 +121,6 @@ public class Main extends Activity {
     private String day;
     private Class currentClass;
     private ForTeachers.Teacher currentTeacher;
-
 
     private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#1b5c96"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
     private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
@@ -237,6 +242,17 @@ public class Main extends Activity {
         //Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f
         ll.addView(tv);
         setContentView(ll);
+        if(getIntent().getExtras()!=null) {
+            if (getIntent().getExtras().getString("toast") != null) {
+                Toast.makeText(this, getIntent().getExtras().getString("toast"), Toast.LENGTH_LONG).show();
+            } else if (getIntent().getExtras().getString("popup") != null) {
+                AlertDialog.Builder pop = new AlertDialog.Builder(this);
+                pop.setCancelable(true);
+                pop.setMessage(getIntent().getExtras().getString("popup"));
+                pop.setPositiveButton("OK", null);
+                pop.show();
+            }
+        }
     }
 
     private void newsSplash(final ArrayList<Class> classes) {
@@ -2848,7 +2864,7 @@ public class Main extends Activity {
             try {
                 MainSite ms = new MainSite();
                 ArrayList<Main.Link> news = new ArrayList<>();
-                String ser = "http://handasaim.co.il";
+                String ser = Main.serviceProvider;
                 Document docu = Jsoup.connect(ser).get();
                 Elements itemss = docu.getAllElements().select("div.carousel-inner").select("div.item");
                 for (int in = 0; in < itemss.size(); in++) {
@@ -2960,6 +2976,44 @@ public class Main extends Activity {
             void onFinish(File output, boolean isAvailable);
 
             void onProgressChanged(File output, int percent);
+        }
+    }
+
+    static class FileReader extends AsyncTask<String, String, String> {
+        private String furl;
+        private FileReader.OnRead oe;
+
+        FileReader(String url, FileReader.OnRead onfile) {
+            oe = onfile;
+            furl = url;
+        }
+
+        @Override
+        protected String doInBackground(String... comment) {
+            String s="";
+            try {
+                URL url = new URL(furl);
+                BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+                String str;
+                while ((str = in.readLine()) != null) {
+                    s += str + "\n";
+                }
+                in.close();
+            } catch (IOException e) {
+                s = null;
+            }
+            return s;
+        }
+
+        @Override
+        protected void onPostExecute(String file_url) {
+            if (oe != null) {
+                oe.done(file_url);
+            }
+        }
+
+        interface OnRead {
+            void done(String s);
         }
     }
 
