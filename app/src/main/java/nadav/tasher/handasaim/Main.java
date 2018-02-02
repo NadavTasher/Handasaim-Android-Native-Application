@@ -92,22 +92,36 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.Random;
 
 import nadav.tasher.lightool.Light;
 
+import static nadav.tasher.handasaim.Push.getDay;
+
 public class Main extends Activity {
     static final String pushProvider = "http://h.nockio.com/pushes.json";
+    static final String themeProvider = "http://h.nockio.com/themes.json";
     static final String keyProvider = "http://h.nockio.com/keys/index.php";
     static final String puzProvider = "http://h.nockio.com";
     static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
     static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
     static final String fontName = "arimo.ttf";
     static final String prefPush = "push_service";
+    static final String prefSeason = "seasonal_theming";
+    static final String prefSeasonPriority = "season_priority";
+    static final String prefSeasonEndDay = "season_ed";
+    static final String prefSeasonEndMonth = "season_em";
+    static final String prefSeasonEndYear = "season_ey";
+    static final String prefSeasonMain = "season_main";
+    static final String prefSeasonSub = "season_sub";
+    static final String prefSeasonName = "season_name";
+    static final String prefSeasonID = "theme_id_";
     static final String prefPushNotif = "push_id_";
     static final boolean prefPushDefault = true;
+    static final boolean prefSeasonDefault = true;
     static final int defaultSize = 30;
-    static final int pushLoop = 1000 * 10;
+    static final int pushLoop = 1000 /* * 60*/ * 10;
     static int textColor = Color.WHITE;
     private final int maxKeyEntering = 4;
     private final int waitTime = 10;
@@ -242,7 +256,7 @@ public class Main extends Activity {
         //Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f
         ll.addView(tv);
         setContentView(ll);
-        if(getIntent().getExtras()!=null) {
+        if (getIntent().getExtras() != null) {
             if (getIntent().getExtras().getString("toast") != null) {
                 Toast.makeText(this, getIntent().getExtras().getString("toast"), Toast.LENGTH_LONG).show();
             } else if (getIntent().getExtras().getString("popup") != null) {
@@ -635,6 +649,18 @@ public class Main extends Activity {
         showBreaks.setTextSize((float) 23);
         showBreaks.setTypeface(custom_font);
         showBreaks.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
+        final Switch push = new Switch(this);
+        push.setChecked(sp.getBoolean(prefPush, prefPushDefault));
+        push.setText(R.string.push);
+        push.setTextSize((float) 23);
+        push.setTypeface(custom_font);
+        push.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
+        final Switch seasonalTheming = new Switch(this);
+        seasonalTheming.setChecked(sp.getBoolean(prefSeason, prefSeasonDefault));
+        seasonalTheming.setText(R.string.season);
+        seasonalTheming.setTextSize((float) 23);
+        seasonalTheming.setTypeface(custom_font);
+        seasonalTheming.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch automute = new Switch(this);
         automute.setChecked(sp.getBoolean("auto_dnd", false));
         automute.setText(R.string.dnd);
@@ -685,9 +711,13 @@ public class Main extends Activity {
         spcl.addView(getTv("Show breaks in schedule, between lessons", 15, p));
         spcl.addView(textCo);
         spcl.addView(getTv("Text color (black/white)", 15, p));
+        spcl.addView(push);
+        spcl.addView(getTv("Live messages for important things", 15, p));
+        spcl.addView(seasonalTheming);
+        spcl.addView(getTv("Change the color based on upcoming events", 15, p));
         if (Build.VERSION.SDK_INT >= 23) {
             spcl.addView(automute);
-            spcl.addView(getTv("AutoMute is a feature that mutes your phone when a lesson begins And unmutes it at breaks.", 15, p));
+            spcl.addView(getTv("Auto mute and unmute on lessons", 15, p));
         }
         part3.addView(spcl);
         part3.addView(done);
@@ -698,9 +728,13 @@ public class Main extends Activity {
                 sp.edit().putBoolean("auto_dnd", automute.isChecked()).commit();
                 sp.edit().putBoolean("fontWhite", textCo.isChecked()).commit();
                 sp.edit().putBoolean("breaks", showBreaks.isChecked()).commit();
+                sp.edit().putBoolean(prefPush, push.isChecked()).commit();
+                sp.edit().putBoolean(prefSeason, seasonalTheming.isChecked()).commit();
                 sp.edit().putInt("last_recorded_version_code", Light.Device.getVersionCode(getApplicationContext(), getPackageName())).commit();
                 sp.edit().putBoolean("first", false).commit();
-                startPush(getApplicationContext());
+                if(push.isChecked()) {
+                    startPush(getApplicationContext());
+                }
                 view(classes);
                 //                view(classes);
             }
@@ -2242,8 +2276,8 @@ public class Main extends Activity {
                                         if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
                                             welcome(classes, true);
                                         } else {
-                                            //                                            newsSplash(classes);
-                                            welcome(classes, true);
+//                                            newsSplash(classes);
+                                                                                        welcome(classes, true);
                                             beginDND(getApplicationContext());
                                         }
                                     } else {
@@ -2262,8 +2296,62 @@ public class Main extends Activity {
                         sp.edit().putString("latest_file_date", date).commit();
                         new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
                             @Override
-                            public void onFinish(File file, boolean b) {
-                                da.doAfter(file, b);
+                            public void onFinish(final File file, final boolean b) {
+                                new FileReader(themeProvider, new FileReader.OnRead() {
+                                    @Override
+                                    public void done(String s) {
+                                        try {
+                                            ArrayList<Theme.SchudledTheme> tm = new ArrayList<>();
+                                            JSONObject reader = new JSONObject(s);
+                                            Iterator<String> types = reader.keys();
+                                            while (types.hasNext()) {
+                                                String name = types.next();
+                                                try {
+                                                    Theme.SchudledTheme i = new Theme.SchudledTheme();
+                                                    JSONObject uo = reader.getJSONObject(name);
+                                                    i.id = Integer.parseInt(name);
+                                                    i.name = uo.getString("name");
+                                                    i.main = uo.getInt("main");
+                                                    i.sub = uo.getInt("sub");
+                                                    i.sd = uo.getInt("sd");
+                                                    i.sm = uo.getInt("sm");
+                                                    i.sy = uo.getInt("sy");
+                                                    i.ed = uo.getInt("ed");
+                                                    i.em = uo.getInt("em");
+                                                    i.ey = uo.getInt("ey");
+                                                    tm.add(i);
+                                                } catch (JSONException e) {
+                                                }
+                                            }
+                                            Calendar c = Calendar.getInstance();
+                                            for (int n = 0; n < tm.size(); n++) {
+                                                Theme.SchudledTheme it=tm.get(n);
+                                                int cdate = getDay(c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR));
+                                                int adate = getDay(it.sd, it.sm, it.sy);
+                                                int bdate = getDay(it.ed, it.em, it.ey);
+                                                boolean dated = (adate>= cdate)&&(cdate <= bdate);
+                                                if (!sp.getBoolean(Main.prefSeasonID + it.id, false) && dated) {
+                                                    sp.edit().putBoolean(Main.prefSeasonID + it.id, true).apply();
+                                                    sp.edit().putBoolean(prefSeasonPriority,true).apply();
+                                                    sp.edit().putInt(prefSeasonEndDay,it.ed).apply();
+                                                    sp.edit().putInt(prefSeasonEndMonth,it.em).apply();
+                                                    sp.edit().putInt(prefSeasonEndYear,it.ey).apply();
+                                                    sp.edit().putInt(prefSeasonMain,it.main).apply();
+                                                    sp.edit().putInt(prefSeasonSub,it.sub).apply();
+                                                    sp.edit().putString(prefSeasonName,it.name).apply();
+                                                    color=it.main;
+                                                    secolor=it.sub;
+                                                    break;
+                                                }else if(sp.getBoolean(Main.prefSeasonID + it.id, false) && !dated){
+                                                    sp.edit().putBoolean(prefSeasonPriority,false).apply();
+                                                }
+                                            }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        da.doAfter(file, b);
+                                    }
+                                }).execute();
                             }
 
                             @Override
@@ -2378,7 +2466,7 @@ public class Main extends Activity {
         String url, name, imgurl;
     }
 
-    private class Theme {
+    static class Theme {
         int color;
 
         Theme(String color) {
@@ -2387,6 +2475,13 @@ public class Main extends Activity {
 
         Theme(int color) {
             this.color = color;
+        }
+
+        static class SchudledTheme{
+            public int main, sub;
+            public int sd,sm,sy,ed,em,ey;
+            public int id;
+            public String name;
         }
     }
 
@@ -2990,7 +3085,7 @@ public class Main extends Activity {
 
         @Override
         protected String doInBackground(String... comment) {
-            String s="";
+            String s = "";
             try {
                 URL url = new URL(furl);
                 BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));

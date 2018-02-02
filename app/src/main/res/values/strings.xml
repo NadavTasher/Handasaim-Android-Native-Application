@@ -14,7 +14,8 @@
     <string name="showbrk">Show Break Times</string>
     <string name="rnew">Renew Settings:</string>
     <string name="cls">Close</string>
-    <string name="push">Push Notifications</string>
+    <string name="push">Live Messages</string>
+    <string name="season">Seasonal Theming</string>
     <string name="dnd">Auto Mute and Unmute</string>
     <string name="sv">Save</string>
     <string name="messageboard">Message Board</string>
