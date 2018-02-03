@@ -284,6 +284,8 @@ public class Main extends Activity {
     }
 
     private void newsSplash(final ArrayList<Class> classes) {
+        getWindow().setStatusBarColor(color);
+        getWindow().setNavigationBarColor(color);
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         if (sp.getBoolean(Values.messageBoardSkipEnabler, false)) {
             view(classes);
