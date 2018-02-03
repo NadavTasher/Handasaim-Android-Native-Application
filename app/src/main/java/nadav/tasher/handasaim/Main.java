@@ -49,7 +49,6 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -99,7 +98,7 @@ import static nadav.tasher.handasaim.Push.getDay;
 
 public class Main extends Activity {
     static int textColor = Color.WHITE;
-    private int color = Color.parseColor("#2c7cb4");
+    private int color = Values.defaultColor;
     private int secolor = color + 0x333333;
     private int countheme = 0;
     private int keyentering = 0;
@@ -108,10 +107,9 @@ public class Main extends Activity {
     private ForTeachers.Teacher currentTeacher;
     private LinearLayout masterLayout;
     private LinearLayout masterNavigation;
-    private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#1b5c96"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
+    private Theme[] themes = new Theme[]{new Theme("#2c7cb4"), new Theme("#562627"), new Theme("#1b5c96"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
     private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
     private String[] infact = new String[]{"Every year more than 2500 left-handed people are killed from using right-handed products.", "In 1895 Hampshire police handed out the first ever speeding ticket, fining a man for doing 6mph!", "Over 1000 birds a year die from smashing into windows.", "Squirrels forget where they hide about half of their nuts.", "The average person walks the equivalent of twice around the world in a lifetime.", "A company in Taiwan makes dinnerware out of wheat, so you can eat your plate!", "An apple, potato, and onion all taste the same if you eat them with your nose plugged.", "Dying is illegal in the Houses of Parliaments – This has been voted as the most ridiculous law by the British citizens.", "The first alarm clock could only ring at 4am.", "If you leave everything to the last minute… it will only take a minute.", "Every human spent about half an hour as a single cell.", "The Twitter bird actually has a name – Larry.", "Sea otters hold hands when they sleep so they don’t drift away from each other.", "The French language has seventeen different words for ‘surrender’.", "The Titanic was the first ship to use the SOS signal.", "A baby octopus is about the size of a flea when it is born.", "You cannot snore and dream at the same time.", "A toaster uses almost half as much energy as a full-sized oven.", "If you consistently fart for 6 years & 9 months, enough gas is produced to create the energy of an atomic bomb!", "An eagle can kill a young deer and fly away with it.", "Polar bears can eat as many as 86 penguins in a single sitting.", "If Pinokio says “My Nose Will Grow Now”, it would cause a paradox.", "Bananas are curved because they grow towards the sun.", "Human saliva has a boiling point three times that of regular water.", "Cherophobia is the fear of fun.", "When hippos are upset, their sweat turns red.", "Pteronophobia is the fear of being tickled by feathers!", "Banging your head against a wall burns 150 calories an hour."};
-
     private boolean opened = false;
 
     @Override
@@ -128,7 +126,7 @@ public class Main extends Activity {
             textColor = Color.BLACK;
         }
         if (!sp.getBoolean(Values.seasonalTheming, Values.seasonDefault) || !sp.getBoolean(Values.seasonPriority, false)) {
-            color = sp.getInt("color", color);
+            color = sp.getInt(Values.color, color);
             String hexColor = String.format("#%06X", (0xFFFFFF & color));
             if (!hexColor.contains("D") && !hexColor.contains("E") && !hexColor.contains("F")) {
                 secolor = color + 0x333333;
@@ -166,7 +164,7 @@ public class Main extends Activity {
         window.setStatusBarColor(color);
         window.setNavigationBarColor(color);
         taskDesc();
-        LinearLayout ll = new LinearLayout(this);
+        final LinearLayout ll = new LinearLayout(this);
         ll.setGravity(Gravity.CENTER);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setBackgroundColor(color);
@@ -179,13 +177,13 @@ public class Main extends Activity {
         pb.setIndeterminate(true);
         pb.setVisibility(View.GONE);
         pb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
-        String curved=getString(R.string.app_name);
-        if(sp.getBoolean(Values.seasonalTheming,Values.seasonDefault)&&sp.getBoolean(Values.seasonPriority,false)){
-            curved=sp.getString(Values.seasonName,curved);
+        String curved = getString(R.string.app_name);
+        if (sp.getBoolean(Values.seasonalTheming, Values.seasonDefault) && sp.getBoolean(Values.seasonPriority, false)) {
+            curved = sp.getString(Values.seasonName, curved);
         }
-        final CurvedTextView ctv = new CurvedTextView(this, curved, 40, Values.bakedIconColor, Light.Device.screenX(this), (int) (Light.Device.screenY(getApplicationContext()) * 0.2), (int) (Light.Device.screenY(getApplicationContext()) * 0.10) / 2);
+        final Graphics.CurvedTextView ctv = new Graphics.CurvedTextView(this, curved, 50, Values.bakedIconColor, Light.Device.screenX(this), (int) (Light.Device.screenY(getApplicationContext()) * 0.3), (int) (Light.Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setVisibility(View.GONE);
-        ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
+        ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.3)));
         ll.addView(ctv);
         final TextView tv = new TextView(getApplicationContext());
         tv.setGravity(Gravity.CENTER);
@@ -194,7 +192,7 @@ public class Main extends Activity {
         tv.setTypeface(getTypeface());
         String versionin = "v" + Light.Device.getVersionName(getApplicationContext(), getPackageName());
         tv.setText(versionin);
-        tv.setLayoutParams(new LinearLayout.LayoutParams(is, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
+        tv.setLayoutParams(new LinearLayout.LayoutParams(is, (int) (Light.Device.screenY(getApplicationContext()) * 0.3)));
         final ObjectAnimator slideRC = ObjectAnimator.ofFloat(tv, View.TRANSLATION_X, Light.Animations.getSlideRight(getApplicationContext()));
         slideRC.setDuration(500);
         slideRC.addListener(new Animator.AnimatorListener() {
@@ -251,9 +249,22 @@ public class Main extends Activity {
             }
         });
         slideR.start();
-        //Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f
         ll.addView(tv);
         setContentView(ll);
+        Graphics.ColorFadeAnimation cfa = new Graphics.ColorFadeAnimation(themes[new Random().nextInt(themes.length)].color, color, new Graphics.ColorFadeAnimation.ColorState() {
+            @Override
+            public void onColor(final int color) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ll.setBackgroundColor(color);
+                        getWindow().setNavigationBarColor(color);
+                        getWindow().setStatusBarColor(color);
+                    }
+                });
+            }
+        });
+        cfa.start(2000);
         if (getIntent().getExtras() != null) {
             if (getIntent().getExtras().getString("toast") != null) {
                 Toast.makeText(this, getIntent().getExtras().getString("toast"), Toast.LENGTH_LONG).show();
@@ -267,15 +278,6 @@ public class Main extends Activity {
         }
     }
 
-    private Typeface getTypeface() {
-        return Typeface.createFromAsset(getAssets(), Values.fontName);
-    }
-
-    static Typeface getTypeface(Context c){
-        return Typeface.createFromAsset(c.getAssets(), Values.fontName);
-
-    }
-
     private int getFontSize() {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         return sp.getInt(Values.fontSizeNumber, Values.fontSizeBig);
@@ -283,7 +285,6 @@ public class Main extends Activity {
 
     private void newsSplash(final ArrayList<Class> classes) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-
         if (sp.getBoolean(Values.messageBoardSkipEnabler, false)) {
             view(classes);
         } else {
@@ -296,16 +297,17 @@ public class Main extends Activity {
             final LinearLayout loadingTView = new LinearLayout(getApplicationContext());
             loadingTView.setGravity(Gravity.CENTER);
             loadingTView.setOrientation(LinearLayout.VERTICAL);
+            //            loadingTView.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
             final TextView messBoardTitle = new TextView(getApplicationContext()), prinSays = new TextView(getApplicationContext()), loadingText = new TextView(getApplicationContext()), egg = new TextView(getApplicationContext());
             loadingText.setGravity(Gravity.CENTER);
             loadingText.setText(R.string.loadingtext);
-            loadingText.setTextColor(textColor);
+            loadingText.setTextColor(Color.LTGRAY);
             loadingText.setTypeface(getTypeface());
             loadingText.setTextSize(getFontSize() + 4);
             loadingTView.addView(loadingText);
             egg.setGravity(Gravity.CENTER);
             egg.setText(getEasterEgg());
-            egg.setTextColor(textColor);
+            egg.setTextColor(Color.LTGRAY);
             egg.setTypeface(getTypeface());
             egg.setTextSize(getFontSize() - 8);
             egg.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.7), ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -327,7 +329,7 @@ public class Main extends Activity {
             newsAll.setOrientation(LinearLayout.VERTICAL);
             news.setOrientation(LinearLayout.VERTICAL);
             final Button princibleSay = new Button(getApplicationContext());
-            princibleSay.setBackground(getDrawable(R.drawable.back_transparant));
+            princibleSay.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
             princibleSay.setTypeface(getTypeface());
             princibleSay.setPadding(10, 10, 10, 10);
             princibleSay.setTextColor(textColor);
@@ -337,7 +339,7 @@ public class Main extends Activity {
             //            newsAll.setPadding(0, 20, 0, 20);
             news.setPadding(40, 40, 40, 40);
             news.addView(messBoardTitle);
-            news.setBackground(getDrawable(R.drawable.back_transparant));
+            news.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
             //        news.setAlpha(0.5f);
             newsAll.addView(news);
             final LinearLayout principals = new LinearLayout(getApplicationContext());
@@ -346,7 +348,7 @@ public class Main extends Activity {
             principals.addView(prinSays);
             principals.addView(princibleSay);
             newsAll.addView(principals);
-            principals.setBackground(getDrawable(R.drawable.back_transparant));
+            principals.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
             principals.setPadding(40, 20, 40, 40);
             prinSays.setPadding(10, 10, 10, 10);
             messBoardTitle.setPadding(10, 10, 10, 10);
@@ -377,19 +379,19 @@ public class Main extends Activity {
             instructions.setTypeface(getTypeface());
             waiting.setTypeface(getTypeface());
             instructions.setGravity(Gravity.CENTER);
-            instructions.setBackground(getDrawable(R.drawable.back_transparant));
-            waiting.setBackground(getDrawable(R.drawable.back_transparant));
+            instructions.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
+            waiting.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
             waiting.setGravity(Gravity.CENTER);
             instructions.setPadding(20, 20, 20, 20);
             waiting.setPadding(20, 20, 20, 20);
             waiting.setText(R.string.secondsleft);
             //            nextLayout.setPadding(0,10,0,10);
             nextButton.setText(R.string.nxt);
-            nextButton.setBackground(getDrawable(R.drawable.back_transparant));
+            nextButton.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
             nextButton.setTypeface(getTypeface());
             nextButton.setTextSize(getFontSize() - 10);
             nextButton.setTextColor(textColor);
-            nextLayout.setBackground(getDrawable(R.drawable.back_transparant));
+            nextLayout.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
             nextLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 15 * 2));
             full.addView(nextLayout);
             nextButton.setOnClickListener(new View.OnClickListener() {
@@ -428,10 +430,11 @@ public class Main extends Activity {
                             nt.setGravity(Gravity.CENTER);
                             Button newtopic = new Button(getApplicationContext());
                             nt.addView(newtopic);
-                            nt.setBackground(getDrawable(R.drawable.back_transparant));
+                            nt.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
+                            nt.setPadding(10, 10, 10, 10);
                             newtopic.setText(ms.news.get(n).name);
                             newtopic.setEllipsize(TextUtils.TruncateAt.END);
-                            newtopic.setBackground(getDrawable(R.drawable.back_transparant));
+                            newtopic.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
                             newtopic.setTextColor(textColor);
                             newtopic.setTextSize(getFontSize() - 10);
                             newtopic.setPadding(20, 10, 20, 10);
@@ -517,7 +520,6 @@ public class Main extends Activity {
         part1.setBackgroundColor(color);
         part2.setBackgroundColor(color);
         part3.setBackgroundColor(color);
-
         //part1
         ImageView icon = new ImageView(this);
         final Button setup = new Button(this);
@@ -728,6 +730,7 @@ public class Main extends Activity {
             spcl.addView(automute);
             spcl.addView(getTv("Auto mute and unmute on lessons", 15, p));
         }
+        spcl.addView(getTv("\nYou can long click on any tile in the app for an explanation of what it does.", 15, p));
         part3.addView(spcl);
         part3.addView(done);
         done.setOnClickListener(new View.OnClickListener() {
@@ -739,11 +742,15 @@ public class Main extends Activity {
                 sp.edit().putBoolean(Values.breakTime, showBreaks.isChecked()).commit();
                 sp.edit().putBoolean(Values.pushService, push.isChecked()).commit();
                 sp.edit().putBoolean(Values.seasonalTheming, seasonalTheming.isChecked()).commit();
+                if (!renew) {
+                    sp.edit().putInt(Values.color, Values.defaultColor).commit();
+                }
                 sp.edit().putInt(Values.lastRecordedVersionCode, Light.Device.getVersionCode(getApplicationContext(), getPackageName())).commit();
                 sp.edit().putBoolean(Values.firstLaunch, false).commit();
                 if (push.isChecked()) {
                     startPush(getApplicationContext());
                 }
+                loadTheme();
                 view(classes);
             }
         });
@@ -882,17 +889,6 @@ public class Main extends Activity {
         ab.show();
     }
 
-    private String getEasterEgg() {
-        int which = new Random().nextInt(2);
-        if (which == 0) {
-            int newrand = new Random().nextInt(infact.length);
-            return "Did You Know: " + infact[newrand];
-        } else {
-            int newrand = new Random().nextInt(ees.length);
-            return "\"" + ees[newrand] + "\"";
-        }
-    }
-
     private void showEasterEgg() {
         Toast.makeText(getApplicationContext(), getEasterEgg(), Toast.LENGTH_LONG).show();
     }
@@ -921,7 +917,7 @@ public class Main extends Activity {
         masterNavigation.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         masterNavigation.setLayoutParams(navigationParms);
         masterNavigation.setPadding(20, 10, 20, 10);
-        content.setPadding(10,10,10,10);
+        content.setPadding(10, 10, 10, 10);
         masterLayout.setOrientation(LinearLayout.VERTICAL);
         masterNavigation.setOrientation(LinearLayout.HORIZONTAL);
         tileNavigation.setOrientation(LinearLayout.HORIZONTAL);
@@ -992,16 +988,18 @@ public class Main extends Activity {
         });
         Graphics.Tile teacherModeTile = new Graphics.Tile(getApplicationContext(), Values.teacherMode, false, R.drawable.ic_teachermode, false);
         final Graphics.Tile lessonNameTile = new Graphics.Tile(getApplicationContext(), Values.lessonName, false, R.drawable.ic_lessonname, false);
+        lessonNameTile.setLongClick("Toggle Lesson Name", Gravity.CENTER);
+        teacherModeTile.setLongClick("Toggle Teacher Mode", Gravity.CENTER);
         if (sp.getBoolean(Values.teacherModeEnabler, false)) {
             tileNavigation.addView(teacherModeTile);
             tileNavigation.addView(lessonNameTile);
         }
         Graphics.Tile lessonTimeTile = new Graphics.Tile(getApplicationContext(), Values.lessonTime, Values.lessonTimeDefault, R.drawable.ic_clock, false);
+        lessonTimeTile.setLongClick("Toggle Lesson Time", Gravity.CENTER);
         tileNavigation.addView(lessonTimeTile);
         Graphics.Tile breakTile = new Graphics.Tile(getApplicationContext(), Values.breakTime, Values.breakTimeDefault, R.drawable.ic_breaktime, false);
+        breakTile.setLongClick("Toggle Breaks In Schedule", Gravity.CENTER);
         tileNavigation.addView(breakTile);
-        final Graphics.Tile bagTile = new Graphics.Tile(getApplicationContext(), Values.bagOrginizer, Values.bagOrginizerDefault, R.drawable.ic_bag, false);
-        tileNavigation.addView(bagTile);
         final Graphics.Tile autoMuteTile = new Graphics.Tile(getApplicationContext(), Values.autoMute, Values.autoMuteDefault, R.drawable.ic_auto_mute, false);
         autoMuteTile.setOnValueChanged(new Graphics.Tile.OnValueChanged() {
             @Override
@@ -1043,6 +1041,7 @@ public class Main extends Activity {
             public void off() {
             }
         });
+        autoMuteTile.setLongClick("Toggle Auto-Mute", Gravity.CENTER);
         tileNavigation.addView(autoMuteTile);
         Graphics.Tile textColorTile = new Graphics.Tile(getApplicationContext(), Values.fontColor, Values.fontColorDefault, R.drawable.ic_white, true);
         textColorTile.setSecondIcon(R.drawable.ic_black);
@@ -1057,10 +1056,30 @@ public class Main extends Activity {
                 textColor = Color.BLACK;
             }
         });
+        textColorTile.setLongClick("Switch Text Color", Gravity.CENTER);
         tileNavigation.addView(textColorTile);
         Graphics.Tile seasonalTile = new Graphics.Tile(getApplicationContext(), Values.seasonalTheming, Values.seasonDefault, R.drawable.ic_season, false);
+        seasonalTile.setOnValueChanged(new Graphics.Tile.OnValueChanged() {
+            @Override
+            public void on() {
+                checkSeasonalTheming(new After() {
+                    @Override
+                    public void after() {
+                        refreshTheme();
+                    }
+                });
+            }
+
+            @Override
+            public void off() {
+                sp.edit().putBoolean(Values.seasonPriority, false).apply();
+                loadTheme();
+            }
+        });
+        seasonalTile.setLongClick("Toggle Seasonal Theming", Gravity.CENTER);
         tileNavigation.addView(seasonalTile);
         Graphics.Tile pushTile = new Graphics.Tile(getApplicationContext(), Values.pushService, Values.pushDefault, R.drawable.ic_push, false);
+        pushTile.setLongClick("Toggle Live Messages", Gravity.CENTER);
         tileNavigation.addView(pushTile);
         Graphics.Tile fontSizeTile = new Graphics.Tile(getApplicationContext(), Values.fontSize, Values.fontSizeDefault, R.drawable.ic_font_big, false);
         fontSizeTile.setSecondIcon(R.drawable.ic_font_small);
@@ -1075,29 +1094,27 @@ public class Main extends Activity {
                 sp.edit().putInt(Values.fontSizeNumber, Values.fontSizeBig).apply();
             }
         });
+        fontSizeTile.setLongClick("Switch Font Size", Gravity.CENTER);
         tileNavigation.addView(fontSizeTile);
         Graphics.Tile.EndlessTile themeTile = new Graphics.Tile.EndlessTile(getApplicationContext(), R.drawable.ic_paint, new Graphics.Tile.EndlessTile.OnAction() {
             @Override
             public void click() {
-                sp.edit().putInt(Values.color, themes[countheme].color).commit();
-                color = themes[countheme].color;
-                loadTheme();
-                getWindow().setStatusBarColor(secolor);
-                getWindow().setNavigationBarColor(color);
-                //                sall.setBackgroundColor(color);
-                //                all.setBackgroundColor(color);
-                taskDesc();
-                //                navbarAll.setBackgroundColor(secolor);
-                if (countheme + 1 < themes.length) {
-                    countheme++;
+                if (!sp.getBoolean(Values.seasonPriority, false)) {
+                    sp.edit().putInt(Values.color, themes[countheme].color).commit();
+                    color = themes[countheme].color;
+                    refreshTheme();
+                    if (countheme + 1 < themes.length) {
+                        countheme++;
+                    } else {
+                        countheme = 0;
+                    }
                 } else {
-                    countheme = 0;
+                    Toast.makeText(getApplicationContext(), "Seasonal Theming Is Blocking You From Changing The Theme. You Can Turn It Off By Clicking On Its Tile.", Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void hold() {
-
                 final int fontSize = getFontSize();
                 final LinearLayout newsll = new LinearLayout(getApplicationContext());
                 final LinearLayout bts = new LinearLayout(getApplicationContext());
@@ -1135,6 +1152,7 @@ public class Main extends Activity {
                 });
                 hashv.setTextColor(textColor);
                 colorEditor.setTextColor(textColor);
+                colorEditor.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 newsll.addView(hashv);
                 newsll.addView(colorEditor);
                 layerer.addView(newsll);
@@ -1159,7 +1177,7 @@ public class Main extends Activity {
                             sp.edit().putInt("color", Color.parseColor("#" + colorEditor.getText().toString())).commit();
                             refreshTheme();
                             dialog.dismiss();
-                            showHS(currentClass, content, classes, sp.getBoolean(Values.lessonTime, false), getFontSize(), sp.getBoolean(Values.breakTime, true), sp.getBoolean(Values.bagOrginizer, false), sp.getBoolean(Values.teacherMode, false));
+                            showHS(currentClass, content, classes, sp.getBoolean(Values.lessonTime, false), getFontSize(), sp.getBoolean(Values.breakTime, true), sp.getBoolean(Values.teacherMode, false));
                         } else {
                             Toast.makeText(getApplicationContext(), "Color Has To Include 6 Characters.", Toast.LENGTH_SHORT).show();
                         }
@@ -1171,7 +1189,7 @@ public class Main extends Activity {
                 dialog.setCancelable(true);
                 dialog.setContentView(layerer);
                 layerer.setPadding(20, 20, 20, 20);
-                layerer.setBackgroundColor(color);
+                layerer.setBackgroundColor(secolor);
                 dialog.show();
             }
         });
@@ -1180,9 +1198,9 @@ public class Main extends Activity {
             @Override
             public void click() {
                 if (!sp.getBoolean(Values.teacherMode, false)) {
-                    share(currentClass.name + "\n" + hourSystemForClassString(currentClass, sp.getBoolean("show_time", true)));
+                    share(currentClass.name + "\n" + hourSystemForClassString(currentClass, sp.getBoolean(Values.lessonTime, Values.lessonTimeDefault)));
                 } else {
-                    share(currentTeacher.mainName + "\n" + ForTeachers.hourSystemForTeacherString(currentTeacher, sp.getBoolean("show_time", true)));
+                    share(currentTeacher.mainName + "\n" + ForTeachers.hourSystemForTeacherString(currentTeacher, sp.getBoolean(Values.lessonTime, Values.lessonTimeDefault)));
                 }
             }
 
@@ -1195,30 +1213,23 @@ public class Main extends Activity {
             @Override
             public void on() {
                 lessonNameTile.setVisibility(View.VISIBLE);
-                bagTile.setVisibility(View.GONE);
             }
 
             @Override
             public void off() {
                 lessonNameTile.setVisibility(View.GONE);
-                bagTile.setVisibility(View.VISIBLE);
             }
         });
         if (sp.getBoolean(Values.teacherMode, false)) {
             lessonNameTile.setVisibility(View.VISIBLE);
-            bagTile.setVisibility(View.GONE);
         } else {
             lessonNameTile.setVisibility(View.GONE);
-            bagTile.setVisibility(View.VISIBLE);
         }
-        //        sall.addView(navbarAll);
-        //        navbarAll.setBackgroundColor(Color.BLACK);
-        //        all.addView(hsplace);
         Graphics.Tile.OnAction onAction = new Graphics.Tile.OnAction() {
             @Override
             public void execute() {
                 refreshTheme();
-                showHS(currentClass, content, classes, sp.getBoolean(Values.lessonTime, false), getFontSize(), sp.getBoolean(Values.breakTime, true), sp.getBoolean(Values.bagOrginizer, false), sp.getBoolean(Values.teacherMode, false));
+                showHS(currentClass, content, classes, sp.getBoolean(Values.lessonTime, Values.lessonTimeDefault), getFontSize(), sp.getBoolean(Values.breakTime, Values.breakTimeDefault), sp.getBoolean(Values.teacherMode, false));
             }
         };
         teacherModeTile.setAfter(onAction);
@@ -1227,7 +1238,6 @@ public class Main extends Activity {
         seasonalTile.setAfter(onAction);
         lessonTimeTile.setAfter(onAction);
         breakTile.setAfter(onAction);
-        bagTile.setAfter(onAction);
         textColorTile.setAfter(onAction);
         fontSizeTile.setAfter(onAction);
         int selectedClass = 0;
@@ -1244,8 +1254,164 @@ public class Main extends Activity {
             }
         }
         if (classes != null)
-            showHS(classes.get(selectedClass), content, classes, sp.getBoolean(Values.lessonTime, false), getFontSize(), sp.getBoolean(Values.breakTime, true), sp.getBoolean(Values.bagOrginizer, false), sp.getBoolean(Values.teacherMode, false));
+            showHS(classes.get(selectedClass), content, classes, sp.getBoolean(Values.lessonTime, false), getFontSize(), sp.getBoolean(Values.breakTime, true), sp.getBoolean(Values.teacherMode, false));
         setContentView(masterLayout);
+    }
+
+    private void openApp() {
+        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
+        new GetLink(Values.scheduleProvider, new GetLink.GotLink() {
+
+            @Override
+            public void onLinkGet(String link) {
+                if (link != null) {
+                    String fileName = "hs.xls";
+                    if (link.endsWith(".xlsx")) {
+                        fileName = "hs.xlsx";
+                    }
+                    final String finalFileName = fileName;
+                    String date = link.split("/")[link.split("/").length - 1].split("\\.")[0];
+                    if (!sp.getString(Values.latestFileDate, "").equals(date)) {
+                        sp.edit().putString(Values.latestFileName, fileName).commit();
+                        sp.edit().putString(Values.latestFileDate, date).commit();
+                        new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
+                            @Override
+                            public void onFinish(final File file, final boolean be) {
+                                if (sp.getBoolean(Values.seasonalTheming, Values.seasonDefault) && !sp.getBoolean(Values.firstLaunch, true)) {
+                                    checkSeasonalTheming(new After() {
+                                        @Override
+                                        public void after() {
+                                            parseAndLoad(new File(getApplicationContext().getFilesDir(), finalFileName), true, finalFileName);
+                                        }
+                                    });
+                                } else {
+                                    parseAndLoad(new File(getApplicationContext().getFilesDir(), finalFileName), true, finalFileName);
+                                }
+                            }
+
+                            @Override
+                            public void onProgressChanged(File file, int i) {
+                            }
+                        }).execute();
+                    } else {
+                        parseAndLoad(new File(getApplicationContext().getFilesDir(), fileName), true, finalFileName);
+                    }
+                } else {
+                    //                    popup("Could Not Fetch Link, Please Try Disconnecting From Wi-Fi");
+                    openApp();
+                }
+            }
+
+            @Override
+            public void onFail(String e) {
+                //                popup("Failed");
+                openApp();
+            }
+        }).execute();
+    }
+
+    private void parseAndLoad(File f, boolean b, String filename) {
+        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
+        if (b) {
+            ArrayList<Class> classes;
+            if (filename.endsWith(".xlsx")) {
+                classes = readExcelFileXLSX(f);
+                day = readExcelDayXLSX(f);
+            } else {
+                classes = readExcelFile(f);
+                day = readExcelDay(f);
+            }
+            /////
+            //                                file = new File(getApplicationContext().getFilesDir(), "hs.xlsx");
+            //                                classes = readExcelFileXLSX(file);
+            //                                day = readExcelDayXLSX(file);
+            /////
+            if (classes != null) {
+                if (!sp.getBoolean(Values.firstLaunch, true)) {
+                    if (sp.getInt(Values.lastRecordedVersionCode, 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
+                        welcome(classes, true);
+                    } else {
+                        newsSplash(classes);
+                        //                                            welcome(classes, true);
+                        beginDND(getApplicationContext());
+                    }
+                } else {
+                    welcome(classes, false);
+                }
+            }
+        } else {
+            //                                popup("Failed To Download Excel File");
+            openApp();
+        }
+    }
+
+    private void checkSeasonalTheming(final After after) {
+        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
+        new Light.Net.Pinger(5000, new Light.Net.Pinger.OnEnd() {
+            @Override
+            public void onPing(String s, boolean b) {
+                if (b) {
+                    new FileReader(Values.themeProvider, new FileReader.OnRead() {
+                        @Override
+                        public void done(String s) {
+                            try {
+                                ArrayList<Theme.SchudledTheme> tm = new ArrayList<>();
+                                JSONObject reader = new JSONObject(s);
+                                Iterator<String> types = reader.keys();
+                                while (types.hasNext()) {
+                                    String name = types.next();
+                                    try {
+                                        Theme.SchudledTheme i = new Theme.SchudledTheme();
+                                        JSONObject uo = reader.getJSONObject(name);
+                                        i.id = Integer.parseInt(name);
+                                        i.name = uo.getString("name");
+                                        i.main = Color.parseColor(uo.getString("main"));
+                                        i.sub = Color.parseColor(uo.getString("sub"));
+                                        i.sd = uo.getInt("sd");
+                                        i.sm = uo.getInt("sm");
+                                        i.sy = uo.getInt("sy");
+                                        i.ed = uo.getInt("ed");
+                                        i.em = uo.getInt("em");
+                                        i.ey = uo.getInt("ey");
+                                        tm.add(i);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                Calendar c = Calendar.getInstance();
+                                for (int n = 0; n < tm.size(); n++) {
+                                    Theme.SchudledTheme it = tm.get(n);
+                                    int cdate = getDay(c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR));
+                                    int adate = getDay(it.sd, it.sm, it.sy);
+                                    int bdate = getDay(it.ed, it.em, it.ey);
+                                    boolean dated = (adate <= cdate) && (cdate <= bdate);
+                                    if (dated) {
+                                        sp.edit().putBoolean(Values.seasonID + it.id, true).apply();
+                                        sp.edit().putBoolean(Values.seasonPriority, true).apply();
+                                        sp.edit().putInt(Values.seasonEndDay, it.ed).apply();
+                                        sp.edit().putInt(Values.seasonEndMonth, it.em).apply();
+                                        sp.edit().putInt(Values.seasonEndYear, it.ey).apply();
+                                        sp.edit().putInt(Values.seasonMain, it.main).apply();
+                                        sp.edit().putInt(Values.seasonSub, it.sub).apply();
+                                        sp.edit().putString(Values.seasonName, it.name).apply();
+                                        loadTheme();
+                                        break;
+                                    } else if (sp.getBoolean(Values.seasonID + it.id, false) && !dated) {
+                                        sp.edit().putBoolean(Values.seasonPriority, false).apply();
+                                        loadTheme();
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            if (after != null) after.after();
+                        }
+                    }).execute();
+                } else {
+                    if (after != null) after.after();
+                }
+            }
+        }).execute(Values.puzProvider);
     }
 
     private void popupNews() {
@@ -1276,8 +1442,8 @@ public class Main extends Activity {
         newsTitle.setText(R.string.news);
         push.addView(pushTitle);
         news.addView(newsTitle);
-        push.setBackground(getDrawable(R.drawable.back_transparant));
-        news.setBackground(getDrawable(R.drawable.back_transparant));
+        push.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
+        news.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
         newsTitle.setTextColor(textColor);
         pushTitle.setTextColor(textColor);
         newsTitle.setTextSize(fontSize);
@@ -1289,7 +1455,7 @@ public class Main extends Activity {
         Button close = new Button(getApplicationContext());
         close.setText(R.string.cls);
         close.setAllCaps(false);
-        close.setBackground(getDrawable(R.drawable.back_transparant));
+        close.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
         close.setTextSize((float) 22);
         close.setTextColor(textColor);
         close.setTypeface(getTypeface());
@@ -1302,7 +1468,7 @@ public class Main extends Activity {
         close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
         fullPage.addView(npscroll);
         fullPage.addView(close);
-        fullPage.setBackgroundColor(color);
+        fullPage.setBackgroundColor(secolor);
         fullPage.setPadding(5, 5, 5, 5);
         news.setVisibility(View.INVISIBLE);
         push.setVisibility(View.GONE);
@@ -1323,7 +1489,7 @@ public class Main extends Activity {
                         cls.setEllipsize(TextUtils.TruncateAt.END);
                         cls.setLines(2);
                         //                            cls.setBackgroundColor(Color.TRANSPARENT);
-                        cls.setBackground(getDrawable(R.drawable.back_transparant));
+                        cls.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
                         cls.setTypeface(getTypeface());
                         cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
                         news.addView(cls);
@@ -1359,7 +1525,7 @@ public class Main extends Activity {
         startActivity(Intent.createChooser(s, "Share With"));
     }
 
-    private void showHS(final Class c, final FrameLayout content, final ArrayList<Class> classes, final boolean showTime, final int fontSize, final boolean breakTimes, final boolean showOrgCheckBox, final boolean teacherMode) {
+    private void showHS(final Class c, final FrameLayout content, final ArrayList<Class> classes, final boolean showTime, final int fontSize, final boolean breakTimes, final boolean teacherMode) {
         currentClass = c;
         LinearLayout hsplace = new LinearLayout(this);
         hsplace.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
@@ -1367,7 +1533,6 @@ public class Main extends Activity {
         content.removeAllViews();
         content.addView(hsplace);
         if (!teacherMode) {
-
             final Button className = new Button(this);
             className.setTextSize((float) fontSize);
             //        className.setBackgroundColor(Color.TRANSPARENT);
@@ -1388,11 +1553,11 @@ public class Main extends Activity {
                     ScrollView classesllss = new ScrollView(getApplicationContext());
                     classesllss.addView(classesll);
                     classesll.setPadding(10, 10, 10, 10);
-                    classesll.setBackground(getDrawable(R.drawable.back_transparant));
+                    classesll.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
                     Button close = new Button(getApplicationContext());
                     close.setText(R.string.cls);
                     close.setAllCaps(false);
-                    close.setBackground(getDrawable(R.drawable.back_transparant));
+                    close.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
                     close.setTextSize((float) 22);
                     close.setTextColor(textColor);
                     close.setTypeface(getTypeface());
@@ -1410,7 +1575,7 @@ public class Main extends Activity {
                     classesllss.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) ((Light.Device.screenY(getApplicationContext()) * 0.7) - Light.Device.screenY(getApplicationContext()) / 9)));
                     full.addView(classesllss);
                     full.addView(close);
-                    full.setBackgroundColor(color);
+                    full.setBackgroundColor(secolor);
                     dialog.setContentView(full);
                     for (int cs = 0; cs < classes.size(); cs++) {
                         if (classes.get(cs) != c) {
@@ -1419,7 +1584,7 @@ public class Main extends Activity {
                             cls.setGravity(Gravity.CENTER);
                             cls.setText(classes.get(cs).name);
                             cls.setTextColor(textColor);
-                            cls.setBackground(getDrawable(R.drawable.back_transparant));
+                            cls.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
                             cls.setPadding(10, 0, 10, 0);
                             cls.setTypeface(getTypeface());
                             cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Light.Device.screenY(getApplicationContext()) / 10)));
@@ -1430,7 +1595,7 @@ public class Main extends Activity {
                                 public void onClick(View view) {
                                     final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
                                     sp.edit().putString(Values.favoriteClass, classes.get(finalCs).name).commit();
-                                    showHS(classes.get(finalCs), content, classes, showTime, fontSize, breakTimes, showOrgCheckBox, false);
+                                    showHS(classes.get(finalCs), content, classes, showTime, fontSize, breakTimes, false);
                                     dialog.dismiss();
                                 }
                             });
@@ -1440,7 +1605,7 @@ public class Main extends Activity {
                 }
             });
             hsplace.addView(className);
-            hsplace.addView(hourSystemForClass(c, showTime, fontSize, breakTimes, showOrgCheckBox));
+            hsplace.addView(hourSystemForClass(c, showTime, fontSize, breakTimes));
         } else {
             final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
             final ArrayList<ForTeachers.Teacher> teachers = ForTeachers.getTeacherSchudleForClasses(classes);
@@ -1460,7 +1625,6 @@ public class Main extends Activity {
             if (teachers != null) {
                 currentTeacher = teachers.get(selectedClass);
             }
-
             final Button className = new Button(this);
             className.setTextSize((float) fontSize);
             className.setGravity(Gravity.CENTER);
@@ -1479,11 +1643,11 @@ public class Main extends Activity {
                     dialog.setCancelable(true);
                     ScrollView classesllss = new ScrollView(getApplicationContext());
                     classesllss.addView(classesll);
-                    classesll.setBackground(getDrawable(R.drawable.back_transparant));
+                    classesll.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
                     Button close = new Button(getApplicationContext());
                     close.setText(R.string.cls);
                     close.setAllCaps(false);
-                    close.setBackground(getDrawable(R.drawable.back_transparant));
+                    close.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
                     close.setTextSize((float) 22);
                     close.setTextColor(textColor);
                     close.setTypeface(getTypeface());
@@ -1501,7 +1665,7 @@ public class Main extends Activity {
                     classesllss.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) ((Light.Device.screenY(getApplicationContext()) * 0.7) - Light.Device.screenY(getApplicationContext()) / 9)));
                     full.addView(classesllss);
                     full.addView(close);
-                    full.setBackgroundColor(color);
+                    full.setBackgroundColor(secolor);
                     dialog.setContentView(full);
                     if (teachers != null) {
                         for (int cs = 0; cs < teachers.size(); cs++) {
@@ -1511,7 +1675,7 @@ public class Main extends Activity {
                                 cls.setGravity(Gravity.CENTER);
                                 cls.setText(teachers.get(cs).mainName);
                                 cls.setTextColor(textColor);
-                                cls.setBackground(getDrawable(R.drawable.back_transparant));
+                                cls.setBackground(getDrawable(R.drawable.coaster_normal_transparent));
                                 cls.setPadding(10, 0, 10, 0);
                                 cls.setTypeface(getTypeface());
                                 cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
@@ -1522,7 +1686,7 @@ public class Main extends Activity {
                                     public void onClick(View view) {
                                         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
                                         sp.edit().putString(Values.favoriteTeacher, teachers.get(finalCs).mainName).commit();
-                                        showHS(currentClass, content, classes, showTime, fontSize, breakTimes, showOrgCheckBox, true);
+                                        showHS(currentClass, content, classes, showTime, fontSize, breakTimes, true);
                                         dialog.dismiss();
                                     }
                                 });
@@ -1537,206 +1701,19 @@ public class Main extends Activity {
         }
     }
 
-    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize, boolean breakTimes, boolean showOrgC) {
-        LinearLayout all = new LinearLayout(this);
-        all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
-        all.setOrientation(LinearLayout.VERTICAL);
-        all.setPadding(10, 10, 10, 10);
+    static void beginDND(Context c) {
+        c.sendBroadcast(new Intent(Values.KILL_DND_SERVICE));
+        c.startService(new Intent(c, DNDService.class));
+    }
 
-        for (int s = 0; s < fclass.subjects.size(); s++) {
-            if (getBreak(fclass.subjects.get(s).hour - 1) != -1 && breakTimes) {
-                final Button breakt = new Button(this);
-                String btext = "הפסקה, " + getBreak(fclass.subjects.get(s).hour - 1) + " דקות";
-                breakt.setText(btext);
-                breakt.setGravity(Gravity.CENTER);
-                breakt.setTextSize((float) fontSize - 2);
-                breakt.setTextColor(textColor);
-                breakt.setBackground(getDrawable(R.drawable.button));
-                breakt.setPadding(20, 20, 20, 20);
-                breakt.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
-                breakt.setTypeface(getTypeface());
-                breakt.setAllCaps(false);
-                if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
-                    all.addView(breakt);
-                }
-                final int finalS1 = s;
-                breakt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        final Dialog dialog = new Dialog(Main.this);
-                        dialog.setCancelable(true);
-                        LinearLayout di = new LinearLayout(getApplicationContext());
-                        TextView subjName = new TextView(getApplicationContext());
-                        TextView hours = new TextView(getApplicationContext());
-                        TextView fullInfo = new TextView(getApplicationContext());
-                        subjName.setText(R.string.brkk);
-                        //fclass.classes.get(s)
-                        String txt = getRealEndTimeForHourNumber(fclass.subjects.get(finalS1).hour - 1) + "-" + getRealTimeForHourNumber(fclass.subjects.get(finalS1).hour);
-                        hours.setText(txt);
-                        String fulltext = getBreak(fclass.subjects.get(finalS1).hour - 1) + " Minutes";
-                        fullInfo.setText(fulltext);
-                        di.setGravity(Gravity.CENTER);
-                        di.setOrientation(LinearLayout.VERTICAL);
-                        di.addView(subjName);
-                        di.addView(hours);
-                        di.addView(fullInfo);
-                        di.setBackgroundColor(color);
-                        //                        di.setBackground(getDrawable(R.drawable.coaster_normal));
-                        subjName.setTextColor(textColor);
-                        hours.setTextColor(textColor);
-                        fullInfo.setTextColor(textColor);
-                        subjName.setTextSize((float) 30);
-                        hours.setTextSize((float) 30);
-                        fullInfo.setTextSize((float) 30);
-                        subjName.setGravity(Gravity.CENTER);
-                        hours.setGravity(Gravity.CENTER);
-                        fullInfo.setGravity(Gravity.CENTER);
-                        subjName.setTypeface(getTypeface(), Typeface.BOLD);
-                        hours.setTypeface(getTypeface());
-                        fullInfo.setTypeface(getTypeface());
-                        Button close = new Button(getApplicationContext());
-                        close.setText(R.string.close);
-                        close.setTextColor(textColor);
-                        close.setTypeface(getTypeface());
-                        close.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                dialog.dismiss();
-                            }
-                        });
-                        close.setAllCaps(false);
-                        close.setBackground(getDrawable(R.drawable.button));
-                        close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
-                        close.setTextSize((float) 25);
-                        di.setPadding(40, 40, 40, 40);
-                        di.addView(close);
-                        dialog.setContentView(di);
-                        dialog.show();
-                    }
-                });
-            }
-            final LinearLayout fsubj = new LinearLayout(getApplicationContext());
-            fsubj.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-            fsubj.setGravity(Gravity.CENTER);
-            //            fsubj.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);
-            fsubj.setOrientation(LinearLayout.HORIZONTAL);
-            ClassTime classTime = getTimeForLesson(fclass.subjects.get(s).hour);
-            boolean isCurrent = false;
-            Calendar c = Calendar.getInstance();
-            int minute = c.get(Calendar.MINUTE);
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            if (minuteOfDay(hour, minute) > minuteOfDay(classTime.startH, classTime.startM) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.finishH, classTime.finishM)) {
-                isCurrent = true;
-            }
-            Button subj = new Button(this);
-            if (showOrgC) {
-                fsubj.setPadding(0, 0, 20, 0);
-                CheckBox che = new CheckBox(getApplicationContext());
-                che.setText(null);
-                if (textColor == Color.WHITE) {
-                    che.setButtonDrawable(getDrawable(R.drawable.checkbox_white));
-                } else {
-                    che.setButtonDrawable(getDrawable(R.drawable.checkbox_black));
-                }
-                //                che.setButtonTintList(new ColorStateList());
-                fsubj.addView(che);
-                if (!isCurrent) {
-                    fsubj.setBackground(getDrawable(R.drawable.backasbutton));
-                    subj.setBackground(getDrawable(R.drawable.button_alpha));
-                } else {
-                    fsubj.setBackground(getDrawable(R.drawable.backasbutton_dark));
-                    subj.setBackground(getDrawable(R.drawable.button_alpha_dark));
-                }
-            } else {
-                if (!isCurrent) {
-                    subj.setBackground(getDrawable(R.drawable.button));
-                } else {
-                    subj.setBackground(getDrawable(R.drawable.button_dark));
-                }
-            }
-            String before;
-            if (showTime) {
-                before = "(" + getRealTimeForHourNumber(fclass.subjects.get(s).hour) + ") " + fclass.subjects.get(s).hour + ". ";
-            } else {
-                before = fclass.subjects.get(s).hour + ". ";
-            }
-            String total = before + fclass.subjects.get(s).name;
-            String main = "\u200F" + total;
-            subj.setText(main);
-            subj.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-            subj.setTextSize((float) fontSize - 2);
-            subj.setTextColor(textColor);
-            subj.setPadding(20, 20, 20, 20);
-            subj.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
-            subj.setTypeface(getTypeface());
-            subj.setSingleLine(true);
-            subj.setEllipsize(TextUtils.TruncateAt.END);
-            final int finalS = s;
-            subj.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final Dialog dialog = new Dialog(Main.this);
-                    dialog.setCancelable(true);
-                    LinearLayout di = new LinearLayout(getApplicationContext());
-                    TextView subjName = new TextView(getApplicationContext());
-                    TextView hours = new TextView(getApplicationContext());
-                    TextView fullInfo = new TextView(getApplicationContext());
-                    subjName.setText(fclass.subjects.get(finalS).name);
-                    //fclass.classes.get(s)
-                    String txt = getRealTimeForHourNumber(fclass.subjects.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.subjects.get(finalS).hour);
-                    hours.setText(txt);
-                    fullInfo.setText(fclass.subjects.get(finalS).fullName);
-                    di.setGravity(Gravity.CENTER);
-                    di.setOrientation(LinearLayout.VERTICAL);
-                    di.addView(subjName);
-                    di.addView(hours);
-                    di.addView(fullInfo);
-                    di.setBackgroundColor(color);
-                    subjName.setTextColor(textColor);
-                    hours.setTextColor(textColor);
-                    fullInfo.setTextColor(textColor);
-                    subjName.setTextSize((float) 30);
-                    hours.setTextSize((float) 30);
-                    fullInfo.setTextSize((float) 30);
-                    subjName.setGravity(Gravity.CENTER);
-                    hours.setGravity(Gravity.CENTER);
-                    fullInfo.setGravity(Gravity.CENTER);
-                    subjName.setTypeface(getTypeface(), Typeface.BOLD);
-                    hours.setTypeface(getTypeface());
-                    fullInfo.setTypeface(getTypeface());
-                    Button close = new Button(getApplicationContext());
-                    close.setText(R.string.close);
-                    close.setTextColor(textColor);
-                    close.setTextSize((float) 25);
-                    close.setTypeface(getTypeface());
-                    close.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            dialog.dismiss();
-                        }
-                    });
-                    close.setAllCaps(false);
-                    close.setBackground(getDrawable(R.drawable.button));
-                    close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
-                    di.addView(close);
-                    di.setPadding(40, 40, 40, 40);
-                    dialog.setContentView(di);
-                    dialog.show();
-                }
-            });
-            subj.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    Toast.makeText(getApplicationContext(), getRealTimeForHourNumber(fclass.subjects.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.subjects.get(finalS).hour), Toast.LENGTH_LONG).show();
-                    return true;
-                }
-            });
-            if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
-                fsubj.addView(subj);
-                all.addView(fsubj);
-            }
+    static void startPush(Context c) {
+        ComponentName serviceComponent = new ComponentName(c, Push.class);
+        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
+        builder.setMinimumLatency(Values.pushLoop);
+        JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
+        if (jobScheduler != null) {
+            jobScheduler.schedule(builder.build());
         }
-        return all;
     }
 
     private String hourSystemForClassString(Class fclass, boolean showTime) {
@@ -1754,6 +1731,38 @@ public class Main extends Activity {
             }
         }
         return allsubj;
+    }
+
+    private String readExcelDay(File f) {
+        try {
+            POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
+            Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+            return mySheet.getRow(0).getCell(0).getStringCellValue();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String readExcelDayXLSX(File f) {
+        try {
+            XSSFWorkbook myWorkBook = new XSSFWorkbook(new FileInputStream(f));
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+            return mySheet.getRow(0).getCell(0).getStringCellValue();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String getEasterEgg() {
+        int which = new Random().nextInt(2);
+        if (which == 0) {
+            int newrand = new Random().nextInt(infact.length);
+            return "Did You Know: " + infact[newrand];
+        } else {
+            int newrand = new Random().nextInt(ees.length);
+            return "\"" + ees[newrand] + "\"";
+        }
     }
 
     static String getRealTimeForHourNumber(int hour) {
@@ -1820,8 +1829,75 @@ public class Main extends Activity {
         return null;
     }
 
+    private Typeface getTypeface() {
+        return Typeface.createFromAsset(getAssets(), Values.fontName);
+    }
+
+    static Typeface getTypeface(Context c) {
+        return Typeface.createFromAsset(c.getAssets(), Values.fontName);
+    }
+
+    static ArrayList<Class> readExcelFile(File f) {
+        try {
+            ArrayList<Class> classes = new ArrayList<>();
+            POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
+            Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+            int rows = mySheet.getLastRowNum();
+            int cols = mySheet.getRow(1).getLastCellNum();
+            for (int c = 1; c < cols; c++) {
+                ArrayList<Subject> subs = new ArrayList<>();
+                for (int r = 2; r < rows; r++) {
+                    Row row = mySheet.getRow(r);
+                    subs.add(new Subject(r - 2, row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+                }
+                classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(), subs));
+            }
+            return classes;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    static ArrayList<Class> readExcelFileXLSX(File f) {
+        try {
+            ArrayList<Class> classes = new ArrayList<>();
+            XSSFWorkbook myWorkBook = new XSSFWorkbook(new FileInputStream(f));
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+            int rows = mySheet.getLastRowNum();
+            int cols = mySheet.getRow(1).getLastCellNum();
+            for (int c = 1; c < cols; c++) {
+                ArrayList<Subject> subs = new ArrayList<>();
+                for (int r = 2; r < rows; r++) {
+                    Row row = mySheet.getRow(r);
+                    subs.add(new Subject(r - 2, row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+                }
+                classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(), subs));
+            }
+            return classes;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     static int minuteOfDay(int h, int m) {
         return h * 60 + m;
+    }
+
+    static int getBreak(int washour) {
+        switch (washour) {
+            case 2:
+                return 15;
+            case 4:
+                return 25;
+            case 6:
+                return 10;
+            case 8:
+                return 10;
+            case 10:
+                return 5;
+        }
+        return -1;
     }
 
     static ClassTime getTimeForLesson(int hour) {
@@ -1857,7 +1933,6 @@ public class Main extends Activity {
     }
 
     private TextView getTv(String text, int size, @Nullable LinearLayout.LayoutParams p) {
-
         TextView tv = new TextView(getApplicationContext());
         tv.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         tv.setTextSize(size);
@@ -1868,255 +1943,196 @@ public class Main extends Activity {
         return tv;
     }
 
-    static int getBreak(int washour) {
-        switch (washour) {
-            case 2:
-                return 15;
-            case 4:
-                return 25;
-            case 6:
-                return 10;
-            case 8:
-                return 10;
-            case 10:
-                return 5;
-        }
-        return -1;
-    }
-
-    static void beginDND(Context c) {
-        c.sendBroadcast(new Intent(Values.KILL_DND_SERVICE));
-        c.startService(new Intent(c, DNDService.class));
-    }
-
-    private void openApp() {
-        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-        new GetLink(Values.scheduleProvider, new GetLink.GotLink() {
-
-            @Override
-            public void onLinkGet(String link) {
-                if (link != null) {
-                    String fileName = "hs.xls";
-                    if (link.endsWith(".xlsx")) {
-                        fileName = "hs.xlsx";
+    private LinearLayout hourSystemForClass(final Class fclass, boolean showTime, int fontSize, boolean breakTimes) {
+        LinearLayout all = new LinearLayout(this);
+        all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
+        all.setOrientation(LinearLayout.VERTICAL);
+        all.setPadding(10, 10, 10, 10);
+        for (int s = 0; s < fclass.subjects.size(); s++) {
+            if (getBreak(fclass.subjects.get(s).hour - 1) != -1 && breakTimes) {
+                final Button breakt = new Button(this);
+                String btext = "הפסקה, " + getBreak(fclass.subjects.get(s).hour - 1) + " דקות";
+                breakt.setText(btext);
+                breakt.setGravity(Gravity.CENTER);
+                breakt.setTextSize((float) fontSize - 2);
+                breakt.setTextColor(textColor);
+                breakt.setBackground(getDrawable(R.drawable.button));
+                breakt.setPadding(20, 20, 20, 20);
+                breakt.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
+                breakt.setTypeface(getTypeface());
+                breakt.setAllCaps(false);
+                if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
+                    all.addView(breakt);
+                }
+                final int finalS1 = s;
+                breakt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        final Dialog dialog = new Dialog(Main.this);
+                        dialog.setCancelable(true);
+                        LinearLayout di = new LinearLayout(getApplicationContext());
+                        TextView subjName = new TextView(getApplicationContext());
+                        TextView hours = new TextView(getApplicationContext());
+                        TextView fullInfo = new TextView(getApplicationContext());
+                        subjName.setText(R.string.brkk);
+                        //fclass.classes.get(s)
+                        String txt = getRealEndTimeForHourNumber(fclass.subjects.get(finalS1).hour - 1) + "-" + getRealTimeForHourNumber(fclass.subjects.get(finalS1).hour);
+                        hours.setText(txt);
+                        String fulltext = getBreak(fclass.subjects.get(finalS1).hour - 1) + " Minutes";
+                        fullInfo.setText(fulltext);
+                        di.setGravity(Gravity.CENTER);
+                        di.setOrientation(LinearLayout.VERTICAL);
+                        di.addView(subjName);
+                        di.addView(hours);
+                        di.addView(fullInfo);
+                        di.setBackgroundColor(secolor);
+                        //                        di.setBackground(getDrawable(R.drawable.coaster_normal));
+                        subjName.setTextColor(textColor);
+                        hours.setTextColor(textColor);
+                        fullInfo.setTextColor(textColor);
+                        subjName.setTextSize(getFontSize());
+                        hours.setTextSize(getFontSize() - 5);
+                        fullInfo.setTextSize(getFontSize() - 5);
+                        subjName.setGravity(Gravity.CENTER);
+                        hours.setGravity(Gravity.CENTER);
+                        fullInfo.setGravity(Gravity.CENTER);
+                        subjName.setTypeface(getTypeface(), Typeface.BOLD);
+                        hours.setTypeface(getTypeface());
+                        fullInfo.setTypeface(getTypeface());
+                        Button close = new Button(getApplicationContext());
+                        close.setText(R.string.close);
+                        close.setTextColor(textColor);
+                        close.setTypeface(getTypeface());
+                        close.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.dismiss();
+                            }
+                        });
+                        close.setAllCaps(false);
+                        close.setBackground(getDrawable(R.drawable.button));
+                        close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
+                        close.setTextSize(getFontSize() - 5);
+                        di.setPadding(40, 40, 40, 40);
+                        di.addView(close);
+                        dialog.setContentView(di);
+                        dialog.show();
                     }
-                    final String finalFileName = fileName;
-                    final DoAfter da = new DoAfter() {
+                });
+            }
+            final LinearLayout fsubj = new LinearLayout(getApplicationContext());
+            fsubj.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+            fsubj.setGravity(Gravity.CENTER);
+            //            fsubj.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);
+            fsubj.setOrientation(LinearLayout.HORIZONTAL);
+            ClassTime classTime = getTimeForLesson(fclass.subjects.get(s).hour);
+            boolean isCurrent = false;
+            Calendar c = Calendar.getInstance();
+            int minute = c.get(Calendar.MINUTE);
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            if (minuteOfDay(hour, minute) > minuteOfDay(classTime.startH, classTime.startM) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.finishH, classTime.finishM)) {
+                isCurrent = true;
+            }
+            Button subj = new Button(this);
+            if (!isCurrent) {
+                subj.setBackground(getDrawable(R.drawable.button));
+            } else {
+                subj.setBackground(getDrawable(R.drawable.button_dark));
+            }
+            String before;
+            if (showTime) {
+                before = "(" + getRealTimeForHourNumber(fclass.subjects.get(s).hour) + ") " + fclass.subjects.get(s).hour + ". ";
+            } else {
+                before = fclass.subjects.get(s).hour + ". ";
+            }
+            String total = before + fclass.subjects.get(s).name;
+            String main = "\u200F" + total;
+            subj.setText(main);
+            subj.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+            subj.setTextSize((float) fontSize - 2);
+            subj.setTextColor(textColor);
+            subj.setPadding(20, 20, 20, 20);
+            subj.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
+            subj.setTypeface(getTypeface());
+            subj.setSingleLine(true);
+            subj.setEllipsize(TextUtils.TruncateAt.END);
+            final int finalS = s;
+            subj.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    final Dialog dialog = new Dialog(Main.this);
+                    dialog.setCancelable(true);
+                    LinearLayout di = new LinearLayout(getApplicationContext());
+                    TextView subjName = new TextView(getApplicationContext());
+                    TextView hours = new TextView(getApplicationContext());
+                    TextView fullInfo = new TextView(getApplicationContext());
+                    subjName.setText(fclass.subjects.get(finalS).name);
+                    //fclass.classes.get(s)
+                    String txt = getRealTimeForHourNumber(fclass.subjects.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.subjects.get(finalS).hour);
+                    hours.setText(txt);
+                    fullInfo.setText(fclass.subjects.get(finalS).fullName);
+                    di.setGravity(Gravity.CENTER);
+                    di.setOrientation(LinearLayout.VERTICAL);
+                    di.addView(subjName);
+                    di.addView(hours);
+                    di.addView(fullInfo);
+                    di.setBackgroundColor(secolor);
+                    subjName.setTextColor(textColor);
+                    hours.setTextColor(textColor);
+                    fullInfo.setTextColor(textColor);
+                    subjName.setTextSize((float) 30);
+                    hours.setTextSize((float) 30);
+                    fullInfo.setTextSize((float) 30);
+                    subjName.setGravity(Gravity.CENTER);
+                    hours.setGravity(Gravity.CENTER);
+                    fullInfo.setGravity(Gravity.CENTER);
+                    subjName.setTypeface(getTypeface(), Typeface.BOLD);
+                    hours.setTypeface(getTypeface());
+                    fullInfo.setTypeface(getTypeface());
+                    Button close = new Button(getApplicationContext());
+                    close.setText(R.string.close);
+                    close.setTextColor(textColor);
+                    close.setTextSize((float) 25);
+                    close.setTypeface(getTypeface());
+                    close.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void doAfter(File f, boolean b) {
-                            if (b) {
-                                ArrayList<Class> classes;
-                                if (finalFileName.endsWith(".xlsx")) {
-                                    classes = readExcelFileXLSX(f);
-                                    day = readExcelDayXLSX(f);
-                                } else {
-                                    classes = readExcelFile(f);
-                                    day = readExcelDay(f);
-                                }
-                                /////
-                                //                                file = new File(getApplicationContext().getFilesDir(), "hs.xlsx");
-                                //                                classes = readExcelFileXLSX(file);
-                                //                                day = readExcelDayXLSX(file);
-                                /////
-                                if (classes != null) {
-                                    if (!sp.getBoolean(Values.firstLaunch, true)) {
-                                        if (sp.getInt(Values.lastRecordedVersionCode, 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
-                                            welcome(classes, true);
-                                        } else {
-                                            newsSplash(classes);
-                                            //                                            welcome(classes, true);
-                                            beginDND(getApplicationContext());
-                                        }
-                                    } else {
-                                        welcome(classes, false);
-                                    }
-                                }
-                            } else {
-                                //                                popup("Failed To Download Excel File");
-                                openApp();
-                            }
+                        public void onClick(View view) {
+                            dialog.dismiss();
                         }
-                    };
-                    String date = link.split("/")[link.split("/").length - 1].split("\\.")[0];
-                    if (!sp.getString("latest_file_date", "").equals(date)) {
-                        sp.edit().putString("latest_file_name", fileName).commit();
-                        sp.edit().putString("latest_file_date", date).commit();
-                        new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
-                            @Override
-                            public void onFinish(final File file, final boolean be) {
-                                new Light.Net.Pinger(5000, new Light.Net.Pinger.OnEnd() {
-                                    @Override
-                                    public void onPing(String s, boolean b) {
-                                        if(b){
-                                            new FileReader(Values.themeProvider, new FileReader.OnRead() {
-                                                @Override
-                                                public void done(String s) {
-                                                    try {
-                                                        ArrayList<Theme.SchudledTheme> tm = new ArrayList<>();
-                                                        JSONObject reader = new JSONObject(s);
-                                                        Iterator<String> types = reader.keys();
-                                                        while (types.hasNext()) {
-                                                            String name = types.next();
-                                                            try {
-                                                                Theme.SchudledTheme i = new Theme.SchudledTheme();
-                                                                JSONObject uo = reader.getJSONObject(name);
-                                                                i.id = Integer.parseInt(name);
-                                                                i.name = uo.getString("name");
-                                                                i.main = Color.parseColor(uo.getString("main"));
-                                                                i.sub = Color.parseColor(uo.getString("sub"));
-                                                                i.sd = uo.getInt("sd");
-                                                                i.sm = uo.getInt("sm");
-                                                                i.sy = uo.getInt("sy");
-                                                                i.ed = uo.getInt("ed");
-                                                                i.em = uo.getInt("em");
-                                                                i.ey = uo.getInt("ey");
-                                                                tm.add(i);
-                                                            } catch (JSONException e) {
-                                                                e.printStackTrace();
-                                                            }
-                                                        }
-                                                        Calendar c = Calendar.getInstance();
-                                                        for (int n = 0; n < tm.size(); n++) {
-                                                            Theme.SchudledTheme it = tm.get(n);
-                                                            int cdate = getDay(c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR));
-                                                            int adate = getDay(it.sd, it.sm, it.sy);
-                                                            int bdate = getDay(it.ed, it.em, it.ey);
-                                                            boolean dated = (adate <= cdate) && (cdate <= bdate);
-                                                            if (!sp.getBoolean(Values.seasonID + it.id, false) && dated) {
-                                                                sp.edit().putBoolean(Values.seasonID + it.id, true).apply();
-                                                                sp.edit().putBoolean(Values.seasonPriority, true).apply();
-                                                                sp.edit().putInt(Values.seasonEndDay, it.ed).apply();
-                                                                sp.edit().putInt(Values.seasonEndMonth, it.em).apply();
-                                                                sp.edit().putInt(Values.seasonEndYear, it.ey).apply();
-                                                                sp.edit().putInt(Values.seasonMain, it.main).apply();
-                                                                sp.edit().putInt(Values.seasonSub, it.sub).apply();
-                                                                sp.edit().putString(Values.seasonName, it.name).apply();
-                                                                loadTheme();
-                                                                Log.i("Season", "Loaded");
-                                                                break;
-                                                            } else if (sp.getBoolean(Values.seasonID + it.id, false) && !dated) {
-                                                                sp.edit().putBoolean(Values.seasonPriority, false).apply();
-                                                                loadTheme();
-                                                                Log.i("Season", "Unloaded");
-                                                            }
-                                                        }
-                                                    } catch (JSONException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                    da.doAfter(file, be);
-                                                }
-                                            }).execute();
-                                        }else{
-                                            da.doAfter(file, be);
-
-                                        }
-                                    }
-                                }).execute(Values.puzProvider);
-
-                            }
-
-                            @Override
-                            public void onProgressChanged(File file, int i) {
-                            }
-                        }).execute();
-                    } else {
-                        da.doAfter(new File(getApplicationContext().getFilesDir(), fileName), true);
-                    }
-                } else {
-                    //                    popup("Could Not Fetch Link, Please Try Disconnecting From Wi-Fi");
-                    openApp();
+                    });
+                    close.setAllCaps(false);
+                    close.setBackground(getDrawable(R.drawable.button));
+                    close.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.6) + (Light.Device.screenX(getApplicationContext()) / 20), (Light.Device.screenY(getApplicationContext()) / 10)));
+                    di.addView(close);
+                    di.setPadding(40, 40, 40, 40);
+                    dialog.setContentView(di);
+                    dialog.show();
                 }
-            }
-
-            @Override
-            public void onFail(String e) {
-                //                popup("Failed");
-                openApp();
-            }
-        }).execute();
-    }
-
-    static ArrayList<Class> readExcelFile(File f) {
-        try {
-            ArrayList<Class> classes = new ArrayList<>();
-            POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
-            Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
-            Sheet mySheet = myWorkBook.getSheetAt(0);
-            int rows = mySheet.getLastRowNum();
-            int cols = mySheet.getRow(1).getLastCellNum();
-            for (int c = 1; c < cols; c++) {
-                ArrayList<Subject> subs = new ArrayList<>();
-                for (int r = 2; r < rows; r++) {
-                    Row row = mySheet.getRow(r);
-                    subs.add(new Subject(r - 2, row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+            });
+            subj.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    Toast.makeText(getApplicationContext(), getRealTimeForHourNumber(fclass.subjects.get(finalS).hour) + "-" + getRealEndTimeForHourNumber(fclass.subjects.get(finalS).hour), Toast.LENGTH_LONG).show();
+                    return true;
                 }
-                classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(), subs));
+            });
+            if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
+                fsubj.addView(subj);
+                all.addView(fsubj);
             }
-            return classes;
-        } catch (Exception e) {
-            return null;
         }
+        return all;
     }
 
-    private String readExcelDay(File f) {
-        try {
-            POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
-            Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
-            Sheet mySheet = myWorkBook.getSheetAt(0);
-            return mySheet.getRow(0).getCell(0).getStringCellValue();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    static ArrayList<Class> readExcelFileXLSX(File f) {
-        try {
-            ArrayList<Class> classes = new ArrayList<>();
-            XSSFWorkbook myWorkBook = new XSSFWorkbook(new FileInputStream(f));
-            Sheet mySheet = myWorkBook.getSheetAt(0);
-            int rows = mySheet.getLastRowNum();
-            int cols = mySheet.getRow(1).getLastCellNum();
-            for (int c = 1; c < cols; c++) {
-                ArrayList<Subject> subs = new ArrayList<>();
-                for (int r = 2; r < rows; r++) {
-                    Row row = mySheet.getRow(r);
-                    subs.add(new Subject(r - 2, row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
-                }
-                classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(), subs));
-            }
-            return classes;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private String readExcelDayXLSX(File f) {
-        try {
-            XSSFWorkbook myWorkBook = new XSSFWorkbook(new FileInputStream(f));
-            Sheet mySheet = myWorkBook.getSheetAt(0);
-            return mySheet.getRow(0).getCell(0).getStringCellValue();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public static void startPush(Context c) {
-        ComponentName serviceComponent = new ComponentName(c, Push.class);
-        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-        builder.setMinimumLatency(Values.pushLoop);
-        JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
-        jobScheduler.schedule(builder.build());
-    }
-
-    private interface DoAfter {
-        void doAfter(File f, boolean b);
+    interface After {
+        void after();
     }
 
     static class Graphics {
         static class Tile extends LinearLayout {
-            private String saveTo;
+            private String saveTo, popupText;
             private boolean defaultValue, flipValues;
-            private int iconA, iconB;
+            private int iconA, iconB, gravity;
             private OnValueChanged onValueChanged;
             private OnAction afterChange;
             private ImageView icon;
@@ -2159,16 +2175,32 @@ public class Main extends Activity {
                         if (afterChange != null) afterChange.execute();
                     }
                 };
+                OnLongClickListener onLongClick = new OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        if (popupText != null) {
+                            Toast t = Toast.makeText(getContext(), popupText, Toast.LENGTH_SHORT);
+                            t.setGravity(gravity, 0, 0);
+                            View tv = t.getView().findViewById(android.R.id.message);
+                            tv.setPadding(40, 30, 40, 30);
+                            tv.setBackground(getContext().getDrawable(R.drawable.toast));
+                            t.show();
+                        }
+                        return (popupText != null);
+                    }
+                };
                 setBackground(getContext().getDrawable(R.drawable.coaster_normal));
                 setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getContext()) / 12, Light.Device.screenY(getContext()) / 12));
                 setPadding(20, 20, 20, 20);
                 setGravity(Gravity.CENTER);
                 setOrientation(LinearLayout.HORIZONTAL);
                 setOnClickListener(onClick);
+                setOnLongClickListener(onLongClick);
                 icon = new ImageView(getContext());
                 icon.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getContext()) / 20, Light.Device.screenY(getContext()) / 20));
                 icon.setImageDrawable(getContext().getDrawable(iconA));
                 icon.setOnClickListener(onClick);
+                icon.setOnLongClickListener(onLongClick);
                 addView(icon);
                 updateView();
             }
@@ -2195,6 +2227,11 @@ public class Main extends Activity {
 
             public void setAfter(OnAction onAction) {
                 this.afterChange = onAction;
+            }
+
+            public void setLongClick(String popupText, int gravity) {
+                this.popupText = popupText;
+                this.gravity = gravity;
             }
 
             public void manualOff() {
@@ -2273,6 +2310,149 @@ public class Main extends Activity {
                 }
             }
         }
+
+        static class ColorFadeAnimation {
+            private ColorState onChange;
+            private int colorA, colorB;
+
+            public ColorFadeAnimation(int start, int end, ColorState colorState) {
+                onChange = colorState;
+                colorA = start;
+                colorB = end;
+            }
+
+            public void start(int milliseconds) {
+                final int rOffset = Color.red(colorB) - Color.red(colorA);
+                final int gOffset = Color.green(colorB) - Color.green(colorA);
+                final int bOffset = Color.blue(colorB) - Color.blue(colorA);
+                int total = (Math.abs(rOffset) + Math.abs(gOffset) + Math.abs(bOffset));
+                if (total == 0) {
+                    total = 1;
+                }
+                final double maxTimePerColor = milliseconds / total;
+                final int rA = Color.red(colorA);
+                final int gA = Color.green(colorA);
+                final int bA = Color.blue(colorA);
+                final int rB = Color.red(colorB);
+                final int gB = Color.green(colorB);
+                final int bB = Color.blue(colorB);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        int r;
+                        int g = gA;
+                        int b = bA;
+                        if (rOffset < 0) {
+                            for (r = rA; r > rB; r--) {
+                                onChange.onColor(Color.rgb(r, g, b));
+                                try {
+                                    Thread.sleep((long) maxTimePerColor);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else {
+                            for (r = rA; r < rB; r++) {
+                                onChange.onColor(Color.rgb(r, g, b));
+                                try {
+                                    Thread.sleep((long) maxTimePerColor);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        if (gOffset < 0) {
+                            for (g = gA; g > gB; g--) {
+                                onChange.onColor(Color.rgb(r, g, b));
+                                try {
+                                    Thread.sleep((long) maxTimePerColor);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else {
+                            for (g = gA; g < gB; g++) {
+                                onChange.onColor(Color.rgb(r, g, b));
+                                try {
+                                    Thread.sleep((long) maxTimePerColor);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        if (bOffset < 0) {
+                            for (b = bA; b > bB; b--) {
+                                onChange.onColor(Color.rgb(r, g, b));
+                                try {
+                                    Thread.sleep((long) maxTimePerColor);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else {
+                            for (b = bA; b < bB; b++) {
+                                onChange.onColor(Color.rgb(r, g, b));
+                                try {
+                                    Thread.sleep((long) maxTimePerColor);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                }).start();
+            }
+
+            interface ColorState {
+                void onColor(int color);
+            }
+        }
+
+        static public class CurvedTextView extends View {
+            private Path circle;
+            private Paint tPaint;
+            private Paint cPaint;
+            private String text;
+
+            public CurvedTextView(Context c) {
+                super(c);
+                this.text = "Example";
+                circle = new Path();
+                int sizeX = 100, sizeY = 100, radius = 50, textColor = Color.WHITE, textSize = 20;
+                circle.addCircle(((sizeX - radius * 2) / 2) + radius, ((sizeY - radius * 2) / 2) + radius, radius, Path.Direction.CW);
+                cPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                cPaint.setStyle(Paint.Style.STROKE);
+                cPaint.setColor(Color.LTGRAY);
+                cPaint.setStrokeWidth(3);
+                tPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+                tPaint.setColor(textColor);
+                tPaint.setTextSize(textSize);
+                tPaint.setTypeface(Typeface.createFromAsset(c.getAssets(), Values.fontName));
+            }
+
+            public CurvedTextView(Context context, String text, float textSize, int textColor, int sizeX, int sizeY, int radius) {
+                super(context);
+                this.text = text;
+                circle = new Path();
+                circle.addCircle(((sizeX - radius * 2) / 2) + radius, ((sizeY - radius * 2) / 2) + radius, radius, Path.Direction.CW);
+                cPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                cPaint.setStyle(Paint.Style.STROKE);
+                cPaint.setColor(Color.LTGRAY);
+                cPaint.setStrokeWidth(3);
+                tPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+                tPaint.setColor(textColor);
+                tPaint.setTextSize(textSize);
+                tPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), Values.fontName));
+            }
+
+            @Override
+            protected void onDraw(Canvas canvas) {
+                canvas.drawTextOnPath(text, circle, 0, 0, tPaint);
+                invalidate();
+            }
+        }
     }
 
     static class Values {
@@ -2281,18 +2461,17 @@ public class Main extends Activity {
         static final String keyProvider = "http://h.nockio.com/keys/index.php";
         static final String puzProvider = "http://h.nockio.com";
         static final String serviceProvider = "http://handasaim.co.il";
-        static final String scheduleProvider = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/index.php";;
+        static final String scheduleProvider = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/index.php";
         static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
         static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
         static final String fontName = "arimo.ttf";
-
+        static final String latestFileDate = "latest_file_date";
         static final String teacherModeEnabler = "installed_pass_teacher_mode";
         static final String messageBoardSkipEnabler = "installed_pass_news_code_ver2";
         static final String teacherMode = "teacher_mode";
         static final String lessonName = "lesson_name";
         static final String lessonTime = "lesson_time";
         static final String breakTime = "break_time";
-        static final String bagOrginizer = "bag_orginizer";
         static final String seasonalTheming = "seasonal_theming";
         static final String pushService = "push_service";
         static final String fontColor = "font_color";
@@ -2321,14 +2500,14 @@ public class Main extends Activity {
         static final boolean lessonTimeDefault = false;
         static final boolean breakTimeDefault = true;
         static final boolean autoMuteDefault = false;
-        static final boolean bagOrginizerDefault = false;
         static final boolean fontSizeDefault = false;
         static final int maxKeyEntering = 4;
         static final int waitTime = 10;
         static final int bakedIconColor = 0xffdd8833;
-        static final int pushLoop = 1000 /* * 60*/ * 10;
+        static final int pushLoop = 1000 * 60 * 10;
         static final int fontSizeBig = 30;
         static final int fontSizeSmall = 20;
+        static final int defaultColor = Color.parseColor("#000000");
     }
 
     static class ClassTime {
@@ -2358,9 +2537,9 @@ public class Main extends Activity {
         }
 
         static class SchudledTheme {
-            public int main, sub;
-            public int sd, sm, sy, ed, em, ey;
-            public int id;
+            int main, sub;
+            int sd, sm, sy, ed, em, ey;
+            int id;
             public String name;
         }
     }
@@ -3134,52 +3313,6 @@ public class Main extends Activity {
             if (manager != null) {
                 manager.notify(new Random().nextInt(100), notification);
             }
-        }
-    }
-
-    static public class CurvedTextView extends View {
-        private Path circle;
-        private Paint tPaint;
-        private Paint cPaint;
-        private String text;
-
-        public CurvedTextView(Context c) {
-            super(c);
-            this.text = "Example";
-            circle = new Path();
-            int sizeX = 100, sizeY = 100, radius = 50, textColor = Color.WHITE, textSize = 20;
-            circle.addCircle(((sizeX - radius * 2) / 2) + radius, ((sizeY - radius * 2) / 2) + radius, radius, Path.Direction.CW);
-            cPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            cPaint.setStyle(Paint.Style.STROKE);
-            cPaint.setColor(Color.LTGRAY);
-            cPaint.setStrokeWidth(3);
-            tPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-            tPaint.setColor(textColor);
-            tPaint.setTextSize(textSize);
-            tPaint.setTypeface(Typeface.createFromAsset(c.getAssets(), Values.fontName));
-        }
-
-        public CurvedTextView(Context context, String text, float textSize, int textColor, int sizeX, int sizeY, int radius) {
-            super(context);
-            this.text = text;
-            circle = new Path();
-            circle.addCircle(((sizeX - radius * 2) / 2) + radius, ((sizeY - radius * 2) / 2) + radius, radius, Path.Direction.CW);
-            cPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            cPaint.setStyle(Paint.Style.STROKE);
-            cPaint.setColor(Color.LTGRAY);
-            cPaint.setStrokeWidth(3);
-            tPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-            tPaint.setColor(textColor);
-            tPaint.setTextSize(textSize);
-            tPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), Values.fontName));
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            canvas.drawTextOnPath(text, circle, 0, 0, tPaint);
-            invalidate();
         }
     }
 }

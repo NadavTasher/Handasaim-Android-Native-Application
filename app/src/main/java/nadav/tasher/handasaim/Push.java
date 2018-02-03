@@ -131,6 +131,7 @@ public class Push extends JobService {
                         resultIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
+        mBuilder.setAutoCancel(true);
         mBuilder.setContentIntent(resultPendingIntent);
         mNotifyMgr.notify(new Random().nextInt(1000), mBuilder.build());
     }
