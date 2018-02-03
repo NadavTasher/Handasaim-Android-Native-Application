@@ -52,8 +52,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -70,7 +70,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -87,7 +86,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -100,42 +98,16 @@ import nadav.tasher.lightool.Light;
 import static nadav.tasher.handasaim.Push.getDay;
 
 public class Main extends Activity {
-    static final String pushProvider = "http://h.nockio.com/pushes.json";
-    static final String themeProvider = "http://h.nockio.com/themes.json";
-    static final String keyProvider = "http://h.nockio.com/keys/index.php";
-    static final String puzProvider = "http://h.nockio.com";
-    static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
-    static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
-    static final String fontName = "arimo.ttf";
-    static final String prefPush = "push_service";
-    static final String prefSeason = "seasonal_theming";
-    static final String prefSeasonPriority = "season_priority";
-    static final String prefSeasonEndDay = "season_ed";
-    static final String prefSeasonEndMonth = "season_em";
-    static final String prefSeasonEndYear = "season_ey";
-    static final String prefSeasonMain = "season_main";
-    static final String prefSeasonSub = "season_sub";
-    static final String prefSeasonName = "season_name";
-    static final String prefSeasonID = "theme_id_";
-    static final String prefPushNotif = "push_id_";
-    static final boolean prefPushDefault = true;
-    static final boolean prefSeasonDefault = true;
-    static final int defaultSize = 30;
-    static final int pushLoop = 1000 /* * 60*/ * 10;
     static int textColor = Color.WHITE;
-    private final int maxKeyEntering = 4;
-    private final int waitTime = 10;
-    private final int bakedIconColor = 0xffdd8833;
-    private static final String serviceProvider = "http://handasaim.co.il";
     private int color = Color.parseColor("#2c7cb4");
     private int secolor = color + 0x333333;
     private int countheme = 0;
     private int keyentering = 0;
-    private boolean mode = false;
     private String day;
     private Class currentClass;
     private ForTeachers.Teacher currentTeacher;
-
+    private LinearLayout masterLayout;
+    private LinearLayout masterNavigation;
     private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#562627"), new Theme("#1b5c96"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
     private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
     private String[] infact = new String[]{"Every year more than 2500 left-handed people are killed from using right-handed products.", "In 1895 Hampshire police handed out the first ever speeding ticket, fining a man for doing 6mph!", "Over 1000 birds a year die from smashing into windows.", "Squirrels forget where they hide about half of their nuts.", "The average person walks the equivalent of twice around the world in a lifetime.", "A company in Taiwan makes dinnerware out of wheat, so you can eat your plate!", "An apple, potato, and onion all taste the same if you eat them with your nose plugged.", "Dying is illegal in the Houses of Parliaments – This has been voted as the most ridiculous law by the British citizens.", "The first alarm clock could only ring at 4am.", "If you leave everything to the last minute… it will only take a minute.", "Every human spent about half an hour as a single cell.", "The Twitter bird actually has a name – Larry.", "Sea otters hold hands when they sleep so they don’t drift away from each other.", "The French language has seventeen different words for ‘surrender’.", "The Titanic was the first ship to use the SOS signal.", "A baby octopus is about the size of a flea when it is born.", "You cannot snore and dream at the same time.", "A toaster uses almost half as much energy as a full-sized oven.", "If you consistently fart for 6 years & 9 months, enough gas is produced to create the energy of an atomic bomb!", "An eagle can kill a young deer and fly away with it.", "Polar bears can eat as many as 86 penguins in a single sitting.", "If Pinokio says “My Nose Will Grow Now”, it would cause a paradox.", "Bananas are curved because they grow towards the sun.", "Human saliva has a boiling point three times that of regular water.", "Cherophobia is the fear of fun.", "When hippos are upset, their sweat turns red.", "Pteronophobia is the fear of being tickled by feathers!", "Banging your head against a wall burns 150 calories an hour."};
@@ -148,6 +120,36 @@ public class Main extends Activity {
         startApp();
     }
 
+    private void loadTheme() {
+        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
+        if (sp.getBoolean(Values.fontColor, Values.fontColorDefault)) {
+            textColor = Color.WHITE;
+        } else {
+            textColor = Color.BLACK;
+        }
+        if (!sp.getBoolean(Values.seasonalTheming, Values.seasonDefault) || !sp.getBoolean(Values.seasonPriority, false)) {
+            color = sp.getInt("color", color);
+            String hexColor = String.format("#%06X", (0xFFFFFF & color));
+            if (!hexColor.contains("D") && !hexColor.contains("E") && !hexColor.contains("F")) {
+                secolor = color + 0x333333;
+            } else {
+                secolor = color;
+            }
+        } else if ((sp.getBoolean(Values.seasonalTheming, Values.seasonDefault) && sp.getBoolean(Values.seasonPriority, false))) {
+            color = sp.getInt(Values.seasonMain, color);
+            secolor = sp.getInt(Values.seasonSub, color + 0x333333);
+        }
+    }
+
+    private void refreshTheme() {
+        loadTheme();
+        getWindow().setStatusBarColor(secolor);
+        getWindow().setNavigationBarColor(color);
+        masterLayout.setBackgroundColor(color);
+        masterNavigation.setBackgroundColor(secolor);
+        taskDesc();
+    }
+
     private void taskDesc() {
         Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
         ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, secolor);
@@ -157,13 +159,7 @@ public class Main extends Activity {
     private void splash() {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
-        color = sp.getInt("color", color);
-        String hexColor = String.format("#%06X", (0xFFFFFF & color));
-        if (!hexColor.contains("D") && !hexColor.contains("E") && !hexColor.contains("F")) {
-            secolor = color + 0x333333;
-        } else {
-            secolor = color;
-        }
+        loadTheme();
         final Window window = getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -183,8 +179,11 @@ public class Main extends Activity {
         pb.setIndeterminate(true);
         pb.setVisibility(View.GONE);
         pb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
-        //        ll.addView(pb);
-        final CurvedTextView ctv = new CurvedTextView(this, getString(R.string.app_name), 40, bakedIconColor, Light.Device.screenX(this), (int) (Light.Device.screenY(getApplicationContext()) * 0.2), (int) (Light.Device.screenY(getApplicationContext()) * 0.10) / 2);
+        String curved=getString(R.string.app_name);
+        if(sp.getBoolean(Values.seasonalTheming,Values.seasonDefault)&&sp.getBoolean(Values.seasonPriority,false)){
+            curved=sp.getString(Values.seasonName,curved);
+        }
+        final CurvedTextView ctv = new CurvedTextView(this, curved, 40, Values.bakedIconColor, Light.Device.screenX(this), (int) (Light.Device.screenY(getApplicationContext()) * 0.2), (int) (Light.Device.screenY(getApplicationContext()) * 0.10) / 2);
         ctv.setVisibility(View.GONE);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
         ll.addView(ctv);
@@ -192,8 +191,7 @@ public class Main extends Activity {
         tv.setGravity(Gravity.CENTER);
         tv.setTextColor(Color.WHITE);
         tv.setTextSize(21);
-        final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
-        tv.setTypeface(custom_font);
+        tv.setTypeface(getTypeface());
         String versionin = "v" + Light.Device.getVersionName(getApplicationContext(), getPackageName());
         tv.setText(versionin);
         tv.setLayoutParams(new LinearLayout.LayoutParams(is, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
@@ -269,17 +267,26 @@ public class Main extends Activity {
         }
     }
 
+    private Typeface getTypeface() {
+        return Typeface.createFromAsset(getAssets(), Values.fontName);
+    }
+
+    static Typeface getTypeface(Context c){
+        return Typeface.createFromAsset(c.getAssets(), Values.fontName);
+
+    }
+
+    private int getFontSize() {
+        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
+        return sp.getInt(Values.fontSizeNumber, Values.fontSizeBig);
+    }
+
     private void newsSplash(final ArrayList<Class> classes) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-        final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
-        if (sp.getBoolean("installed_pass_news_code_ver2", false)) {
+
+        if (sp.getBoolean(Values.messageBoardSkipEnabler, false)) {
             view(classes);
         } else {
-            if (sp.getBoolean("fontWhite", true)) {
-                textColor = Color.WHITE;
-            } else {
-                textColor = Color.BLACK;
-            }
             final LinearLayout full = new LinearLayout(getApplicationContext());
             full.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
             full.setOrientation(LinearLayout.VERTICAL);
@@ -293,14 +300,14 @@ public class Main extends Activity {
             loadingText.setGravity(Gravity.CENTER);
             loadingText.setText(R.string.loadingtext);
             loadingText.setTextColor(textColor);
-            loadingText.setTypeface(custom_font);
-            loadingText.setTextSize(sp.getInt("font", defaultSize) + 4);
+            loadingText.setTypeface(getTypeface());
+            loadingText.setTextSize(getFontSize() + 4);
             loadingTView.addView(loadingText);
             egg.setGravity(Gravity.CENTER);
             egg.setText(getEasterEgg());
-            egg.setTextColor(Color.LTGRAY);
-            egg.setTypeface(custom_font);
-            egg.setTextSize(sp.getInt("font", defaultSize) - 8);
+            egg.setTextColor(textColor);
+            egg.setTypeface(getTypeface());
+            egg.setTextSize(getFontSize() - 8);
             egg.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.7), ViewGroup.LayoutParams.WRAP_CONTENT));
             loadingTView.addView(egg);
             loadingTView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
@@ -309,10 +316,10 @@ public class Main extends Activity {
             prinSays.setText(R.string.psay);
             prinSays.setGravity(Gravity.CENTER);
             messBoardTitle.setGravity(Gravity.CENTER);
-            prinSays.setTypeface(custom_font);
-            messBoardTitle.setTypeface(custom_font);
-            messBoardTitle.setTextSize(sp.getInt("font", defaultSize) + 2);
-            prinSays.setTextSize(sp.getInt("font", defaultSize) + 2);
+            prinSays.setTypeface(getTypeface());
+            messBoardTitle.setTypeface(getTypeface());
+            messBoardTitle.setTextSize(getFontSize() + 2);
+            prinSays.setTextSize(getFontSize() + 2);
             prinSays.setTextColor(textColor);
             messBoardTitle.setTextColor(textColor);
             final LinearLayout news = new LinearLayout(getApplicationContext());
@@ -321,10 +328,10 @@ public class Main extends Activity {
             news.setOrientation(LinearLayout.VERTICAL);
             final Button princibleSay = new Button(getApplicationContext());
             princibleSay.setBackground(getDrawable(R.drawable.back_transparant));
-            princibleSay.setTypeface(custom_font);
+            princibleSay.setTypeface(getTypeface());
             princibleSay.setPadding(10, 10, 10, 10);
             princibleSay.setTextColor(textColor);
-            princibleSay.setTextSize(sp.getInt("font", defaultSize) - 15);
+            princibleSay.setTextSize(getFontSize() - 15);
             princibleSay.setEllipsize(TextUtils.TruncateAt.END);
             princibleSay.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 4));
             //            newsAll.setPadding(0, 20, 0, 20);
@@ -364,11 +371,11 @@ public class Main extends Activity {
             nextButton.setVisibility(View.GONE);
             instructions.setTextColor(textColor);
             waiting.setTextColor(textColor);
-            instructions.setTextSize(sp.getInt("font", defaultSize) - 10);
-            waiting.setTextSize(sp.getInt("font", defaultSize) - 10);
+            instructions.setTextSize(getFontSize() - 10);
+            waiting.setTextSize(getFontSize() - 10);
             instructions.setText(R.string.instructions);
-            instructions.setTypeface(custom_font);
-            waiting.setTypeface(custom_font);
+            instructions.setTypeface(getTypeface());
+            waiting.setTypeface(getTypeface());
             instructions.setGravity(Gravity.CENTER);
             instructions.setBackground(getDrawable(R.drawable.back_transparant));
             waiting.setBackground(getDrawable(R.drawable.back_transparant));
@@ -379,8 +386,8 @@ public class Main extends Activity {
             //            nextLayout.setPadding(0,10,0,10);
             nextButton.setText(R.string.nxt);
             nextButton.setBackground(getDrawable(R.drawable.back_transparant));
-            nextButton.setTypeface(custom_font);
-            nextButton.setTextSize(sp.getInt("font", defaultSize) - 10);
+            nextButton.setTypeface(getTypeface());
+            nextButton.setTextSize(getFontSize() - 10);
             nextButton.setTextColor(textColor);
             nextLayout.setBackground(getDrawable(R.drawable.back_transparant));
             nextLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 15 * 2));
@@ -426,11 +433,11 @@ public class Main extends Activity {
                             newtopic.setEllipsize(TextUtils.TruncateAt.END);
                             newtopic.setBackground(getDrawable(R.drawable.back_transparant));
                             newtopic.setTextColor(textColor);
-                            newtopic.setTextSize(sp.getInt("font", defaultSize) - 10);
+                            newtopic.setTextSize(getFontSize() - 10);
                             newtopic.setPadding(20, 10, 20, 10);
                             newtopic.setEllipsize(TextUtils.TruncateAt.END);
                             newtopic.setLines(2);
-                            newtopic.setTypeface(custom_font);
+                            newtopic.setTypeface(getTypeface());
                             if (!ms.news.get(n).imgurl.equals("") || ms.news.get(n).imgurl != null) {
                                 final int finalN1 = n;
                                 new PictureLoader(ms.news.get(n).imgurl, new PictureLoader.GotImage() {
@@ -473,7 +480,7 @@ public class Main extends Activity {
                     }
                 }
             }).execute();
-            new CountDownTimer((waitTime + 1) * 1000, 1000) {
+            new CountDownTimer((Values.waitTime + 1) * 1000, 1000) {
 
                 @Override
                 public void onTick(long millisUntilFinished) {
@@ -495,6 +502,8 @@ public class Main extends Activity {
     }
 
     private void welcome(final ArrayList<Class> classes, final boolean renew) {
+        getWindow().setStatusBarColor(color);
+        getWindow().setNavigationBarColor(color);
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         LinearLayout part1 = new LinearLayout(this);
         final LinearLayout part2 = new LinearLayout(this);
@@ -508,14 +517,14 @@ public class Main extends Activity {
         part1.setBackgroundColor(color);
         part2.setBackgroundColor(color);
         part3.setBackgroundColor(color);
-        final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
+
         //part1
         ImageView icon = new ImageView(this);
         final Button setup = new Button(this);
         final TextView welcome = new TextView(this);
-        setup.setTypeface(custom_font);
+        setup.setTypeface(getTypeface());
         setup.setAllCaps(false);
-        welcome.setTypeface(custom_font);
+        welcome.setTypeface(getTypeface());
         setup.setText(R.string.set);
         setup.setAlpha(0);
         setup.setBackgroundColor(Color.TRANSPARENT);
@@ -570,9 +579,9 @@ public class Main extends Activity {
         final RadioGroup classs = new RadioGroup(this);
         clascroll.addView(classs);
         Button next = new Button(this);
-        next.setTypeface(custom_font);
+        next.setTypeface(getTypeface());
         next.setAllCaps(false);
-        selClas.setTypeface(custom_font);
+        selClas.setTypeface(getTypeface());
         next.setBackgroundColor(Color.TRANSPARENT);
         next.setTextSize((float) 30);
         selClas.setGravity(Gravity.CENTER);
@@ -589,7 +598,7 @@ public class Main extends Activity {
             RadioButton rb = new RadioButton(this);
             rb.setText(classes.get(c).name);
             rb.setTextSize((float) 30);
-            rb.setTypeface(custom_font);
+            rb.setTypeface(getTypeface());
             rb.setGravity(Gravity.CENTER);
             rb.setId(c);
             rb.setLayoutParams(new RadioGroup.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -599,7 +608,7 @@ public class Main extends Activity {
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sp.edit().putString("favorite_class", classes.get(classs.getCheckedRadioButtonId()).name).commit();
+                sp.edit().putString(Values.favoriteClass, classes.get(classs.getCheckedRadioButtonId()).name).commit();
                 setContentView(part3);
             }
         });
@@ -609,8 +618,8 @@ public class Main extends Activity {
         spcl.setGravity(Gravity.CENTER);
         TextView spclSet = new TextView(this);
         Button done = new Button(this);
-        done.setTypeface(custom_font);
-        spclSet.setTypeface(custom_font);
+        done.setTypeface(getTypeface());
+        spclSet.setTypeface(getTypeface());
         done.setBackgroundColor(Color.TRANSPARENT);
         done.setTextSize((float) 30);
         done.setAllCaps(false);
@@ -620,16 +629,16 @@ public class Main extends Activity {
         spclSet.setText(R.string.spclstt);
         done.setText(R.string.dn);
         final Switch showTimes = new Switch(this);
-        showTimes.setChecked(sp.getBoolean("show_time", false));
+        showTimes.setChecked(sp.getBoolean(Values.lessonTime, Values.lessonTimeDefault));
         showTimes.setText(R.string.sct);
         showTimes.setTextSize((float) 23);
-        showTimes.setTypeface(custom_font);
+        showTimes.setTypeface(getTypeface());
         showTimes.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch textCo = new Switch(this);
-        textCo.setChecked(sp.getBoolean("fontWhite", true));
+        textCo.setChecked(sp.getBoolean(Values.fontColor, Values.fontColorDefault));
         textCo.setText(R.string.white);
         textCo.setTextSize((float) 23);
-        textCo.setTypeface(custom_font);
+        textCo.setTypeface(getTypeface());
         textCo.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         textCo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -644,28 +653,28 @@ public class Main extends Activity {
             }
         });
         final Switch showBreaks = new Switch(this);
-        showBreaks.setChecked(sp.getBoolean("breaks", true));
+        showBreaks.setChecked(sp.getBoolean(Values.breakTime, Values.breakTimeDefault));
         showBreaks.setText(R.string.showbrk);
         showBreaks.setTextSize((float) 23);
-        showBreaks.setTypeface(custom_font);
+        showBreaks.setTypeface(getTypeface());
         showBreaks.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch push = new Switch(this);
-        push.setChecked(sp.getBoolean(prefPush, prefPushDefault));
+        push.setChecked(sp.getBoolean(Values.pushService, Values.pushDefault));
         push.setText(R.string.push);
         push.setTextSize((float) 23);
-        push.setTypeface(custom_font);
+        push.setTypeface(getTypeface());
         push.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch seasonalTheming = new Switch(this);
-        seasonalTheming.setChecked(sp.getBoolean(prefSeason, prefSeasonDefault));
+        seasonalTheming.setChecked(sp.getBoolean(Values.seasonalTheming, Values.seasonDefault));
         seasonalTheming.setText(R.string.season);
         seasonalTheming.setTextSize((float) 23);
-        seasonalTheming.setTypeface(custom_font);
+        seasonalTheming.setTypeface(getTypeface());
         seasonalTheming.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
         final Switch automute = new Switch(this);
-        automute.setChecked(sp.getBoolean("auto_dnd", false));
+        automute.setChecked(sp.getBoolean(Values.autoMute, Values.autoMuteDefault));
         automute.setText(R.string.dnd);
         automute.setTextSize((float) 23);
-        automute.setTypeface(custom_font);
+        automute.setTypeface(getTypeface());
         automute.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -724,19 +733,18 @@ public class Main extends Activity {
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sp.edit().putBoolean("show_time", showTimes.isChecked()).commit();
-                sp.edit().putBoolean("auto_dnd", automute.isChecked()).commit();
-                sp.edit().putBoolean("fontWhite", textCo.isChecked()).commit();
-                sp.edit().putBoolean("breaks", showBreaks.isChecked()).commit();
-                sp.edit().putBoolean(prefPush, push.isChecked()).commit();
-                sp.edit().putBoolean(prefSeason, seasonalTheming.isChecked()).commit();
-                sp.edit().putInt("last_recorded_version_code", Light.Device.getVersionCode(getApplicationContext(), getPackageName())).commit();
-                sp.edit().putBoolean("first", false).commit();
-                if(push.isChecked()) {
+                sp.edit().putBoolean(Values.lessonTime, showTimes.isChecked()).commit();
+                sp.edit().putBoolean(Values.autoMute, automute.isChecked()).commit();
+                sp.edit().putBoolean(Values.fontColor, textCo.isChecked()).commit();
+                sp.edit().putBoolean(Values.breakTime, showBreaks.isChecked()).commit();
+                sp.edit().putBoolean(Values.pushService, push.isChecked()).commit();
+                sp.edit().putBoolean(Values.seasonalTheming, seasonalTheming.isChecked()).commit();
+                sp.edit().putInt(Values.lastRecordedVersionCode, Light.Device.getVersionCode(getApplicationContext(), getPackageName())).commit();
+                sp.edit().putBoolean(Values.firstLaunch, false).commit();
+                if (push.isChecked()) {
                     startPush(getApplicationContext());
                 }
                 view(classes);
-                //                view(classes);
             }
         });
         if (renew) {
@@ -750,14 +758,14 @@ public class Main extends Activity {
             new Light.Net.Pinger(5000, new Light.Net.Pinger.OnEnd() {
                 @Override
                 public void onPing(String s, boolean b) {
-                    if (s.equals(serviceProvider) && b) {
+                    if (s.equals(Values.serviceProvider) && b) {
                         openApp();
-                    } else if (s.equals(serviceProvider) && !b) {
+                    } else if (s.equals(Values.serviceProvider) && !b) {
                         //                        popup("Server Error: No Response From Service Provider.");
                         checkInternet();
                     }
                 }
-            }).execute(serviceProvider);
+            }).execute(Values.serviceProvider);
         } else {
             popup("No Internet Connection.");
         }
@@ -791,10 +799,10 @@ public class Main extends Activity {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         switch (type) {
             case 1:
-                sp.edit().putBoolean("installed_pass_news_code_ver2", true).commit();
+                sp.edit().putBoolean(Values.messageBoardSkipEnabler, true).commit();
                 break;
             case 2:
-                sp.edit().putBoolean("installed_pass_teacher_mode", true).commit();
+                sp.edit().putBoolean(Values.teacherModeEnabler, true).commit();
                 break;
             default:
                 break;
@@ -809,7 +817,7 @@ public class Main extends Activity {
                 if (b) {
                     ArrayList<Light.Net.PHP.Post.PHPParameter> parms = new ArrayList<>();
                     parms.add(new Light.Net.PHP.Post.PHPParameter("deactivate", key));
-                    new Light.Net.PHP.Post(keyProvider, parms, new Light.Net.PHP.Post.OnPost() {
+                    new Light.Net.PHP.Post(Values.keyProvider, parms, new Light.Net.PHP.Post.OnPost() {
                         @Override
                         public void onPost(String s) {
                             Log.i("DEBUG", s);
@@ -834,7 +842,7 @@ public class Main extends Activity {
                     Toast.makeText(getApplicationContext(), "Key provider unreachable.", Toast.LENGTH_SHORT).show();
                 }
             }
-        }).execute(puzProvider);
+        }).execute(Values.puzProvider);
     }
 
     private void popupKeyEntering() {
@@ -855,6 +863,25 @@ public class Main extends Activity {
         pop.show();
     }
 
+    private void aboutPopup() {
+        AlertDialog.Builder ab = new AlertDialog.Builder(Main.this);
+        ab.setTitle(R.string.app_name);
+        ab.setMessage("Made By NadavTasher\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
+        ab.setCancelable(true);
+        ab.setPositiveButton("Close", null);
+        keyentering++;
+        if (keyentering == Values.maxKeyEntering) {
+            keyentering = 0;
+            ab.setNegativeButton("Enter Code", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    popupKeyEntering();
+                }
+            });
+        }
+        ab.show();
+    }
+
     private String getEasterEgg() {
         int which = new Random().nextInt(2);
         if (which == 0) {
@@ -872,552 +899,206 @@ public class Main extends Activity {
 
     private void view(final ArrayList<Class> classes) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-        getWindow().setStatusBarColor(secolor);
-        taskDesc();
-        final LinearLayout sall = new LinearLayout(this);
-        final LinearLayout all = new LinearLayout(this);
-        final LinearLayout navbarAll = new LinearLayout(this);
-        final LinearLayout navbarPermItems = new LinearLayout(this);
-        final ImageView nutIcon = new ImageView(this);
-        final ImageView newsIcon = new ImageView(this);
-        final ImageView hideIcon = new ImageView(this);
-        final int screenY = Light.Device.screenY(this);
-        final int nutSize = (screenY / 8) - screenY / 30;
-        final int newsSize = (screenY / 9) - screenY / 30;
-        final int navY = screenY / 8;
-        final LinearLayout.LayoutParams nutParms = new LinearLayout.LayoutParams(nutSize, nutSize);
+        final ImageView logo = new ImageView(this);
+        final ImageView news = new ImageView(this);
+        final ImageView gear = new ImageView(this);
+        final int x = Light.Device.screenX(getApplicationContext());
+        final int y = Light.Device.screenY(getApplicationContext());
+        final int logoSize = (y / 8) - (y / 30);
+        final int newsSize = (y / 9) - (y / 30);
+        final int navY = y / 8;
+        final LinearLayout.LayoutParams logoParms = new LinearLayout.LayoutParams(logoSize, logoSize);
         final LinearLayout.LayoutParams newsParms = new LinearLayout.LayoutParams(newsSize, newsSize);
-        final LinearLayout.LayoutParams navParms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, navY);
-        final HorizontalScrollView navSliderviewscroll = new HorizontalScrollView(this);
-        navbarAll.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        all.setOrientation(LinearLayout.VERTICAL);
-        all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
-        all.setBackgroundColor(color);
-        sall.setOrientation(LinearLayout.VERTICAL);
-        sall.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
-        sall.setBackgroundColor(color);
-        navbarAll.setBackgroundColor(secolor);
-        navbarAll.setOrientation(LinearLayout.HORIZONTAL);
-        //        navbarAll.setGravity(Gravity.CENTER);
-        navbarAll.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-        newsIcon.setLayoutParams(newsParms);
-        newsIcon.setImageDrawable(getDrawable(R.drawable.ic_news));
-        nutIcon.setLayoutParams(nutParms);
-        nutIcon.setImageDrawable(getDrawable(R.drawable.ic_icon));
-        nutIcon.setOnClickListener(new View.OnClickListener() {
+        final LinearLayout.LayoutParams navigationParms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, navY);
+        masterLayout = new LinearLayout(this);
+        final HorizontalScrollView tileNavigationScroll = new HorizontalScrollView(this);
+        final ScrollView contentScroll = new ScrollView(this);
+        final FrameLayout content = new FrameLayout(this);
+        masterNavigation = new LinearLayout(this);
+        final LinearLayout permenantNavigation = new LinearLayout(this);
+        final LinearLayout tileNavigation = new LinearLayout(this);
+        refreshTheme();
+        masterNavigation.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        masterNavigation.setLayoutParams(navigationParms);
+        masterNavigation.setPadding(20, 10, 20, 10);
+        content.setPadding(10,10,10,10);
+        masterLayout.setOrientation(LinearLayout.VERTICAL);
+        masterNavigation.setOrientation(LinearLayout.HORIZONTAL);
+        tileNavigation.setOrientation(LinearLayout.HORIZONTAL);
+        permenantNavigation.setOrientation(LinearLayout.HORIZONTAL);
+        masterLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
+        masterNavigation.setGravity(Gravity.CENTER);
+        tileNavigation.setGravity(Gravity.CENTER);
+        permenantNavigation.setGravity(Gravity.CENTER);
+        masterLayout.setBackgroundColor(color);
+        masterNavigation.setBackgroundColor(secolor);
+        tileNavigationScroll.addView(tileNavigation);
+        masterNavigation.addView(permenantNavigation);
+        masterNavigation.addView(tileNavigationScroll);
+        contentScroll.addView(content);
+        masterLayout.addView(masterNavigation);
+        masterLayout.addView(contentScroll);
+        permenantNavigation.addView(logo);
+        permenantNavigation.addView(news);
+        permenantNavigation.addView(gear);
+        //Icons
+        news.setLayoutParams(newsParms);
+        news.setImageDrawable(getDrawable(R.drawable.ic_news));
+        news.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                AlertDialog.Builder ab = new AlertDialog.Builder(Main.this);
-                ab.setTitle(R.string.app_name);
-                ab.setMessage("Made By NadavTasher\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
-                ab.setCancelable(true);
-                ab.setPositiveButton("Close", null);
-                keyentering++;
-                if (keyentering == maxKeyEntering) {
-                    keyentering = 0;
-                    ab.setNegativeButton("Enter Code", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            popupKeyEntering();
-                        }
-                    });
-                }
-                ab.show();
+            public void onClick(View v) {
+                popupNews();
             }
         });
-        nutIcon.setOnLongClickListener(new View.OnLongClickListener() {
+        logo.setLayoutParams(logoParms);
+        logo.setImageDrawable(getDrawable(R.drawable.ic_icon));
+        logo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                aboutPopup();
+            }
+        });
+        logo.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 showEasterEgg();
                 return true;
             }
         });
-        hideIcon.setLayoutParams(newsParms);
-        hideIcon.setImageDrawable(getDrawable(R.drawable.ic_gear));
-        hideIcon.setOnClickListener(new View.OnClickListener() {
+        gear.setLayoutParams(newsParms);
+        gear.setImageDrawable(getDrawable(R.drawable.ic_gear));
+        //Home
+        final int tileHome = (x);
+        final int permHome = ((x / 2) - (logoSize + 2 * newsSize) / 2) - (masterNavigation.getPaddingLeft() + masterNavigation.getPaddingRight()) / 2;
+        //Hide Things
+        tileNavigationScroll.setX(tileHome);
+        //Locate
+        permenantNavigation.setX(permHome);
+        gear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                hideIcon.setEnabled(false);
-                opened = !opened;
+                gear.setEnabled(false);
                 if (opened) {
-                    final Animation rotating = new RotateAnimation(180, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                    rotating.setDuration(500);
-                    ObjectAnimator oa = ObjectAnimator.ofFloat(navbarPermItems, View.TRANSLATION_X, 0, -(Light.Device.screenX(getApplicationContext()) - navbarPermItems.getWidth()) / 2 + 10/*padding*/);
-                    oa.setDuration(500);
-                    oa.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            hideIcon.startAnimation(rotating);
-                            hideIcon.setEnabled(true);
-                            navbarAll.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-                            navbarPermItems.setX((Light.Device.screenX(getApplicationContext()) - navbarPermItems.getWidth()) / 2);
-                            navSliderviewscroll.setAlpha(0);
-                            navSliderviewscroll.setVisibility(View.VISIBLE);
-                            ObjectAnimator.ofFloat(navSliderviewscroll, View.ALPHA, Light.Animations.INVISIBLE_TO_VISIBLE).setDuration(500).start();
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-                        }
-                    });
-                    oa.start();
+                    ObjectAnimator.ofFloat(permenantNavigation, View.TRANSLATION_X, 0, permHome).setDuration(500).start();
+                    ObjectAnimator.ofFloat(tileNavigationScroll, View.TRANSLATION_X, 0, tileHome).setDuration(500).start();
+                    gear.setEnabled(true);
                 } else {
-                    final Animation rotating = new RotateAnimation(0, 180, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                    rotating.setDuration(500);
-                    final ObjectAnimator oa = ObjectAnimator.ofFloat(navbarPermItems, View.TRANSLATION_X, 0, (Light.Device.screenX(getApplicationContext()) - navbarPermItems.getWidth() - 20) / 2/*padding*/);
-                    oa.setDuration(500);
-                    oa.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            hideIcon.startAnimation(rotating);
-                            hideIcon.setEnabled(true);
-                            navbarAll.setGravity(Gravity.CENTER);
-                            navbarPermItems.setX(10);
-                            //                            navSliderviewscroll.setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-                        }
-                    });
-                    ObjectAnimator oaa = ObjectAnimator.ofFloat(navSliderviewscroll, View.ALPHA, Light.Animations.VISIBLE_TO_INVISIBLE);
-                    oaa.setDuration(500);
-                    oaa.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            navSliderviewscroll.setVisibility(View.GONE);
-                            oa.start();
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-                        }
-                    });
-                    oaa.start();
+                    ObjectAnimator.ofFloat(permenantNavigation, View.TRANSLATION_X, permHome, 0).setDuration(500).start();
+                    ObjectAnimator.ofFloat(tileNavigationScroll, View.TRANSLATION_X, tileHome, 0).setDuration(500).start();
+                    gear.setEnabled(true);
                 }
+                opened = !opened;
             }
         });
-        navbarPermItems.setOrientation(LinearLayout.HORIZONTAL);
-        navbarPermItems.setGravity(Gravity.CENTER);
-        navbarPermItems.addView(nutIcon);
-        navbarPermItems.addView(newsIcon);
-        navbarPermItems.addView(hideIcon);
-        navbarAll.addView(navbarPermItems);
-        //        navbarAll.setBackgroundColor(Color.BLACK);
-        navbarAll.setPadding(10, 10, 10, 10);
-        //        navParms.gravity = Gravity.START;
-        navbarAll.setLayoutParams(navParms);
-        navbarAll.setGravity(Gravity.CENTER);
-        sall.addView(navbarAll);
-        LinearLayout navSliderview = new LinearLayout(this);
-        navSliderview.setGravity(Gravity.START);
-        navSliderview.setOrientation(LinearLayout.HORIZONTAL);
-        ////
-        ////
-        //        navSliderviewscroll.setAlpha(0);
-        navSliderviewscroll.setVisibility(View.GONE);
-        ////
-        ////
-        navSliderviewscroll.addView(navSliderview);
-        navbarAll.addView(navSliderviewscroll);
-        //
-        final LinearLayout lessonNameSwitchLL = new LinearLayout(this);
-        lessonNameSwitchLL.setBackground(getDrawable(R.drawable.back));
-        lessonNameSwitchLL.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
-        final ImageView lessonNameSwitch = new ImageView(getApplicationContext());
-        lessonNameSwitch.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
-        lessonNameSwitch.setImageDrawable(getDrawable(R.drawable.ic_lessonname));
-        lessonNameSwitchLL.addView(lessonNameSwitch);
-        lessonNameSwitchLL.setPadding(20, 20, 20, 20);
-        lessonNameSwitchLL.setGravity(Gravity.CENTER);
-        lessonNameSwitchLL.setOrientation(LinearLayout.HORIZONTAL);
-        final LinearLayout teacherMode = new LinearLayout(this);
-        teacherMode.setBackground(getDrawable(R.drawable.back));
-        teacherMode.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
-        final ImageView teacher_ic = new ImageView(getApplicationContext());
-        teacher_ic.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
-        teacher_ic.setImageDrawable(getDrawable(R.drawable.ic_teachermode));
-        teacherMode.addView(teacher_ic);
-        teacherMode.setPadding(20, 20, 20, 20);
-        teacherMode.setGravity(Gravity.CENTER);
-        teacherMode.setOrientation(LinearLayout.HORIZONTAL);
-        if (sp.getBoolean("installed_pass_teacher_mode", false)) {
-            navSliderview.addView(teacherMode);
-            navSliderview.addView(lessonNameSwitchLL);
+        Graphics.Tile teacherModeTile = new Graphics.Tile(getApplicationContext(), Values.teacherMode, false, R.drawable.ic_teachermode, false);
+        final Graphics.Tile lessonNameTile = new Graphics.Tile(getApplicationContext(), Values.lessonName, false, R.drawable.ic_lessonname, false);
+        if (sp.getBoolean(Values.teacherModeEnabler, false)) {
+            tileNavigation.addView(teacherModeTile);
+            tileNavigation.addView(lessonNameTile);
         }
-        //
-        final LinearLayout timeswitch = new LinearLayout(this);
-        timeswitch.setBackground(getDrawable(R.drawable.back));
-        timeswitch.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
-        ImageView clock_ic = new ImageView(getApplicationContext());
-        clock_ic.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
-        clock_ic.setImageDrawable(getDrawable(R.drawable.ic_clock));
-        timeswitch.addView(clock_ic);
-        timeswitch.setPadding(20, 20, 20, 20);
-        timeswitch.setGravity(Gravity.CENTER);
-        timeswitch.setOrientation(LinearLayout.HORIZONTAL);
-        navSliderview.addView(timeswitch);
-        //
-        final LinearLayout breakswitch = new LinearLayout(this);
-        breakswitch.setBackground(getDrawable(R.drawable.back));
-        breakswitch.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
-        final ImageView breakswitch_ic = new ImageView(getApplicationContext());
-        breakswitch_ic.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
-        breakswitch_ic.setImageDrawable(getDrawable(R.drawable.ic_breaktime));
-        breakswitch.addView(breakswitch_ic);
-        breakswitch.setPadding(20, 20, 20, 20);
-        breakswitch.setGravity(Gravity.CENTER);
-        breakswitch.setOrientation(LinearLayout.HORIZONTAL);
-        navSliderview.addView(breakswitch);
-        //
-        final LinearLayout bagswitch = new LinearLayout(this);
-        bagswitch.setBackground(getDrawable(R.drawable.back));
-        bagswitch.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
-        final ImageView bagswitch_ic = new ImageView(getApplicationContext());
-        bagswitch_ic.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
-        bagswitch_ic.setImageDrawable(getDrawable(R.drawable.ic_bag));
-        bagswitch.addView(bagswitch_ic);
-        bagswitch.setPadding(20, 20, 20, 20);
-        bagswitch.setGravity(Gravity.CENTER);
-        bagswitch.setOrientation(LinearLayout.HORIZONTAL);
-        navSliderview.addView(bagswitch);
-        //
-        final LinearLayout auto_dnd = new LinearLayout(this);
-        auto_dnd.setBackground(getDrawable(R.drawable.back));
-        auto_dnd.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
-        ImageView auto_dnd_ic = new ImageView(getApplicationContext());
-        auto_dnd_ic.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
-        auto_dnd_ic.setImageDrawable(getDrawable(R.drawable.ic_auto_mute));
-        auto_dnd.addView(auto_dnd_ic);
-        auto_dnd.setPadding(20, 20, 20, 20);
-        auto_dnd.setGravity(Gravity.CENTER);
-        auto_dnd.setOrientation(LinearLayout.HORIZONTAL);
-        navSliderview.addView(auto_dnd);
-        //
-        final LinearLayout colorText = new LinearLayout(this);
-        colorText.setOrientation(LinearLayout.HORIZONTAL);
-        colorText.setGravity(Gravity.CENTER);
-        colorText.setBackground(getDrawable(R.drawable.back));
-        colorText.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
-        //Switch col = new Switch(this);
-        colorText.setPadding(20, 20, 20, 20);
-        final ImageButton switchc = new ImageButton(this);
-        switchc.setBackgroundColor(Color.TRANSPARENT);
-        LinearLayout.LayoutParams colorTextp = new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20);
-        switchc.setLayoutParams(colorTextp);
-        if (sp.getBoolean("fontWhite", true)) {
-            switchc.setImageDrawable(getDrawable(R.drawable.ic_white));
-            textColor = Color.WHITE;
-        } else {
-            switchc.setImageDrawable(getDrawable(R.drawable.ic_black));
-            textColor = Color.BLACK;
-        }
-        colorText.addView(switchc);
-        navSliderview.addView(colorText);
-        //
-        final LinearLayout tsw = new LinearLayout(this);
-        tsw.setBackground(getDrawable(R.drawable.back));
-        tsw.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
-        final ImageView tsw_ic = new ImageView(getApplicationContext());
-        tsw_ic.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
-        tsw_ic.setImageDrawable(getDrawable(R.drawable.ic_paint));
-        tsw.addView(tsw_ic);
-        tsw.setPadding(20, 20, 20, 20);
-        tsw.setGravity(Gravity.CENTER);
-        tsw.setOrientation(LinearLayout.HORIZONTAL);
-        navSliderview.addView(tsw);
-        //
-        LinearLayout fontS = new LinearLayout(this);
-        fontS.setOrientation(LinearLayout.HORIZONTAL);
-        fontS.setGravity(Gravity.CENTER);
-        fontS.setBackground(getDrawable(R.drawable.back));
-        fontS.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 4, Light.Device.screenY(getApplicationContext()) / 12));
-        ImageButton minus = new ImageButton(this);
-        final TextView size = new TextView(this);
-        ImageButton plus = new ImageButton(this);
-        size.setTextColor(Color.WHITE);
-        size.setText(String.valueOf(sp.getInt("font", defaultSize)));
-        plus.setImageDrawable(getDrawable(R.drawable.ic_plus));
-        minus.setImageDrawable(getDrawable(R.drawable.ic_minus));
-        plus.setBackgroundColor(Color.TRANSPARENT);
-        minus.setBackgroundColor(Color.TRANSPARENT);
-        LinearLayout.LayoutParams buttonp = new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 25, Light.Device.screenY(getApplicationContext()) / 25);
-        plus.setLayoutParams(buttonp);
-        minus.setLayoutParams(buttonp);
-        size.setTextSize((float) 25);
-        fontS.addView(minus);
-        fontS.addView(size);
-        fontS.addView(plus);
-        //
-        LinearLayout share = new LinearLayout(this);
-        share.setOrientation(LinearLayout.HORIZONTAL);
-        share.setGravity(Gravity.CENTER);
-        ImageButton sr = new ImageButton(this);
-        sr.setImageDrawable(getDrawable(R.drawable.ic_share));
-        sr.setBackgroundColor(Color.TRANSPARENT);
-        share.setBackground(getDrawable(R.drawable.back));
-        sr.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 20, Light.Device.screenY(getApplicationContext()) / 20));
-        share.addView(sr);
-        sr.setOnClickListener(new View.OnClickListener() {
+        Graphics.Tile lessonTimeTile = new Graphics.Tile(getApplicationContext(), Values.lessonTime, Values.lessonTimeDefault, R.drawable.ic_clock, false);
+        tileNavigation.addView(lessonTimeTile);
+        Graphics.Tile breakTile = new Graphics.Tile(getApplicationContext(), Values.breakTime, Values.breakTimeDefault, R.drawable.ic_breaktime, false);
+        tileNavigation.addView(breakTile);
+        final Graphics.Tile bagTile = new Graphics.Tile(getApplicationContext(), Values.bagOrginizer, Values.bagOrginizerDefault, R.drawable.ic_bag, false);
+        tileNavigation.addView(bagTile);
+        final Graphics.Tile autoMuteTile = new Graphics.Tile(getApplicationContext(), Values.autoMute, Values.autoMuteDefault, R.drawable.ic_auto_mute, false);
+        autoMuteTile.setOnValueChanged(new Graphics.Tile.OnValueChanged() {
             @Override
-            public void onClick(View view) {
-                if (!mode) {
-                    share(currentClass.name + "\n" + hourSystemForClassString(currentClass, sp.getBoolean("show_time", true)));
-                } else {
-                    share(currentTeacher.mainName + "\n" + ForTeachers.hourSystemForTeacherString(currentTeacher, sp.getBoolean("show_time", true)));
+            public void on() {
+                NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                boolean granted = false;
+                if (nm != null) {
+                    granted = nm.isNotificationPolicyAccessGranted();
                 }
+                if (!granted) {
+                    AlertDialog.Builder pop = new AlertDialog.Builder(Main.this);
+                    pop.setCancelable(true);
+                    pop.setMessage("You need to enable 'Do Not Disturb' permissions for the app.");
+                    pop.setPositiveButton("Open Settings", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (Build.VERSION.SDK_INT >= 23) {
+                                startActivityForResult(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), 0);
+                            }
+                        }
+                    });
+                    pop.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            autoMuteTile.manualOff();
+                        }
+                    });
+                    pop.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialogInterface) {
+                            autoMuteTile.manualOff();
+                        }
+                    });
+                    pop.show();
+                }
+            }
+
+            @Override
+            public void off() {
             }
         });
-        share.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getApplicationContext()) / 12, Light.Device.screenY(getApplicationContext()) / 12));
-        navSliderview.addView(share);
-        navSliderview.addView(fontS);
-        //
-        ScrollView sv = new ScrollView(this);
-        sv.addView(all);
-        sall.addView(sv);
-        final LinearLayout hsplace = new LinearLayout(this);
-        hsplace.setGravity(Gravity.CENTER);
-        hsplace.setOrientation(LinearLayout.VERTICAL);
-        hsplace.setPadding(20, 20, 20, 20);
-        all.addView(hsplace);
-        if (!sp.getBoolean("show_names", false)) {
-            lessonNameSwitchLL.setBackground(getDrawable(R.drawable.back));
-        } else {
-            lessonNameSwitchLL.setBackground(getDrawable(R.drawable.back_2));
-        }
-        View.OnClickListener lessnamesw = new View.OnClickListener() {
+        tileNavigation.addView(autoMuteTile);
+        Graphics.Tile textColorTile = new Graphics.Tile(getApplicationContext(), Values.fontColor, Values.fontColorDefault, R.drawable.ic_white, true);
+        textColorTile.setSecondIcon(R.drawable.ic_black);
+        textColorTile.setOnValueChanged(new Graphics.Tile.OnValueChanged() {
             @Override
-            public void onClick(View view) {
-                sp.edit().putBoolean("show_names", !sp.getBoolean("show_names", false)).commit();
-                if (!sp.getBoolean("show_names", false)) {
-                    lessonNameSwitchLL.setBackground(getDrawable(R.drawable.back));
-                } else {
-                    lessonNameSwitchLL.setBackground(getDrawable(R.drawable.back_2));
-                }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("show_names", false), sp.getBoolean("teacher_mode", false));
+            public void on() {
+                textColor = Color.WHITE;
             }
-        };
-        lessonNameSwitch.setOnClickListener(lessnamesw);
-        lessonNameSwitchLL.setOnClickListener(lessnamesw);
-        if (!sp.getBoolean("teacher_mode", false)) {
-            teacherMode.setBackground(getDrawable(R.drawable.back));
-            lessonNameSwitchLL.setVisibility(View.GONE);
-            bagswitch.setVisibility(View.VISIBLE);
-        } else {
-            teacherMode.setBackground(getDrawable(R.drawable.back_2));
-            lessonNameSwitchLL.setVisibility(View.VISIBLE);
-            bagswitch.setVisibility(View.GONE);
-        }
-        mode = sp.getBoolean("teacher_mode", false);
-        View.OnClickListener teacherModeONC = new View.OnClickListener() {
+
             @Override
-            public void onClick(View view) {
-                sp.edit().putBoolean("teacher_mode", !sp.getBoolean("teacher_mode", false)).commit();
-                mode = sp.getBoolean("teacher_mode", false);
-                if (!sp.getBoolean("teacher_mode", false)) {
-                    teacherMode.setBackground(getDrawable(R.drawable.back));
-                    lessonNameSwitchLL.setVisibility(View.GONE);
-                    bagswitch.setVisibility(View.VISIBLE);
-                } else {
-                    teacherMode.setBackground(getDrawable(R.drawable.back_2));
-                    lessonNameSwitchLL.setVisibility(View.VISIBLE);
-                    bagswitch.setVisibility(View.GONE);
-                }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
+            public void off() {
+                textColor = Color.BLACK;
             }
-        };
-        teacher_ic.setOnClickListener(teacherModeONC);
-        teacherMode.setOnClickListener(teacherModeONC);
-        if (!sp.getBoolean("show_time", false)) {
-            timeswitch.setBackground(getDrawable(R.drawable.back));
-        } else {
-            timeswitch.setBackground(getDrawable(R.drawable.back_2));
-        }
-        View.OnClickListener timeONC = new View.OnClickListener() {
+        });
+        tileNavigation.addView(textColorTile);
+        Graphics.Tile seasonalTile = new Graphics.Tile(getApplicationContext(), Values.seasonalTheming, Values.seasonDefault, R.drawable.ic_season, false);
+        tileNavigation.addView(seasonalTile);
+        Graphics.Tile pushTile = new Graphics.Tile(getApplicationContext(), Values.pushService, Values.pushDefault, R.drawable.ic_push, false);
+        tileNavigation.addView(pushTile);
+        Graphics.Tile fontSizeTile = new Graphics.Tile(getApplicationContext(), Values.fontSize, Values.fontSizeDefault, R.drawable.ic_font_big, false);
+        fontSizeTile.setSecondIcon(R.drawable.ic_font_small);
+        fontSizeTile.setOnValueChanged(new Graphics.Tile.OnValueChanged() {
             @Override
-            public void onClick(View view) {
-                sp.edit().putBoolean("show_time", !sp.getBoolean("show_time", false)).commit();
-                if (!sp.getBoolean("show_time", false)) {
-                    timeswitch.setBackground(getDrawable(R.drawable.back));
-                } else {
-                    timeswitch.setBackground(getDrawable(R.drawable.back_2));
-                }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
+            public void on() {
+                sp.edit().putInt(Values.fontSizeNumber, Values.fontSizeSmall).apply();
             }
-        };
-        clock_ic.setOnClickListener(timeONC);
-        timeswitch.setOnClickListener(timeONC);
-        if (!sp.getBoolean("bagmake", false)) {
-            bagswitch.setBackground(getDrawable(R.drawable.back));
-        } else {
-            bagswitch.setBackground(getDrawable(R.drawable.back_2));
-        }
-        View.OnClickListener bagONC = new View.OnClickListener() {
+
             @Override
-            public void onClick(View view) {
-                sp.edit().putBoolean("bagmake", !sp.getBoolean("bagmake", false)).commit();
-                if (!sp.getBoolean("bagmake", false)) {
-                    bagswitch.setBackground(getDrawable(R.drawable.back));
-                } else {
-                    bagswitch.setBackground(getDrawable(R.drawable.back_2));
-                }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
+            public void off() {
+                sp.edit().putInt(Values.fontSizeNumber, Values.fontSizeBig).apply();
             }
-        };
-        bagswitch_ic.setOnClickListener(bagONC);
-        bagswitch.setOnClickListener(bagONC);
-        if (!sp.getBoolean("breaks", true)) {
-            breakswitch.setBackground(getDrawable(R.drawable.back));
-        } else {
-            breakswitch.setBackground(getDrawable(R.drawable.back_2));
-        }
-        View.OnClickListener breakONC = new View.OnClickListener() {
+        });
+        tileNavigation.addView(fontSizeTile);
+        Graphics.Tile.EndlessTile themeTile = new Graphics.Tile.EndlessTile(getApplicationContext(), R.drawable.ic_paint, new Graphics.Tile.EndlessTile.OnAction() {
             @Override
-            public void onClick(View view) {
-                sp.edit().putBoolean("breaks", !sp.getBoolean("breaks", true)).commit();
-                if (!sp.getBoolean("breaks", true)) {
-                    breakswitch.setBackground(getDrawable(R.drawable.back));
-                } else {
-                    breakswitch.setBackground(getDrawable(R.drawable.back_2));
-                }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
-            }
-        };
-        breakswitch.setOnClickListener(breakONC);
-        breakswitch_ic.setOnClickListener(breakONC);
-        if (!sp.getBoolean("auto_dnd", false)) {
-            auto_dnd.setBackground(getDrawable(R.drawable.back));
-        } else {
-            auto_dnd.setBackground(getDrawable(R.drawable.back_2));
-        }
-        View.OnClickListener autodndoc = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sp.edit().putBoolean("auto_dnd", !sp.getBoolean("auto_dnd", false)).commit();
-                if (!sp.getBoolean("auto_dnd", false)) {
-                    auto_dnd.setBackground(getDrawable(R.drawable.back));
-                } else {
-                    NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    boolean granted = false;
-                    if (nm != null) {
-                        granted = nm.isNotificationPolicyAccessGranted();
-                    }
-                    if (!granted) {
-                        AlertDialog.Builder pop = new AlertDialog.Builder(Main.this);
-                        pop.setCancelable(true);
-                        pop.setMessage("You need to enable 'Do Not Disturb' permissions for the app.");
-                        pop.setPositiveButton("Open Settings", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                if (Build.VERSION.SDK_INT >= 23) {
-                                    startActivityForResult(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), 0);
-                                    auto_dnd.setBackground(getDrawable(R.drawable.back_2));
-                                }
-                            }
-                        });
-                        pop.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                sp.edit().putBoolean("auto_dnd", false).commit();
-                                auto_dnd.setBackground(getDrawable(R.drawable.back));
-                            }
-                        });
-                        pop.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                            @Override
-                            public void onCancel(DialogInterface dialogInterface) {
-                                sp.edit().putBoolean("auto_dnd", false).commit();
-                                auto_dnd.setBackground(getDrawable(R.drawable.back));
-                            }
-                        });
-                        pop.show();
-                    } else {
-                        auto_dnd.setBackground(getDrawable(R.drawable.back_2));
-                    }
-                }
-            }
-        };
-        auto_dnd_ic.setOnClickListener(autodndoc);
-        auto_dnd.setOnClickListener(autodndoc);
-        if (sp.getBoolean("fontWhite", true)) {
-            colorText.setBackground(getDrawable(R.drawable.back));
-        } else {
-            colorText.setBackground(getDrawable(R.drawable.back_2));
-        }
-        View.OnClickListener textCONC = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sp.edit().putBoolean("fontWhite", !sp.getBoolean("fontWhite", true)).commit();
-                if (sp.getBoolean("fontWhite", true)) {
-                    colorText.setBackground(getDrawable(R.drawable.back));
-                } else {
-                    colorText.setBackground(getDrawable(R.drawable.back_2));
-                }
-                if (sp.getBoolean("fontWhite", true)) {
-                    switchc.setImageDrawable(getDrawable(R.drawable.ic_white));
-                    textColor = Color.WHITE;
-                } else {
-                    switchc.setImageDrawable(getDrawable(R.drawable.ic_black));
-                    textColor = Color.BLACK;
-                }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
-            }
-        };
-        colorText.setOnClickListener(textCONC);
-        switchc.setOnClickListener(textCONC);
-        View.OnClickListener themeONC = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sp.edit().putInt("color", themes[countheme].color).commit();
+            public void click() {
+                sp.edit().putInt(Values.color, themes[countheme].color).commit();
                 color = themes[countheme].color;
-                String hexColor = String.format("#%06X", (0xFFFFFF & color));
-                if (!hexColor.contains("D") && !hexColor.contains("E") && !hexColor.contains("F")) {
-                    secolor = color + 0x333333;
-                } else {
-                    secolor = color;
-                }
+                loadTheme();
                 getWindow().setStatusBarColor(secolor);
                 getWindow().setNavigationBarColor(color);
-                sall.setBackgroundColor(color);
-                all.setBackgroundColor(color);
+                //                sall.setBackgroundColor(color);
+                //                all.setBackgroundColor(color);
                 taskDesc();
-                navbarAll.setBackgroundColor(secolor);
+                //                navbarAll.setBackgroundColor(secolor);
                 if (countheme + 1 < themes.length) {
                     countheme++;
                 } else {
                     countheme = 0;
                 }
-                showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
             }
-        };
-        View.OnLongClickListener themelong = new View.OnLongClickListener() {
+
             @Override
-            public boolean onLongClick(View view) {
-                final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
-                final int fontSize = sp.getInt("font", defaultSize);
+            public void hold() {
+
+                final int fontSize = getFontSize();
                 final LinearLayout newsll = new LinearLayout(getApplicationContext());
                 final LinearLayout bts = new LinearLayout(getApplicationContext());
                 final LinearLayout layerer = new LinearLayout(getApplicationContext());
@@ -1433,8 +1114,8 @@ public class Main extends Activity {
                 TextView hashv = new TextView(getApplicationContext());
                 hashv.setText("#");
                 hashv.setTextSize((float) fontSize);
-                hashv.setTypeface(custom_font);
-                colorEditor.setTypeface(custom_font);
+                hashv.setTypeface(getTypeface());
+                colorEditor.setTypeface(getTypeface());
                 colorEditor.setTextSize((float) fontSize);
                 colorEditor.addTextChangedListener(new TextWatcher() {
                     @Override
@@ -1476,21 +1157,9 @@ public class Main extends Activity {
                     public void onClick(View view) {
                         if (colorEditor.getText().length() == 6) {
                             sp.edit().putInt("color", Color.parseColor("#" + colorEditor.getText().toString())).commit();
-                            color = Color.parseColor("#" + colorEditor.getText().toString());
-                            String hexColor = String.format("#%06X", (0xFFFFFF & color));
-                            if (!hexColor.contains("D") && !hexColor.contains("E") && !hexColor.contains("F")) {
-                                secolor = color + 0x333333;
-                            } else {
-                                secolor = color;
-                            }
-                            getWindow().setStatusBarColor(secolor);
-                            getWindow().setNavigationBarColor(color);
-                            sall.setBackgroundColor(color);
-                            all.setBackgroundColor(color);
-                            navbarAll.setBackgroundColor(secolor);
+                            refreshTheme();
                             dialog.dismiss();
-                            taskDesc();
-                            showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
+                            showHS(currentClass, content, classes, sp.getBoolean(Values.lessonTime, false), getFontSize(), sp.getBoolean(Values.breakTime, true), sp.getBoolean(Values.bagOrginizer, false), sp.getBoolean(Values.teacherMode, false));
                         } else {
                             Toast.makeText(getApplicationContext(), "Color Has To Include 6 Characters.", Toast.LENGTH_SHORT).show();
                         }
@@ -1504,66 +1173,83 @@ public class Main extends Activity {
                 layerer.setPadding(20, 20, 20, 20);
                 layerer.setBackgroundColor(color);
                 dialog.show();
-                return true;
+            }
+        });
+        tileNavigation.addView(themeTile);
+        Graphics.Tile.EndlessTile shareTile = new Graphics.Tile.EndlessTile(getApplicationContext(), R.drawable.ic_share, new Graphics.Tile.EndlessTile.OnAction() {
+            @Override
+            public void click() {
+                if (!sp.getBoolean(Values.teacherMode, false)) {
+                    share(currentClass.name + "\n" + hourSystemForClassString(currentClass, sp.getBoolean("show_time", true)));
+                } else {
+                    share(currentTeacher.mainName + "\n" + ForTeachers.hourSystemForTeacherString(currentTeacher, sp.getBoolean("show_time", true)));
+                }
+            }
+
+            @Override
+            public void hold() {
+            }
+        });
+        tileNavigation.addView(shareTile);
+        teacherModeTile.setOnValueChanged(new Graphics.Tile.OnValueChanged() {
+            @Override
+            public void on() {
+                lessonNameTile.setVisibility(View.VISIBLE);
+                bagTile.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void off() {
+                lessonNameTile.setVisibility(View.GONE);
+                bagTile.setVisibility(View.VISIBLE);
+            }
+        });
+        if (sp.getBoolean(Values.teacherMode, false)) {
+            lessonNameTile.setVisibility(View.VISIBLE);
+            bagTile.setVisibility(View.GONE);
+        } else {
+            lessonNameTile.setVisibility(View.GONE);
+            bagTile.setVisibility(View.VISIBLE);
+        }
+        //        sall.addView(navbarAll);
+        //        navbarAll.setBackgroundColor(Color.BLACK);
+        //        all.addView(hsplace);
+        Graphics.Tile.OnAction onAction = new Graphics.Tile.OnAction() {
+            @Override
+            public void execute() {
+                refreshTheme();
+                showHS(currentClass, content, classes, sp.getBoolean(Values.lessonTime, false), getFontSize(), sp.getBoolean(Values.breakTime, true), sp.getBoolean(Values.bagOrginizer, false), sp.getBoolean(Values.teacherMode, false));
             }
         };
-        tsw.setOnClickListener(themeONC);
-        tsw_ic.setOnClickListener(themeONC);
-        tsw_ic.setOnLongClickListener(themelong);
-        tsw.setOnLongClickListener(themelong);
-        plus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int fontSize = sp.getInt("font", defaultSize);
-                fontSize++;
-                if (fontSize <= 50) {
-                    sp.edit().putInt("font", fontSize).commit();
-                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize, sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
-                    size.setText(String.valueOf(fontSize));
-                }
-            }
-        });
-        minus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int fontSize = sp.getInt("font", defaultSize);
-                fontSize--;
-                if (fontSize >= 1) {
-                    sp.edit().putInt("font", fontSize).commit();
-                    showHS(currentClass, hsplace, classes, sp.getBoolean("show_time", false), fontSize, sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
-                    size.setText(String.valueOf(fontSize));
-                }
-            }
-        });
-        newsIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popupNews();
-            }
-        });
+        teacherModeTile.setAfter(onAction);
+        lessonNameTile.setAfter(onAction);
+        themeTile.setAfter(onAction);
+        seasonalTile.setAfter(onAction);
+        lessonTimeTile.setAfter(onAction);
+        breakTile.setAfter(onAction);
+        bagTile.setAfter(onAction);
+        textColorTile.setAfter(onAction);
+        fontSizeTile.setAfter(onAction);
         int selectedClass = 0;
-        if (sp.getString("favorite_class", null) != null) {
+        if (sp.getString(Values.favoriteClass, null) != null) {
             if (classes != null) {
                 for (int fc = 0; fc < classes.size(); fc++) {
-                    if (sp.getString("favorite_class", "").equals(classes.get(fc).name)) {
+                    if (sp.getString(Values.favoriteClass, "").equals(classes.get(fc).name)) {
                         selectedClass = fc;
                         break;
                     }
                 }
             } else {
-                //                popup("Downloaded Excel File Is Corrupted");
                 startApp();
             }
         }
         if (classes != null)
-            showHS(classes.get(selectedClass), hsplace, classes, sp.getBoolean("show_time", true), sp.getInt("font", defaultSize), sp.getBoolean("breaks", true), sp.getBoolean("bagmake", false), sp.getBoolean("teacher_mode", false));
-        setContentView(sall);
+            showHS(classes.get(selectedClass), content, classes, sp.getBoolean(Values.lessonTime, false), getFontSize(), sp.getBoolean(Values.breakTime, true), sp.getBoolean(Values.bagOrginizer, false), sp.getBoolean(Values.teacherMode, false));
+        setContentView(masterLayout);
     }
 
     private void popupNews() {
-        final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-        final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
-        final int fontSize = sp.getInt("font", defaultSize);
+        final int fontSize = getFontSize();
         final Dialog dialog = new Dialog(Main.this);
         dialog.setCancelable(true);
         LinearLayout fullPage = new LinearLayout(getApplicationContext());
@@ -1598,15 +1284,15 @@ public class Main extends Activity {
         pushTitle.setTextSize(fontSize);
         newsTitle.setGravity(Gravity.CENTER);
         pushTitle.setGravity(Gravity.CENTER);
-        newsTitle.setTypeface(custom_font);
-        pushTitle.setTypeface(custom_font);
+        newsTitle.setTypeface(getTypeface());
+        pushTitle.setTypeface(getTypeface());
         Button close = new Button(getApplicationContext());
         close.setText(R.string.cls);
         close.setAllCaps(false);
         close.setBackground(getDrawable(R.drawable.back_transparant));
         close.setTextSize((float) 22);
         close.setTextColor(textColor);
-        close.setTypeface(custom_font);
+        close.setTypeface(getTypeface());
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1619,52 +1305,12 @@ public class Main extends Activity {
         fullPage.setBackgroundColor(color);
         fullPage.setPadding(5, 5, 5, 5);
         news.setVisibility(View.INVISIBLE);
-        push.setVisibility(View.INVISIBLE);
+        push.setVisibility(View.GONE);
         fullPage.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10 * 8));
         npscroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10 * 6));
         dialog.setContentView(fullPage);
         if (Light.Device.isOnline(getApplicationContext())) {
-            ArrayList<Light.Net.PHP.Post.PHPParameter> parameters = new ArrayList<>();
-            parameters.add(new Light.Net.PHP.Post.PHPParameter("get", ""));
-            new Light.Net.PHP.Post(Main.pushProvider, parameters, new Light.Net.PHP.Post.OnPost() {
-                @Override
-                public void onPost(String s) {
-                    try {
-                        JSONObject mainObject = new JSONObject(s);
-                        boolean success = mainObject.getBoolean("success");
-                        if (success) {
-                            JSONArray pushesArray = mainObject.getJSONArray("pushes");
-                            for (int pA = pushesArray.length() - 1; pA >= 0; pA--) {
-                                JSONObject pushj = pushesArray.getJSONObject(pA);
-                                final String text = pushj.getString("data");
-                                Button cls = new Button(getApplicationContext());
-                                cls.setPadding(10, 10, 10, 10);
-                                cls.setTextSize((float) fontSize - 10);
-                                cls.setGravity(Gravity.CENTER);
-                                cls.setText(text);
-                                cls.setAllCaps(false);
-                                cls.setTextColor(textColor);
-                                cls.setEllipsize(TextUtils.TruncateAt.END);
-                                cls.setLines(2);
-                                cls.setBackground(getDrawable(R.drawable.back_transparant));
-                                cls.setTypeface(custom_font);
-                                cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
-                                push.addView(cls);
-                                cls.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
-                                    }
-                                });
-                            }
-                            push.setVisibility(View.VISIBLE);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).execute();
-            new GetNews(serviceProvider, new GetNews.GotNews() {
+            new GetNews(Values.serviceProvider, new GetNews.GotNews() {
                 @Override
                 public void onNewsGet(final ArrayList<Link> link) {
                     for (int i = 0; i < link.size(); i++) {
@@ -1678,7 +1324,7 @@ public class Main extends Activity {
                         cls.setLines(2);
                         //                            cls.setBackgroundColor(Color.TRANSPARENT);
                         cls.setBackground(getDrawable(R.drawable.back_transparant));
-                        cls.setTypeface(custom_font);
+                        cls.setTypeface(getTypeface());
                         cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
                         news.addView(cls);
                         if (!link.get(i).url.equals("")) {
@@ -1713,20 +1359,24 @@ public class Main extends Activity {
         startActivity(Intent.createChooser(s, "Share With"));
     }
 
-    private void showHS(final Class c, final LinearLayout hsplace, final ArrayList<Class> classes, final boolean showTime, final int fontSize, final boolean breakTimes, final boolean showOrgCheckBox, final boolean teacherMode) {
+    private void showHS(final Class c, final FrameLayout content, final ArrayList<Class> classes, final boolean showTime, final int fontSize, final boolean breakTimes, final boolean showOrgCheckBox, final boolean teacherMode) {
         currentClass = c;
+        LinearLayout hsplace = new LinearLayout(this);
+        hsplace.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
+        hsplace.setOrientation(LinearLayout.VERTICAL);
+        content.removeAllViews();
+        content.addView(hsplace);
         if (!teacherMode) {
-            hsplace.removeAllViews();
-            final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
+
             final Button className = new Button(this);
             className.setTextSize((float) fontSize);
             //        className.setBackgroundColor(Color.TRANSPARENT);
             className.setGravity(Gravity.CENTER);
-            className.setBackground(getDrawable(R.drawable.back));
+            className.setBackground(getDrawable(R.drawable.coaster_normal));
             String ctxt = c.name + " (" + day + ")";
             className.setText(ctxt);
             className.setTextColor(textColor);
-            className.setTypeface(custom_font);
+            className.setTypeface(getTypeface());
             className.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -1745,7 +1395,7 @@ public class Main extends Activity {
                     close.setBackground(getDrawable(R.drawable.back_transparant));
                     close.setTextSize((float) 22);
                     close.setTextColor(textColor);
-                    close.setTypeface(custom_font);
+                    close.setTypeface(getTypeface());
                     close.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -1771,7 +1421,7 @@ public class Main extends Activity {
                             cls.setTextColor(textColor);
                             cls.setBackground(getDrawable(R.drawable.back_transparant));
                             cls.setPadding(10, 0, 10, 0);
-                            cls.setTypeface(custom_font);
+                            cls.setTypeface(getTypeface());
                             cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Light.Device.screenY(getApplicationContext()) / 10)));
                             classesll.addView(cls);
                             final int finalCs = cs;
@@ -1779,8 +1429,8 @@ public class Main extends Activity {
                                 @Override
                                 public void onClick(View view) {
                                     final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-                                    sp.edit().putString("favorite_class", classes.get(finalCs).name).commit();
-                                    showHS(classes.get(finalCs), hsplace, classes, showTime, fontSize, breakTimes, showOrgCheckBox, false);
+                                    sp.edit().putString(Values.favoriteClass, classes.get(finalCs).name).commit();
+                                    showHS(classes.get(finalCs), content, classes, showTime, fontSize, breakTimes, showOrgCheckBox, false);
                                     dialog.dismiss();
                                 }
                             });
@@ -1795,32 +1445,30 @@ public class Main extends Activity {
             final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
             final ArrayList<ForTeachers.Teacher> teachers = ForTeachers.getTeacherSchudleForClasses(classes);
             int selectedClass = 0;
-            if (sp.getString("favorite_teacher", null) != null) {
+            if (sp.getString(Values.favoriteTeacher, null) != null) {
                 if (teachers != null) {
                     for (int fc = 0; fc < teachers.size(); fc++) {
-                        if (sp.getString("favorite_teacher", "").equals(teachers.get(fc).mainName)) {
+                        if (sp.getString(Values.favoriteTeacher, "").equals(teachers.get(fc).mainName)) {
                             selectedClass = fc;
                             break;
                         }
                     }
                 } else {
-                    //                popup("Downloaded Excel File Is Corrupted");
                     openApp();
                 }
             }
             if (teachers != null) {
                 currentTeacher = teachers.get(selectedClass);
             }
-            hsplace.removeAllViews();
-            final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
+
             final Button className = new Button(this);
             className.setTextSize((float) fontSize);
             className.setGravity(Gravity.CENTER);
-            className.setBackground(getDrawable(R.drawable.back));
+            className.setBackground(getDrawable(R.drawable.coaster_normal));
             String ctxt = currentTeacher.mainName + " (" + day + ")";
             className.setText(ctxt);
             className.setTextColor(textColor);
-            className.setTypeface(custom_font);
+            className.setTypeface(getTypeface());
             className.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -1838,7 +1486,7 @@ public class Main extends Activity {
                     close.setBackground(getDrawable(R.drawable.back_transparant));
                     close.setTextSize((float) 22);
                     close.setTextColor(textColor);
-                    close.setTypeface(custom_font);
+                    close.setTypeface(getTypeface());
                     close.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -1865,7 +1513,7 @@ public class Main extends Activity {
                                 cls.setTextColor(textColor);
                                 cls.setBackground(getDrawable(R.drawable.back_transparant));
                                 cls.setPadding(10, 0, 10, 0);
-                                cls.setTypeface(custom_font);
+                                cls.setTypeface(getTypeface());
                                 cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
                                 classesll.addView(cls);
                                 final int finalCs = cs;
@@ -1873,8 +1521,8 @@ public class Main extends Activity {
                                     @Override
                                     public void onClick(View view) {
                                         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-                                        sp.edit().putString("favorite_teacher", teachers.get(finalCs).mainName).commit();
-                                        showHS(currentClass, hsplace, classes, showTime, fontSize, breakTimes, showOrgCheckBox, true);
+                                        sp.edit().putString(Values.favoriteTeacher, teachers.get(finalCs).mainName).commit();
+                                        showHS(currentClass, content, classes, showTime, fontSize, breakTimes, showOrgCheckBox, true);
                                         dialog.dismiss();
                                     }
                                 });
@@ -1885,7 +1533,7 @@ public class Main extends Activity {
                 }
             });
             hsplace.addView(className);
-            hsplace.addView(ForTeachers.hourSystemForTeacher(getApplicationContext(), currentTeacher, showTime, fontSize, breakTimes, sp.getBoolean("show_names", false)));
+            hsplace.addView(ForTeachers.hourSystemForTeacher(getApplicationContext(), currentTeacher, showTime, fontSize, breakTimes, sp.getBoolean(Values.lessonName, false)));
         }
     }
 
@@ -1894,7 +1542,7 @@ public class Main extends Activity {
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
         all.setPadding(10, 10, 10, 10);
-        final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
+
         for (int s = 0; s < fclass.subjects.size(); s++) {
             if (getBreak(fclass.subjects.get(s).hour - 1) != -1 && breakTimes) {
                 final Button breakt = new Button(this);
@@ -1906,7 +1554,7 @@ public class Main extends Activity {
                 breakt.setBackground(getDrawable(R.drawable.button));
                 breakt.setPadding(20, 20, 20, 20);
                 breakt.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
-                breakt.setTypeface(custom_font);
+                breakt.setTypeface(getTypeface());
                 breakt.setAllCaps(false);
                 if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
                     all.addView(breakt);
@@ -1933,7 +1581,7 @@ public class Main extends Activity {
                         di.addView(hours);
                         di.addView(fullInfo);
                         di.setBackgroundColor(color);
-                        //                        di.setBackground(getDrawable(R.drawable.back));
+                        //                        di.setBackground(getDrawable(R.drawable.coaster_normal));
                         subjName.setTextColor(textColor);
                         hours.setTextColor(textColor);
                         fullInfo.setTextColor(textColor);
@@ -1943,13 +1591,13 @@ public class Main extends Activity {
                         subjName.setGravity(Gravity.CENTER);
                         hours.setGravity(Gravity.CENTER);
                         fullInfo.setGravity(Gravity.CENTER);
-                        subjName.setTypeface(custom_font, Typeface.BOLD);
-                        hours.setTypeface(custom_font);
-                        fullInfo.setTypeface(custom_font);
+                        subjName.setTypeface(getTypeface(), Typeface.BOLD);
+                        hours.setTypeface(getTypeface());
+                        fullInfo.setTypeface(getTypeface());
                         Button close = new Button(getApplicationContext());
                         close.setText(R.string.close);
                         close.setTextColor(textColor);
-                        close.setTypeface(custom_font);
+                        close.setTypeface(getTypeface());
                         close.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -2020,7 +1668,7 @@ public class Main extends Activity {
             subj.setTextColor(textColor);
             subj.setPadding(20, 20, 20, 20);
             subj.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 10));
-            subj.setTypeface(custom_font);
+            subj.setTypeface(getTypeface());
             subj.setSingleLine(true);
             subj.setEllipsize(TextUtils.TruncateAt.END);
             final int finalS = s;
@@ -2053,14 +1701,14 @@ public class Main extends Activity {
                     subjName.setGravity(Gravity.CENTER);
                     hours.setGravity(Gravity.CENTER);
                     fullInfo.setGravity(Gravity.CENTER);
-                    subjName.setTypeface(custom_font, Typeface.BOLD);
-                    hours.setTypeface(custom_font);
-                    fullInfo.setTypeface(custom_font);
+                    subjName.setTypeface(getTypeface(), Typeface.BOLD);
+                    hours.setTypeface(getTypeface());
+                    fullInfo.setTypeface(getTypeface());
                     Button close = new Button(getApplicationContext());
                     close.setText(R.string.close);
                     close.setTextColor(textColor);
                     close.setTextSize((float) 25);
-                    close.setTypeface(custom_font);
+                    close.setTypeface(getTypeface());
                     close.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -2208,14 +1856,14 @@ public class Main extends Activity {
         return new ClassTime(-1, -1, -1, -1);
     }
 
-    TextView getTv(String text, int size, @Nullable LinearLayout.LayoutParams p) {
-        final Typeface custom_font = Typeface.createFromAsset(getAssets(), fontName);
+    private TextView getTv(String text, int size, @Nullable LinearLayout.LayoutParams p) {
+
         TextView tv = new TextView(getApplicationContext());
         tv.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         tv.setTextSize(size);
         tv.setTextColor(Color.LTGRAY);
         tv.setText(text);
-        tv.setTypeface(custom_font);
+        tv.setTypeface(getTypeface());
         if (p != null) tv.setLayoutParams(p);
         return tv;
     }
@@ -2237,14 +1885,13 @@ public class Main extends Activity {
     }
 
     static void beginDND(Context c) {
-        c.sendBroadcast(new Intent(KILL_DND_SERVICE));
+        c.sendBroadcast(new Intent(Values.KILL_DND_SERVICE));
         c.startService(new Intent(c, DNDService.class));
     }
 
     private void openApp() {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-        String service = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/index.php";
-        new GetLink(service, new GetLink.GotLink() {
+        new GetLink(Values.scheduleProvider, new GetLink.GotLink() {
 
             @Override
             public void onLinkGet(String link) {
@@ -2272,12 +1919,12 @@ public class Main extends Activity {
                                 //                                day = readExcelDayXLSX(file);
                                 /////
                                 if (classes != null) {
-                                    if (!sp.getBoolean("first", true)) {
-                                        if (sp.getInt("last_recorded_version_code", 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
+                                    if (!sp.getBoolean(Values.firstLaunch, true)) {
+                                        if (sp.getInt(Values.lastRecordedVersionCode, 0) != Light.Device.getVersionCode(getApplicationContext(), getPackageName())) {
                                             welcome(classes, true);
                                         } else {
-//                                            newsSplash(classes);
-                                                                                        welcome(classes, true);
+                                            newsSplash(classes);
+                                            //                                            welcome(classes, true);
                                             beginDND(getApplicationContext());
                                         }
                                     } else {
@@ -2296,62 +1943,76 @@ public class Main extends Activity {
                         sp.edit().putString("latest_file_date", date).commit();
                         new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
                             @Override
-                            public void onFinish(final File file, final boolean b) {
-                                new FileReader(themeProvider, new FileReader.OnRead() {
+                            public void onFinish(final File file, final boolean be) {
+                                new Light.Net.Pinger(5000, new Light.Net.Pinger.OnEnd() {
                                     @Override
-                                    public void done(String s) {
-                                        try {
-                                            ArrayList<Theme.SchudledTheme> tm = new ArrayList<>();
-                                            JSONObject reader = new JSONObject(s);
-                                            Iterator<String> types = reader.keys();
-                                            while (types.hasNext()) {
-                                                String name = types.next();
-                                                try {
-                                                    Theme.SchudledTheme i = new Theme.SchudledTheme();
-                                                    JSONObject uo = reader.getJSONObject(name);
-                                                    i.id = Integer.parseInt(name);
-                                                    i.name = uo.getString("name");
-                                                    i.main = uo.getInt("main");
-                                                    i.sub = uo.getInt("sub");
-                                                    i.sd = uo.getInt("sd");
-                                                    i.sm = uo.getInt("sm");
-                                                    i.sy = uo.getInt("sy");
-                                                    i.ed = uo.getInt("ed");
-                                                    i.em = uo.getInt("em");
-                                                    i.ey = uo.getInt("ey");
-                                                    tm.add(i);
-                                                } catch (JSONException e) {
+                                    public void onPing(String s, boolean b) {
+                                        if(b){
+                                            new FileReader(Values.themeProvider, new FileReader.OnRead() {
+                                                @Override
+                                                public void done(String s) {
+                                                    try {
+                                                        ArrayList<Theme.SchudledTheme> tm = new ArrayList<>();
+                                                        JSONObject reader = new JSONObject(s);
+                                                        Iterator<String> types = reader.keys();
+                                                        while (types.hasNext()) {
+                                                            String name = types.next();
+                                                            try {
+                                                                Theme.SchudledTheme i = new Theme.SchudledTheme();
+                                                                JSONObject uo = reader.getJSONObject(name);
+                                                                i.id = Integer.parseInt(name);
+                                                                i.name = uo.getString("name");
+                                                                i.main = Color.parseColor(uo.getString("main"));
+                                                                i.sub = Color.parseColor(uo.getString("sub"));
+                                                                i.sd = uo.getInt("sd");
+                                                                i.sm = uo.getInt("sm");
+                                                                i.sy = uo.getInt("sy");
+                                                                i.ed = uo.getInt("ed");
+                                                                i.em = uo.getInt("em");
+                                                                i.ey = uo.getInt("ey");
+                                                                tm.add(i);
+                                                            } catch (JSONException e) {
+                                                                e.printStackTrace();
+                                                            }
+                                                        }
+                                                        Calendar c = Calendar.getInstance();
+                                                        for (int n = 0; n < tm.size(); n++) {
+                                                            Theme.SchudledTheme it = tm.get(n);
+                                                            int cdate = getDay(c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR));
+                                                            int adate = getDay(it.sd, it.sm, it.sy);
+                                                            int bdate = getDay(it.ed, it.em, it.ey);
+                                                            boolean dated = (adate <= cdate) && (cdate <= bdate);
+                                                            if (!sp.getBoolean(Values.seasonID + it.id, false) && dated) {
+                                                                sp.edit().putBoolean(Values.seasonID + it.id, true).apply();
+                                                                sp.edit().putBoolean(Values.seasonPriority, true).apply();
+                                                                sp.edit().putInt(Values.seasonEndDay, it.ed).apply();
+                                                                sp.edit().putInt(Values.seasonEndMonth, it.em).apply();
+                                                                sp.edit().putInt(Values.seasonEndYear, it.ey).apply();
+                                                                sp.edit().putInt(Values.seasonMain, it.main).apply();
+                                                                sp.edit().putInt(Values.seasonSub, it.sub).apply();
+                                                                sp.edit().putString(Values.seasonName, it.name).apply();
+                                                                loadTheme();
+                                                                Log.i("Season", "Loaded");
+                                                                break;
+                                                            } else if (sp.getBoolean(Values.seasonID + it.id, false) && !dated) {
+                                                                sp.edit().putBoolean(Values.seasonPriority, false).apply();
+                                                                loadTheme();
+                                                                Log.i("Season", "Unloaded");
+                                                            }
+                                                        }
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    da.doAfter(file, be);
                                                 }
-                                            }
-                                            Calendar c = Calendar.getInstance();
-                                            for (int n = 0; n < tm.size(); n++) {
-                                                Theme.SchudledTheme it=tm.get(n);
-                                                int cdate = getDay(c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR));
-                                                int adate = getDay(it.sd, it.sm, it.sy);
-                                                int bdate = getDay(it.ed, it.em, it.ey);
-                                                boolean dated = (adate>= cdate)&&(cdate <= bdate);
-                                                if (!sp.getBoolean(Main.prefSeasonID + it.id, false) && dated) {
-                                                    sp.edit().putBoolean(Main.prefSeasonID + it.id, true).apply();
-                                                    sp.edit().putBoolean(prefSeasonPriority,true).apply();
-                                                    sp.edit().putInt(prefSeasonEndDay,it.ed).apply();
-                                                    sp.edit().putInt(prefSeasonEndMonth,it.em).apply();
-                                                    sp.edit().putInt(prefSeasonEndYear,it.ey).apply();
-                                                    sp.edit().putInt(prefSeasonMain,it.main).apply();
-                                                    sp.edit().putInt(prefSeasonSub,it.sub).apply();
-                                                    sp.edit().putString(prefSeasonName,it.name).apply();
-                                                    color=it.main;
-                                                    secolor=it.sub;
-                                                    break;
-                                                }else if(sp.getBoolean(Main.prefSeasonID + it.id, false) && !dated){
-                                                    sp.edit().putBoolean(prefSeasonPriority,false).apply();
-                                                }
-                                            }
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
+                                            }).execute();
+                                        }else{
+                                            da.doAfter(file, be);
+
                                         }
-                                        da.doAfter(file, b);
                                     }
-                                }).execute();
+                                }).execute(Values.puzProvider);
+
                             }
 
                             @Override
@@ -2442,13 +2103,232 @@ public class Main extends Activity {
     public static void startPush(Context c) {
         ComponentName serviceComponent = new ComponentName(c, Push.class);
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-        builder.setMinimumLatency(pushLoop);
+        builder.setMinimumLatency(Values.pushLoop);
         JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
         jobScheduler.schedule(builder.build());
     }
 
     private interface DoAfter {
         void doAfter(File f, boolean b);
+    }
+
+    static class Graphics {
+        static class Tile extends LinearLayout {
+            private String saveTo;
+            private boolean defaultValue, flipValues;
+            private int iconA, iconB;
+            private OnValueChanged onValueChanged;
+            private OnAction afterChange;
+            private ImageView icon;
+            private SharedPreferences sp;
+
+            private void updateView() {
+                if (!flipValues) {
+                    if (!sp.getBoolean(saveTo, defaultValue)) {
+                        setBackground(getContext().getDrawable(R.drawable.coaster_normal));
+                        icon.setImageDrawable(getContext().getDrawable(iconA));
+                    } else {
+                        setBackground(getContext().getDrawable(R.drawable.coaster_pressed));
+                        icon.setImageDrawable(getContext().getDrawable(iconB));
+                    }
+                } else {
+                    if (sp.getBoolean(saveTo, defaultValue)) {
+                        setBackground(getContext().getDrawable(R.drawable.coaster_normal));
+                        icon.setImageDrawable(getContext().getDrawable(iconA));
+                    } else {
+                        setBackground(getContext().getDrawable(R.drawable.coaster_pressed));
+                        icon.setImageDrawable(getContext().getDrawable(iconB));
+                    }
+                }
+            }
+
+            private void initTile() {
+                OnClickListener onClick = new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        boolean currentValue = !sp.getBoolean(saveTo, defaultValue);
+                        sp.edit().putBoolean(saveTo, currentValue).commit();
+                        updateView();
+                        if (onValueChanged != null) {
+                            if (currentValue) {
+                                onValueChanged.on();
+                            } else {
+                                onValueChanged.off();
+                            }
+                        }
+                        if (afterChange != null) afterChange.execute();
+                    }
+                };
+                setBackground(getContext().getDrawable(R.drawable.coaster_normal));
+                setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getContext()) / 12, Light.Device.screenY(getContext()) / 12));
+                setPadding(20, 20, 20, 20);
+                setGravity(Gravity.CENTER);
+                setOrientation(LinearLayout.HORIZONTAL);
+                setOnClickListener(onClick);
+                icon = new ImageView(getContext());
+                icon.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getContext()) / 20, Light.Device.screenY(getContext()) / 20));
+                icon.setImageDrawable(getContext().getDrawable(iconA));
+                icon.setOnClickListener(onClick);
+                addView(icon);
+                updateView();
+            }
+
+            public Tile(Context c, String saveTo, boolean defaultValue, int iconA, boolean flipValues) {
+                super(c);
+                this.sp = c.getSharedPreferences("app", Context.MODE_PRIVATE);
+                this.saveTo = saveTo;
+                this.defaultValue = defaultValue;
+                this.flipValues = flipValues;
+                this.iconA = iconA;
+                this.iconB = this.iconA;
+                initTile();
+            }
+
+            public void setOnValueChanged(OnValueChanged onValueChanged) {
+                this.onValueChanged = onValueChanged;
+            }
+
+            public void setSecondIcon(int iconB) {
+                this.iconB = iconB;
+                updateView();
+            }
+
+            public void setAfter(OnAction onAction) {
+                this.afterChange = onAction;
+            }
+
+            public void manualOff() {
+                sp.edit().putBoolean(saveTo, false).commit();
+                updateView();
+                if (afterChange != null) afterChange.execute();
+            }
+
+            public void manualOn() {
+                sp.edit().putBoolean(saveTo, true).commit();
+                updateView();
+                if (afterChange != null) afterChange.execute();
+            }
+
+            interface OnValueChanged {
+                void on();
+
+                void off();
+            }
+
+            interface OnAction {
+                void execute();
+            }
+
+            static class EndlessTile extends LinearLayout {
+                private ImageView icon;
+                private OnAction onAction;
+                private Tile.OnAction after;
+                private int iconA;
+
+                private void initTile() {
+                    OnClickListener onClick = new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (onAction != null) onAction.click();
+                            if (after != null) after.execute();
+                        }
+                    };
+                    OnLongClickListener onLongClick = new OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            if (onAction != null) onAction.hold();
+                            return true;
+                        }
+                    };
+                    setBackground(getContext().getDrawable(R.drawable.coaster_normal));
+                    setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getContext()) / 12, Light.Device.screenY(getContext()) / 12));
+                    setPadding(20, 20, 20, 20);
+                    setGravity(Gravity.CENTER);
+                    setOrientation(LinearLayout.HORIZONTAL);
+                    setOnClickListener(onClick);
+                    setOnLongClickListener(onLongClick);
+                    icon = new ImageView(getContext());
+                    icon.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenY(getContext()) / 20, Light.Device.screenY(getContext()) / 20));
+                    icon.setImageDrawable(getContext().getDrawable(iconA));
+                    icon.setOnClickListener(onClick);
+                    icon.setOnLongClickListener(onLongClick);
+                    addView(icon);
+                }
+
+                public EndlessTile(Context c, int iconA, OnAction onAction) {
+                    super(c);
+                    this.iconA = iconA;
+                    this.onAction = onAction;
+                    initTile();
+                }
+
+                public void setAfter(Tile.OnAction after) {
+                    this.after = after;
+                }
+
+                interface OnAction {
+                    void click();
+
+                    void hold();
+                }
+            }
+        }
+    }
+
+    static class Values {
+        static final String pushProvider = "http://h.nockio.com/pushes.json";
+        static final String themeProvider = "http://h.nockio.com/themes.json";
+        static final String keyProvider = "http://h.nockio.com/keys/index.php";
+        static final String puzProvider = "http://h.nockio.com";
+        static final String serviceProvider = "http://handasaim.co.il";
+        static final String scheduleProvider = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/index.php";;
+        static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
+        static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
+        static final String fontName = "arimo.ttf";
+
+        static final String teacherModeEnabler = "installed_pass_teacher_mode";
+        static final String messageBoardSkipEnabler = "installed_pass_news_code_ver2";
+        static final String teacherMode = "teacher_mode";
+        static final String lessonName = "lesson_name";
+        static final String lessonTime = "lesson_time";
+        static final String breakTime = "break_time";
+        static final String bagOrginizer = "bag_orginizer";
+        static final String seasonalTheming = "seasonal_theming";
+        static final String pushService = "push_service";
+        static final String fontColor = "font_color";
+        static final String autoMute = "auto_mute";
+        static final String fontSize = "font_size";
+        static final String fontSizeNumber = "font_size_number";
+        static final String color = "color";
+        static final String favoriteClass = "favorite_class";
+        static final String favoriteTeacher = "favorite_teacher";
+        static final String seasonPriority = "season_priority";
+        static final String seasonEndDay = "season_ed";
+        static final String seasonEndMonth = "season_em";
+        static final String seasonEndYear = "season_ey";
+        static final String seasonMain = "season_main";
+        static final String seasonSub = "season_sub";
+        static final String seasonName = "season_name";
+        static final String seasonID = "season_id_";
+        static final String pushID = "push_id_";
+        static final String latestFileName = "latest_file_name";
+        static final String lastRecordedVersionCode = "last_recorded_version_code";
+        static final String firstLaunch = "first";
+        static final String latestFileNameDefault = "hs.xls";
+        static final boolean pushDefault = true;
+        static final boolean seasonDefault = true;
+        static final boolean fontColorDefault = true;
+        static final boolean lessonTimeDefault = false;
+        static final boolean breakTimeDefault = true;
+        static final boolean autoMuteDefault = false;
+        static final boolean bagOrginizerDefault = false;
+        static final boolean fontSizeDefault = false;
+        static final int maxKeyEntering = 4;
+        static final int waitTime = 10;
+        static final int bakedIconColor = 0xffdd8833;
+        static final int pushLoop = 1000 /* * 60*/ * 10;
+        static final int fontSizeBig = 30;
+        static final int fontSizeSmall = 20;
     }
 
     static class ClassTime {
@@ -2477,9 +2357,9 @@ public class Main extends Activity {
             this.color = color;
         }
 
-        static class SchudledTheme{
+        static class SchudledTheme {
             public int main, sub;
-            public int sd,sm,sy,ed,em,ey;
+            public int sd, sm, sy, ed, em, ey;
             public int id;
             public String name;
         }
@@ -2558,7 +2438,6 @@ public class Main extends Activity {
             all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
             all.setOrientation(LinearLayout.VERTICAL);
             all.setPadding(10, 10, 10, 10);
-            final Typeface custom_font = Typeface.createFromAsset(c.getAssets(), fontName);
             for (int h = 0; h <= 12; h++) {
                 final LinearLayout fsubj = new LinearLayout(c);
                 fsubj.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
@@ -2572,7 +2451,7 @@ public class Main extends Activity {
                 subj.setTextColor(Main.textColor);
                 subj.setPadding(20, 20, 20, 20);
                 subj.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(c) / 10));
-                subj.setTypeface(custom_font);
+                subj.setTypeface(getTypeface(c));
                 subj.setSingleLine(true);
                 subj.setEllipsize(TextUtils.TruncateAt.END);
                 String subjectName = null;
@@ -2640,7 +2519,7 @@ public class Main extends Activity {
                         breakt.setBackground(c.getDrawable(R.drawable.button));
                         breakt.setPadding(20, 20, 20, 20);
                         breakt.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(c) / 10));
-                        breakt.setTypeface(custom_font);
+                        breakt.setTypeface(getTypeface(c));
                         breakt.setAllCaps(false);
                         all.addView(breakt);
                     }
@@ -2959,7 +2838,7 @@ public class Main extends Activity {
             try {
                 MainSite ms = new MainSite();
                 ArrayList<Main.Link> news = new ArrayList<>();
-                String ser = Main.serviceProvider;
+                String ser = Values.serviceProvider;
                 Document docu = Jsoup.connect(ser).get();
                 Elements itemss = docu.getAllElements().select("div.carousel-inner").select("div.item");
                 for (int in = 0; in < itemss.size(); in++) {
@@ -3150,7 +3029,7 @@ public class Main extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction() != null) {
-                if (intent.getAction().equals(Main.KILL_DND)) {
+                if (intent.getAction().equals(Values.KILL_DND)) {
                     if (isAlive) {
                         isAlive = false;
                         try {
@@ -3162,7 +3041,7 @@ public class Main extends Activity {
                 }
             }
             final SharedPreferences sp = context.getSharedPreferences("app", Context.MODE_PRIVATE);
-            if (sp.getBoolean("auto_dnd", false)) {
+            if (sp.getBoolean(Values.autoMute, false)) {
                 if (Build.VERSION.SDK_INT >= 23) {
                     NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     boolean granted = false;
@@ -3183,8 +3062,8 @@ public class Main extends Activity {
 
         void checkTime(Context context, SharedPreferences sp) {
             Calendar c = Calendar.getInstance();
-            File excel = new File(context.getFilesDir(), sp.getString("latest_file_name", "hs.xls"));
-            String name = sp.getString("latest_file_name", "");
+            File excel = new File(context.getFilesDir(), sp.getString(Values.latestFileName, Values.latestFileNameDefault));
+            String name = sp.getString(Values.latestFileName, "");
             ArrayList<ClassTime> classTimes = new ArrayList<>();
             ArrayList<Class> classes;
             if (!name.equals("")) {
@@ -3196,15 +3075,14 @@ public class Main extends Activity {
             } else {
                 classes = new ArrayList<>();
             }
-            if (!sp.getBoolean("teacher_mode", false)) {
-                if (sp.getString("favorite_class", null) != null) {
+            if (!sp.getBoolean(Values.teacherMode, false)) {
+                if (sp.getString(Values.favoriteClass, null) != null) {
                     if (classes != null) {
                         for (int fc = 0; fc < classes.size(); fc++) {
-                            if (sp.getString("favorite_class", "").equals(classes.get(fc).name)) {
+                            if (sp.getString(Values.favoriteClass, "").equals(classes.get(fc).name)) {
                                 ArrayList<Subject> subjects = classes.get(fc).subjects;
                                 for (int sub = 0; sub < subjects.size(); sub++) {
                                     classTimes.add(Main.getTimeForLesson(subjects.get(sub).hour));
-                                    //                            Log.i("TIMES",classTimes.get(sub).startH+":"+classTimes.get(sub).startM+"-"+classTimes.get(sub).finishH+":"+classTimes.get(sub).finishM);
                                 }
                                 break;
                             }
@@ -3213,14 +3091,13 @@ public class Main extends Activity {
                 }
             } else {
                 ArrayList<ForTeachers.Teacher> teachers = ForTeachers.getTeacherSchudleForClasses(classes);
-                if (sp.getString("favorite_teacher", null) != null) {
+                if (sp.getString(Values.favoriteTeacher, null) != null) {
                     if (teachers != null) {
                         for (int fc = 0; fc < teachers.size(); fc++) {
-                            if (sp.getString("favorite_teacher", "").equals(teachers.get(fc).mainName)) {
+                            if (sp.getString(Values.favoriteTeacher, "").equals(teachers.get(fc).mainName)) {
                                 ArrayList<ForTeachers.TeacherLesson> subjects = teachers.get(fc).teaching;
                                 for (int sub = 0; sub < subjects.size(); sub++) {
                                     classTimes.add(Main.getTimeForLesson(subjects.get(sub).hour));
-                                    //                            Log.i("TIMES",classTimes.get(sub).startH+":"+classTimes.get(sub).startM+"-"+classTimes.get(sub).finishH+":"+classTimes.get(sub).finishM);
                                 }
                                 break;
                             }
@@ -3280,7 +3157,7 @@ public class Main extends Activity {
             tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
             tPaint.setColor(textColor);
             tPaint.setTextSize(textSize);
-            tPaint.setTypeface(Typeface.createFromAsset(c.getAssets(), fontName));
+            tPaint.setTypeface(Typeface.createFromAsset(c.getAssets(), Values.fontName));
         }
 
         public CurvedTextView(Context context, String text, float textSize, int textColor, int sizeX, int sizeY, int radius) {
@@ -3296,7 +3173,7 @@ public class Main extends Activity {
             tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
             tPaint.setColor(textColor);
             tPaint.setTextSize(textSize);
-            tPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), fontName));
+            tPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), Values.fontName));
         }
 
         @Override

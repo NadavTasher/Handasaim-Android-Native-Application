@@ -31,8 +31,14 @@ public class Push extends JobService {
     @Override
     public boolean onStartJob(final JobParameters params) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
-        if (sp.getBoolean(Main.prefPush, Main.prefPushDefault)) {
-            checkForPushes(sp);
+        if (sp.getBoolean(Main.Values.pushService, Main.Values.pushDefault)) {
+            new Light.Net.Pinger(5000, new Light.Net.Pinger.OnEnd() {
+                @Override
+                public void onPing(String s, boolean b) {
+                    if(b)checkForPushes(sp);
+                }
+            }).execute(Main.Values.puzProvider);
+
         }
         Main.startPush(getApplicationContext());
         return false;
@@ -44,7 +50,7 @@ public class Push extends JobService {
     }
 
     private void checkForPushes(final SharedPreferences sp) {
-        new Main.FileReader(Main.pushProvider, new Main.FileReader.OnRead() {
+        new Main.FileReader(Main.Values.pushProvider, new Main.FileReader.OnRead() {
             @Override
             public void done(String s) {
                 try {
@@ -75,12 +81,12 @@ public class Push extends JobService {
                         int cdate = getDay(c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR));
                         int wdate = getDay(it.d, it.m, it.y);
                         boolean dated = cdate <= wdate;
-                        if (!sp.getBoolean(Main.prefPushNotif + it.id, false) && dated) {
-                            sp.edit().putBoolean(Main.prefPushNotif + it.id, true).apply();
+                        if (!sp.getBoolean(Main.Values.pushID + it.id, false) && dated) {
+                            sp.edit().putBoolean(Main.Values.pushID + it.id, true).apply();
                             showNotification(it);
                         }
                     }
-                } catch (JSONException e) {
+                } catch (JSONException e ) {
                     e.printStackTrace();
                 }
             }
