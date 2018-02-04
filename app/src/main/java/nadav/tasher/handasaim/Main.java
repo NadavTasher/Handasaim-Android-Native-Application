@@ -107,7 +107,8 @@ public class Main extends Activity {
     private ForTeachers.Teacher currentTeacher;
     private LinearLayout masterLayout;
     private LinearLayout masterNavigation;
-    private Theme[] themes = new Theme[]{new Theme("#2c7cb4"), new Theme("#562627"), new Theme("#1b5c96"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
+    private Graphics.CurvedTextView ctv;
+    private Theme[] themes = new Theme[]{new Theme("#000000"), new Theme("#2c7cb4"), new Theme("#562627"), new Theme("#1b5c96"), new Theme("#773272"), new Theme("#9b8c36"), new Theme("#425166"), new Theme("#112233"), new Theme("#325947"), new Theme("#893768"), new Theme("#746764"), new Theme("#553311"), new Theme(color)};
     private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
     private String[] infact = new String[]{"Every year more than 2500 left-handed people are killed from using right-handed products.", "In 1895 Hampshire police handed out the first ever speeding ticket, fining a man for doing 6mph!", "Over 1000 birds a year die from smashing into windows.", "Squirrels forget where they hide about half of their nuts.", "The average person walks the equivalent of twice around the world in a lifetime.", "A company in Taiwan makes dinnerware out of wheat, so you can eat your plate!", "An apple, potato, and onion all taste the same if you eat them with your nose plugged.", "Dying is illegal in the Houses of Parliaments – This has been voted as the most ridiculous law by the British citizens.", "The first alarm clock could only ring at 4am.", "If you leave everything to the last minute… it will only take a minute.", "Every human spent about half an hour as a single cell.", "The Twitter bird actually has a name – Larry.", "Sea otters hold hands when they sleep so they don’t drift away from each other.", "The French language has seventeen different words for ‘surrender’.", "The Titanic was the first ship to use the SOS signal.", "A baby octopus is about the size of a flea when it is born.", "You cannot snore and dream at the same time.", "A toaster uses almost half as much energy as a full-sized oven.", "If you consistently fart for 6 years & 9 months, enough gas is produced to create the energy of an atomic bomb!", "An eagle can kill a young deer and fly away with it.", "Polar bears can eat as many as 86 penguins in a single sitting.", "If Pinokio says “My Nose Will Grow Now”, it would cause a paradox.", "Bananas are curved because they grow towards the sun.", "Human saliva has a boiling point three times that of regular water.", "Cherophobia is the fear of fun.", "When hippos are upset, their sweat turns red.", "Pteronophobia is the fear of being tickled by feathers!", "Banging your head against a wall burns 150 calories an hour."};
     private boolean opened = false;
@@ -169,6 +170,7 @@ public class Main extends Activity {
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setBackgroundColor(color);
         final ImageView icon = new ImageView(this);
+        icon.setScaleType(ImageView.ScaleType.FIT_XY);
         icon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         int is = (int) (Light.Device.screenX(getApplicationContext()) * 0.8);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
@@ -181,7 +183,7 @@ public class Main extends Activity {
         if (sp.getBoolean(Values.seasonalTheming, Values.seasonDefault) && sp.getBoolean(Values.seasonPriority, false)) {
             curved = sp.getString(Values.seasonName, curved);
         }
-        final Graphics.CurvedTextView ctv = new Graphics.CurvedTextView(this, curved, 50, Values.bakedIconColor, Light.Device.screenX(this), (int) (Light.Device.screenY(getApplicationContext()) * 0.3), (int) (Light.Device.screenY(getApplicationContext()) * 0.15) / 2);
+        ctv = new Graphics.CurvedTextView(this, curved, 50, Values.bakedIconColor, Light.Device.screenX(this), (int) (Light.Device.screenY(getApplicationContext()) * 0.3), (int) (Light.Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setVisibility(View.GONE);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.3)));
         ll.addView(ctv);
@@ -988,7 +990,7 @@ public class Main extends Activity {
                 opened = !opened;
             }
         });
-        Graphics.Tile teacherModeTile = new Graphics.Tile(getApplicationContext(), Values.teacherMode, false, R.drawable.ic_teachermode, false);
+        Graphics.Tile teacherModeTile = new Graphics.Tile(getApplicationContext(), Values.teacherMode, false, R.drawable.ic_teacher_mode, false);
         final Graphics.Tile lessonNameTile = new Graphics.Tile(getApplicationContext(), Values.lessonName, false, R.drawable.ic_lessonname, false);
         lessonNameTile.setLongClick("Toggle Lesson Name", Gravity.CENTER);
         teacherModeTile.setLongClick("Toggle Teacher Mode", Gravity.CENTER);
@@ -999,7 +1001,7 @@ public class Main extends Activity {
         Graphics.Tile lessonTimeTile = new Graphics.Tile(getApplicationContext(), Values.lessonTime, Values.lessonTimeDefault, R.drawable.ic_clock, false);
         lessonTimeTile.setLongClick("Toggle Lesson Time", Gravity.CENTER);
         tileNavigation.addView(lessonTimeTile);
-        Graphics.Tile breakTile = new Graphics.Tile(getApplicationContext(), Values.breakTime, Values.breakTimeDefault, R.drawable.ic_breaktime, false);
+        Graphics.Tile breakTile = new Graphics.Tile(getApplicationContext(), Values.breakTime, Values.breakTimeDefault, R.drawable.ic_break_time, false);
         breakTile.setLongClick("Toggle Breaks In Schedule", Gravity.CENTER);
         tileNavigation.addView(breakTile);
         final Graphics.Tile autoMuteTile = new Graphics.Tile(getApplicationContext(), Values.autoMute, Values.autoMuteDefault, R.drawable.ic_auto_mute, false);
@@ -2410,11 +2412,13 @@ public class Main extends Activity {
             }
         }
 
-        static public class CurvedTextView extends View {
+        static class CurvedTextView extends View {
             private Path circle;
             private Paint tPaint;
             private Paint cPaint;
             private String text;
+            private float textSize;
+            private int textColor, sizeX, sizeY, radius;
 
             public CurvedTextView(Context c) {
                 super(c);
@@ -2436,6 +2440,20 @@ public class Main extends Activity {
             public CurvedTextView(Context context, String text, float textSize, int textColor, int sizeX, int sizeY, int radius) {
                 super(context);
                 this.text = text;
+                this.textSize = textSize;
+                this.textColor = textColor;
+                this.sizeX = sizeX;
+                this.sizeY = sizeY;
+                this.radius = radius;
+                init();
+            }
+
+            public void setText(String s) {
+                this.text = s;
+                init();
+            }
+
+            private void init() {
                 circle = new Path();
                 circle.addCircle(((sizeX - radius * 2) / 2) + radius, ((sizeY - radius * 2) / 2) + radius, radius, Path.Direction.CW);
                 cPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -2446,7 +2464,7 @@ public class Main extends Activity {
                 tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
                 tPaint.setColor(textColor);
                 tPaint.setTextSize(textSize);
-                tPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), Values.fontName));
+                tPaint.setTypeface(Typeface.createFromAsset(getContext().getAssets(), Values.fontName));
             }
 
             @Override
@@ -2480,7 +2498,7 @@ public class Main extends Activity {
         static final String autoMute = "auto_mute";
         static final String fontSize = "font_size";
         static final String fontSizeNumber = "font_size_number";
-        static final String color = "color";
+        static final String color = "color_v2";
         static final String favoriteClass = "favorite_class";
         static final String favoriteTeacher = "favorite_teacher";
         static final String seasonPriority = "season_priority";
@@ -2506,10 +2524,10 @@ public class Main extends Activity {
         static final int maxKeyEntering = 4;
         static final int waitTime = 10;
         static final int bakedIconColor = 0xffdd8833;
-        static final int pushLoop = 1000 * 60 * 10;
+        static final int pushLoop = 1000 * 60 * 15;
         static final int fontSizeBig = 30;
         static final int fontSizeSmall = 20;
-        static final int defaultColor = Color.parseColor("#000000");
+        static final int defaultColor = Color.parseColor("#333333");
     }
 
     static class ClassTime {
@@ -3112,7 +3130,7 @@ public class Main extends Activity {
                     output.close();
                     input.close();
                 } catch (Exception e) {
-                    Log.e("Error: ", e.getMessage());
+                    //                    Log.e("Error: ", e.getMessage());
                 }
             } else {
                 available = false;

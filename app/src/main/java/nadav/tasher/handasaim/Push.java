@@ -133,6 +133,7 @@ public class Push extends JobService {
                 );
         mBuilder.setAutoCancel(true);
         mBuilder.setContentIntent(resultPendingIntent);
+        mBuilder.setShowWhen(true);
         mNotifyMgr.notify(new Random().nextInt(1000), mBuilder.build());
     }
 
