@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.2'
     defaultConfig {
         applicationId "nadav.tasher.handasaim"
         minSdkVersion 21
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 30
         versionName '3.9'
         multiDexEnabled true
@@ -37,7 +37,8 @@ android {
 dependencies {
     implementation project(':lightool')
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:25.4.0'
+    implementation 'com.android.support:appcompat-v7:27.0.2'
+    implementation 'com.android.support:design:27.0.2'
     implementation 'org.jsoup:jsoup:1.10.3'
 //    implementation 'org.apache.poi:poi:3.17'
 //    implementation 'org.apache.poi:poi-ooxml-schemas:3.17'
