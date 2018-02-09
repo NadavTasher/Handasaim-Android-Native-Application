@@ -1,19 +1,19 @@
 <vector android:height="24dp" android:viewportHeight="135.46667"
     android:viewportWidth="135.46666" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:fillAlpha="1" android:fillColor="#000000"
-        android:pathData="M104.53,24.69m-17.84,0a17.84,17.84 0,1 1,35.68 0a17.84,17.84 0,1 1,-35.68 0"
+        android:pathData="M95.95,32.52m-14.6,0a14.6,14.6 0,1 1,29.19 0a14.6,14.6 0,1 1,-29.19 0"
         android:strokeAlpha="1" android:strokeColor="#000000"
-        android:strokeLineCap="round" android:strokeWidth="7.08005571"/>
+        android:strokeLineCap="round" android:strokeWidth="5.79229689"/>
     <path android:fillAlpha="1" android:fillColor="#000000"
-        android:pathData="M30.94,67.73m-17.84,0a17.84,17.84 0,1 1,35.68 0a17.84,17.84 0,1 1,-35.68 0"
+        android:pathData="M35.74,67.73m-14.6,0a14.6,14.6 0,1 1,29.19 0a14.6,14.6 0,1 1,-29.19 0"
         android:strokeAlpha="1" android:strokeColor="#000000"
-        android:strokeLineCap="round" android:strokeWidth="7.08005571"/>
+        android:strokeLineCap="round" android:strokeWidth="5.79229689"/>
     <path android:fillAlpha="1" android:fillColor="#000000"
-        android:pathData="M104.53,110.77m-17.84,0a17.84,17.84 0,1 1,35.68 0a17.84,17.84 0,1 1,-35.68 0"
+        android:pathData="M95.95,102.95m-14.6,0a14.6,14.6 0,1 1,29.19 0a14.6,14.6 0,1 1,-29.19 0"
         android:strokeAlpha="1" android:strokeColor="#000000"
-        android:strokeLineCap="round" android:strokeWidth="7.08005571"/>
+        android:strokeLineCap="round" android:strokeWidth="5.79229689"/>
     <path android:fillColor="#00000000"
-        android:pathData="M105.42,112.87 L27.81,67.82 105.42,24.11"
+        android:pathData="M96.68,104.66 L33.18,67.81 96.68,32.05"
         android:strokeAlpha="1" android:strokeColor="#000000"
-        android:strokeLineCap="round" android:strokeLineJoin="miter" android:strokeWidth="11.80009365"/>
+        android:strokeLineCap="round" android:strokeLineJoin="miter" android:strokeWidth="9.65382862"/>
 </vector>
