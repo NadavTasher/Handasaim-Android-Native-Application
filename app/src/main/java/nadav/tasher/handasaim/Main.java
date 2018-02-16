@@ -340,7 +340,7 @@ public class Main extends Activity {
             newsAll.setOrientation(LinearLayout.VERTICAL);
             news.setOrientation(LinearLayout.VERTICAL);
             final Button princibleSay = new Button(getApplicationContext());
-            princibleSay.setBackground(getDrawable(R.drawable.coaster_normal));
+            princibleSay.setBackground(getDrawable(R.drawable.general_coaster_normal));
             princibleSay.setTypeface(getTypeface());
             princibleSay.setPadding(10, 10, 10, 10);
             princibleSay.setTextColor(textColor);
@@ -350,7 +350,7 @@ public class Main extends Activity {
             //            newsAll.setPadding(0, 20, 0, 20);
             news.setPadding(40, 40, 40, 40);
             news.addView(messBoardTitle);
-            news.setBackground(getDrawable(R.drawable.coaster_normal));
+            news.setBackground(getDrawable(R.drawable.general_coaster_normal));
             //        news.setAlpha(0.5f);
             newsAll.addView(news);
             final LinearLayout principals = new LinearLayout(getApplicationContext());
@@ -359,7 +359,7 @@ public class Main extends Activity {
             principals.addView(prinSays);
             principals.addView(princibleSay);
             newsAll.addView(principals);
-            principals.setBackground(getDrawable(R.drawable.coaster_normal));
+            principals.setBackground(getDrawable(R.drawable.general_coaster_normal));
             principals.setPadding(40, 20, 40, 40);
             prinSays.setPadding(10, 10, 10, 10);
             messBoardTitle.setPadding(10, 10, 10, 10);
@@ -390,19 +390,19 @@ public class Main extends Activity {
             instructions.setTypeface(getTypeface());
             waiting.setTypeface(getTypeface());
             instructions.setGravity(Gravity.CENTER);
-            instructions.setBackground(getDrawable(R.drawable.coaster_normal));
-            waiting.setBackground(getDrawable(R.drawable.coaster_normal));
+            instructions.setBackground(getDrawable(R.drawable.general_coaster_normal));
+            waiting.setBackground(getDrawable(R.drawable.general_coaster_normal));
             waiting.setGravity(Gravity.CENTER);
             instructions.setPadding(20, 20, 20, 20);
             waiting.setPadding(20, 20, 20, 20);
             waiting.setText(R.string.secondsleft);
             //            nextLayout.setPadding(0,10,0,10);
             nextButton.setText(R.string.nxt);
-            nextButton.setBackground(getDrawable(R.drawable.coaster_normal));
+            nextButton.setBackground(getDrawable(R.drawable.general_coaster_normal));
             nextButton.setTypeface(getTypeface());
             nextButton.setTextSize(getFontSize() - 10);
             nextButton.setTextColor(textColor);
-            nextLayout.setBackground(getDrawable(R.drawable.coaster_normal));
+            nextLayout.setBackground(getDrawable(R.drawable.general_coaster_normal));
             nextLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 15 * 2));
             full.addView(nextLayout);
             nextButton.setOnClickListener(new View.OnClickListener() {
@@ -441,11 +441,11 @@ public class Main extends Activity {
                             nt.setGravity(Gravity.CENTER);
                             Button newtopic = new Button(getApplicationContext());
                             nt.addView(newtopic);
-                            nt.setBackground(getDrawable(R.drawable.coaster_normal));
+                            nt.setBackground(getDrawable(R.drawable.general_coaster_normal));
                             nt.setPadding(10, 10, 10, 10);
                             newtopic.setText(ms.news.get(n).name);
                             newtopic.setEllipsize(TextUtils.TruncateAt.END);
-                            newtopic.setBackground(getDrawable(R.drawable.coaster_normal));
+                            newtopic.setBackground(getDrawable(R.drawable.general_coaster_normal));
                             newtopic.setTextColor(textColor);
                             newtopic.setTextSize(getFontSize() - 10);
                             newtopic.setPadding(20, 10, 20, 10);
@@ -912,6 +912,8 @@ public class Main extends Activity {
         final int circlePadding = x / 30;
         final int circleSize = x / 4;
         final ScrollView contentScroll = new ScrollView(this);
+        contentScroll.setVerticalScrollBarEnabled(false);
+        contentScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         content = new FrameLayout(this);
         masterLayout = new FrameLayout(this);
         circleView = new Graphics.CircleView(this, circleSize);
@@ -929,11 +931,11 @@ public class Main extends Activity {
         final Graphics.OptionHolder optionHolder=new Graphics.OptionHolder(getApplicationContext(),options,circlePadding);
         optionHolder.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, options.length*circleSize+2*circlePadding));
         optionHolder.setX(0);
-//        optionHolder.setPadding(circlePadding,0,circlePadding,0);
         optionHolder.setVisibility(View.GONE);
         circleView.setOnStateChangedListener(new Graphics.CircleView.OnStateChangedListener() {
             @Override
             public void onOpen() {
+                optionHolder.emptyContent();
                 optionHolder.setVisibility(View.VISIBLE);
             }
 
@@ -953,37 +955,39 @@ public class Main extends Activity {
         masterLayout.addView(optionHolder);
         circleView.setX(x - circleView.xy - circlePadding);
         circleView.setY(y - circleView.xy - getNavSize() / 2 - circlePadding);
-        optionHolder.setY(y-(y-circleView.getY())-((3*circlePadding)/2)-(options.length*circleSize+circlePadding));
+        optionHolder.setY(y-(y-circleView.getY())-(((options.length+1)*circlePadding)/2)-(options.length*circleSize+circlePadding));
         masterNavigation.setOnStateChangedListener(new Graphics.DragNavigation.OnStateChangedListener() {
             @Override
             public void onOpen() {
+                TextView load=new TextView(getApplicationContext());
+                load.setTextSize(getFontSize());
+                load.setTypeface(getTypeface());
+                load.setTextColor(textColor);
+                load.setText(R.string.loadingtext);
+                load.setGravity(Gravity.CENTER);
+                masterNavigation.setContent(load);
                 final int fontSize = getFontSize();
-                LinearLayout fullPage = new LinearLayout(getApplicationContext());
-                final LinearLayout news = new LinearLayout(getApplicationContext()), push = new LinearLayout(getApplicationContext());
+                final LinearLayout fullPage = new LinearLayout(getApplicationContext());
+                final LinearLayout news = new LinearLayout(getApplicationContext());
                 ScrollView npscroll = new ScrollView(getApplicationContext());
+                npscroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
                 LinearLayout newsAndPush = new LinearLayout(getApplicationContext());
                 fullPage.setOrientation(LinearLayout.VERTICAL);
                 news.setOrientation(LinearLayout.VERTICAL);
-                push.setOrientation(LinearLayout.VERTICAL);
+
                 newsAndPush.setOrientation(LinearLayout.VERTICAL);
                 fullPage.setGravity(Gravity.CENTER);
                 news.setGravity(Gravity.CENTER);
-                push.setGravity(Gravity.CENTER);
+
                 newsAndPush.setGravity(Gravity.CENTER);
                 npscroll.addView(newsAndPush);
-                newsAndPush.addView(push);
                 newsAndPush.addView(news);
-                push.setPadding(10, 15, 10, 15);
-                news.setPadding(10, 15, 10, 15);
                 TextView pushTitle, newsTitle;
                 pushTitle = new TextView(getApplicationContext());
                 newsTitle = new TextView(getApplicationContext());
                 pushTitle.setText(R.string.pushmess);
                 newsTitle.setText(R.string.news);
-                push.addView(pushTitle);
                 news.addView(newsTitle);
-                push.setBackground(getDrawable(R.drawable.coaster_normal));
-                news.setBackground(getDrawable(R.drawable.coaster_normal));
                 newsTitle.setTextColor(textColor);
                 pushTitle.setTextColor(textColor);
                 newsTitle.setTextSize(fontSize);
@@ -993,13 +997,9 @@ public class Main extends Activity {
                 newsTitle.setTypeface(getTypeface());
                 pushTitle.setTypeface(getTypeface());
                 fullPage.addView(npscroll);
-                //                fullPage.setBackgroundColor(colorA);
-                fullPage.setPadding(5, 5, 5, 5);
-                news.setVisibility(View.INVISIBLE);
-                push.setVisibility(View.GONE);
+//                fullPage.setPadding(5, 5, 5, 5);
                 fullPage.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 npscroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                masterNavigation.setContent(fullPage);
                 if (Light.Device.isOnline(getApplicationContext())) {
                     new GetNews(Values.serviceProvider, new GetNews.GotNews() {
                         @Override
@@ -1014,9 +1014,9 @@ public class Main extends Activity {
                                 cls.setEllipsize(TextUtils.TruncateAt.END);
                                 cls.setLines(2);
                                 //                            cls.setBackgroundColor(Color.TRANSPARENT);
-                                cls.setBackground(getDrawable(R.drawable.coaster_normal));
+                                cls.setBackground(getDrawable(R.drawable.button));
                                 cls.setTypeface(getTypeface());
-                                cls.setLayoutParams(new LinearLayout.LayoutParams((int) (Light.Device.screenX(getApplicationContext()) * 0.8), (Light.Device.screenY(getApplicationContext()) / 8)));
+                                cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Light.Device.screenY(getApplicationContext()) / 8)));
                                 news.addView(cls);
                                 if (!link.get(i).url.equals("")) {
                                     final int finalI = i;
@@ -1031,11 +1031,19 @@ public class Main extends Activity {
                                     });
                                 }
                             }
-                            news.setVisibility(View.VISIBLE);
+                            masterNavigation.setContent(fullPage);
                         }
 
                         @Override
                         public void onFail(ArrayList<Link> e) {
+                            TextView fail=new TextView(getApplicationContext());
+                            fail.setTextSize(getFontSize());
+                            fail.setTypeface(getTypeface());
+                            fail.setTextColor(textColor);
+                            fail.setText("Failed To Load News.");
+                            fail.setGravity(Gravity.CENTER);
+                            masterNavigation.setContent(fail);
+
                         }
                     }).execute("");
                 }
@@ -1043,6 +1051,7 @@ public class Main extends Activity {
 
             @Override
             public void onClose() {
+                masterNavigation.emptyContent();
             }
         });
         int selectedClass = 0;
@@ -1068,30 +1077,59 @@ public class Main extends Activity {
         Graphics.CircleView.CircleOption share = new Graphics.CircleView.CircleOption(getApplicationContext(), circleSize,circlePadding);
         share.circle(colorA);
         share.setIcon(getDrawable(R.drawable.ic_share));
-        Button shareB=new Button(this);;
-        shareB.setText("Share");
+        LinearLayout shareView=new LinearLayout(this);
+        shareView.setGravity(Gravity.CENTER);
+        shareView.setOrientation(LinearLayout.VERTICAL);
+        TextView shareTitle=new TextView(this);
+        shareTitle.setTextSize(getFontSize());
+        shareTitle.setTypeface(getTypeface());
+        shareTitle.setTextColor(textColor);
+        shareTitle.setText("Share Menu");
+        shareTitle.setGravity(Gravity.CENTER);
+        final Switch shareTimeSwitch=new Switch(this);
+        shareTimeSwitch.setText("Lesson Time");
+        shareTimeSwitch.setTypeface(getTypeface());
+        shareTimeSwitch.setTextSize(getFontSize()-4);
+        shareTimeSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        Button shareB=new Button(this);
+        shareB.setText(R.string.share);
         shareB.setBackground(getDrawable(R.drawable.button));
-        shareB.setTextColor(Color.BLACK);
-        share.setDesiredView(shareB);
+        shareB.setTextColor(Color.WHITE);
+        shareB.setTextSize(getFontSize()-7);
+        shareB.setTypeface(getTypeface());
+        shareB.setAllCaps(false);
         shareB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
                 if (!sp.getBoolean(Values.teacherMode, false)) {
-                    share(currentClass.name + "\n" + hourSystemForClassString(currentClass, sp.getBoolean(Values.lessonTime, Values.lessonTimeDefault)));
+                    share(currentClass.name + "\n" + hourSystemForClassString(currentClass, shareTimeSwitch.isChecked()));
                 } else {
-                    share(currentTeacher.mainName + "\n" + ForTeachers.hourSystemForTeacherString(currentTeacher, sp.getBoolean(Values.lessonTime, Values.lessonTimeDefault)));
+                    share(currentTeacher.mainName + "\n" + ForTeachers.hourSystemForTeacherString(currentTeacher,  shareTimeSwitch.isChecked()));
                 }
             }
         });
+        shareView.addView(shareTitle);
+        shareView.addView(shareTimeSwitch);
+        shareView.addView(shareB);
+        shareView.setPadding(15,15,15,15);
+        shareView.setBackground(getDrawable(R.drawable.general_coaster_normal));
+
+
+        share.setDesiredView(shareView);
+
         Graphics.CircleView.CircleOption changeClass = new Graphics.CircleView.CircleOption(getApplicationContext(), circleSize,circlePadding);
         changeClass.circle(colorA);
         changeClass.setIcon(getDrawable(R.drawable.ic_class));
-//        changeClass.text("Change Class");
         changeClass.setDesiredView(getClassSwitchView());
 
+        Graphics.CircleView.CircleOption settings = new Graphics.CircleView.CircleOption(getApplicationContext(), circleSize,circlePadding);
+        settings.circle(colorA);
+        settings.setIcon(getDrawable(R.drawable.ic_gear));
+        settings.setDesiredView(getClassSwitchView());
+
         Graphics.CircleView.CircleOption[] options = new Graphics.CircleView.CircleOption[]{
-                share,changeClass
+                share,changeClass,settings
         };
         return options;
     }
@@ -1101,13 +1139,12 @@ public class Main extends Activity {
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.CENTER);
         for (int cs = 0; cs < classes.size(); cs++) {
-            if (classes.get(cs) != currentClass) {
                 Button cls = new Button(getApplicationContext());
                 cls.setTextSize((float) getFontSize());
                 cls.setGravity(Gravity.CENTER);
                 cls.setText(classes.get(cs).name);
-                cls.setTextColor(Color.BLACK);
-                cls.setBackground(getDrawable(R.drawable.coaster_white));
+                cls.setTextColor(Color.WHITE);
+                cls.setBackground(getDrawable(R.drawable.button));
                 cls.setPadding(10, 0, 10, 0);
                 cls.setTypeface(getTypeface());
                 cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Light.Device.screenY(getApplicationContext()) / 10)));
@@ -1121,7 +1158,6 @@ public class Main extends Activity {
                         showSchedule(classes.get(finalCs));
                     }
                 });
-            }
         }
         ScrollView sv=new ScrollView(this);
         sv.addView(all);
@@ -1895,6 +1931,7 @@ public class Main extends Activity {
             private LinearLayout.LayoutParams iconParams, navigationParms;
             private int smallNavigation;
             private boolean touchable = true;
+            private boolean isOpen=false;
             private OnStateChangedListener onstate;
             private LinearLayout pullOff;
 
@@ -1949,10 +1986,11 @@ public class Main extends Activity {
                                     setY(0);
                                 }
                             } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                                Log.i("Y", String.valueOf(getY()));
+//                                Log.i("Y", String.valueOf(getY()));
                                 if (getY() >= (-getHeight() / 2) + smallNavigation / 2) {
                                     ObjectAnimator oa = ObjectAnimator.ofFloat(DragNavigation.this, View.TRANSLATION_Y, getY(), 0);
                                     oa.setDuration(300);
+                                    oa.setInterpolator(new LinearInterpolator());
                                     oa.addListener(new Animator.AnimatorListener() {
                                         @Override
                                         public void onAnimationStart(Animator animation) {
@@ -1962,7 +2000,10 @@ public class Main extends Activity {
                                         @Override
                                         public void onAnimationEnd(Animator animation) {
                                             touchable = true;
-                                            if (onstate != null) onstate.onOpen();
+                                            if(!isOpen) {
+                                                if (onstate != null) onstate.onOpen();
+                                            }
+                                            isOpen=true;
                                         }
 
                                         @Override
@@ -1977,6 +2018,7 @@ public class Main extends Activity {
                                 } else {
                                     ObjectAnimator oa = ObjectAnimator.ofFloat(DragNavigation.this, View.TRANSLATION_Y, getY(), completeZero);
                                     oa.setDuration(300);
+                                    oa.setInterpolator(new LinearInterpolator());
                                     oa.addListener(new Animator.AnimatorListener() {
                                         @Override
                                         public void onAnimationStart(Animator animation) {
@@ -1986,7 +2028,11 @@ public class Main extends Activity {
                                         @Override
                                         public void onAnimationEnd(Animator animation) {
                                             touchable = true;
-                                            if (onstate != null) onstate.onClose();
+                                            if(isOpen) {
+                                                if (onstate != null) onstate.onClose();
+                                            }
+                                            isOpen=false;
+
                                         }
 
                                         @Override
@@ -2022,6 +2068,10 @@ public class Main extends Activity {
 
             public void setOnStateChangedListener(OnStateChangedListener osc) {
                 onstate = osc;
+            }
+
+            public void emptyContent(){
+                upContent.removeAllViews();
             }
 
             @Override
@@ -2253,6 +2303,9 @@ public class Main extends Activity {
                 this.sidePadding=sidePadding;
                 init();
             }
+            public void emptyContent(){
+                content.removeAllViews();
+            }
             private void init(){
                 content=new FrameLayout(getContext());
                 options=new LinearLayout(getContext());
@@ -2272,7 +2325,7 @@ public class Main extends Activity {
                 setLayoutDirection(LAYOUT_DIRECTION_RTL);
                 addView(options);
                 addView(content);
-                content.setBackground(getContext().getDrawable(R.drawable.coaster_white));
+//                content.setBackground(getContext().getDrawable(R.drawable.coaster_normal));
                 content.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 content.setPadding(15,15,15,15);
                 setPadding(sidePadding,0,0,0);
