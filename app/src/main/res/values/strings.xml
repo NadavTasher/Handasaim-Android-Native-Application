@@ -26,4 +26,6 @@
     <string name="pushmess">Push Messages</string>
     <string name="news">News</string>
     <string name="loadingtext">Loading…</string>
+    <string name="shareMenu">Share Menu</string>
+    <string name="lessonTime">Lesson Time</string>
 </resources>

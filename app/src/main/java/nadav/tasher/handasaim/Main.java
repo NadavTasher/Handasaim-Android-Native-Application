@@ -26,11 +26,14 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.RoundRectShape;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -1083,13 +1086,14 @@ public class Main extends Activity {
         TextView shareTitle=new TextView(this);
         shareTitle.setTextSize(getFontSize());
         shareTitle.setTypeface(getTypeface());
-        shareTitle.setTextColor(textColor);
-        shareTitle.setText("Share Menu");
+        shareTitle.setTextColor(Color.BLACK);
+        shareTitle.setText(R.string.shareMenu);
         shareTitle.setGravity(Gravity.CENTER);
         final Switch shareTimeSwitch=new Switch(this);
-        shareTimeSwitch.setText("Lesson Time");
+        shareTimeSwitch.setText(R.string.lessonTime);
         shareTimeSwitch.setTypeface(getTypeface());
         shareTimeSwitch.setTextSize(getFontSize()-4);
+        shareTimeSwitch.setTextColor(Color.BLACK);
         shareTimeSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         Button shareB=new Button(this);
         shareB.setText(R.string.share);
@@ -1126,12 +1130,20 @@ public class Main extends Activity {
         Graphics.CircleView.CircleOption settings = new Graphics.CircleView.CircleOption(getApplicationContext(), circleSize,circlePadding);
         settings.circle(colorA);
         settings.setIcon(getDrawable(R.drawable.ic_gear));
-        settings.setDesiredView(getClassSwitchView());
+        settings.setDesiredView(getSettingsView());
 
         Graphics.CircleView.CircleOption[] options = new Graphics.CircleView.CircleOption[]{
                 share,changeClass,settings
         };
         return options;
+    }
+
+    private ScrollView getSettingsView(){
+        ScrollView sv=new ScrollView(getApplicationContext());
+        Graphics.ColorPicker cp=new Graphics.ColorPicker(getApplicationContext(), Light.Device.screenX(getApplicationContext())/2,Light.Device.screenY(getApplicationContext())/3);
+//        cp.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,Light.Device.screenY(getApplicationContext())/3));
+        sv.addView(cp);
+        return sv;
     }
 
     private ScrollView getClassSwitchView(){
@@ -2327,7 +2339,7 @@ public class Main extends Activity {
                 addView(content);
 //                content.setBackground(getContext().getDrawable(R.drawable.coaster_normal));
                 content.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                content.setPadding(15,15,15,15);
+//                content.setPadding(15,15,15,15);
                 setPadding(sidePadding,0,0,0);
             }
         }
@@ -2488,6 +2500,49 @@ public class Main extends Activity {
             protected void onDraw(Canvas canvas) {
                 canvas.drawTextOnPath(text, circle, 0, 0, tPaint);
                 invalidate();
+            }
+        }
+
+        static class SettingsOption extends LinearLayout{
+
+            public SettingsOption(Context context,String settingToChange,String displayText) {
+                super(context);
+            }
+        }
+        static class ColorPicker extends LinearLayout{
+            View colorSpectrum;
+            int color,x,y;
+            int[] spectrum=new int[]{0xFFFF0000,0xFFFFFF00,0xFF00FF00,0xFF00FFFF,0xFF0000FF,0xFFFF00FF,0xFFFF0000};
+            public ColorPicker(Context context,int x,int y) {
+                super(context);
+                this.y=y;
+                this.x=x;
+                init();
+            }
+
+            private void init(){
+                setLayoutParams(new LayoutParams(x,y));
+                setOrientation(VERTICAL);
+                setGravity(Gravity.CENTER);
+                colorSpectrum=new View(getContext());
+                final GradientDrawable gd=new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,spectrum);
+                gd.setCornerRadius(15);
+                colorSpectrum.setBackground(gd);
+                colorSpectrum.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,y/4));
+                colorSpectrum.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        Bitmap bitmap = Bitmap.createBitmap((int) (x-getPaddingLeft()-getPaddingRight()), 1, Bitmap.Config.ARGB_8888);
+                        Canvas canvas =  new Canvas(bitmap);
+//                        gd.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                        gd.draw(canvas);
+                        color=bitmap.getPixel((int) event.getRawX()-v.getWidth()/2,0);
+                        setBackgroundColor(color);
+                        Log.i("COLOR","ITS"+color);
+                        return true;
+                    }
+                });
+                addView(colorSpectrum);
             }
         }
     }
