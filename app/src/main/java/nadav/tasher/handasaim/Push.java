@@ -32,12 +32,12 @@ public class Push extends JobService {
     public boolean onStartJob(final JobParameters params) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         if (sp.getBoolean(Main.Values.pushService, Main.Values.pushDefault)) {
-            new Light.Net.Pinger(5000, new Light.Net.Pinger.OnEnd() {
+            new Light.Net.Pinger(Main.Values.puzProvider,5000, new Light.Net.Pinger.OnEnd() {
                 @Override
-                public void onPing(String s, boolean b) {
+                public void onPing(boolean b) {
                     if(b)checkForPushes(sp);
                 }
-            }).execute(Main.Values.puzProvider);
+            }).execute();
 
         }
         Main.startPush(getApplicationContext());
