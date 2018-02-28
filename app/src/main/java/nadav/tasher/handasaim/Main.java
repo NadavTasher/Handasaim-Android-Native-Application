@@ -841,6 +841,9 @@ public class Main extends Activity {
         pushSwitch.setTextSize((float) (getFontSize() / 1.5));
         breakTimeSwitch.setTextSize((float) (getFontSize() / 1.5));
         autoMuteSwitch.setTextSize((float) (getFontSize() / 1.5));
+        pushSwitch.setTypeface(getTypeface());
+        breakTimeSwitch.setTypeface(getTypeface());
+        autoMuteSwitch.setTypeface(getTypeface());
         breakTimeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
