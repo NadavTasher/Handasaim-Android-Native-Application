@@ -28,4 +28,7 @@
     <string name="loadingtext">Loading…</string>
     <string name="shareMenu">Share Menu</string>
     <string name="lessonTime">Lesson Time</string>
+    <string name="choose_first_color">Choose First Color:</string>
+    <string name="choose_second_color">Choose Second Color:</string>
+    <string name="news_load_failed">Failed To Load News.</string>
 </resources>
