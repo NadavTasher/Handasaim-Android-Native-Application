@@ -39,7 +39,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.annotation.Nullable;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -57,9 +56,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -94,25 +90,41 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Random;
 
-import nadav.tasher.lightool.Light;
+import nadav.tasher.lightool.Animations;
+import nadav.tasher.lightool.Device;
+import nadav.tasher.lightool.Graphics;
+import nadav.tasher.lightool.Net;
+import nadav.tasher.lightool.Tunnel;
 
+import static nadav.tasher.handasaim.Main.Values.autoMute;
+import static nadav.tasher.handasaim.Main.Values.autoMuteDefault;
+import static nadav.tasher.handasaim.Main.Values.breakTimeDefault;
 import static nadav.tasher.handasaim.Main.Values.circleAlpha;
 import static nadav.tasher.handasaim.Main.Values.classCoasterColor;
 import static nadav.tasher.handasaim.Main.Values.classCoasterMarkColor;
+import static nadav.tasher.handasaim.Main.Values.defaultColorA;
+import static nadav.tasher.handasaim.Main.Values.defaultColorB;
+import static nadav.tasher.handasaim.Main.Values.firstLaunch;
+import static nadav.tasher.handasaim.Main.Values.fontColor;
+import static nadav.tasher.handasaim.Main.Values.fontColorDefault;
+import static nadav.tasher.handasaim.Main.Values.fontSizeDefault;
+import static nadav.tasher.handasaim.Main.Values.fontSizeNumber;
 import static nadav.tasher.handasaim.Main.Values.prefName;
+import static nadav.tasher.handasaim.Main.Values.pushDefault;
+import static nadav.tasher.handasaim.Main.Values.pushService;
 
 public class Main extends Activity {
-    static int textColor = Color.WHITE;
+    static int textColor = fontColorDefault;
     private int colorA = Values.defaultColorA;
     private int colorB = Values.defaultColorB;
     private int keyentering = 0;
     private String day;
     private Class currentClass;
     private FrameLayout masterLayout;
-    private Light.Graphics.DragNavigation masterNavigation;
-    private Graphics.OptionHolder optionHolder;
-    private Graphics.CurvedTextView ctv;
-    private Graphics.CircleView circleView;
+    private nadav.tasher.lightool.Graphics.DragNavigation masterNavigation;
+    private MyGraphics.OptionHolder optionHolder;
+    private MyGraphics.CurvedTextView ctv;
+    private MyGraphics.CircleView circleView;
     private FrameLayout content;
     private Drawable gradient, coaster, classCoaster, classCoasterMarked;
     private ArrayList<Class> classes;
@@ -120,6 +132,9 @@ public class Main extends Activity {
     private String[] infact = new String[]{"Every year more than 2500 left-handed people are killed from using right-handed products.", "In 1895 Hampshire police handed out the first ever speeding ticket, fining a man for doing 6mph!", "Over 1000 birds a year die from smashing into windows.", "Squirrels forget where they hide about half of their nuts.", "The average person walks the equivalent of twice around the world in a lifetime.", "A company in Taiwan makes dinnerware out of wheat, so you can eat your plate!", "An apple, potato, and onion all taste the same if you eat them with your nose plugged.", "Dying is illegal in the Houses of Parliaments – This has been voted as the most ridiculous law by the British citizens.", "The first alarm clock could only ring at 4am.", "If you leave everything to the last minute… it will only take a minute.", "Every human spent about half an hour as a single cell.", "The Twitter bird actually has a name – Larry.", "Sea otters hold hands when they sleep so they don’t drift away from each other.", "The French language has seventeen different words for ‘surrender’.", "The Titanic was the first ship to use the SOS signal.", "A baby octopus is about the size of a flea when it is born.", "You cannot snore and dream at the same time.", "A toaster uses almost half as much energy as a full-sized oven.", "If you consistently fart for 6 years & 9 months, enough gas is produced to create the energy of an atomic bomb!", "An eagle can kill a young deer and fly away with it.", "Polar bears can eat as many as 86 penguins in a single sitting.", "If Pinokio says “My Nose Will Grow Now”, it would cause a paradox.", "Bananas are curved because they grow towards the sun.", "Human saliva has a boiling point three times that of regular water.", "Cherophobia is the fear of fun.", "When hippos are upset, their sweat turns red.", "Pteronophobia is the fear of being tickled by feathers!", "Banging your head against a wall burns 150 calories an hour."};
     private boolean breakTime = true;
     private int placeHold;
+    static Tunnel<Integer> colorChangeTunnle = new Tunnel<>();
+    static Tunnel<Integer> fontSizeChangeTunnle = new Tunnel<>();
+    static Tunnel<Boolean> breakTimeTunnle = new Tunnel<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,11 +144,7 @@ public class Main extends Activity {
 
     private void loadTheme() {
         final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
-        if (sp.getBoolean(Values.fontColor, Values.fontColorDefault)) {
-            textColor = Color.WHITE;
-        } else {
-            textColor = Color.BLACK;
-        }
+        textColor = sp.getInt(fontColor, fontColorDefault);
         colorA = sp.getInt(Values.colorA, colorA);
         colorB = sp.getInt(Values.colorB, colorB);
         gradient = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{colorA, colorB});
@@ -182,85 +193,25 @@ public class Main extends Activity {
         final ImageView icon = new ImageView(this);
         icon.setScaleType(ImageView.ScaleType.FIT_XY);
         icon.setImageDrawable(getDrawable(R.drawable.ic_icon));
-        int is = (int) (Light.Device.screenX(getApplicationContext()) * 0.8);
+        int is = (int) (Device.screenX(getApplicationContext()) * 0.8);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
         ll.addView(icon);
-        final ProgressBar pb = new ProgressBar(this);
-        pb.setIndeterminate(true);
-        pb.setVisibility(View.GONE);
-        pb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.2)));
         String curved = getString(R.string.app_name);
-        ctv = new Graphics.CurvedTextView(this, curved, 50, Values.bakedIconColor, Light.Device.screenX(this), (int) (Light.Device.screenY(getApplicationContext()) * 0.3), (int) (Light.Device.screenY(getApplicationContext()) * 0.15) / 2);
-        ctv.setVisibility(View.GONE);
-        ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.3)));
+        ctv = new MyGraphics.CurvedTextView(this, curved, 50, Values.bakedIconColor, Device.screenX(this), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
+        ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.3)));
         ll.addView(ctv);
-        final TextView tv = new TextView(getApplicationContext());
-        tv.setGravity(Gravity.CENTER);
-        tv.setTextColor(Color.WHITE);
-        tv.setTextSize(21);
-        tv.setTypeface(getTypeface());
-        String versionin = "v" + Light.Device.getVersionName(getApplicationContext(), getPackageName());
-        tv.setText(versionin);
-        tv.setLayoutParams(new LinearLayout.LayoutParams(is, (int) (Light.Device.screenY(getApplicationContext()) * 0.3)));
-        final ObjectAnimator slideRC = ObjectAnimator.ofFloat(tv, View.TRANSLATION_X, Light.Animations.getSlideRight(getApplicationContext()));
-        slideRC.setDuration(500);
-        slideRC.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                tv.setVisibility(View.GONE);
-                RotateAnimation rotateAnimation = new RotateAnimation(0, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                rotateAnimation.setInterpolator(new LinearInterpolator());
-                rotateAnimation.setDuration(2500);
-                rotateAnimation.setRepeatCount(Animation.INFINITE);
-                ctv.startAnimation(rotateAnimation);
-                ctv.setVisibility(View.VISIBLE);
-                ctv.setAlpha(0);
-                ObjectAnimator oa = ObjectAnimator.ofFloat(ctv, View.ALPHA, Light.Animations.INVISIBLE_TO_VISIBLE);
-                oa.setDuration(300);
-                oa.start();
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-            }
-        });
-        ObjectAnimator slideR = ObjectAnimator.ofFloat(tv, View.TRANSLATION_X, -Light.Device.screenX(getApplicationContext()), 0);
-        slideR.setDuration(500);
-        slideR.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        slideRC.start();
-                    }
-                }, 500);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-            }
-        });
-        slideR.start();
-        ll.addView(tv);
+        RotateAnimation rotateAnimation = new RotateAnimation(0, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        rotateAnimation.setInterpolator(new LinearInterpolator());
+        rotateAnimation.setDuration(2500);
+        rotateAnimation.setRepeatCount(Animation.INFINITE);
+        ctv.startAnimation(rotateAnimation);
+        ctv.setVisibility(View.VISIBLE);
+        ctv.setAlpha(0);
+        ObjectAnimator oa = ObjectAnimator.ofFloat(ctv, View.ALPHA, Animations.INVISIBLE_TO_VISIBLE);
+        oa.setDuration(300);
+        oa.start();
         setContentView(ll);
-        Light.Graphics.ColorFadeAnimation cfa = new Light.Graphics.ColorFadeAnimation(colorB, colorA, new Light.Graphics.ColorFadeAnimation.ColorState() {
+        Graphics.ColorFadeAnimation cfa = new Graphics.ColorFadeAnimation(colorB, colorA, new Graphics.ColorFadeAnimation.ColorState() {
             @Override
             public void onColor(final int color) {
                 runOnUiThread(new Runnable() {
@@ -306,25 +257,25 @@ public class Main extends Activity {
             //            loadingTView.setBackground(getDrawable(R.drawable.rounded_rect));
             final TextView loadingText = new TextView(getApplicationContext()), egg = new TextView(getApplicationContext());
             loadingText.setGravity(Gravity.CENTER);
-            loadingText.setText(R.string.loadingtext);
+            loadingText.setText(R.string.loading_text);
             loadingText.setTextColor(Color.LTGRAY);
             loadingText.setTypeface(getTypeface());
             loadingText.setTextSize(getFontSize() + 4);
             loadingTView.addView(loadingText);
-            loadingTView.setPadding(20,20,20,20);
+            loadingTView.setPadding(20, 20, 20, 20);
             egg.setGravity(Gravity.CENTER);
             egg.setText(getEasterEgg());
             egg.setTextColor(Color.LTGRAY);
             egg.setTypeface(getTypeface());
             egg.setTextSize(getFontSize() - 8);
-//            egg.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            //            egg.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             loadingTView.addView(egg);
             loadingTView.setGravity(Gravity.CENTER);
-//            loadingTView.setBackgroundColor(Color.BLACK);
-            loadingTView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            //            loadingTView.setBackgroundColor(Color.BLACK);
+            loadingTView.setLayoutParams(new LinearLayout.LayoutParams((int) (Device.screenX(getApplicationContext()) * 0.8), ViewGroup.LayoutParams.MATCH_PARENT));
             newsAll.setLayoutParams(new ScrollView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             full.addView(loadingTView);
-//            newsAll.setBackgroundColor(Color.GREEN);
+            //            newsAll.setBackgroundColor(Color.GREEN);
             final LinearLayout news = new LinearLayout(getApplicationContext());
             news.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START);
             newsAll.setOrientation(LinearLayout.VERTICAL);
@@ -374,7 +325,7 @@ public class Main extends Activity {
                                     public void onGet(Bitmap image) {
                                         ImageView imageView = new ImageView(getApplicationContext());
                                         imageView.setImageBitmap(image);
-                                        imageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 3));
+                                        imageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 3));
                                         imageView.setPadding(20, 20, 20, 40);
                                         imageView.setOnClickListener(new View.OnClickListener() {
                                             @Override
@@ -389,7 +340,7 @@ public class Main extends Activity {
                                     }
                                 }).execute();
                             }
-                            newtopic.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 8));
+                            newtopic.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 8));
                             final int finalN = n;
                             newtopic.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -429,19 +380,10 @@ public class Main extends Activity {
     private void welcome() {
         getWindow().setStatusBarColor(colorA);
         getWindow().setNavigationBarColor(colorB);
-        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         LinearLayout part1 = new LinearLayout(this);
-        final LinearLayout part2 = new LinearLayout(this);
-        final LinearLayout part3 = new LinearLayout(this);
         part1.setGravity(Gravity.CENTER);
-        part2.setGravity(Gravity.CENTER);
-        part3.setGravity(Gravity.CENTER);
         part1.setOrientation(LinearLayout.VERTICAL);
-        part2.setOrientation(LinearLayout.VERTICAL);
-        part3.setOrientation(LinearLayout.VERTICAL);
         part1.setBackground(gradient);
-        part2.setBackground(gradient);
-        part3.setBackground(gradient);
         //part1
         ImageView icon = new ImageView(this);
         final Button setup = new Button(this);
@@ -449,7 +391,8 @@ public class Main extends Activity {
         setup.setTypeface(getTypeface());
         setup.setAllCaps(false);
         welcome.setTypeface(getTypeface());
-        setup.setText(R.string.set);
+        setup.setText(R.string.lets_begin);
+        setup.setAllCaps(false);
         setup.setAlpha(0);
         setup.setBackgroundColor(Color.TRANSPARENT);
         setup.setTextSize((float) 30);
@@ -457,11 +400,11 @@ public class Main extends Activity {
         welcome.setGravity(Gravity.CENTER);
         welcome.setTextSize((float) 29);
         welcome.setTextColor(Color.WHITE);
-        welcome.setText(R.string.wlc);
+        welcome.setText(R.string.welcome);
         icon.setImageDrawable(getDrawable(R.drawable.ic_icon));
-        int is = (int) (Light.Device.screenX(getApplicationContext()) * 0.8);
-        icon.setLayoutParams(new LinearLayout.LayoutParams(is, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
-        ObjectAnimator iconSlide = ObjectAnimator.ofFloat(icon, View.TRANSLATION_X, -Light.Device.screenX(getApplicationContext()), 0);
+        int is = (int) (Device.screenX(getApplicationContext()) * 0.7);
+        icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
+        ObjectAnimator iconSlide = ObjectAnimator.ofFloat(icon, View.TRANSLATION_X, -Device.screenX(getApplicationContext()), 0);
         iconSlide.setDuration(1000);
         iconSlide.addListener(new Animator.AnimatorListener() {
             @Override
@@ -470,10 +413,10 @@ public class Main extends Activity {
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                ObjectAnimator buttonAn = ObjectAnimator.ofFloat(setup, View.ALPHA, Light.Animations.INVISIBLE_TO_VISIBLE);
+                ObjectAnimator buttonAn = ObjectAnimator.ofFloat(setup, View.ALPHA, Animations.INVISIBLE_TO_VISIBLE);
                 buttonAn.setDuration(500);
                 buttonAn.start();
-                ObjectAnimator welAn = ObjectAnimator.ofFloat(welcome, View.ALPHA, Light.Animations.INVISIBLE_TO_VISIBLE);
+                ObjectAnimator welAn = ObjectAnimator.ofFloat(welcome, View.ALPHA, Animations.INVISIBLE_TO_VISIBLE);
                 welAn.setDuration(500);
                 welAn.start();
             }
@@ -493,192 +436,18 @@ public class Main extends Activity {
         setup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setContentView(part2);
-            }
-        });
-        //part2
-        TextView selClas = new TextView(this);
-        ScrollView clascroll = new ScrollView(this);
-        final RadioGroup classs = new RadioGroup(this);
-        clascroll.addView(classs);
-        Button next = new Button(this);
-        next.setTypeface(getTypeface());
-        next.setAllCaps(false);
-        selClas.setTypeface(getTypeface());
-        next.setBackgroundColor(Color.TRANSPARENT);
-        next.setTextSize((float) 30);
-        selClas.setGravity(Gravity.CENTER);
-        selClas.setTextSize((float) 29);
-        selClas.setTextColor(Color.WHITE);
-        selClas.setText(R.string.scla);
-        next.setText(R.string.nxt);
-        part2.addView(selClas);
-        part2.addView(clascroll);
-        part2.addView(next);
-        classs.setGravity(Gravity.CENTER);
-        clascroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
-        for (int c = 0; c < classes.size(); c++) {
-            RadioButton rb = new RadioButton(this);
-            rb.setText(classes.get(c).name);
-            rb.setTextSize((float) 30);
-            rb.setTypeface(getTypeface());
-            rb.setGravity(Gravity.CENTER);
-            rb.setId(c);
-            rb.setLayoutParams(new RadioGroup.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
-            classs.addView(rb);
-        }
-        classs.check(0);
-        next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sp.edit().putString(Values.favoriteClass, classes.get(classs.getCheckedRadioButtonId()).name).commit();
-                setContentView(part3);
-            }
-        });
-        //part3
-        LinearLayout spcl = new LinearLayout(getApplicationContext());
-        spcl.setOrientation(LinearLayout.VERTICAL);
-        spcl.setGravity(Gravity.CENTER);
-        TextView spclSet = new TextView(this);
-        Button done = new Button(this);
-        done.setTypeface(getTypeface());
-        spclSet.setTypeface(getTypeface());
-        done.setBackgroundColor(Color.TRANSPARENT);
-        done.setTextSize((float) 30);
-        done.setAllCaps(false);
-        spclSet.setGravity(Gravity.CENTER);
-        spclSet.setTextSize((float) 29);
-        spclSet.setTextColor(Color.WHITE);
-        spclSet.setText(R.string.spclstt);
-        done.setText(R.string.dn);
-        final Switch showTimes = new Switch(this);
-        showTimes.setChecked(sp.getBoolean(Values.lessonTime, Values.lessonTimeDefault));
-        showTimes.setText(R.string.sct);
-        showTimes.setTextSize((float) 23);
-        showTimes.setTypeface(getTypeface());
-        showTimes.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
-        final Switch textCo = new Switch(this);
-        textCo.setChecked(sp.getBoolean(Values.fontColor, Values.fontColorDefault));
-        textCo.setText(R.string.white);
-        textCo.setTextSize((float) 23);
-        textCo.setTypeface(getTypeface());
-        textCo.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
-        textCo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    textCo.setText(R.string.white);
-                    textCo.setTextColor(Color.WHITE);
-                } else {
-                    textCo.setText(R.string.black);
-                    textCo.setTextColor(Color.BLACK);
-                }
-            }
-        });
-        final Switch showBreaks = new Switch(this);
-        showBreaks.setChecked(sp.getBoolean(Values.breakTime, Values.breakTimeDefault));
-        showBreaks.setText(R.string.showbrk);
-        showBreaks.setTextSize((float) 23);
-        showBreaks.setTypeface(getTypeface());
-        showBreaks.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
-        final Switch push = new Switch(this);
-        push.setChecked(sp.getBoolean(Values.pushService, Values.pushDefault));
-        push.setText(R.string.push);
-        push.setTextSize((float) 23);
-        push.setTypeface(getTypeface());
-        push.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
-        final Switch seasonalTheming = new Switch(this);
-        seasonalTheming.setChecked(sp.getBoolean(Values.seasonalTheming, Values.seasonDefault));
-        seasonalTheming.setText(R.string.season);
-        seasonalTheming.setTextSize((float) 23);
-        seasonalTheming.setTypeface(getTypeface());
-        seasonalTheming.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
-        final Switch automute = new Switch(this);
-        automute.setChecked(sp.getBoolean(Values.autoMute, Values.autoMuteDefault));
-        automute.setText(R.string.dnd);
-        automute.setTextSize((float) 23);
-        automute.setTypeface(getTypeface());
-        automute.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                boolean granted = false;
-                if (nm != null) {
-                    granted = nm.isNotificationPolicyAccessGranted();
-                }
-                if (!granted && isChecked) {
-                    AlertDialog.Builder pop = new AlertDialog.Builder(Main.this);
-                    pop.setCancelable(true);
-                    pop.setMessage("You need to enable 'Do Not Disturb' permissions for the app.");
-                    pop.setPositiveButton("Open Settings", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            if (Build.VERSION.SDK_INT >= 23)
-                                startActivityForResult(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), 0);
-                        }
-                    });
-                    pop.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            automute.setChecked(false);
-                        }
-                    });
-                    pop.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialogInterface) {
-                            automute.setChecked(false);
-                        }
-                    });
-                    pop.show();
-                }
-            }
-        });
-        automute.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT));
-        spcl.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 9, (int) (Light.Device.screenY(getApplicationContext()) * 0.7)));
-        part3.addView(spclSet);
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 10 * 8, ViewGroup.LayoutParams.WRAP_CONTENT);
-        spcl.addView(showTimes);
-        spcl.addView(getTv("Show lesson's start time near lesson's name", 15, p));
-        spcl.addView(showBreaks);
-        spcl.addView(getTv("Show breaks in schedule, between lessons", 15, p));
-        spcl.addView(textCo);
-        spcl.addView(getTv("Text color (black/white)", 15, p));
-        spcl.addView(push);
-        spcl.addView(getTv("Live messages for important things", 15, p));
-        spcl.addView(seasonalTheming);
-        spcl.addView(getTv("Change the color based on upcoming events", 15, p));
-        if (Build.VERSION.SDK_INT >= 23) {
-            spcl.addView(automute);
-            spcl.addView(getTv("Auto mute and unmute on lessons", 15, p));
-        }
-        spcl.addView(getTv("\nYou can long click on any tile in the app for an explanation of what it does.", 15, p));
-        part3.addView(spcl);
-        part3.addView(done);
-        done.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sp.edit().putBoolean(Values.lessonTime, showTimes.isChecked()).commit();
-                sp.edit().putBoolean(Values.autoMute, automute.isChecked()).commit();
-                sp.edit().putBoolean(Values.fontColor, textCo.isChecked()).commit();
-                sp.edit().putBoolean(Values.breakTime, showBreaks.isChecked()).commit();
-                sp.edit().putBoolean(Values.pushService, push.isChecked()).commit();
-                sp.edit().putBoolean(Values.seasonalTheming, seasonalTheming.isChecked()).commit();
-                sp.edit().putInt(Values.colorA, Values.defaultColorA).commit();
-                sp.edit().putInt(Values.colorB, Values.defaultColorB).commit();
-                sp.edit().putInt(Values.lastRecordedVersionCode, Light.Device.getVersionCode(getApplicationContext(), getPackageName())).commit();
-                sp.edit().putBoolean(Values.firstLaunch, false).commit();
-                if (push.isChecked()) {
-                    startPush(getApplicationContext());
-                }
-                loadTheme();
+                writeDefaults();
+                beginDND(getApplicationContext());
+                startPush(getApplicationContext());
                 view();
             }
         });
+        setContentView(part1);
     }
 
     private void checkInternet() {
-        if (Light.Device.isOnline(getApplicationContext())) {
-            new Light.Net.Pinger(Values.serviceProvider, 5000, new Light.Net.Pinger.OnEnd() {
+        if (Device.isOnline(getApplicationContext())) {
+            new Net.Pinger(Values.serviceProvider, 5000, new Net.Pinger.OnEnd() {
                 @Override
                 public void onPing(boolean b) {
                     if (b) {
@@ -734,12 +503,12 @@ public class Main extends Activity {
     }
 
     private void checkAndLoadKey(final String key) {
-        new Light.Net.Pinger(Values.puzProvider, 10000, new Light.Net.Pinger.OnEnd() {
+        new Net.Pinger(Values.puzProvider, 10000, new Net.Pinger.OnEnd() {
             @Override
             public void onPing(boolean b) {
                 if (b) {
-                    Light.Net.Request.RequestParameter[] requestParameters = new Light.Net.Request.RequestParameter[]{new Light.Net.Request.RequestParameter("deactivate", key)};
-                    new Light.Net.Request.Post(Values.keyProvider, requestParameters, new Light.Net.Request.Post.OnPost() {
+                    Net.Request.RequestParameter[] requestParameters = new Net.Request.RequestParameter[]{new Net.Request.RequestParameter("deactivate", key)};
+                    new Net.Request.Post(Values.keyProvider, requestParameters, new Net.Request.Post.OnPost() {
                         @Override
                         public void onPost(String s) {
                             try {
@@ -787,7 +556,7 @@ public class Main extends Activity {
     private void aboutPopup() {
         AlertDialog.Builder ab = new AlertDialog.Builder(Main.this);
         ab.setTitle(R.string.app_name);
-        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Light.Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Light.Device.getVersionCode(getApplicationContext(), getPackageName()));
+        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Device.getVersionCode(getApplicationContext(), getPackageName()));
         ab.setCancelable(true);
         ab.setPositiveButton("Close", null);
         keyentering++;
@@ -814,10 +583,23 @@ public class Main extends Activity {
         Toast.makeText(getApplicationContext(), getEasterEgg(), Toast.LENGTH_LONG).show();
     }
 
-    private void view() {
+    private void writeDefaults() {
         final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
-        final int x = Light.Device.screenX(getApplicationContext());
-        final int y = Light.Device.screenY(getApplicationContext());
+        SharedPreferences.Editor se = sp.edit();
+        se.putInt(fontSizeNumber, fontSizeDefault);
+        se.putBoolean(pushService, pushDefault);
+        se.putBoolean(Values.breakTime, breakTimeDefault);
+        se.putBoolean(Values.autoMute, autoMuteDefault);
+        se.putInt(fontColor, fontColorDefault);
+        se.putInt(Values.colorA, defaultColorA);
+        se.putInt(Values.colorB, defaultColorB);
+        se.putBoolean(firstLaunch, false);
+        se.apply();
+    }
+
+    private void view() {
+        final int x = Device.screenX(getApplicationContext());
+        final int y = Device.screenY(getApplicationContext());
         final int circlePadding = x / 30;
         final int circleSize = x / 4;
         final ScrollView contentScroll = new ScrollView(this);
@@ -825,8 +607,8 @@ public class Main extends Activity {
         contentScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         content = new FrameLayout(this);
         masterLayout = new FrameLayout(this);
-        circleView = new Graphics.CircleView(this, circleSize);
-        masterNavigation = new Light.Graphics.DragNavigation(this, getDrawable(R.drawable.ic_icon), Values.navColor);
+        circleView = new MyGraphics.CircleView(this, circleSize);
+        masterNavigation = new Graphics.DragNavigation(this, getDrawable(R.drawable.ic_icon), Values.navColor);
         placeHold = masterNavigation.spacerSize();
         masterNavigation.setOnIconClick(new View.OnClickListener() {
             @Override
@@ -834,21 +616,24 @@ public class Main extends Activity {
                 aboutPopup();
             }
         });
-        Graphics.CircleView.CircleOption[] options = getCircleOptions(circleSize, circlePadding);
-        optionHolder = new Graphics.OptionHolder(getApplicationContext(), classCoaster, options, circlePadding);
+        MyGraphics.CircleView.CircleOption[] options = getCircleOptions(circleSize, circlePadding);
+        optionHolder = new MyGraphics.OptionHolder(getApplicationContext(), classCoaster, options, circlePadding);
         optionHolder.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, options.length * circleSize + 2 * circlePadding));
         optionHolder.setX(0);
         optionHolder.setVisibility(View.GONE);
-        circleView.setOnStateChangedListener(new Graphics.CircleView.OnStateChangedListener() {
+        circleView.setOnStateChangedListener(new MyGraphics.CircleView.OnStateChangedListener() {
             @Override
             public void onOpen() {
+                masterNavigation.setEnabled(false);
                 optionHolder.emptyContent();
                 optionHolder.fadeIn();
             }
 
             @Override
             public void onClose() {
-                optionHolder.emptyContent();
+                masterNavigation.setEnabled(true);
+                //                optionHolder.emptyContent();
+                optionHolder.fadeOutContent();
                 optionHolder.fadeOut();
             }
         });
@@ -862,14 +647,15 @@ public class Main extends Activity {
         circleView.setX(x - circleView.xy - circlePadding);
         circleView.setY(y - circleView.xy - getNavSize() / 2 - circlePadding);
         optionHolder.setY(y - (y - circleView.getY()) - (((options.length + 1) * circlePadding) / 2) - (options.length * circleSize + circlePadding));
-        masterNavigation.setOnStateChangedListener(new Light.Graphics.DragNavigation.OnStateChangedListener() {
+        masterNavigation.setOnStateChangedListener(new Graphics.DragNavigation.OnStateChangedListener() {
             @Override
             public void onOpen() {
+                circleView.setEnabled(false);
                 TextView load = new TextView(getApplicationContext());
                 load.setTextSize(getFontSize());
                 load.setTypeface(getTypeface());
                 load.setTextColor(textColor);
-                load.setText(R.string.loadingtext);
+                load.setText(R.string.loading_text);
                 load.setGravity(Gravity.CENTER);
                 masterNavigation.setContent(load);
                 final int fontSize = getFontSize();
@@ -898,7 +684,7 @@ public class Main extends Activity {
                 //                fullPage.setPadding(5, 5, 5, 5);
                 fullPage.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 npscroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                if (Light.Device.isOnline(getApplicationContext())) {
+                if (Device.isOnline(getApplicationContext())) {
                     new GetNews(Values.serviceProvider, new GetNews.GotNews() {
                         @Override
                         public void onNewsGet(final ArrayList<Link> link) {
@@ -914,7 +700,7 @@ public class Main extends Activity {
                                 //                            cls.setBackgroundColor(Color.TRANSPARENT);
                                 cls.setBackground(coaster);
                                 cls.setTypeface(getTypeface());
-                                cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Light.Device.screenY(getApplicationContext()) / 8)));
+                                cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 8)));
                                 news.addView(cls);
                                 if (!link.get(i).url.equals("")) {
                                     final int finalI = i;
@@ -949,49 +735,54 @@ public class Main extends Activity {
             @Override
             public void onClose() {
                 masterNavigation.emptyContent();
+                circleView.setEnabled(true);
             }
         });
+        refreshTheme();
+        if (classes != null) showSchedule(getFavoriteClass());
+        setContentView(masterLayout);
+    }
+
+    private Class getFavoriteClass() {
+        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         int selectedClass = 0;
         if (sp.getString(Values.favoriteClass, null) != null) {
             if (classes != null) {
                 for (int fc = 0; fc < classes.size(); fc++) {
                     if (sp.getString(Values.favoriteClass, "").equals(classes.get(fc).name)) {
-                        selectedClass = fc;
-                        break;
+                        return classes.get(fc);
                     }
                 }
+                return classes.get(selectedClass);
             } else {
-                startApp();
+                return null;
             }
+        } else {
+            return classes.get(selectedClass);
         }
-        //        circleView.text(classes.get(selectedClass).name,"Hi.");
-        refreshTheme();
-        if (classes != null)
-            showSchedule(classes.get(selectedClass));
-        setContentView(masterLayout);
     }
 
-    private Graphics.CircleView.CircleOption[] getCircleOptions(int circleSize, int circlePadding) {
-        Graphics.CircleView.CircleOption share = new Graphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
+    private MyGraphics.CircleView.CircleOption[] getCircleOptions(int circleSize, int circlePadding) {
+        MyGraphics.CircleView.CircleOption share = new MyGraphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
         share.setIcon(getDrawable(R.drawable.ic_share));
-        share.setDesiredViewOnDemand(new Graphics.CircleView.CircleOption.OnDemand() {
+        share.setDesiredViewOnDemand(new MyGraphics.CircleView.CircleOption.OnDemand() {
             @Override
             public View demandView() {
                 return generateShareView();
             }
         });
-        Graphics.CircleView.CircleOption changeClass = new Graphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
+        MyGraphics.CircleView.CircleOption changeClass = new MyGraphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
         changeClass.setIcon(getDrawable(R.drawable.ic_class));
-        changeClass.setDesiredViewOnDemand(new Graphics.CircleView.CircleOption.OnDemand() {
+        changeClass.setDesiredViewOnDemand(new MyGraphics.CircleView.CircleOption.OnDemand() {
             @Override
             public View demandView() {
                 return generateClassSwitchView();
             }
         });
-        Graphics.CircleView.CircleOption settings = new Graphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
+        MyGraphics.CircleView.CircleOption settings = new MyGraphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
         settings.setIcon(getDrawable(R.drawable.ic_gear));
         settings.setDesiredView(getSettingsView());
-        Graphics.CircleView.CircleOption[] options = new Graphics.CircleView.CircleOption[]{
+        MyGraphics.CircleView.CircleOption[] options = new MyGraphics.CircleView.CircleOption[]{
                 share, changeClass, settings
         };
         return options;
@@ -1005,10 +796,10 @@ public class Main extends Activity {
         shareTitle.setTextSize(getFontSize());
         shareTitle.setTypeface(getTypeface());
         shareTitle.setTextColor(textColor);
-        shareTitle.setText(R.string.shareMenu);
+        shareTitle.setText(R.string.share_menu);
         shareTitle.setGravity(Gravity.CENTER);
         final Switch shareTimeSwitch = new Switch(this);
-        shareTimeSwitch.setText(R.string.lessonTime);
+        shareTimeSwitch.setText(R.string.lesson_time);
         shareTimeSwitch.setTypeface(getTypeface());
         shareTimeSwitch.setTextSize(getFontSize() - 4);
         shareTimeSwitch.setTextColor(textColor);
@@ -1035,44 +826,190 @@ public class Main extends Activity {
     private ScrollView getSettingsView() {
         final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         ScrollView sv = new ScrollView(getApplicationContext());
+        sv.setPadding(10, 10, 10, 10);
         LinearLayout settings = new LinearLayout(this);
         settings.setOrientation(LinearLayout.VERTICAL);
         settings.setGravity(Gravity.START);
-        TextView explainColorA = new TextView(getApplicationContext());
+        settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        final Switch autoMuteSwitch = new Switch(this), breakTimeSwitch = new Switch(this), pushSwitch = new Switch(this);
+        pushSwitch.setText(R.string.live_messages);
+        breakTimeSwitch.setText(R.string.show_breaks);
+        autoMuteSwitch.setText(R.string.auto_mute);
+        pushSwitch.setChecked(sp.getBoolean(pushService, pushDefault));
+        breakTimeSwitch.setChecked(sp.getBoolean(Values.breakTime, breakTimeDefault));
+        autoMuteSwitch.setChecked(sp.getBoolean(autoMute, autoMuteDefault));
+        pushSwitch.setTextSize((float) (getFontSize() / 1.5));
+        breakTimeSwitch.setTextSize((float) (getFontSize() / 1.5));
+        autoMuteSwitch.setTextSize((float) (getFontSize() / 1.5));
+        breakTimeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                sp.edit().putBoolean(Values.breakTime, isChecked).apply();
+                breakTime = isChecked;
+                breakTimeTunnle.send(breakTime);
+            }
+        });
+        autoMuteSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    boolean granted = false;
+                    if (nm != null) {
+                        granted = nm.isNotificationPolicyAccessGranted();
+                    }
+                    if (!granted) {
+                        AlertDialog.Builder pop = new AlertDialog.Builder(Main.this);
+                        pop.setCancelable(true);
+                        pop.setMessage("You need to enable 'Do Not Disturb' permissions for the app.");
+                        pop.setPositiveButton("Open Settings", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                if (Build.VERSION.SDK_INT >= 23) {
+                                    sp.edit().putBoolean(autoMute, true).apply();
+                                    startActivityForResult(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), 0);
+                                }
+                            }
+                        });
+                        pop.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                autoMuteSwitch.setChecked(false);
+                                sp.edit().putBoolean(autoMute, false).apply();
+                            }
+                        });
+                        pop.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialogInterface) {
+                                autoMuteSwitch.setChecked(false);
+                                sp.edit().putBoolean(autoMute, false).apply();
+                            }
+                        });
+                        pop.show();
+                    } else {
+                        sp.edit().putBoolean(autoMute, true).apply();
+                    }
+                } else {
+                    sp.edit().putBoolean(autoMute, false).apply();
+                }
+            }
+        });
+        pushSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                sp.edit().putBoolean(pushService, isChecked).apply();
+            }
+        });
+        final TextView explainTextSize = new TextView(getApplicationContext());
+        explainTextSize.setText(R.string.choose_text_size);
+        explainTextSize.setTypeface(getTypeface());
+        explainTextSize.setTextSize((float) (getFontSize() / 1.5));
+        explainTextSize.setTextColor(textColor);
+        explainTextSize.setGravity(Gravity.CENTER);
+        final TextView explainTextColor = new TextView(getApplicationContext());
+        explainTextColor.setText(R.string.choose_text_color);
+        explainTextColor.setTypeface(getTypeface());
+        explainTextColor.setTextSize((float) (getFontSize() / 1.5));
+        explainTextColor.setTextColor(textColor);
+        explainTextColor.setGravity(Gravity.CENTER);
+        final TextView explainColorA = new TextView(getApplicationContext());
         explainColorA.setText(R.string.choose_first_color);
         explainColorA.setTypeface(getTypeface());
         explainColorA.setTextSize((float) (getFontSize() / 1.5));
         explainColorA.setTextColor(textColor);
         explainColorA.setGravity(Gravity.CENTER);
-        TextView explainColorB = new TextView(getApplicationContext());
+        final TextView explainColorB = new TextView(getApplicationContext());
         explainColorB.setText(R.string.choose_second_color);
         explainColorB.setTypeface(getTypeface());
         explainColorB.setTextSize((float) (getFontSize() / 1.5));
         explainColorB.setTextColor(textColor);
         explainColorB.setGravity(Gravity.CENTER);
-        Graphics.ColorPicker colorApicker = new Graphics.ColorPicker(this, sp.getInt(Values.colorA, Values.defaultColorA));
-        colorApicker.setOnColorChanged(new Graphics.ColorPicker.OnColorChanged() {
+        SeekBar fontSizeSeekBar = new SeekBar(this);
+        fontSizeSeekBar.setMax(70);
+        fontSizeSeekBar.setProgress(sp.getInt(fontSizeNumber, fontSizeDefault));
+        fontSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    sp.edit().putInt(Values.fontSizeNumber, progress).apply();
+                    refreshTheme();
+                    fontSizeChangeTunnle.send(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+        MyGraphics.ColorPicker textColorPicker = new MyGraphics.ColorPicker(this, textColor);
+        textColorPicker.setOnColorChanged(new MyGraphics.ColorPicker.OnColorChanged() {
+            @Override
+            public void onColorChange(int color) {
+                sp.edit().putInt(Values.fontColor, color).apply();
+                refreshTheme();
+                colorChangeTunnle.send(textColor);
+            }
+        });
+        MyGraphics.ColorPicker colorApicker = new MyGraphics.ColorPicker(this, colorA);
+        colorApicker.setOnColorChanged(new MyGraphics.ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
                 sp.edit().putInt(Values.colorA, color).apply();
                 refreshTheme();
             }
         });
-        Graphics.ColorPicker colorBpicker = new Graphics.ColorPicker(this, sp.getInt(Values.colorB, Values.defaultColorB));
-        colorBpicker.setOnColorChanged(new Graphics.ColorPicker.OnColorChanged() {
+        MyGraphics.ColorPicker colorBpicker = new MyGraphics.ColorPicker(this, colorB);
+        colorBpicker.setOnColorChanged(new MyGraphics.ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
                 sp.edit().putInt(Values.colorB, color).apply();
                 refreshTheme();
             }
         });
-        colorApicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 5));
-        colorBpicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getApplicationContext()) / 5));
+        textColorPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 5));
+        colorApicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 5));
+        colorBpicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 5));
+        fontSizeChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+            @Override
+            public void onReceive(Integer response) {
+                pushSwitch.setTextSize((float) (response / 1.5));
+                breakTimeSwitch.setTextSize((float) (response / 1.5));
+                autoMuteSwitch.setTextSize((float) (response / 1.5));
+                explainColorA.setTextSize((float) (response / 1.5));
+                explainColorB.setTextSize((float) (response / 1.5));
+                explainTextColor.setTextSize((float) (response / 1.5));
+                explainTextSize.setTextSize((float) (response / 1.5));
+            }
+        });
+        colorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+            @Override
+            public void onReceive(Integer response) {
+                pushSwitch.setTextColor(response);
+                breakTimeSwitch.setTextColor(response);
+                autoMuteSwitch.setTextColor(response);
+                explainColorA.setTextColor(response);
+                explainColorB.setTextColor(response);
+                explainTextColor.setTextColor(response);
+                explainTextSize.setTextColor(response);
+            }
+        });
+        settings.addView(autoMuteSwitch);
+        settings.addView(pushSwitch);
+        settings.addView(breakTimeSwitch);
+        settings.addView(explainTextSize);
+        settings.addView(fontSizeSeekBar);
+        settings.addView(explainTextColor);
+        settings.addView(textColorPicker);
         settings.addView(explainColorA);
         settings.addView(colorApicker);
         settings.addView(explainColorB);
         settings.addView(colorBpicker);
         sv.addView(settings);
+        sv.setVerticalScrollBarEnabled(false);
         return sv;
     }
 
@@ -1085,11 +1022,11 @@ public class Main extends Activity {
             cls.setTextSize((float) getFontSize());
             cls.setGravity(Gravity.CENTER);
             cls.setText(classes.get(cs).name);
-            cls.setTextColor(Color.WHITE);
+            cls.setTextColor(textColor);
             cls.setBackground(coaster);
             cls.setPadding(10, 0, 10, 0);
             cls.setTypeface(getTypeface());
-            cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Light.Device.screenY(getApplicationContext()) / 12)));
+            cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 12)));
             all.addView(cls);
             final int finalCs = cs;
             cls.setOnClickListener(new View.OnClickListener() {
@@ -1174,9 +1111,9 @@ public class Main extends Activity {
             /////
             if (classes != null) {
                 if (!sp.getBoolean(Values.firstLaunch, true)) {
-                        newsSplash();
-                        //                                            welcome(classes, true);
-                        beginDND(getApplicationContext());
+                    newsSplash();
+                    //                                            welcome(classes, true);
+                    beginDND(getApplicationContext());
                 } else {
                     welcome();
                 }
@@ -1469,28 +1406,32 @@ public class Main extends Activity {
         return new ClassTime(-1, -1, -1, -1);
     }
 
-    private TextView getTv(String text, int size, @Nullable LinearLayout.LayoutParams p) {
-        TextView tv = new TextView(getApplicationContext());
-        tv.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-        tv.setTextSize(size);
-        tv.setTextColor(Color.LTGRAY);
-        tv.setText(text);
-        tv.setTypeface(getTypeface());
-        if (p != null) tv.setLayoutParams(p);
-        return tv;
-    }
-
     private LinearLayout scheduleForClass(final Class fclass) {
         LinearLayout all = new LinearLayout(this);
         all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         all.setOrientation(LinearLayout.VERTICAL);
         all.setPadding(10, 10, 10, 10);
         for (int s = 0; s < fclass.subjects.size(); s++) {
-            if (getBreak(fclass.subjects.get(s).hour - 1) != -1 && breakTime) {
-                Graphics.LessonView breakt = new Graphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, -1, "הפסקה", getBreak(fclass.subjects.get(s).hour - 1) + " דקות", "");
+            if (getBreak(fclass.subjects.get(s).hour - 1) != -1) {
+                final MyGraphics.LessonView breakt = new MyGraphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, -1, "הפסקה", getBreak(fclass.subjects.get(s).hour - 1) + " דקות", "");
                 if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
                     all.addView(breakt);
                 }
+                if (!breakTime) {
+                    breakt.setVisibility(View.GONE);
+                } else {
+                    breakt.setVisibility(View.VISIBLE);
+                }
+                breakTimeTunnle.addReceiver(new Tunnel.OnTunnel<Boolean>() {
+                    @Override
+                    public void onReceive(Boolean response) {
+                        if (!response) {
+                            breakt.setVisibility(View.GONE);
+                        } else {
+                            breakt.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
             }
             ClassTime classTime = getTimeForLesson(fclass.subjects.get(s).hour);
             boolean isCurrent = false;
@@ -1502,7 +1443,7 @@ public class Main extends Activity {
             }
             String txt = getRealTimeForHourNumber(fclass.subjects.get(s).hour) + "-" + getRealEndTimeForHourNumber(fclass.subjects.get(s).hour);
             String tcnm = (fclass.subjects.get(s).fullName.substring(fclass.subjects.get(s).fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0]).split(",")[0];
-            Graphics.LessonView subject = new Graphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, fclass.subjects.get(s).hour, fclass.subjects.get(s).name.split(" ")[0], txt, tcnm);
+            MyGraphics.LessonView subject = new MyGraphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, fclass.subjects.get(s).hour, fclass.subjects.get(s).name.split(",")[0], txt, tcnm);
             if (isCurrent) subject.mark();
             if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
                 all.addView(subject);
@@ -1511,7 +1452,7 @@ public class Main extends Activity {
         return all;
     }
 
-    static class Graphics {
+    static class MyGraphics {
         static class LessonView extends LinearLayout {
             static final String rtlMark = "\u200F";
             private String ln, tm, tc;
@@ -1553,8 +1494,8 @@ public class Main extends Activity {
                 top.setLayoutDirection(LAYOUT_DIRECTION_RTL);
                 bottom.setLayoutDirection(LAYOUT_DIRECTION_RTL);
                 lessonTv.setTextSize(Main.getFontSize(getContext()));
-                teacherTv.setTextSize(Main.getFontSize(getContext()) - 6);
-                timeTv.setTextSize(Main.getFontSize(getContext()) - 6);
+                teacherTv.setTextSize((float) (Main.getFontSize(getContext()) * 0.8));
+                timeTv.setTextSize((float) (Main.getFontSize(getContext()) * 0.8));
                 top.addView(lessonTv);
                 bottom.addView(teacherTv);
                 bottom.addView(timeTv);
@@ -1584,9 +1525,25 @@ public class Main extends Activity {
                 addView(bottom);
                 setBackground(back);
                 setPadding(20, 10, 20, 10);
-                teacherTv.setLayoutParams(new LayoutParams(Light.Device.screenX(getContext()) / 2 - getPaddingRight(), ViewGroup.LayoutParams.WRAP_CONTENT));
-                timeTv.setLayoutParams(new LayoutParams(Light.Device.screenX(getContext()) / 2 - getPaddingLeft(), ViewGroup.LayoutParams.WRAP_CONTENT));
-                setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Light.Device.screenY(getContext()) / 7));
+                teacherTv.setLayoutParams(new LayoutParams(Device.screenX(getContext()) / 2 - getPaddingRight(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                timeTv.setLayoutParams(new LayoutParams(Device.screenX(getContext()) / 2 - getPaddingLeft(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 7));
+                Main.colorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+                    @Override
+                    public void onReceive(Integer response) {
+                        lessonTv.setTextColor(response);
+                        teacherTv.setTextColor(response);
+                        timeTv.setTextColor(response);
+                    }
+                });
+                Main.fontSizeChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+                    @Override
+                    public void onReceive(Integer response) {
+                        lessonTv.setTextSize(response);
+                        teacherTv.setTextSize((float) (response * 0.8));
+                        timeTv.setTextSize((float) (response * 0.8));
+                    }
+                });
             }
         }
 
@@ -1640,13 +1597,19 @@ public class Main extends Activity {
             }
 
             private TextView getTextView(String t, int s, int par) {
-                TextView v = new TextView(getContext());
+                final TextView v = new TextView(getContext());
                 v.setTextColor(Main.textColor);
                 v.setTextSize(s);
                 v.setText(t);
                 v.setGravity(Gravity.CENTER);
                 v.setTypeface(Main.getTypeface(getContext()));
                 v.setLayoutParams(new LinearLayout.LayoutParams(par, par / 2));
+                Main.colorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+                    @Override
+                    public void onReceive(Integer response) {
+                        v.setTextColor(response);
+                    }
+                });
                 return v;
             }
 
@@ -1782,6 +1745,31 @@ public class Main extends Activity {
                         setVisibility(View.GONE);
                     }
                 }, 250 * circleOptions.length);
+            }
+
+            public void fadeOutContent() {
+                ObjectAnimator oa = ObjectAnimator.ofFloat(content, View.ALPHA, 1, 0);
+                oa.setDuration(250);
+                oa.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        emptyContent();
+                        content.setAlpha(1);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+                    }
+                });
+                oa.start();
             }
 
             private void init() {
@@ -2027,10 +2015,8 @@ public class Main extends Activity {
         static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
         static final String fontName = "heebo.ttf";
         static final String latestFileDate = "latest_file_date";
-        static final String messageBoardSkipEnabler = "installed_pass_news_code_ver2";
-        static final String lessonTime = "lesson_time";
+        static final String messageBoardSkipEnabler = "installed_pass_news_code_v3";
         static final String breakTime = "break_time";
-        static final String seasonalTheming = "seasonal_theming";
         static final String pushService = "push_service";
         static final String fontColor = "font_color";
         static final String autoMute = "auto_mute";
@@ -2044,9 +2030,6 @@ public class Main extends Activity {
         static final String firstLaunch = "first";
         static final String latestFileNameDefault = "hs.xls";
         static final boolean pushDefault = true;
-        static final boolean seasonDefault = true;
-        static final boolean fontColorDefault = true;
-        static final boolean lessonTimeDefault = false;
         static final boolean breakTimeDefault = true;
         static final boolean autoMuteDefault = false;
         static final int maxKeyEntering = 4;
@@ -2055,11 +2038,12 @@ public class Main extends Activity {
         static final int pushLoop = 1000 * 60 * 60;
         static final int fontSizeDefault = 30;
         static final int circleAlpha = 172;
-        static final int defaultColorA = 0xff456789;
-        static final int defaultColorB = 0xff3412a5;
+        static final int defaultColorA = 0xFF418389;
+        static final int defaultColorB = 0xFF84845A;
         static final int navColor = 0x80111111;
         static final int classCoasterColor = 0xBB333333;
         static final int classCoasterMarkColor = 0xBB222222;
+        static final int fontColorDefault = 0xFFFFFFFF;
     }
 
     static class ClassTime {
