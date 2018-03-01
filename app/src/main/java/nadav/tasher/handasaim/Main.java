@@ -42,6 +42,7 @@ import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -605,6 +606,15 @@ public class Main extends Activity {
         final ScrollView contentScroll = new ScrollView(this);
         contentScroll.setVerticalScrollBarEnabled(false);
         contentScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        LinearLayout circleHolder = new LinearLayout(this), optionAndCircleHolder = new LinearLayout(this);
+        circleHolder.setOrientation(LinearLayout.HORIZONTAL);
+        circleHolder.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        circleHolder.setGravity(Gravity.END | Gravity.BOTTOM);
+        //        circleHolder.setPadding(circlePadding,circlePadding,circlePadding,circlePadding);
+        optionAndCircleHolder.setOrientation(LinearLayout.VERTICAL);
+        optionAndCircleHolder.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        optionAndCircleHolder.setGravity(Gravity.END | Gravity.BOTTOM);
+        optionAndCircleHolder.setPadding(circlePadding, circlePadding, circlePadding, circlePadding);
         content = new FrameLayout(this);
         masterLayout = new FrameLayout(this);
         circleView = new MyGraphics.CircleView(this, circleSize);
@@ -618,8 +628,7 @@ public class Main extends Activity {
         });
         MyGraphics.CircleView.CircleOption[] options = getCircleOptions(circleSize, circlePadding);
         optionHolder = new MyGraphics.OptionHolder(getApplicationContext(), classCoaster, options, circlePadding);
-        optionHolder.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, options.length * circleSize + 2 * circlePadding));
-        optionHolder.setX(0);
+        //        optionHolder.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, options.length * circleSize + 2 * circlePadding));
         optionHolder.setVisibility(View.GONE);
         circleView.setOnStateChangedListener(new MyGraphics.CircleView.OnStateChangedListener() {
             @Override
@@ -639,14 +648,19 @@ public class Main extends Activity {
         });
         content.setPadding(10, 10, 10, 10);
         masterLayout.setBackground(gradient);
+        circleHolder.addView(circleView);
+        optionAndCircleHolder.addView(optionHolder);
+        optionAndCircleHolder.addView(circleHolder);
         contentScroll.addView(content);
         masterLayout.addView(contentScroll);
         masterLayout.addView(masterNavigation);
-        masterLayout.addView(circleView);
-        masterLayout.addView(optionHolder);
-        circleView.setX(x - circleView.xy - circlePadding);
-        circleView.setY(y - circleView.xy - getNavSize() / 2 - circlePadding);
-        optionHolder.setY(y - (y - circleView.getY()) - (((options.length + 1) * circlePadding) / 2) - (options.length * circleSize + circlePadding));
+        masterLayout.addView(optionAndCircleHolder);
+        //        masterLayout.addView(optionHolder);
+        //        circleView.setX(x - circleView.xy - circlePadding);
+        //        circleView.setY(y - circleView.xy - getNavSize() / 2 - circlePadding);
+        Log.i("Device", "X:" + x);
+        Log.i("Device", "Y:" + y);
+        //        optionHolder.setY(y - (y - circleView.getY()) - (((options.length + 1) * circlePadding) / 2) - (options.length * circleSize + circlePadding));
         masterNavigation.setOnStateChangedListener(new Graphics.DragNavigation.OnStateChangedListener() {
             @Override
             public void onOpen() {
@@ -1651,7 +1665,7 @@ public class Main extends Activity {
                     setOrientation(HORIZONTAL);
                     setGravity(Gravity.CENTER);
                     setLayoutDirection(LAYOUT_DIRECTION_RTL);
-                    setPadding(pad, pad / 2, pad, pad / 2);
+                    setPadding(pad, pad, 0, 0);
                     setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, xy + pad));
                     //                    setBackgroundColor(Color.rgb(new Random().nextInt(255),new Random().nextInt(255),new Random().nextInt(255)));
                 }
@@ -1803,7 +1817,7 @@ public class Main extends Activity {
                 content.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 content.setPadding(15, 15, 15, 15);
                 content.setVisibility(View.GONE);
-                setPadding(sidePadding, 0, 0, 0);
+                setPadding(0, 0, 0, sidePadding);
             }
 
             public void drawCircles(int color) {
