@@ -1328,21 +1328,31 @@ public class Main extends Activity {
         return Typeface.createFromAsset(c.getAssets(), Values.fontName);
     }
 
+    static int startReadingRow(Sheet s) {
+        String secondCell = s.getRow(0).getCell(1).getStringCellValue();
+        if (secondCell.equals("")) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
     static ArrayList<Class> readExcelFile(File f) {
         try {
             ArrayList<Class> classes = new ArrayList<>();
             POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
             Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
             Sheet mySheet = myWorkBook.getSheetAt(0);
+            int startReadingRow = startReadingRow(mySheet);
             int rows = mySheet.getLastRowNum();
-            int cols = mySheet.getRow(1).getLastCellNum();
+            int cols = mySheet.getRow(startReadingRow).getLastCellNum();
             for (int c = 1; c < cols; c++) {
                 ArrayList<Subject> subs = new ArrayList<>();
-                for (int r = 2; r < rows; r++) {
+                for (int r = startReadingRow + 1; r < rows; r++) {
                     Row row = mySheet.getRow(r);
-                    subs.add(new Subject(r - 2, row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+                    subs.add(new Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
                 }
-                classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(), subs));
+                classes.add(new Class(mySheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
             }
             return classes;
         } catch (Exception e) {
@@ -1355,15 +1365,16 @@ public class Main extends Activity {
             ArrayList<Class> classes = new ArrayList<>();
             XSSFWorkbook myWorkBook = new XSSFWorkbook(new FileInputStream(f));
             Sheet mySheet = myWorkBook.getSheetAt(0);
+            int startReadingRow = startReadingRow(mySheet);
             int rows = mySheet.getLastRowNum();
-            int cols = mySheet.getRow(1).getLastCellNum();
+            int cols = mySheet.getRow(startReadingRow).getLastCellNum();
             for (int c = 1; c < cols; c++) {
                 ArrayList<Subject> subs = new ArrayList<>();
-                for (int r = 2; r < rows; r++) {
+                for (int r = startReadingRow + 1; r < rows; r++) {
                     Row row = mySheet.getRow(r);
-                    subs.add(new Subject(r - 2, row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+                    subs.add(new Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
                 }
-                classes.add(new Class(mySheet.getRow(1).getCell(c).getStringCellValue(), subs));
+                classes.add(new Class(mySheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
             }
             return classes;
         } catch (Exception e) {
