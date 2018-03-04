@@ -65,6 +65,7 @@ import android.widget.Toast;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -1329,11 +1330,11 @@ public class Main extends Activity {
     }
 
     static int startReadingRow(Sheet s) {
-        String secondCell = s.getRow(0).getCell(1).getStringCellValue();
-        if (secondCell.equals("")) {
-            return 1;
-        } else {
+        Cell secondCell=s.getRow(0).getCell(1);
+        if(secondCell!=null){
             return 0;
+        }else{
+            return 1;
         }
     }
 
