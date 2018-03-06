@@ -600,11 +600,13 @@ public class Main extends Activity {
     }
 
     private void view() {
+        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         final int x = Device.screenX(getApplicationContext());
         final int y = Device.screenY(getApplicationContext());
         final int circlePadding = x / 30;
         final int circleSize = x / 4;
         final ScrollView contentScroll = new ScrollView(this);
+        breakTime = sp.getBoolean(Values.breakTime, Values.breakTimeDefault);
         contentScroll.setVerticalScrollBarEnabled(false);
         contentScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         LinearLayout circleHolder = new LinearLayout(this), optionAndCircleHolder = new LinearLayout(this);
@@ -659,8 +661,6 @@ public class Main extends Activity {
         //        masterLayout.addView(optionHolder);
         //        circleView.setX(x - circleView.xy - circlePadding);
         //        circleView.setY(y - circleView.xy - getNavSize() / 2 - circlePadding);
-        Log.i("Device", "X:" + x);
-        Log.i("Device", "Y:" + y);
         //        optionHolder.setY(y - (y - circleView.getY()) - (((options.length + 1) * circlePadding) / 2) - (options.length * circleSize + circlePadding));
         masterNavigation.setOnStateChangedListener(new Graphics.DragNavigation.OnStateChangedListener() {
             @Override
@@ -863,6 +863,7 @@ public class Main extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 sp.edit().putBoolean(Values.breakTime, isChecked).apply();
+                //                breakTime=sp.getBoolean(Values.breakTime,Values.breakTimeDefault);
                 breakTime = isChecked;
                 breakTimeTunnle.send(breakTime);
             }
@@ -1179,15 +1180,6 @@ public class Main extends Activity {
         }
     }
 
-    private int getNavSize() {
-        Resources resources = getApplicationContext().getResources();
-        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            return resources.getDimensionPixelSize(resourceId);
-        }
-        return 0;
-    }
-
     private int getFontSize() {
         final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         return sp.getInt(Values.fontSizeNumber, Values.fontSizeDefault);
@@ -1330,10 +1322,10 @@ public class Main extends Activity {
     }
 
     static int startReadingRow(Sheet s) {
-        Cell secondCell=s.getRow(0).getCell(1);
-        if(secondCell!=null){
+        Cell secondCell = s.getRow(0).getCell(1);
+        if (secondCell != null) {
             return 0;
-        }else{
+        } else {
             return 1;
         }
     }
@@ -1472,7 +1464,7 @@ public class Main extends Activity {
             }
             String txt = getRealTimeForHourNumber(fclass.subjects.get(s).hour) + "-" + getRealEndTimeForHourNumber(fclass.subjects.get(s).hour);
             String tcnm = (fclass.subjects.get(s).fullName.substring(fclass.subjects.get(s).fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0]).split(",")[0];
-            MyGraphics.LessonView subject = new MyGraphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, fclass.subjects.get(s).hour, fclass.subjects.get(s).name.split(",")[0], txt, tcnm);
+            MyGraphics.LessonView subject = new MyGraphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, fclass.subjects.get(s).hour, fclass.subjects.get(s).name.replaceAll(",", "/"), txt, tcnm);
             if (isCurrent) subject.mark();
             if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
                 all.addView(subject);
