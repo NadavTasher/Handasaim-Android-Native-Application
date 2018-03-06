@@ -47,41 +47,43 @@ public class Push extends JobService {
         new Main.FileReader(Main.Values.pushProvider, new Main.FileReader.OnRead() {
             @Override
             public void done(String s) {
-                try {
-                    ArrayList<PushItem> tm = new ArrayList<>();
-                    JSONObject reader = new JSONObject(s);
-                    Iterator<String> types = reader.keys();
-                    while (types.hasNext()) {
-                        String name = types.next();
-                        try {
-                            PushItem i = new PushItem();
-                            JSONObject uo = reader.getJSONObject(name);
-                            i.id = Integer.parseInt(name);
-                            i.text = uo.getString("text");
-                            i.subtext = uo.getString("sub");
-                            i.value = uo.getString("todo").replaceAll("\\[[a-z]+]", "");
-                            String action = uo.getString("todo").split("]")[0].replaceAll("\\[|]", "");
-                            i.action = PushItem.actionForString(action);
-                            i.d = uo.getInt("d");
-                            i.m = uo.getInt("m");
-                            i.y = uo.getInt("y");
-                            tm.add(i);
-                        } catch (JSONException ignored) {
+                if(s!=null) {
+                    try {
+                        ArrayList<PushItem> tm = new ArrayList<>();
+                        JSONObject reader = new JSONObject(s);
+                        Iterator<String> types = reader.keys();
+                        while (types.hasNext()) {
+                            String name = types.next();
+                            try {
+                                PushItem i = new PushItem();
+                                JSONObject uo = reader.getJSONObject(name);
+                                i.id = Integer.parseInt(name);
+                                i.text = uo.getString("text");
+                                i.subtext = uo.getString("sub");
+                                i.value = uo.getString("todo").replaceAll("\\[[a-z]+]", "");
+                                String action = uo.getString("todo").split("]")[0].replaceAll("\\[|]", "");
+                                i.action = PushItem.actionForString(action);
+                                i.d = uo.getInt("d");
+                                i.m = uo.getInt("m");
+                                i.y = uo.getInt("y");
+                                tm.add(i);
+                            } catch (JSONException ignored) {
+                            }
                         }
-                    }
-                    Calendar c = Calendar.getInstance();
-                    for (int n = 0; n < tm.size(); n++) {
-                        PushItem it = tm.get(n);
-                        int cdate = getDay(c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR));
-                        int wdate = getDay(it.d, it.m, it.y);
-                        boolean dated = cdate <= wdate;
-                        if (!sp.getBoolean(Main.Values.pushID + it.id, false) && dated) {
-                            sp.edit().putBoolean(Main.Values.pushID + it.id, true).apply();
-                            showNotification(it);
+                        Calendar c = Calendar.getInstance();
+                        for (int n = 0; n < tm.size(); n++) {
+                            PushItem it = tm.get(n);
+                            int cdate = getDay(c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR));
+                            int wdate = getDay(it.d, it.m, it.y);
+                            boolean dated = cdate <= wdate;
+                            if (!sp.getBoolean(Main.Values.pushID + it.id, false) && dated) {
+                                sp.edit().putBoolean(Main.Values.pushID + it.id, true).apply();
+                                showNotification(it);
+                            }
                         }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e ) {
-                    e.printStackTrace();
                 }
             }
         }).execute();

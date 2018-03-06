@@ -1166,18 +1166,22 @@ public class Main extends Activity {
     }
 
     static void beginDND(Context c) {
-        c.sendBroadcast(new Intent(Values.KILL_DND_SERVICE));
-        c.startService(new Intent(c, DNDService.class));
+        try {
+            c.sendBroadcast(new Intent(Values.KILL_DND_SERVICE));
+            c.startService(new Intent(c, DNDService.class));
+        }catch (IllegalStateException ignored){}
     }
 
     static void startPush(Context c) {
-        ComponentName serviceComponent = new ComponentName(c, Push.class);
-        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-        builder.setMinimumLatency(Values.pushLoop);
-        JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
-        if (jobScheduler != null) {
-            jobScheduler.schedule(builder.build());
-        }
+        try {
+            ComponentName serviceComponent = new ComponentName(c, Push.class);
+            JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
+            builder.setMinimumLatency(Values.pushLoop);
+            JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
+            if (jobScheduler != null) {
+                jobScheduler.schedule(builder.build());
+            }
+        }catch (Exception ignored){}
     }
 
     private int getFontSize() {
