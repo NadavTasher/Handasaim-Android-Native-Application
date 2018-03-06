@@ -7,8 +7,8 @@ android {
         applicationId "nadav.tasher.handasaim"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 34
-        versionName '4.3'
+        versionCode 35
+        versionName '4.4'
         multiDexEnabled true
     }
     buildTypes {
@@ -16,16 +16,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/ASL2.0'
     }
     productFlavors {
     }
@@ -38,10 +28,4 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.0'
     implementation 'org.jsoup:jsoup:1.10.3'
-//    implementation 'org.apache.poi:poi:3.17'
-//    implementation 'org.apache.poi:poi-ooxml-schemas:3.17'
-//    implementation 'org.apache.poi:poi-ooxml:3.17'
-//    implementation 'org.apache.xmlbeans:xmlbeans:2.6.0'
-//    implementation 'com.fasterxml:aalto-xml:1.0.0'
-//    implementation 'woodstox:stax2:2.1'
 }
