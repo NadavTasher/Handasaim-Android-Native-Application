@@ -17,7 +17,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -42,7 +41,6 @@ import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,6 +115,9 @@ import static nadav.tasher.handasaim.Main.Values.pushService;
 
 public class Main extends Activity {
     static int textColor = fontColorDefault;
+    static Tunnel<Integer> colorChangeTunnle = new Tunnel<>();
+    static Tunnel<Integer> fontSizeChangeTunnle = new Tunnel<>();
+    static Tunnel<Boolean> breakTimeTunnle = new Tunnel<>();
     private int colorA = Values.defaultColorA;
     private int colorB = Values.defaultColorB;
     private int keyentering = 0;
@@ -134,9 +135,216 @@ public class Main extends Activity {
     private String[] infact = new String[]{"Every year more than 2500 left-handed people are killed from using right-handed products.", "In 1895 Hampshire police handed out the first ever speeding ticket, fining a man for doing 6mph!", "Over 1000 birds a year die from smashing into windows.", "Squirrels forget where they hide about half of their nuts.", "The average person walks the equivalent of twice around the world in a lifetime.", "A company in Taiwan makes dinnerware out of wheat, so you can eat your plate!", "An apple, potato, and onion all taste the same if you eat them with your nose plugged.", "Dying is illegal in the Houses of Parliaments – This has been voted as the most ridiculous law by the British citizens.", "The first alarm clock could only ring at 4am.", "If you leave everything to the last minute… it will only take a minute.", "Every human spent about half an hour as a single cell.", "The Twitter bird actually has a name – Larry.", "Sea otters hold hands when they sleep so they don’t drift away from each other.", "The French language has seventeen different words for ‘surrender’.", "The Titanic was the first ship to use the SOS signal.", "A baby octopus is about the size of a flea when it is born.", "You cannot snore and dream at the same time.", "A toaster uses almost half as much energy as a full-sized oven.", "If you consistently fart for 6 years & 9 months, enough gas is produced to create the energy of an atomic bomb!", "An eagle can kill a young deer and fly away with it.", "Polar bears can eat as many as 86 penguins in a single sitting.", "If Pinokio says “My Nose Will Grow Now”, it would cause a paradox.", "Bananas are curved because they grow towards the sun.", "Human saliva has a boiling point three times that of regular water.", "Cherophobia is the fear of fun.", "When hippos are upset, their sweat turns red.", "Pteronophobia is the fear of being tickled by feathers!", "Banging your head against a wall burns 150 calories an hour."};
     private boolean breakTime = true;
     private int placeHold;
-    static Tunnel<Integer> colorChangeTunnle = new Tunnel<>();
-    static Tunnel<Integer> fontSizeChangeTunnle = new Tunnel<>();
-    static Tunnel<Boolean> breakTimeTunnle = new Tunnel<>();
+
+    static void beginDND(Context c) {
+        try {
+            c.sendBroadcast(new Intent(Values.KILL_DND_SERVICE));
+            c.startService(new Intent(c, DNDService.class));
+        } catch (IllegalStateException ignored) {
+        }
+    }
+
+    static void startPush(Context c) {
+        try {
+            ComponentName serviceComponent = new ComponentName(c, Push.class);
+            JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
+            builder.setMinimumLatency(Values.pushLoop);
+            JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
+            if (jobScheduler != null) {
+                jobScheduler.schedule(builder.build());
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    static int getFontSize(Context c) {
+        final SharedPreferences sp = c.getSharedPreferences(prefName, Context.MODE_PRIVATE);
+        return sp.getInt(Values.fontSizeNumber, Values.fontSizeDefault);
+    }
+
+    static int getColorA(Context c) {
+        final SharedPreferences sp = c.getSharedPreferences(prefName, Context.MODE_PRIVATE);
+        return sp.getInt(Values.colorA, Values.defaultColorA);
+    }
+
+    static int getColorB(Context c) {
+        final SharedPreferences sp = c.getSharedPreferences(prefName, Context.MODE_PRIVATE);
+        return sp.getInt(Values.colorB, Values.defaultColorB);
+    }
+
+    static String getRealTimeForHourNumber(int hour) {
+        switch (hour) {
+            case 0:
+                return "07:45";
+            case 1:
+                return "08:30";
+            case 2:
+                return "09:15";
+            case 3:
+                return "10:15";
+            case 4:
+                return "11:00";
+            case 5:
+                return "12:10";
+            case 6:
+                return "12:55";
+            case 7:
+                return "13:50";
+            case 8:
+                return "14:35";
+            case 9:
+                return "15:30";
+            case 10:
+                return "16:15";
+            case 11:
+                return "17:00";
+            case 12:
+                return "17:45";
+        }
+        return null;
+    }
+
+    static String getRealEndTimeForHourNumber(int hour) {
+        switch (hour) {
+            case 0:
+                return "08:30";
+            case 1:
+                return "09:15";
+            case 2:
+                return "10:00";
+            case 3:
+                return "11:00";
+            case 4:
+                return "11:45";
+            case 5:
+                return "12:55";
+            case 6:
+                return "13:40";
+            case 7:
+                return "14:35";
+            case 8:
+                return "15:20";
+            case 9:
+                return "16:15";
+            case 10:
+                return "17:00";
+            case 11:
+                return "17:45";
+            case 12:
+                return "18:30";
+        }
+        return null;
+    }
+
+    static Typeface getTypeface(Context c) {
+        return Typeface.createFromAsset(c.getAssets(), Values.fontName);
+    }
+
+    static int startReadingRow(Sheet s) {
+        Cell secondCell = s.getRow(0).getCell(1);
+        if (secondCell != null) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+
+    static ArrayList<Class> readExcelFile(File f) {
+        try {
+            ArrayList<Class> classes = new ArrayList<>();
+            POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
+            Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+            int startReadingRow = startReadingRow(mySheet);
+            int rows = mySheet.getLastRowNum();
+            int cols = mySheet.getRow(startReadingRow).getLastCellNum();
+            for (int c = 1; c < cols; c++) {
+                ArrayList<Subject> subs = new ArrayList<>();
+                for (int r = startReadingRow + 1; r < rows; r++) {
+                    Row row = mySheet.getRow(r);
+                    subs.add(new Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+                }
+                classes.add(new Class(mySheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
+            }
+            return classes;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    static ArrayList<Class> readExcelFileXLSX(File f) {
+        try {
+            ArrayList<Class> classes = new ArrayList<>();
+            XSSFWorkbook myWorkBook = new XSSFWorkbook(new FileInputStream(f));
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+            int startReadingRow = startReadingRow(mySheet);
+            int rows = mySheet.getLastRowNum();
+            int cols = mySheet.getRow(startReadingRow).getLastCellNum();
+            for (int c = 1; c < cols; c++) {
+                ArrayList<Subject> subs = new ArrayList<>();
+                for (int r = startReadingRow + 1; r < rows; r++) {
+                    Row row = mySheet.getRow(r);
+                    subs.add(new Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+                }
+                classes.add(new Class(mySheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
+            }
+            return classes;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    static int minuteOfDay(int h, int m) {
+        return h * 60 + m;
+    }
+
+    static int getBreak(int washour) {
+        switch (washour) {
+            case 2:
+                return 15;
+            case 4:
+                return 25;
+            case 6:
+                return 10;
+            case 8:
+                return 10;
+            case 10:
+                return 5;
+        }
+        return -1;
+    }
+
+    static ClassTime getTimeForLesson(int hour) {
+        switch (hour) {
+            case 0:
+                return new ClassTime(7, 8, 45, 30);
+            case 1:
+                return new ClassTime(8, 9, 30, 15);
+            case 2:
+                return new ClassTime(9, 10, 15, 0);
+            case 3:
+                return new ClassTime(10, 11, 15, 0);
+            case 4:
+                return new ClassTime(11, 11, 0, 45);
+            case 5:
+                return new ClassTime(12, 12, 10, 55);
+            case 6:
+                return new ClassTime(12, 13, 55, 40);
+            case 7:
+                return new ClassTime(13, 14, 50, 35);
+            case 8:
+                return new ClassTime(14, 15, 35, 20);
+            case 9:
+                return new ClassTime(15, 16, 30, 15);
+            case 10:
+                return new ClassTime(16, 17, 15, 0);
+            case 11:
+                return new ClassTime(17, 17, 0, 45);
+            case 12:
+                return new ClassTime(17, 18, 45, 30);
+        }
+        return new ClassTime(-1, -1, -1, -1);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1165,43 +1373,9 @@ public class Main extends Activity {
         hsplace.addView(scheduleForClass(c));
     }
 
-    static void beginDND(Context c) {
-        try {
-            c.sendBroadcast(new Intent(Values.KILL_DND_SERVICE));
-            c.startService(new Intent(c, DNDService.class));
-        }catch (IllegalStateException ignored){}
-    }
-
-    static void startPush(Context c) {
-        try {
-            ComponentName serviceComponent = new ComponentName(c, Push.class);
-            JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-            builder.setMinimumLatency(Values.pushLoop);
-            JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
-            if (jobScheduler != null) {
-                jobScheduler.schedule(builder.build());
-            }
-        }catch (Exception ignored){}
-    }
-
     private int getFontSize() {
         final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         return sp.getInt(Values.fontSizeNumber, Values.fontSizeDefault);
-    }
-
-    static int getFontSize(Context c) {
-        final SharedPreferences sp = c.getSharedPreferences(prefName, Context.MODE_PRIVATE);
-        return sp.getInt(Values.fontSizeNumber, Values.fontSizeDefault);
-    }
-
-    static int getColorA(Context c) {
-        final SharedPreferences sp = c.getSharedPreferences(prefName, Context.MODE_PRIVATE);
-        return sp.getInt(Values.colorA, Values.defaultColorA);
-    }
-
-    static int getColorB(Context c) {
-        final SharedPreferences sp = c.getSharedPreferences(prefName, Context.MODE_PRIVATE);
-        return sp.getInt(Values.colorB, Values.defaultColorB);
     }
 
     private String scheduleForClassString(Class fclass, boolean showTime) {
@@ -1253,182 +1427,8 @@ public class Main extends Activity {
         }
     }
 
-    static String getRealTimeForHourNumber(int hour) {
-        switch (hour) {
-            case 0:
-                return "07:45";
-            case 1:
-                return "08:30";
-            case 2:
-                return "09:15";
-            case 3:
-                return "10:15";
-            case 4:
-                return "11:00";
-            case 5:
-                return "12:10";
-            case 6:
-                return "12:55";
-            case 7:
-                return "13:50";
-            case 8:
-                return "14:35";
-            case 9:
-                return "15:30";
-            case 10:
-                return "16:15";
-            case 11:
-                return "17:00";
-            case 12:
-                return "17:45";
-        }
-        return null;
-    }
-
-    static String getRealEndTimeForHourNumber(int hour) {
-        switch (hour) {
-            case 0:
-                return "08:30";
-            case 1:
-                return "09:15";
-            case 2:
-                return "10:00";
-            case 3:
-                return "11:00";
-            case 4:
-                return "11:45";
-            case 5:
-                return "12:55";
-            case 6:
-                return "13:40";
-            case 7:
-                return "14:35";
-            case 8:
-                return "15:20";
-            case 9:
-                return "16:15";
-            case 10:
-                return "17:00";
-            case 11:
-                return "17:45";
-            case 12:
-                return "18:30";
-        }
-        return null;
-    }
-
     private Typeface getTypeface() {
         return Typeface.createFromAsset(getAssets(), Values.fontName);
-    }
-
-    static Typeface getTypeface(Context c) {
-        return Typeface.createFromAsset(c.getAssets(), Values.fontName);
-    }
-
-    static int startReadingRow(Sheet s) {
-        Cell secondCell = s.getRow(0).getCell(1);
-        if (secondCell != null) {
-            return 0;
-        } else {
-            return 1;
-        }
-    }
-
-    static ArrayList<Class> readExcelFile(File f) {
-        try {
-            ArrayList<Class> classes = new ArrayList<>();
-            POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
-            Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
-            Sheet mySheet = myWorkBook.getSheetAt(0);
-            int startReadingRow = startReadingRow(mySheet);
-            int rows = mySheet.getLastRowNum();
-            int cols = mySheet.getRow(startReadingRow).getLastCellNum();
-            for (int c = 1; c < cols; c++) {
-                ArrayList<Subject> subs = new ArrayList<>();
-                for (int r = startReadingRow + 1; r < rows; r++) {
-                    Row row = mySheet.getRow(r);
-                    subs.add(new Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
-                }
-                classes.add(new Class(mySheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
-            }
-            return classes;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    static ArrayList<Class> readExcelFileXLSX(File f) {
-        try {
-            ArrayList<Class> classes = new ArrayList<>();
-            XSSFWorkbook myWorkBook = new XSSFWorkbook(new FileInputStream(f));
-            Sheet mySheet = myWorkBook.getSheetAt(0);
-            int startReadingRow = startReadingRow(mySheet);
-            int rows = mySheet.getLastRowNum();
-            int cols = mySheet.getRow(startReadingRow).getLastCellNum();
-            for (int c = 1; c < cols; c++) {
-                ArrayList<Subject> subs = new ArrayList<>();
-                for (int r = startReadingRow + 1; r < rows; r++) {
-                    Row row = mySheet.getRow(r);
-                    subs.add(new Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
-                }
-                classes.add(new Class(mySheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
-            }
-            return classes;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    static int minuteOfDay(int h, int m) {
-        return h * 60 + m;
-    }
-
-    static int getBreak(int washour) {
-        switch (washour) {
-            case 2:
-                return 15;
-            case 4:
-                return 25;
-            case 6:
-                return 10;
-            case 8:
-                return 10;
-            case 10:
-                return 5;
-        }
-        return -1;
-    }
-
-    static ClassTime getTimeForLesson(int hour) {
-        switch (hour) {
-            case 0:
-                return new ClassTime(7, 8, 45, 30);
-            case 1:
-                return new ClassTime(8, 9, 30, 15);
-            case 2:
-                return new ClassTime(9, 10, 15, 0);
-            case 3:
-                return new ClassTime(10, 11, 15, 0);
-            case 4:
-                return new ClassTime(11, 11, 0, 45);
-            case 5:
-                return new ClassTime(12, 12, 10, 55);
-            case 6:
-                return new ClassTime(12, 13, 55, 40);
-            case 7:
-                return new ClassTime(13, 14, 50, 35);
-            case 8:
-                return new ClassTime(14, 15, 35, 20);
-            case 9:
-                return new ClassTime(15, 16, 30, 15);
-            case 10:
-                return new ClassTime(16, 17, 15, 0);
-            case 11:
-                return new ClassTime(17, 17, 0, 45);
-            case 12:
-                return new ClassTime(17, 18, 45, 30);
-        }
-        return new ClassTime(-1, -1, -1, -1);
     }
 
     private LinearLayout scheduleForClass(final Class fclass) {
@@ -1848,6 +1848,7 @@ public class Main extends Activity {
             public ColorPicker(Context context, int defaultColor) {
                 super(context);
                 this.defaultColor = defaultColor;
+                this.currentColor = this.defaultColor;
                 addViews();
             }
 
@@ -1912,7 +1913,7 @@ public class Main extends Activity {
                 int redAmount = Color.red(color);
                 int greenAmount = Color.green(color);
                 int blueAmount = Color.blue(color);
-                int xy = ((redSeekBar.getHeight() - redSeekBar.getPaddingTop() - redSeekBar.getPaddingBottom()) + (greenSeekBar.getHeight() - greenSeekBar.getPaddingTop() - greenSeekBar.getPaddingBottom()) + (blueSeekBar.getHeight() - blueSeekBar.getPaddingTop() - blueSeekBar.getPaddingBottom())) / 3;
+                int xy = ((redSeekBar.getLayoutParams().height - redSeekBar.getPaddingTop() - redSeekBar.getPaddingBottom()) + (greenSeekBar.getLayoutParams().height - greenSeekBar.getPaddingTop() - greenSeekBar.getPaddingBottom()) + (blueSeekBar.getLayoutParams().height - blueSeekBar.getPaddingTop() - blueSeekBar.getPaddingBottom())) / 3;
                 //                xy+=32;
                 redSeekBar.setThumb(getRoundedRect(Color.rgb(redAmount, 0, 0), xy));
                 greenSeekBar.setThumb(getRoundedRect(Color.rgb(0, greenAmount, 0), xy));
