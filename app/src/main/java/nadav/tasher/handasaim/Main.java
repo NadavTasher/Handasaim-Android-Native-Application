@@ -2335,7 +2335,6 @@ public class Main extends Activity {
         static final String favoriteTeacher = "favorite_teacher";
         static final String pushID = "push_id_";
         static final String latestFileName = "latest_file_name";
-        static final String lastRecordedVersionCode = "last_recorded_version_code";
         static final String firstLaunch = "first";
         static final String latestFileNameDefault = "hs.xls";
         static final boolean pushDefault = true;

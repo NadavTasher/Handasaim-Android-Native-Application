@@ -137,20 +137,21 @@ public class Push extends JobService {
         static final int POPUP = 1;
         static final int TOAST = 2;
         static final int NONE = -1;
-        public String text, subtext, value;
-        public int id, action, d, m, y;
+        String text, subtext, value;
+        int id, action, d, m, y;
 
         static int actionForString(String a) {
-            if (a.equals("url")) {
-                return URL;
-            } else if (a.equals("popup")) {
-                return POPUP;
-            } else if (a.equals("toast")) {
-                return TOAST;
-            } else if (a.equals("none")) {
-                return NONE;
-            } else {
-                return NONE;
+            switch (a) {
+                case "url":
+                    return URL;
+                case "popup":
+                    return POPUP;
+                case "toast":
+                    return TOAST;
+                case "none":
+                    return NONE;
+                default:
+                    return NONE;
             }
         }
     }
