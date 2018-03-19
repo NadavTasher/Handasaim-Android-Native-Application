@@ -11,7 +11,7 @@
     <string name="choose_first_color">Choose First Color:</string>
     <string name="choose_second_color">Choose Second Color:</string>
     <string name="news_load_failed">Failed To Load News.</string>
-    <string name="lets_begin">Lets Begin!</string>
+    <string name="begin_text">Click Here To Begin.</string>
     <string name="live_messages">Live Messages</string>
     <string name="show_breaks">Show Breaks</string>
     <string name="auto_mute">Auto Mute</string>

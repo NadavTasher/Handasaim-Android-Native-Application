@@ -41,6 +41,7 @@ import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,6 +88,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Random;
 
@@ -123,14 +125,16 @@ public class Main extends Activity {
     private int keyentering = 0;
     private String day;
     private Class currentClass;
+    private Teacher currentTeacher;
     private FrameLayout masterLayout;
-    private nadav.tasher.lightool.Graphics.DragNavigation masterNavigation;
+    private Graphics.DragNavigation masterNavigation;
     private MyGraphics.OptionHolder optionHolder;
     private MyGraphics.CurvedTextView ctv;
     private MyGraphics.CircleView circleView;
     private FrameLayout content;
     private Drawable gradient, coaster, classCoaster, classCoasterMarked;
     private ArrayList<Class> classes;
+    private ArrayList<Teacher> teachers;
     private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
     private String[] infact = new String[]{"Every year more than 2500 left-handed people are killed from using right-handed products.", "In 1895 Hampshire police handed out the first ever speeding ticket, fining a man for doing 6mph!", "Over 1000 birds a year die from smashing into windows.", "Squirrels forget where they hide about half of their nuts.", "The average person walks the equivalent of twice around the world in a lifetime.", "A company in Taiwan makes dinnerware out of wheat, so you can eat your plate!", "An apple, potato, and onion all taste the same if you eat them with your nose plugged.", "Dying is illegal in the Houses of Parliaments – This has been voted as the most ridiculous law by the British citizens.", "The first alarm clock could only ring at 4am.", "If you leave everything to the last minute… it will only take a minute.", "Every human spent about half an hour as a single cell.", "The Twitter bird actually has a name – Larry.", "Sea otters hold hands when they sleep so they don’t drift away from each other.", "The French language has seventeen different words for ‘surrender’.", "The Titanic was the first ship to use the SOS signal.", "A baby octopus is about the size of a flea when it is born.", "You cannot snore and dream at the same time.", "A toaster uses almost half as much energy as a full-sized oven.", "If you consistently fart for 6 years & 9 months, enough gas is produced to create the energy of an atomic bomb!", "An eagle can kill a young deer and fly away with it.", "Polar bears can eat as many as 86 penguins in a single sitting.", "If Pinokio says “My Nose Will Grow Now”, it would cause a paradox.", "Bananas are curved because they grow towards the sun.", "Human saliva has a boiling point three times that of regular water.", "Cherophobia is the fear of fun.", "When hippos are upset, their sweat turns red.", "Pteronophobia is the fear of being tickled by feathers!", "Banging your head against a wall burns 150 calories an hour."};
     private boolean breakTime = true;
@@ -344,6 +348,126 @@ public class Main extends Activity {
                 return new ClassTime(17, 18, 45, 30);
         }
         return new ClassTime(-1, -1, -1, -1);
+    }
+
+    static ArrayList<Teacher> getTeacherSchudleForClasses(ArrayList<Class> classes) {
+        ArrayList<Teacher> teacherList = new ArrayList<>();
+        for (int currentClass = 0; currentClass < classes.size(); currentClass++) {
+            Class cClass = classes.get(currentClass);
+            cClass.name = cClass.name.split(" ")[0];
+            for (int currentSubject = 0; currentSubject < cClass.subjects.size(); currentSubject++) {
+                Subject cSubject = cClass.subjects.get(currentSubject);
+                ArrayList<String> cSubjectTeachers = new ArrayList<>(Arrays.asList(cSubject.fullName.substring(cSubject.fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
+                TeacherLesson cLesson = new TeacherLesson(cClass.name, cSubject.name, cSubject.hour);
+                for (int currentTeacherOfSubject = 0; currentTeacherOfSubject < cSubjectTeachers.size(); currentTeacherOfSubject++) {
+                    String nameOfTeacher = cSubjectTeachers.get(currentTeacherOfSubject);
+                    boolean foundTeacher = false;
+                    if (!cSubject.name.equals("")) {
+                        for (int currentTeacher = 0; currentTeacher < teacherList.size(); currentTeacher++) {
+                            Teacher cTeacher = teacherList.get(currentTeacher);
+                            Log.i("MEME", String.valueOf(isTheSameTeacher(cTeacher.mainName, nameOfTeacher)));
+                            if (isTheSameTeacher(cTeacher.mainName, nameOfTeacher) == 1) {
+                                if (!cTeacher.mainName.equals(nameOfTeacher)) {
+                                    if (cTeacher.teaches(cSubject.name)) {
+                                        cTeacher.teaching.add(cLesson);
+                                        foundTeacher = true;
+                                        break;
+                                    }
+                                } else {
+                                    if (!cTeacher.teaches(cSubject.name)) {
+                                        cTeacher.subjects.add(cSubject.name);
+                                    }
+                                    cTeacher.teaching.add(cLesson);
+                                    foundTeacher = true;
+                                    break;
+                                }
+                            } else if (isTheSameTeacher(cTeacher.mainName, nameOfTeacher) == 2) {
+                                if (!cTeacher.teaches(cSubject.name)) {
+                                    cTeacher.subjects.add(cSubject.name);
+                                }
+                                cTeacher.teaching.add(cLesson);
+                                foundTeacher = true;
+                                break;
+                            }
+                        }
+                        if (!foundTeacher) {
+                            Teacher teacher = new Teacher();
+                            teacher.mainName = nameOfTeacher;
+                            teacher.subjects = new ArrayList<>();
+                            teacher.subjects.add(cSubject.name);
+                            teacher.teaching = new ArrayList<>();
+                            teacher.teaching.add(cLesson);
+                            if (!nameOfTeacher.equals(""))
+                                teacherList.add(teacher);
+                        }
+                    }
+                }
+            }
+        }
+        return teacherList;
+    }
+
+    static int isTheSameTeacher(String a, String b) {
+        ArrayList<String> aSplit = new ArrayList<>(Arrays.asList(a.split(" ")));
+        ArrayList<String> bSplit = new ArrayList<>(Arrays.asList(b.split(" ")));
+        if (aSplit.size() > 1 && bSplit.size() > 1) {
+            if (aSplit.get(0).equals(bSplit.get(0))) {
+                if (aSplit.get(1).contains(bSplit.get(1))) {
+                    return 2;
+                } else if (bSplit.get(1).contains(aSplit.get(1))) {
+                    return 2;
+                } else {
+                    return 0;
+                }
+            }
+            return 0;
+        } else if (a.contains(b) || b.contains(a)) {
+            return 1;
+        }
+        return 0;
+    }
+
+    static int getGrade(ArrayList<TeacherLesson> classNames) {
+        if (classNames.size() > 0) {
+            int grade = getGrade(classNames.get(0));
+            for (int cTl = 1; cTl < classNames.size(); cTl++) {
+                int cGrade = getGrade(classNames.get(cTl));
+                if (cGrade != grade) {
+                    return -1;
+                }
+            }
+            return grade;
+        }
+        return -1;
+    }
+
+    static int getGrade(TeacherLesson s) {
+        String parsing = s.className;
+        if (parsing.contains("י")) {
+            if (parsing.contains("א")) {
+                return 2;
+            } else if (parsing.contains("ב")) {
+                return 3;
+            } else {
+                return 1;
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    static String getGrade(int grade) {
+        switch (grade) {
+            case 0:
+                return "ט'";
+            case 1:
+                return "י'";
+            case 2:
+                return "יא'";
+            case 3:
+                return "יב'";
+        }
+        return "";
     }
 
     @Override
@@ -601,7 +725,7 @@ public class Main extends Activity {
         setup.setTypeface(getTypeface());
         setup.setAllCaps(false);
         welcome.setTypeface(getTypeface());
-        setup.setText(R.string.lets_begin);
+        setup.setText(R.string.begin_text);
         setup.setAllCaps(false);
         setup.setAlpha(0);
         setup.setBackgroundColor(Color.TRANSPARENT);
@@ -704,7 +828,8 @@ public class Main extends Activity {
                 sp.edit().putBoolean(Values.messageBoardSkipEnabler, true).commit();
                 break;
             case 2:
-                Toast.makeText(getApplicationContext(), "Teacher Mode (aka CodeStyle2) Isn't Available Anymore.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Teacher Mode Enabled.", Toast.LENGTH_SHORT).show();
+                sp.edit().putBoolean(Values.teacherModeEnabler, true).commit();
                 break;
             default:
                 break;
@@ -810,7 +935,6 @@ public class Main extends Activity {
     private void view() {
         final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         final int x = Device.screenX(getApplicationContext());
-        final int y = Device.screenY(getApplicationContext());
         final int circlePadding = x / 30;
         final int circleSize = x / 4;
         final ScrollView contentScroll = new ScrollView(this);
@@ -962,7 +1086,7 @@ public class Main extends Activity {
             }
         });
         refreshTheme();
-        if (classes != null) showSchedule(getFavoriteClass());
+        if (classes != null) setStudentMode(getFavoriteClass());
         setContentView(masterLayout);
     }
 
@@ -982,6 +1106,25 @@ public class Main extends Activity {
             }
         } else {
             return classes.get(selectedClass);
+        }
+    }
+
+    private Teacher getFavoriteTeacher() {
+        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
+        int selectedTeacher = 0;
+        if (sp.getString(Values.favoriteTeacher, null) != null) {
+            if (teachers != null) {
+                for (int fc = 0; fc < teachers.size(); fc++) {
+                    if (sp.getString(Values.favoriteTeacher, "").equals(teachers.get(fc).mainName)) {
+                        return teachers.get(fc);
+                    }
+                }
+                return teachers.get(selectedTeacher);
+            } else {
+                return null;
+            }
+        } else {
+            return teachers.get(selectedTeacher);
         }
     }
 
@@ -1028,7 +1171,8 @@ public class Main extends Activity {
         shareTimeSwitch.setTextColor(textColor);
         shareTimeSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         Button shareB = new Button(this);
-        shareB.setText(R.string.share);
+        String shareText=getString(R.string.share)+" "+currentClass.name;
+        shareB.setText(shareText);
         shareB.setBackground(coaster);
         shareB.setTextColor(textColor);
         shareB.setTextSize(getFontSize() - 7);
@@ -1241,6 +1385,7 @@ public class Main extends Activity {
     }
 
     private ScrollView generateClassSwitchView() {
+        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         LinearLayout all = new LinearLayout(this);
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.CENTER);
@@ -1259,11 +1404,32 @@ public class Main extends Activity {
             cls.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
                     sp.edit().putString(Values.favoriteClass, classes.get(finalCs).name).commit();
-                    showSchedule(classes.get(finalCs));
+                    setStudentMode(classes.get(finalCs));
                 }
             });
+        }
+        if (sp.getBoolean(Values.teacherModeEnabler, false)) {
+            for (int cs = 0; cs < teachers.size(); cs++) {
+                Button cls = new Button(getApplicationContext());
+                cls.setTextSize((float) getFontSize());
+                cls.setGravity(Gravity.CENTER);
+                cls.setText(teachers.get(cs).mainName);
+                cls.setTextColor(textColor);
+                cls.setBackground(coaster);
+                cls.setPadding(10, 0, 10, 0);
+                cls.setTypeface(getTypeface());
+                cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 12)));
+                all.addView(cls);
+                final int finalCs = cs;
+                cls.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        sp.edit().putString(Values.favoriteTeacher, teachers.get(finalCs).mainName).commit();
+                        setTeacherMode(teachers.get(finalCs));
+                    }
+                });
+            }
         }
         ScrollView sv = new ScrollView(this);
         sv.addView(all);
@@ -1337,6 +1503,7 @@ public class Main extends Activity {
             //                                day = readExcelDayXLSX(file);
             /////
             if (classes != null) {
+                teachers = getTeacherSchudleForClasses(classes);
                 if (!sp.getBoolean(Values.firstLaunch, true)) {
                     newsSplash();
                     //                                            welcome(classes, true);
@@ -1358,10 +1525,33 @@ public class Main extends Activity {
         s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(Intent.createChooser(s, "Share With"));
     }
+    //    private void showSchedule(final Class c) {
+    //        currentClass = c;
+    //        circleView.text(c.name, day);
+    //        LinearLayout hsplace = new LinearLayout(this);
+    //        hsplace.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
+    //        hsplace.setOrientation(LinearLayout.VERTICAL);
+    //        content.removeAllViews();
+    //        content.addView(hsplace);
+    //        View ph = new View(this);
+    //        ph.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, placeHold));
+    //        hsplace.addView(ph);
+    //        hsplace.addView(scheduleForClass(c));
+    //    }
 
-    private void showSchedule(final Class c) {
+    private void setStudentMode(Class c) {
         currentClass = c;
         circleView.text(c.name, day);
+        displayLessonViews(scheduleForClass(c));
+    }
+
+    private void setTeacherMode(Teacher t) {
+        currentTeacher = t;
+        circleView.text(t.mainName.split(" ")[0], day);
+        displayLessonViews(scheduleForTeacher(t));
+    }
+
+    private void displayLessonViews(ArrayList<MyGraphics.LessonView> lessonViews) {
         LinearLayout hsplace = new LinearLayout(this);
         hsplace.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         hsplace.setOrientation(LinearLayout.VERTICAL);
@@ -1370,7 +1560,14 @@ public class Main extends Activity {
         View ph = new View(this);
         ph.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, placeHold));
         hsplace.addView(ph);
-        hsplace.addView(scheduleForClass(c));
+        LinearLayout lessonViewHolder = new LinearLayout(this);
+        lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
+        lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
+        lessonViewHolder.setPadding(10, 10, 10, 10);
+        for (int l = 0; l < lessonViews.size(); l++) {
+            lessonViewHolder.addView(lessonViews.get(l));
+        }
+        hsplace.addView(lessonViewHolder);
     }
 
     private int getFontSize() {
@@ -1431,16 +1628,13 @@ public class Main extends Activity {
         return Typeface.createFromAsset(getAssets(), Values.fontName);
     }
 
-    private LinearLayout scheduleForClass(final Class fclass) {
-        LinearLayout all = new LinearLayout(this);
-        all.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
-        all.setOrientation(LinearLayout.VERTICAL);
-        all.setPadding(10, 10, 10, 10);
+    private ArrayList<MyGraphics.LessonView> scheduleForClass(final Class fclass) {
+        ArrayList<MyGraphics.LessonView> lessons = new ArrayList<>();
         for (int s = 0; s < fclass.subjects.size(); s++) {
             if (getBreak(fclass.subjects.get(s).hour - 1) != -1) {
                 final MyGraphics.LessonView breakt = new MyGraphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, -1, "הפסקה", getBreak(fclass.subjects.get(s).hour - 1) + " דקות", "");
                 if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
-                    all.addView(breakt);
+                    lessons.add(breakt);
                 }
                 if (!breakTime) {
                     breakt.setVisibility(View.GONE);
@@ -1471,10 +1665,96 @@ public class Main extends Activity {
             MyGraphics.LessonView subject = new MyGraphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, fclass.subjects.get(s).hour, fclass.subjects.get(s).name.replaceAll(",", "/"), txt, tcnm);
             if (isCurrent) subject.mark();
             if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
-                all.addView(subject);
+                lessons.add(subject);
             }
         }
-        return all;
+        return lessons;
+    }
+
+    private ArrayList<MyGraphics.LessonView> scheduleForTeacher(final Teacher fclass) {
+        ArrayList<MyGraphics.LessonView> lessons = new ArrayList<>();
+        for (int h = 0; h <= 12; h++) {
+            ArrayList<TeacherLesson> currentLesson = new ArrayList<>();
+            String currentText = "";
+            boolean isCurrent = false;
+            String lessonName = "";
+            for (int s = 0; s < fclass.teaching.size(); s++) {
+                if (fclass.teaching.get(s).hour == h) {
+                    ClassTime classTime = getTimeForLesson(h);
+                    Calendar ca = Calendar.getInstance();
+                    int minute = ca.get(Calendar.MINUTE);
+                    int hour = ca.get(Calendar.HOUR_OF_DAY);
+                    if (minuteOfDay(hour, minute) >= minuteOfDay(classTime.startH, classTime.startM) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.finishH, classTime.finishM)) {
+                        isCurrent = true;
+                    }
+                    if (currentText.equals("")) {
+                        currentText += fclass.teaching.get(s).className;
+                    } else {
+                        currentText += ", " + fclass.teaching.get(s).className;
+                    }
+                    lessonName = fclass.teaching.get(s).lessonName;
+                    currentLesson.add(fclass.teaching.get(s));
+                }
+            }
+            if (currentLesson.size() > 1) {
+                if (getGrade(currentLesson) != -1) {
+                    currentText = getGrade(getGrade(currentLesson));
+                }
+            }
+            if (currentLesson.size() >= 1) {
+                if (getBreak(h - 1) != -1) {
+                    final MyGraphics.LessonView breakt = new MyGraphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, -1, "הפסקה", getBreak(h - 1) + " דקות", "");
+                    lessons.add(breakt);
+                    if (!breakTime) {
+                        breakt.setVisibility(View.GONE);
+                    } else {
+                        breakt.setVisibility(View.VISIBLE);
+                    }
+                    breakTimeTunnle.addReceiver(new Tunnel.OnTunnel<Boolean>() {
+                        @Override
+                        public void onReceive(Boolean response) {
+                            if (!response) {
+                                breakt.setVisibility(View.GONE);
+                            } else {
+                                breakt.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    });
+                }
+                String txt = getRealTimeForHourNumber(h) + "-" + getRealEndTimeForHourNumber(h);
+                MyGraphics.LessonView lesson = new MyGraphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, h, currentText, txt, lessonName);
+                if (isCurrent) lesson.mark();
+                lessons.add(lesson);
+            }
+        }
+        return lessons;
+    }
+
+    static class Teacher {
+        ArrayList<TeacherLesson> teaching;
+        ArrayList<String> subjects;
+        String mainName;
+
+        boolean teaches(String l) {
+            for (int tc = 0; tc < subjects.size(); tc++) {
+                if (subjects.get(tc).equals(l) || subjects.get(tc).contains(l) || l.contains(subjects.get(tc))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    static class TeacherLesson {
+        String className, lessonName;
+        int hour;
+
+        TeacherLesson(String className, String lessonName, int hour) {
+            this.hour = hour;
+            this.className = className;
+            this.lessonName = lessonName;
+            this.lessonName=this.lessonName.replaceAll(",","/");
+        }
     }
 
     static class MyGraphics {
@@ -1612,6 +1892,9 @@ public class Main extends Activity {
             }
 
             public void text(String upper, String lower) {
+                if(upper.length()>4){
+                    upper=upper.substring(0,4);
+                }
                 removeAllViews();
                 LinearLayout texts = new LinearLayout(getContext());
                 texts.setOrientation(LinearLayout.VERTICAL);
@@ -2042,6 +2325,7 @@ public class Main extends Activity {
         static final String fontName = "heebo.ttf";
         static final String latestFileDate = "latest_file_date";
         static final String messageBoardSkipEnabler = "installed_pass_news_code_v3";
+        static final String teacherModeEnabler = "installed_teacher_mode_v2";
         static final String breakTime = "break_time";
         static final String pushService = "push_service";
         static final String fontColor = "font_color";
@@ -2050,6 +2334,7 @@ public class Main extends Activity {
         static final String colorA = "colorA";
         static final String colorB = "colorB";
         static final String favoriteClass = "favorite_class";
+        static final String favoriteTeacher = "favorite_teacher";
         static final String pushID = "push_id_";
         static final String latestFileName = "latest_file_name";
         static final String lastRecordedVersionCode = "last_recorded_version_code";
