@@ -17,4 +17,6 @@
     <string name="auto_mute">Auto Mute</string>
     <string name="choose_text_color">Choose Text Color:</string>
     <string name="choose_text_size">Choose Text Size:</string>
+    <string name="students_text">Student Classes</string>
+    <string name="teachers_text">Teachers</string>
 </resources>

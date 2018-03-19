@@ -1163,6 +1163,7 @@ public class Main extends Activity {
         shareTitle.setText(R.string.share_menu);
         shareTitle.setGravity(Gravity.CENTER);
         final Switch shareTimeSwitch = new Switch(this);
+        shareTimeSwitch.setPadding(10, 0, 10, 0);
         shareTimeSwitch.setText(R.string.lesson_time);
         shareTimeSwitch.setTypeface(getTypeface());
         shareTimeSwitch.setTextSize(getFontSize() - 4);
@@ -1387,6 +1388,29 @@ public class Main extends Activity {
         LinearLayout all = new LinearLayout(this);
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.CENTER);
+        LinearLayout students = new LinearLayout(this);
+        students.setPadding(10, 10, 10, 10);
+        students.setOrientation(LinearLayout.VERTICAL);
+        students.setGravity(Gravity.CENTER);
+        LinearLayout teachersv = new LinearLayout(this);
+        teachersv.setPadding(10, 10, 10, 10);
+        teachersv.setOrientation(LinearLayout.VERTICAL);
+        teachersv.setGravity(Gravity.CENTER);
+        TextView studentsTitle = new TextView(this);
+        studentsTitle.setText(R.string.students_text);
+        studentsTitle.setTypeface(getTypeface());
+        studentsTitle.setTextSize(getFontSize() - 5);
+        studentsTitle.setTextColor(textColor);
+        studentsTitle.setGravity(Gravity.CENTER);
+        TextView teachersTitle = new TextView(this);
+        teachersTitle.setText(R.string.teachers_text);
+        teachersTitle.setTypeface(getTypeface());
+        teachersTitle.setTextSize(getFontSize() - 5);
+        teachersTitle.setTextColor(textColor);
+        teachersTitle.setGravity(Gravity.CENTER);
+        students.setBackground(coaster);
+        teachersv.setBackground(coaster);
+        students.addView(studentsTitle);
         for (int cs = 0; cs < classes.size(); cs++) {
             Button cls = new Button(getApplicationContext());
             cls.setTextSize((float) getFontSize());
@@ -1397,7 +1421,7 @@ public class Main extends Activity {
             cls.setPadding(10, 0, 10, 0);
             cls.setTypeface(getTypeface());
             cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 12)));
-            all.addView(cls);
+            students.addView(cls);
             final int finalCs = cs;
             cls.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -1407,7 +1431,9 @@ public class Main extends Activity {
                 }
             });
         }
+        all.addView(students);
         if (sp.getBoolean(Values.teacherModeEnabler, false)) {
+            teachersv.addView(teachersTitle);
             for (int cs = 0; cs < teachers.size(); cs++) {
                 Button cls = new Button(getApplicationContext());
                 cls.setTextSize((float) getFontSize());
@@ -1418,7 +1444,7 @@ public class Main extends Activity {
                 cls.setPadding(10, 0, 10, 0);
                 cls.setTypeface(getTypeface());
                 cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 12)));
-                all.addView(cls);
+                teachersv.addView(cls);
                 final int finalCs = cs;
                 cls.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -1428,6 +1454,7 @@ public class Main extends Activity {
                     }
                 });
             }
+            all.addView(teachersv);
         }
         ScrollView sv = new ScrollView(this);
         sv.addView(all);
