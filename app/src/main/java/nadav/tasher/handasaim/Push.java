@@ -22,17 +22,22 @@ import nadav.tasher.lightool.Net;
 
 public class Push extends JobService {
 
+    static int getDay(int day, int month, int year) {
+        int m = 31;
+        int y = 12 * m;
+        return year * y + month * m + day;
+    }
+
     @Override
     public boolean onStartJob(final JobParameters params) {
         final SharedPreferences sp = getSharedPreferences("app", Context.MODE_PRIVATE);
         if (sp.getBoolean(Main.Values.pushService, Main.Values.pushDefault)) {
-            new Net.Pinger(Main.Values.puzProvider,5000, new Net.Pinger.OnEnd() {
+            new Net.Pinger(Main.Values.puzProvider, 5000, new Net.Pinger.OnEnd() {
                 @Override
                 public void onPing(boolean b) {
-                    if(b)checkForPushes(sp);
+                    if (b) checkForPushes(sp);
                 }
             }).execute();
-
         }
         Main.startPush(getApplicationContext());
         return false;
@@ -47,7 +52,7 @@ public class Push extends JobService {
         new Main.FileReader(Main.Values.pushProvider, new Main.FileReader.OnRead() {
             @Override
             public void done(String s) {
-                if(s!=null) {
+                if (s != null) {
                     try {
                         ArrayList<PushItem> tm = new ArrayList<>();
                         JSONObject reader = new JSONObject(s);
@@ -89,16 +94,10 @@ public class Push extends JobService {
         }).execute();
     }
 
-    static int getDay(int day, int month, int year) {
-        int m = 31;
-        int y = 12 * m;
-        return year * y + month * m + day;
-    }
-
     private void showNotification(PushItem pi) {
         Notification.Builder mBuilder =
                 new Notification.Builder(this)
-                        .setSmallIcon(R.drawable.ic_icon)
+                        .setSmallIcon(R.drawable.ic_notification)
                         .setContentTitle(pi.text)
                         .setContentText(pi.subtext)
                         .setDefaults(Notification.DEFAULT_ALL);

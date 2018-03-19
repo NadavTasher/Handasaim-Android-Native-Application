@@ -41,7 +41,6 @@ import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -350,63 +349,6 @@ public class Main extends Activity {
         return new ClassTime(-1, -1, -1, -1);
     }
 
-    static ArrayList<Teacher> getTeacherSchudleForClasses(ArrayList<Class> classes) {
-        ArrayList<Teacher> teacherList = new ArrayList<>();
-        for (int currentClass = 0; currentClass < classes.size(); currentClass++) {
-            Class cClass = classes.get(currentClass);
-            cClass.name = cClass.name.split(" ")[0];
-            for (int currentSubject = 0; currentSubject < cClass.subjects.size(); currentSubject++) {
-                Subject cSubject = cClass.subjects.get(currentSubject);
-                ArrayList<String> cSubjectTeachers = new ArrayList<>(Arrays.asList(cSubject.fullName.substring(cSubject.fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
-                TeacherLesson cLesson = new TeacherLesson(cClass.name, cSubject.name, cSubject.hour);
-                for (int currentTeacherOfSubject = 0; currentTeacherOfSubject < cSubjectTeachers.size(); currentTeacherOfSubject++) {
-                    String nameOfTeacher = cSubjectTeachers.get(currentTeacherOfSubject);
-                    boolean foundTeacher = false;
-                    if (!cSubject.name.equals("")) {
-                        for (int currentTeacher = 0; currentTeacher < teacherList.size(); currentTeacher++) {
-                            Teacher cTeacher = teacherList.get(currentTeacher);
-                            Log.i("MEME", String.valueOf(isTheSameTeacher(cTeacher.mainName, nameOfTeacher)));
-                            if (isTheSameTeacher(cTeacher.mainName, nameOfTeacher) == 1) {
-                                if (!cTeacher.mainName.equals(nameOfTeacher)) {
-                                    if (cTeacher.teaches(cSubject.name)) {
-                                        cTeacher.teaching.add(cLesson);
-                                        foundTeacher = true;
-                                        break;
-                                    }
-                                } else {
-                                    if (!cTeacher.teaches(cSubject.name)) {
-                                        cTeacher.subjects.add(cSubject.name);
-                                    }
-                                    cTeacher.teaching.add(cLesson);
-                                    foundTeacher = true;
-                                    break;
-                                }
-                            } else if (isTheSameTeacher(cTeacher.mainName, nameOfTeacher) == 2) {
-                                if (!cTeacher.teaches(cSubject.name)) {
-                                    cTeacher.subjects.add(cSubject.name);
-                                }
-                                cTeacher.teaching.add(cLesson);
-                                foundTeacher = true;
-                                break;
-                            }
-                        }
-                        if (!foundTeacher) {
-                            Teacher teacher = new Teacher();
-                            teacher.mainName = nameOfTeacher;
-                            teacher.subjects = new ArrayList<>();
-                            teacher.subjects.add(cSubject.name);
-                            teacher.teaching = new ArrayList<>();
-                            teacher.teaching.add(cLesson);
-                            if (!nameOfTeacher.equals(""))
-                                teacherList.add(teacher);
-                        }
-                    }
-                }
-            }
-        }
-        return teacherList;
-    }
-
     static int isTheSameTeacher(String a, String b) {
         ArrayList<String> aSplit = new ArrayList<>(Arrays.asList(a.split(" ")));
         ArrayList<String> bSplit = new ArrayList<>(Arrays.asList(b.split(" ")));
@@ -468,6 +410,62 @@ public class Main extends Activity {
                 return "יב'";
         }
         return "";
+    }
+
+    private ArrayList<Teacher> getTeacherSchudleForClasses(ArrayList<Class> classes) {
+        ArrayList<Teacher> teacherList = new ArrayList<>();
+        for (int currentClass = 0; currentClass < classes.size(); currentClass++) {
+            Class cClass = classes.get(currentClass);
+            cClass.name = cClass.name.split(" ")[0];
+            for (int currentSubject = 0; currentSubject < cClass.subjects.size(); currentSubject++) {
+                Subject cSubject = cClass.subjects.get(currentSubject);
+                ArrayList<String> cSubjectTeachers = new ArrayList<>(Arrays.asList(cSubject.fullName.substring(cSubject.fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
+                TeacherLesson cLesson = new TeacherLesson(cClass.name, cSubject.name, cSubject.hour);
+                for (int currentTeacherOfSubject = 0; currentTeacherOfSubject < cSubjectTeachers.size(); currentTeacherOfSubject++) {
+                    String nameOfTeacher = cSubjectTeachers.get(currentTeacherOfSubject);
+                    boolean foundTeacher = false;
+                    if (!cSubject.name.equals("")) {
+                        for (int currentTeacher = 0; currentTeacher < teacherList.size(); currentTeacher++) {
+                            Teacher cTeacher = teacherList.get(currentTeacher);
+                            if (isTheSameTeacher(cTeacher.mainName, nameOfTeacher) == 1) {
+                                if (!cTeacher.mainName.equals(nameOfTeacher)) {
+                                    if (cTeacher.teaches(cSubject.name)) {
+                                        cTeacher.teaching.add(cLesson);
+                                        foundTeacher = true;
+                                        break;
+                                    }
+                                } else {
+                                    if (!cTeacher.teaches(cSubject.name)) {
+                                        cTeacher.subjects.add(cSubject.name);
+                                    }
+                                    cTeacher.teaching.add(cLesson);
+                                    foundTeacher = true;
+                                    break;
+                                }
+                            } else if (isTheSameTeacher(cTeacher.mainName, nameOfTeacher) == 2) {
+                                if (!cTeacher.teaches(cSubject.name)) {
+                                    cTeacher.subjects.add(cSubject.name);
+                                }
+                                cTeacher.teaching.add(cLesson);
+                                foundTeacher = true;
+                                break;
+                            }
+                        }
+                        if (!foundTeacher) {
+                            Teacher teacher = new Teacher();
+                            teacher.mainName = nameOfTeacher;
+                            teacher.subjects = new ArrayList<>();
+                            teacher.subjects.add(cSubject.name);
+                            teacher.teaching = new ArrayList<>();
+                            teacher.teaching.add(cLesson);
+                            if (!nameOfTeacher.equals(""))
+                                teacherList.add(teacher);
+                        }
+                    }
+                }
+            }
+        }
+        return teacherList;
     }
 
     @Override
@@ -1171,7 +1169,7 @@ public class Main extends Activity {
         shareTimeSwitch.setTextColor(textColor);
         shareTimeSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         Button shareB = new Button(this);
-        String shareText=getString(R.string.share)+" "+currentClass.name;
+        String shareText = getString(R.string.share) + " " + currentClass.name;
         shareB.setText(shareText);
         shareB.setBackground(coaster);
         shareB.setTextColor(textColor);
@@ -1753,7 +1751,7 @@ public class Main extends Activity {
             this.hour = hour;
             this.className = className;
             this.lessonName = lessonName;
-            this.lessonName=this.lessonName.replaceAll(",","/");
+            this.lessonName = this.lessonName.replaceAll(",", "/");
         }
     }
 
@@ -1892,8 +1890,8 @@ public class Main extends Activity {
             }
 
             public void text(String upper, String lower) {
-                if(upper.length()>4){
-                    upper=upper.substring(0,4);
+                if (upper.length() > 4) {
+                    upper = upper.substring(0, 4);
                 }
                 removeAllViews();
                 LinearLayout texts = new LinearLayout(getContext());

@@ -7,8 +7,8 @@ android {
         applicationId "nadav.tasher.handasaim"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 36
-        versionName '4.5'
+        versionCode 37
+        versionName '4.6'
         multiDexEnabled true
     }
     buildTypes {
@@ -26,6 +26,5 @@ android {
 dependencies {
     implementation project(':lightool')
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:27.1.0'
     implementation 'org.jsoup:jsoup:1.10.3'
 }
