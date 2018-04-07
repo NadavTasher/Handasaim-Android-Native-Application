@@ -13,6 +13,7 @@
     <string name="news_load_failed">Failed To Load News.</string>
     <string name="begin_text">Click Here To Begin.</string>
     <string name="live_messages">Live Messages</string>
+    <string name="schedule_notification">New Schedule Notification</string>
     <string name="show_breaks">Show Breaks</string>
     <string name="auto_mute">Auto Mute</string>
     <string name="choose_text_color">Choose Text Color:</string>

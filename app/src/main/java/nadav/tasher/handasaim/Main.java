@@ -41,6 +41,7 @@ import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -113,9 +114,12 @@ import static nadav.tasher.handasaim.Main.Values.fontSizeNumber;
 import static nadav.tasher.handasaim.Main.Values.prefName;
 import static nadav.tasher.handasaim.Main.Values.pushDefault;
 import static nadav.tasher.handasaim.Main.Values.pushService;
+import static nadav.tasher.handasaim.Main.Values.scheduleDefault;
+import static nadav.tasher.handasaim.Main.Values.scheduleService;
 
 public class Main extends Activity {
     static int textColor = fontColorDefault;
+    static final int JOB_ID = 102;
     static Tunnel<Integer> colorChangeTunnle = new Tunnel<>();
     static Tunnel<Integer> fontSizeChangeTunnle = new Tunnel<>();
     static Tunnel<Boolean> breakTimeTunnle = new Tunnel<>();
@@ -147,14 +151,16 @@ public class Main extends Activity {
         }
     }
 
-    static void startPush(Context c) {
+    static void startRefresh(Context c) {
         try {
-            ComponentName serviceComponent = new ComponentName(c, Push.class);
-            JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-            builder.setMinimumLatency(Values.pushLoop);
-            JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
-            if (jobScheduler != null) {
-                jobScheduler.schedule(builder.build());
+            if(!isJobServiceOn(c)) {
+                ComponentName serviceComponent = new ComponentName(c, Refresh.class);
+                JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, serviceComponent);
+                builder.setMinimumLatency(Values.refreshLoop);
+                JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
+                if (jobScheduler != null) {
+                    jobScheduler.schedule(builder.build());
+                }
             }
         } catch (Exception ignored) {
         }
@@ -770,7 +776,7 @@ public class Main extends Activity {
             public void onClick(View view) {
                 writeDefaults();
                 beginDND(getApplicationContext());
-                startPush(getApplicationContext());
+                startRefresh(getApplicationContext());
                 view();
             }
         });
@@ -902,10 +908,12 @@ public class Main extends Activity {
                 }
             });
         } else {
-            ab.setNegativeButton("Dispose An Easter Egg", new DialogInterface.OnClickListener() {
+            ab.setNegativeButton("Developing For H+", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    showEasterEgg();
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(Values.developingUrl));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                 }
             });
         }
@@ -1197,17 +1205,21 @@ public class Main extends Activity {
         settings.setOrientation(LinearLayout.VERTICAL);
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        final Switch autoMuteSwitch = new Switch(this), breakTimeSwitch = new Switch(this), pushSwitch = new Switch(this);
+        final Switch autoMuteSwitch = new Switch(this),newScheduleSwitch = new Switch(this), breakTimeSwitch = new Switch(this), pushSwitch = new Switch(this);
         pushSwitch.setText(R.string.live_messages);
+        newScheduleSwitch.setText(R.string.schedule_notification);
         breakTimeSwitch.setText(R.string.show_breaks);
         autoMuteSwitch.setText(R.string.auto_mute);
         pushSwitch.setChecked(sp.getBoolean(pushService, pushDefault));
+        newScheduleSwitch.setChecked(sp.getBoolean(scheduleService, scheduleDefault));
         breakTimeSwitch.setChecked(sp.getBoolean(Values.breakTime, breakTimeDefault));
         autoMuteSwitch.setChecked(sp.getBoolean(autoMute, autoMuteDefault));
         pushSwitch.setTextSize((float) (getFontSize() / 1.5));
         breakTimeSwitch.setTextSize((float) (getFontSize() / 1.5));
         autoMuteSwitch.setTextSize((float) (getFontSize() / 1.5));
+        newScheduleSwitch.setTextSize((float) (getFontSize() / 1.5));
         pushSwitch.setTypeface(getTypeface());
+        newScheduleSwitch.setTypeface(getTypeface());
         breakTimeSwitch.setTypeface(getTypeface());
         autoMuteSwitch.setTypeface(getTypeface());
         breakTimeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -1268,6 +1280,12 @@ public class Main extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 sp.edit().putBoolean(pushService, isChecked).apply();
+            }
+        });
+        newScheduleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                sp.edit().putBoolean(scheduleService, isChecked).apply();
             }
         });
         final TextView explainTextSize = new TextView(getApplicationContext());
@@ -1349,6 +1367,7 @@ public class Main extends Activity {
                 pushSwitch.setTextSize((float) (response / 1.5));
                 breakTimeSwitch.setTextSize((float) (response / 1.5));
                 autoMuteSwitch.setTextSize((float) (response / 1.5));
+                newScheduleSwitch.setTextSize((float) (response / 1.5));
                 explainColorA.setTextSize((float) (response / 1.5));
                 explainColorB.setTextSize((float) (response / 1.5));
                 explainTextColor.setTextSize((float) (response / 1.5));
@@ -1361,6 +1380,7 @@ public class Main extends Activity {
                 pushSwitch.setTextColor(response);
                 breakTimeSwitch.setTextColor(response);
                 autoMuteSwitch.setTextColor(response);
+                newScheduleSwitch.setTextColor(response);
                 explainColorA.setTextColor(response);
                 explainColorB.setTextColor(response);
                 explainTextColor.setTextColor(response);
@@ -1368,6 +1388,7 @@ public class Main extends Activity {
             }
         });
         settings.addView(autoMuteSwitch);
+        settings.addView(newScheduleSwitch);
         settings.addView(pushSwitch);
         settings.addView(breakTimeSwitch);
         settings.addView(explainTextSize);
@@ -1471,6 +1492,7 @@ public class Main extends Activity {
 
     private void openApp() {
         final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
+        startRefresh(getApplicationContext());
         new GetLink(Values.scheduleProvider, new GetLink.GotLink() {
 
             @Override
@@ -1485,6 +1507,7 @@ public class Main extends Activity {
                     if (!sp.getString(Values.latestFileDate, "").equals(date)) {
                         sp.edit().putString(Values.latestFileName, fileName).commit();
                         sp.edit().putString(Values.latestFileDate, date).commit();
+                        sp.edit().putString(Values.latestFileDateRefresher, date).commit();
                         new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
                             @Override
                             public void onFinish(final File file, final boolean be) {
@@ -1563,6 +1586,22 @@ public class Main extends Activity {
     //        hsplace.addView(ph);
     //        hsplace.addView(scheduleForClass(c));
     //    }
+
+    public static boolean isJobServiceOn( Context context ) {
+        JobScheduler scheduler = (JobScheduler) context.getSystemService( Context.JOB_SCHEDULER_SERVICE ) ;
+
+        boolean hasBeenScheduled = false ;
+        if(scheduler!=null) {
+            for (JobInfo jobInfo : scheduler.getAllPendingJobs()) {
+                if (jobInfo.getId() == JOB_ID) {
+                    hasBeenScheduled = true;
+                    break;
+                }
+            }
+        }
+
+        return hasBeenScheduled ;
+    }
 
     private void setStudentMode(Class c) {
         currentClass = c;
@@ -2165,6 +2204,7 @@ public class Main extends Activity {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         currentColor = Color.rgb(redSeekBar.getProgress(), greenSeekBar.getProgress(), blueSeekBar.getProgress());
+//                        Log.i("Color","R: "+redSeekBar.getProgress()+" G: "+greenSeekBar.getProgress()+" B: "+blueSeekBar.getProgress());
                         drawThumbs(currentColor);
                         setCoasterColor(currentColor);
                         if (onColor != null) onColor.onColorChange(currentColor);
@@ -2343,12 +2383,14 @@ public class Main extends Activity {
         static final String pushProvider = "http://h.nockio.com/pushes.json";
         static final String keyProvider = "http://h.nockio.com/keys/index.php";
         static final String puzProvider = "http://h.nockio.com";
+        static final String developingUrl = "http://p.nockio.com/handasaim/develop";
         static final String serviceProvider = "http://handasaim.co.il";
         static final String scheduleProvider = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/index.php";
         static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
         static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
-        static final String fontName = "heebo.ttf";
+        static final String fontName = "rubik.ttf";
         static final String latestFileDate = "latest_file_date";
+        static final String latestFileDateRefresher = "latest_file_date_refresher";
         static final String messageBoardSkipEnabler = "installed_pass_news_code_v3";
         static final String teacherModeEnabler = "installed_teacher_mode_v2";
         static final String breakTime = "break_time";
@@ -2358,6 +2400,7 @@ public class Main extends Activity {
         static final String fontSizeNumber = "font_size_v2";
         static final String colorA = "colorA";
         static final String colorB = "colorB";
+        static final String scheduleService = "schedule_service";
         static final String favoriteClass = "favorite_class";
         static final String favoriteTeacher = "favorite_teacher";
         static final String pushID = "push_id_";
@@ -2365,16 +2408,17 @@ public class Main extends Activity {
         static final String firstLaunch = "first";
         static final String latestFileNameDefault = "hs.xls";
         static final boolean pushDefault = true;
+        static final boolean scheduleDefault = true;
         static final boolean breakTimeDefault = true;
         static final boolean autoMuteDefault = false;
         static final int maxKeyEntering = 4;
         static final int waitTime = 10;
         static final int bakedIconColor = 0xffdd8833;
-        static final int pushLoop = 1000 * 60 * 60;
+        static final int refreshLoop = 1000 * 60 * 30;
         static final int fontSizeDefault = 30;
         static final int circleAlpha = 172;
-        static final int defaultColorA = 0xFF418389;
-        static final int defaultColorB = 0xFF84845A;
+        static final int defaultColorA = 0xFF4A8DCA;
+        static final int defaultColorB = 0xFF9045AB;
         static final int navColor = 0x80111111;
         static final int classCoasterColor = 0xBB333333;
         static final int classCoasterMarkColor = 0xBB222222;
@@ -2839,4 +2883,6 @@ public class Main extends Activity {
             }
         }
     }
+
+
 }
