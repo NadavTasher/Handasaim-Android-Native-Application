@@ -41,7 +41,6 @@ import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -118,8 +117,8 @@ import static nadav.tasher.handasaim.Main.Values.scheduleDefault;
 import static nadav.tasher.handasaim.Main.Values.scheduleService;
 
 public class Main extends Activity {
-    static int textColor = fontColorDefault;
     static final int JOB_ID = 102;
+    static int textColor = fontColorDefault;
     static Tunnel<Integer> colorChangeTunnle = new Tunnel<>();
     static Tunnel<Integer> fontSizeChangeTunnle = new Tunnel<>();
     static Tunnel<Boolean> breakTimeTunnle = new Tunnel<>();
@@ -153,7 +152,7 @@ public class Main extends Activity {
 
     static void startRefresh(Context c) {
         try {
-            if(!isJobServiceOn(c)) {
+            if (!isJobServiceOn(c)) {
                 ComponentName serviceComponent = new ComponentName(c, Refresh.class);
                 JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, serviceComponent);
                 builder.setMinimumLatency(Values.refreshLoop);
@@ -416,6 +415,20 @@ public class Main extends Activity {
                 return "יב'";
         }
         return "";
+    }
+
+    public static boolean isJobServiceOn(Context context) {
+        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        boolean hasBeenScheduled = false;
+        if (scheduler != null) {
+            for (JobInfo jobInfo : scheduler.getAllPendingJobs()) {
+                if (jobInfo.getId() == JOB_ID) {
+                    hasBeenScheduled = true;
+                    break;
+                }
+            }
+        }
+        return hasBeenScheduled;
     }
 
     private ArrayList<Teacher> getTeacherSchudleForClasses(ArrayList<Class> classes) {
@@ -1205,7 +1218,7 @@ public class Main extends Activity {
         settings.setOrientation(LinearLayout.VERTICAL);
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        final Switch autoMuteSwitch = new Switch(this),newScheduleSwitch = new Switch(this), breakTimeSwitch = new Switch(this), pushSwitch = new Switch(this);
+        final Switch autoMuteSwitch = new Switch(this), newScheduleSwitch = new Switch(this), breakTimeSwitch = new Switch(this), pushSwitch = new Switch(this);
         pushSwitch.setText(R.string.live_messages);
         newScheduleSwitch.setText(R.string.schedule_notification);
         breakTimeSwitch.setText(R.string.show_breaks);
@@ -1565,14 +1578,6 @@ public class Main extends Activity {
             openApp();
         }
     }
-
-    private void share(String st) {
-        Intent s = new Intent(Intent.ACTION_SEND);
-        s.putExtra(Intent.EXTRA_TEXT, st);
-        s.setType("text/plain");
-        s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(Intent.createChooser(s, "Share With"));
-    }
     //    private void showSchedule(final Class c) {
     //        currentClass = c;
     //        circleView.text(c.name, day);
@@ -1587,20 +1592,12 @@ public class Main extends Activity {
     //        hsplace.addView(scheduleForClass(c));
     //    }
 
-    public static boolean isJobServiceOn( Context context ) {
-        JobScheduler scheduler = (JobScheduler) context.getSystemService( Context.JOB_SCHEDULER_SERVICE ) ;
-
-        boolean hasBeenScheduled = false ;
-        if(scheduler!=null) {
-            for (JobInfo jobInfo : scheduler.getAllPendingJobs()) {
-                if (jobInfo.getId() == JOB_ID) {
-                    hasBeenScheduled = true;
-                    break;
-                }
-            }
-        }
-
-        return hasBeenScheduled ;
+    private void share(String st) {
+        Intent s = new Intent(Intent.ACTION_SEND);
+        s.putExtra(Intent.EXTRA_TEXT, st);
+        s.setType("text/plain");
+        s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(Intent.createChooser(s, "Share With"));
     }
 
     private void setStudentMode(Class c) {
@@ -2204,7 +2201,7 @@ public class Main extends Activity {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         currentColor = Color.rgb(redSeekBar.getProgress(), greenSeekBar.getProgress(), blueSeekBar.getProgress());
-//                        Log.i("Color","R: "+redSeekBar.getProgress()+" G: "+greenSeekBar.getProgress()+" B: "+blueSeekBar.getProgress());
+                        //                        Log.i("Color","R: "+redSeekBar.getProgress()+" G: "+greenSeekBar.getProgress()+" B: "+blueSeekBar.getProgress());
                         drawThumbs(currentColor);
                         setCoasterColor(currentColor);
                         if (onColor != null) onColor.onColorChange(currentColor);
@@ -2883,6 +2880,4 @@ public class Main extends Activity {
             }
         }
     }
-
-
 }
