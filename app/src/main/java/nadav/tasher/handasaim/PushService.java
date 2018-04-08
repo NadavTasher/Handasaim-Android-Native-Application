@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +31,7 @@ public class PushService extends JobService {
 
     @Override
     public boolean onStartJob(final JobParameters params) {
+        Log.i("PushService","Started");
         final SharedPreferences sp = getSharedPreferences(Main.Values.prefName, Context.MODE_PRIVATE);
         if (sp.getBoolean(Main.Values.pushService, Main.Values.pushDefault)) {
             new Net.Pinger(Main.Values.puzProvider, 5000, new Net.Pinger.OnEnd() {
