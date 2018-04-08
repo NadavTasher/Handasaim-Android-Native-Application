@@ -23,14 +23,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
-import android.graphics.drawable.shapes.RoundRectShape;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -41,7 +38,6 @@ import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,11 +88,18 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Random;
 
-import nadav.tasher.lightool.Animations;
-import nadav.tasher.lightool.Device;
-import nadav.tasher.lightool.Graphics;
-import nadav.tasher.lightool.Net;
-import nadav.tasher.lightool.Tunnel;
+import nadav.tasher.lightool.communication.OnFinish;
+import nadav.tasher.lightool.communication.SessionStatus;
+import nadav.tasher.lightool.communication.Tunnel;
+import nadav.tasher.lightool.communication.network.Ping;
+import nadav.tasher.lightool.communication.network.request.Post;
+import nadav.tasher.lightool.communication.network.request.RequestParameter;
+import nadav.tasher.lightool.graphics.ColorFadeAnimation;
+import nadav.tasher.lightool.graphics.views.AppView;
+import nadav.tasher.lightool.graphics.views.ColorPicker;
+import nadav.tasher.lightool.graphics.views.DragNavigation;
+import nadav.tasher.lightool.info.Device;
+import nadav.tasher.lightool.tools.Animations;
 
 import static nadav.tasher.handasaim.Main.Values.autoMute;
 import static nadav.tasher.handasaim.Main.Values.autoMuteDefault;
@@ -130,13 +133,11 @@ public class Main extends Activity {
     private String day;
     private Class currentClass;
     private Teacher currentTeacher;
-    private FrameLayout masterLayout;
-    private Graphics.DragNavigation masterNavigation;
     private MyGraphics.OptionHolder optionHolder;
     private MyGraphics.CurvedTextView ctv;
     private MyGraphics.CircleView circleView;
-    private FrameLayout content;
     private Drawable gradient, coaster, classCoaster, classCoasterMarked;
+    private AppView mAppView;
     private ArrayList<Class> classes;
     private ArrayList<Teacher> teachers;
     private String[] ees = new String[]{"Love is like the wind, you can't see it but you can feel it.", "I'm not afraid of death; I just don't want to be there when it happens.", "All you need is love. But a little chocolate now and then doesn't hurt.", "When the power of love overcomes the love of power the world will know peace.", "For every minute you are angry you lose sixty seconds of happiness.", "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", "The fool doth think he is wise, but the wise man knows himself to be a fool.", "In three words I can sum up everything I've learned about life: it goes on.", "You only live once, but if you do it right, once is enough.", "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "Life is pleasant. Death is peaceful. It's the transition that's troublesome.", "There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle.", "We are not retreating - we are advancing in another Direction.", "The difference between fiction and reality? Fiction has to make sense.", "The right to swing my fist ends where the other man's nose begins.", "Denial ain't just a river in Egypt.", "Every day I get up and look through the Forbes list of the richest people in America. If I'm not there, I go to work.", "Advice is what we ask for when we already know the answer but wish we didn't", "The nice thing about egotists is that they don't talk about other people.", "Obstacles are those frightful things you see when you take your eyes off your goal.", "You can avoid reality, but you cannot avoid the consequences of avoiding reality.", "You may not be interested in war, but war is interested in you.", "Don't stay in bed, unless you can make money in bed.", "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows away your whole leg.", "I have not failed. I've just found 10,000 ways that won't work.", "Black holes are where God divided by zero.", "The significant problems we face cannot be solved at the same level of thinking we were at when we created them.", "Knowledge speaks, but wisdom listens.", "Sleep is an excellent way of listening to an opera.", "Success usually comes to those who are too busy to be looking for it"};
@@ -153,16 +154,34 @@ public class Main extends Activity {
     }
 
     static void startRefresh(Context c) {
-        if (!isJobServiceOn(c)) {
+        if (!isJobServiceOn(c, REFRESH_ID)) {
             ComponentName serviceComponent = new ComponentName(c, RefreshService.class);
-            JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, serviceComponent);
-            builder.setPeriodic(1000, 100);
+            JobInfo.Builder builder = new JobInfo.Builder(REFRESH_ID, serviceComponent);
+            builder.setMinimumLatency(Values.refreshLoop);
             JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
             if (jobScheduler != null) {
-                Log.i("RefreshService", "Scheduled");
-//                jobScheduler.schedule(builder.build());
+                //                Log.i("RefreshService", "Scheduled");
+                jobScheduler.schedule(builder.build());
             }
         }
+    }
+
+    static void startPush(Context c) {
+        if (!isJobServiceOn(c, PUSH_ID)) {
+            ComponentName serviceComponent = new ComponentName(c, PushService.class);
+            JobInfo.Builder builder = new JobInfo.Builder(PUSH_ID, serviceComponent);
+            builder.setMinimumLatency(Values.refreshLoop);
+            JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
+            if (jobScheduler != null) {
+                //                Log.i("PushService", "Scheduled");
+                jobScheduler.schedule(builder.build());
+            }
+        }
+    }
+
+    static void scheduleJobs(Context c) {
+        startPush(c);
+        startRefresh(c);
     }
 
     static int getFontSize(Context c) {
@@ -417,12 +436,12 @@ public class Main extends Activity {
         return "";
     }
 
-    static boolean isJobServiceOn(Context context) {
+    static boolean isJobServiceOn(Context context, int id) {
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         boolean hasBeenScheduled = false;
         if (scheduler != null) {
             for (JobInfo jobInfo : scheduler.getAllPendingJobs()) {
-                if (jobInfo.getId() == JOB_ID) {
+                if (jobInfo.getId() == id) {
                     hasBeenScheduled = true;
                     break;
                 }
@@ -506,9 +525,10 @@ public class Main extends Activity {
 
     private void refreshTheme() {
         loadTheme();
-        getWindow().setStatusBarColor(masterNavigation.calculateOverlayedColor(colorA));
-        getWindow().setNavigationBarColor(colorB);
-        masterLayout.setBackground(gradient);
+        mAppView.setBackground(gradient);
+        mAppView.setTopColor(colorA);
+        mAppView.setBottomColor(colorB);
+        mAppView.overlaySelf(getWindow());
         if (circleView != null)
             circleView.circle(Color.argb(circleAlpha, Color.red(colorA), Color.green(colorA), Color.blue(colorA)));
         if (optionHolder != null)
@@ -520,10 +540,10 @@ public class Main extends Activity {
     private void taskDesc() {
         Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
         ActivityManager.TaskDescription taskDesc;
-        if (masterNavigation == null) {
+        if (mAppView == null) {
             taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, (colorA));
         } else {
-            taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, (masterNavigation.calculateOverlayedColor(colorA)));
+            taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, (mAppView.getDragNavigation().calculateOverlayedColor(colorA)));
         }
         setTaskDescription(taskDesc);
     }
@@ -562,7 +582,7 @@ public class Main extends Activity {
         oa.setDuration(300);
         oa.start();
         setContentView(ll);
-        Graphics.ColorFadeAnimation cfa = new Graphics.ColorFadeAnimation(colorB, colorA, new Graphics.ColorFadeAnimation.ColorState() {
+        ColorFadeAnimation cfa = new ColorFadeAnimation(colorB, colorA, new ColorFadeAnimation.ColorState() {
             @Override
             public void onColor(final int color) {
                 runOnUiThread(new Runnable() {
@@ -666,7 +686,6 @@ public class Main extends Activity {
                             newtopic.setEllipsize(TextUtils.TruncateAt.END);
                             newtopic.setLines(2);
                             newtopic.setBackground(null);
-                            nt.setBackground(classCoaster);
                             newtopic.setTypeface(getTypeface());
                             if (!ms.news.get(n).imgurl.equals("") || ms.news.get(n).imgurl != null) {
                                 final int finalN1 = n;
@@ -789,7 +808,7 @@ public class Main extends Activity {
             public void onClick(View view) {
                 writeDefaults();
                 beginDND(getApplicationContext());
-                startRefresh(getApplicationContext());
+                scheduleJobs(getApplicationContext());
                 view();
             }
         });
@@ -798,7 +817,7 @@ public class Main extends Activity {
 
     private void checkInternet() {
         if (Device.isOnline(getApplicationContext())) {
-            new Net.Pinger(Values.serviceProvider, 5000, new Net.Pinger.OnEnd() {
+            new Ping(Values.serviceProvider, 5000, new Ping.OnEnd() {
                 @Override
                 public void onPing(boolean b) {
                     if (b) {
@@ -855,16 +874,16 @@ public class Main extends Activity {
     }
 
     private void checkAndLoadKey(final String key) {
-        new Net.Pinger(Values.puzProvider, 10000, new Net.Pinger.OnEnd() {
+        new Ping(Values.puzProvider, 10000, new Ping.OnEnd() {
             @Override
             public void onPing(boolean b) {
                 if (b) {
-                    Net.Request.RequestParameter[] requestParameters = new Net.Request.RequestParameter[]{new Net.Request.RequestParameter("deactivate", key)};
-                    new Net.Request.Post(Values.keyProvider, requestParameters, new Net.Request.Post.OnPost() {
+                    RequestParameter[] requestParameters = new RequestParameter[]{new RequestParameter("deactivate", key)};
+                    new Post(Values.keyProvider, requestParameters, new OnFinish() {
                         @Override
-                        public void onPost(String s) {
+                        public void onFinish(SessionStatus sessionStatus) {
                             try {
-                                JSONObject o = new JSONObject(s);
+                                JSONObject o = new JSONObject(sessionStatus.getExtra());
                                 if (o.getBoolean("success")) {
                                     if (o.getString("key").equals(key)) {
                                         loadKey(o.getInt("type"));
@@ -879,7 +898,8 @@ public class Main extends Activity {
                                 Toast.makeText(getApplicationContext(), "Key verification failed.", Toast.LENGTH_SHORT).show();
                             }
                         }
-                    }).execute();
+                    }
+                    ).execute();
                 } else {
                     Toast.makeText(getApplicationContext(), "Key provider unreachable.", Toast.LENGTH_SHORT).show();
                 }
@@ -969,12 +989,9 @@ public class Main extends Activity {
         optionAndCircleHolder.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         optionAndCircleHolder.setGravity(Gravity.END | Gravity.BOTTOM);
         optionAndCircleHolder.setPadding(circlePadding, circlePadding, circlePadding, circlePadding);
-        content = new FrameLayout(this);
-        masterLayout = new FrameLayout(this);
         circleView = new MyGraphics.CircleView(this, circleSize);
-        masterNavigation = new Graphics.DragNavigation(this, getDrawable(R.drawable.ic_icon), Values.navColor);
-        placeHold = masterNavigation.spacerSize();
-        masterNavigation.setOnIconClick(new View.OnClickListener() {
+        mAppView = new AppView(getApplicationContext(), getDrawable(R.drawable.ic_icon), Values.navColor);
+        mAppView.getDragNavigation().setOnIconClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 aboutPopup();
@@ -987,33 +1004,31 @@ public class Main extends Activity {
         circleView.setOnStateChangedListener(new MyGraphics.CircleView.OnStateChangedListener() {
             @Override
             public void onOpen() {
-                masterNavigation.setEnabled(false);
+                mAppView.getDragNavigation().setEnabled(false);
                 optionHolder.emptyContent();
                 optionHolder.fadeIn();
             }
 
             @Override
             public void onClose() {
-                masterNavigation.setEnabled(true);
+                mAppView.getDragNavigation().setEnabled(true);
                 //                optionHolder.emptyContent();
                 optionHolder.fadeOutContent();
                 optionHolder.fadeOut();
             }
         });
-        content.setPadding(10, 10, 10, 10);
-        masterLayout.setBackground(gradient);
+        mAppView.setBackground(gradient);
+        mAppView.setTopColor(colorA);
+        mAppView.setBottomColor(colorB);
         circleHolder.addView(circleView);
         optionAndCircleHolder.addView(optionHolder);
         optionAndCircleHolder.addView(circleHolder);
-        contentScroll.addView(content);
-        masterLayout.addView(contentScroll);
-        masterLayout.addView(masterNavigation);
-        masterLayout.addView(optionAndCircleHolder);
+        mAppView.addView(optionAndCircleHolder);
         //        masterLayout.addView(optionHolder);
         //        circleView.setX(x - circleView.xy - circlePadding);
         //        circleView.setY(y - circleView.xy - getNavSize() / 2 - circlePadding);
         //        optionHolder.setY(y - (y - circleView.getY()) - (((options.length + 1) * circlePadding) / 2) - (options.length * circleSize + circlePadding));
-        masterNavigation.setOnStateChangedListener(new Graphics.DragNavigation.OnStateChangedListener() {
+        mAppView.getDragNavigation().setOnStateChangedListener(new DragNavigation.OnStateChangedListener() {
             @Override
             public void onOpen() {
                 circleView.setEnabled(false);
@@ -1023,7 +1038,7 @@ public class Main extends Activity {
                 load.setTextColor(textColor);
                 load.setText(R.string.loading_text);
                 load.setGravity(Gravity.CENTER);
-                masterNavigation.setContent(load);
+                mAppView.getDragNavigation().setContent(load);
                 final int fontSize = getFontSize();
                 final LinearLayout fullPage = new LinearLayout(getApplicationContext());
                 final LinearLayout news = new LinearLayout(getApplicationContext());
@@ -1081,7 +1096,7 @@ public class Main extends Activity {
                                     });
                                 }
                             }
-                            masterNavigation.setContent(fullPage);
+                            mAppView.getDragNavigation().setContent(fullPage);
                         }
 
                         @Override
@@ -1092,7 +1107,7 @@ public class Main extends Activity {
                             fail.setTextColor(textColor);
                             fail.setText(R.string.news_load_failed);
                             fail.setGravity(Gravity.CENTER);
-                            masterNavigation.setContent(fail);
+                            mAppView.getDragNavigation().setContent(fail);
                         }
                     }).execute("");
                 }
@@ -1100,13 +1115,14 @@ public class Main extends Activity {
 
             @Override
             public void onClose() {
-                masterNavigation.emptyContent();
+                mAppView.getDragNavigation().emptyContent();
                 circleView.setEnabled(true);
             }
         });
         refreshTheme();
-        if (classes != null) setStudentMode(getFavoriteClass());
-        setContentView(masterLayout);
+        Class c = getFavoriteClass();
+        if (classes != null) if (c != null) setStudentMode(c);
+        setContentView(mAppView);
     }
 
     private Class getFavoriteClass() {
@@ -1346,8 +1362,8 @@ public class Main extends Activity {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        MyGraphics.ColorPicker textColorPicker = new MyGraphics.ColorPicker(this, textColor);
-        textColorPicker.setOnColorChanged(new MyGraphics.ColorPicker.OnColorChanged() {
+        ColorPicker textColorPicker = new ColorPicker(this, textColor);
+        textColorPicker.setOnColorChanged(new ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
                 sp.edit().putInt(Values.fontColor, color).apply();
@@ -1355,16 +1371,16 @@ public class Main extends Activity {
                 colorChangeTunnle.send(textColor);
             }
         });
-        MyGraphics.ColorPicker colorApicker = new MyGraphics.ColorPicker(this, colorA);
-        colorApicker.setOnColorChanged(new MyGraphics.ColorPicker.OnColorChanged() {
+        ColorPicker colorApicker = new ColorPicker(this, colorA);
+        colorApicker.setOnColorChanged(new ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
                 sp.edit().putInt(Values.colorA, color).apply();
                 refreshTheme();
             }
         });
-        MyGraphics.ColorPicker colorBpicker = new MyGraphics.ColorPicker(this, colorB);
-        colorBpicker.setOnColorChanged(new MyGraphics.ColorPicker.OnColorChanged() {
+        ColorPicker colorBpicker = new ColorPicker(this, colorB);
+        colorBpicker.setOnColorChanged(new ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
                 sp.edit().putInt(Values.colorB, color).apply();
@@ -1442,8 +1458,6 @@ public class Main extends Activity {
         teachersTitle.setTextSize(getFontSize() - 5);
         teachersTitle.setTextColor(textColor);
         teachersTitle.setGravity(Gravity.CENTER);
-        students.setBackground(coaster);
-        teachersv.setBackground(coaster);
         students.addView(studentsTitle);
         for (int cs = 0; cs < classes.size(); cs++) {
             Button cls = new Button(getApplicationContext());
@@ -1505,7 +1519,7 @@ public class Main extends Activity {
 
     private void openApp() {
         final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
-        startRefresh(getApplicationContext());
+        scheduleJobs(getApplicationContext());
         new GetLink(Values.scheduleProvider, new GetLink.GotLink() {
 
             @Override
@@ -1616,8 +1630,7 @@ public class Main extends Activity {
         LinearLayout hsplace = new LinearLayout(this);
         hsplace.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         hsplace.setOrientation(LinearLayout.VERTICAL);
-        content.removeAllViews();
-        content.addView(hsplace);
+        mAppView.setContent(hsplace);
         View ph = new View(this);
         ph.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, placeHold));
         hsplace.addView(ph);
@@ -2179,139 +2192,6 @@ public class Main extends Activity {
             }
         }
 
-        static class ColorPicker extends LinearLayout {
-            private int defaultColor = 0xFFFFFFFF, currentColor = defaultColor;
-            private SeekBar redSeekBar, greenSeekBar, blueSeekBar;
-            private OnColorChanged onColor = null;
-
-            public ColorPicker(Context context) {
-                super(context);
-                addViews();
-            }
-
-            public ColorPicker(Context context, int defaultColor) {
-                super(context);
-                this.defaultColor = defaultColor;
-                this.currentColor = this.defaultColor;
-                addViews();
-            }
-
-            private void addViews() {
-                SeekBar.OnSeekBarChangeListener onChange = new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        currentColor = Color.rgb(redSeekBar.getProgress(), greenSeekBar.getProgress(), blueSeekBar.getProgress());
-                        //                        Log.i("Color","R: "+redSeekBar.getProgress()+" G: "+greenSeekBar.getProgress()+" B: "+blueSeekBar.getProgress());
-                        drawThumbs(currentColor);
-                        setCoasterColor(currentColor);
-                        if (onColor != null) onColor.onColorChange(currentColor);
-                    }
-
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
-                    }
-
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
-                    }
-                };
-                setOrientation(VERTICAL);
-                setGravity(Gravity.CENTER);
-                setLayoutDirection(LAYOUT_DIRECTION_LTR);
-                setPadding(15, 15, 15, 15);
-                GradientDrawable redDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0xFF000000, 0xFFFF0000});
-                GradientDrawable greenDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0xFF000000, 0xFF00FF00});
-                GradientDrawable blueDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0xFF000000, 0xFF0000FF});
-                redDrawable.setCornerRadius(8);
-                greenDrawable.setCornerRadius(8);
-                blueDrawable.setCornerRadius(8);
-                redSeekBar = new SeekBar(getContext());
-                greenSeekBar = new SeekBar(getContext());
-                blueSeekBar = new SeekBar(getContext());
-                redSeekBar.setPadding(10, 10, 10, 10);
-                greenSeekBar.setPadding(10, 10, 10, 10);
-                blueSeekBar.setPadding(10, 10, 10, 10);
-                redSeekBar.setProgressDrawable(redDrawable);
-                greenSeekBar.setProgressDrawable(greenDrawable);
-                blueSeekBar.setProgressDrawable(blueDrawable);
-                redSeekBar.setMax(255);
-                greenSeekBar.setMax(255);
-                blueSeekBar.setMax(255);
-                addView(redSeekBar);
-                addView(greenSeekBar);
-                addView(blueSeekBar);
-                redSeekBar.setProgress(Color.red(defaultColor));
-                greenSeekBar.setProgress(Color.green(defaultColor));
-                blueSeekBar.setProgress(Color.blue(defaultColor));
-                redSeekBar.setOnSeekBarChangeListener(onChange);
-                greenSeekBar.setOnSeekBarChangeListener(onChange);
-                blueSeekBar.setOnSeekBarChangeListener(onChange);
-                drawThumbs(defaultColor);
-                setCoasterColor(defaultColor);
-            }
-
-            public void setOnColorChanged(OnColorChanged onc) {
-                onColor = onc;
-            }
-
-            private void drawThumbs(int color) {
-                int redAmount = Color.red(color);
-                int greenAmount = Color.green(color);
-                int blueAmount = Color.blue(color);
-                int xy = ((redSeekBar.getLayoutParams().height - redSeekBar.getPaddingTop() - redSeekBar.getPaddingBottom()) + (greenSeekBar.getLayoutParams().height - greenSeekBar.getPaddingTop() - greenSeekBar.getPaddingBottom()) + (blueSeekBar.getLayoutParams().height - blueSeekBar.getPaddingTop() - blueSeekBar.getPaddingBottom())) / 3;
-                //                xy+=32;
-                redSeekBar.setThumb(getRoundedRect(Color.rgb(redAmount, 0, 0), xy));
-                greenSeekBar.setThumb(getRoundedRect(Color.rgb(0, greenAmount, 0), xy));
-                blueSeekBar.setThumb(getRoundedRect(Color.rgb(0, 0, blueAmount), xy));
-            }
-
-            @Override
-            public void setLayoutParams(ViewGroup.LayoutParams l) {
-                LinearLayout.LayoutParams l2;
-                if (l instanceof LinearLayout.LayoutParams) {
-                    l2 = ((LinearLayout.LayoutParams) l);
-                    l2.setMargins(0, 10, 0, 10);
-                    super.setLayoutParams(l2);
-                } else {
-                    super.setLayoutParams(l);
-                }
-                redSeekBar.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, l.height / 4));
-                greenSeekBar.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, l.height / 4));
-                blueSeekBar.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, l.height / 4));
-                drawThumbs(currentColor);
-            }
-
-            private void setCoasterColor(int color) {
-                float corner = 16;
-                float[] corners = new float[]{corner, corner, corner, corner, corner, corner, corner, corner};
-                RoundRectShape shape = new RoundRectShape(corners, new RectF(), corners);
-                ShapeDrawable coaster = new ShapeDrawable(shape);
-                coaster.getPaint().setColor(color);
-                setBackground(coaster);
-            }
-
-            private LayerDrawable getRoundedRect(int color, int size) {
-                float corner = 16;
-                float[] corners = new float[]{corner, corner, corner, corner, corner, corner, corner, corner};
-                RoundRectShape shape = new RoundRectShape(corners, new RectF(), corners);
-                RoundRectShape shape2 = new RoundRectShape(corners, new RectF(8, 8, 8, 8), corners);
-                ShapeDrawable rectBack = new ShapeDrawable(shape2);
-                rectBack.setIntrinsicHeight(size);
-                rectBack.setIntrinsicWidth(size);
-                rectBack.getPaint().setColor(Color.WHITE);
-                ShapeDrawable rect = new ShapeDrawable(shape);
-                rect.setIntrinsicHeight((size));
-                rect.setIntrinsicWidth((size));
-                rect.getPaint().setColor(color);
-                LayerDrawable ld = new LayerDrawable(new Drawable[]{rect, rectBack});
-                return ld;
-            }
-
-            public interface OnColorChanged {
-                void onColorChange(int color);
-            }
-        }
-
         static class CurvedTextView extends View {
             private Path circle;
             private Paint tPaint;
@@ -2411,7 +2291,7 @@ public class Main extends Activity {
         static final int maxKeyEntering = 4;
         static final int waitTime = 10;
         static final int bakedIconColor = 0xffdd8833;
-        static final int refreshLoop = 1000 * 10 * 1;
+        static final int refreshLoop = 1000 * 60 * 30;
         static final int fontSizeDefault = 30;
         static final int circleAlpha = 172;
         static final int defaultColorA = 0xFF4A8DCA;

@@ -8,33 +8,30 @@ import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
 import java.util.Random;
 
-import nadav.tasher.lightool.Net;
+import nadav.tasher.lightool.communication.network.Ping;
 
 public class RefreshService extends JobService {
 
+    private SharedPreferences sp;
+
     @Override
     public boolean onStartJob(final JobParameters params) {
-        Log.i("RefreshService","RefreshService");
-        final SharedPreferences sp = getSharedPreferences(Main.Values.prefName, Context.MODE_PRIVATE);
+        //        Log.i("RefreshService","RefreshService");
+        Log.i("RefreshService", "Refreshing...");
+        sp = getSharedPreferences(Main.Values.prefName, Context.MODE_PRIVATE);
         if (sp.getBoolean(Main.Values.scheduleService, Main.Values.scheduleDefault)) {
-            new Net.Pinger(Main.Values.scheduleProvider, 5000, new Net.Pinger.OnEnd() {
+            new Ping(Main.Values.scheduleProvider, 5000, new Ping.OnEnd() {
                 @Override
                 public void onPing(boolean b) {
                     if (b) {
-                        checkForSchedule(sp,params);
-                    }else{
-                        jobFinished(params,true);
+                        //                        Log.i("Current Value",sp.getString(Main.Values.latestFileDateRefresher,"None"));
+                        checkForSchedule(sp, params);
+                    } else {
+                        jobFinished(params, true);
                     }
                 }
             }).execute();
@@ -58,15 +55,16 @@ public class RefreshService extends JobService {
                         sp.edit().putString(Main.Values.latestFileDateRefresher, date).commit();
                         showNotification();
                     }
-                    jobFinished(params,false);
-                }else{
-                    jobFinished(params,true);
+                    Main.startRefresh(getApplicationContext());
+                    jobFinished(params, false);
+                } else {
+                    jobFinished(params, true);
                 }
             }
 
             @Override
             public void onFail(String e) {
-                jobFinished(params,true);
+                jobFinished(params, true);
             }
         }).execute();
     }

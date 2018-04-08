@@ -24,7 +24,7 @@ android {
 }
 
 dependencies {
-    implementation project(':lightool')
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'org.jsoup:jsoup:1.10.3'
+    implementation project(':lightool-release')
 }

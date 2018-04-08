@@ -19,9 +19,11 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Random;
 
-import nadav.tasher.lightool.Net;
+import nadav.tasher.lightool.communication.network.Ping;
 
 public class PushService extends JobService {
+
+    private SharedPreferences sp;
 
     static int getDay(int day, int month, int year) {
         int m = 31;
@@ -31,16 +33,16 @@ public class PushService extends JobService {
 
     @Override
     public boolean onStartJob(final JobParameters params) {
-        Log.i("PushService","Started");
-        final SharedPreferences sp = getSharedPreferences(Main.Values.prefName, Context.MODE_PRIVATE);
+        Log.i("PushService", "Refreshing...");
+        sp = getSharedPreferences(Main.Values.prefName, Context.MODE_PRIVATE);
         if (sp.getBoolean(Main.Values.pushService, Main.Values.pushDefault)) {
-            new Net.Pinger(Main.Values.puzProvider, 5000, new Net.Pinger.OnEnd() {
+            new Ping(Main.Values.puzProvider, 5000, new Ping.OnEnd() {
                 @Override
                 public void onPing(boolean b) {
                     if (b) {
-                        checkForPushes(sp,params);
-                    }else{
-                        jobFinished(params,true);
+                        checkForPushes(sp, params);
+                    } else {
+                        jobFinished(params, true);
                     }
                 }
             }).execute();
@@ -93,11 +95,12 @@ public class PushService extends JobService {
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        jobFinished(params,true);
+                        jobFinished(params, true);
                     }
-                    jobFinished(params,false);
-                }else{
-                    jobFinished(params,true);
+                    Main.startPush(getApplicationContext());
+                    jobFinished(params, false);
+                } else {
+                    jobFinished(params, true);
                 }
             }
         }).execute();
