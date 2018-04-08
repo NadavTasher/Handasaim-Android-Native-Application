@@ -154,27 +154,31 @@ public class Main extends Activity {
     }
 
     static void startRefresh(Context c) {
-        if (!isJobServiceOn(c, REFRESH_ID)) {
-            ComponentName serviceComponent = new ComponentName(c, RefreshService.class);
-            JobInfo.Builder builder = new JobInfo.Builder(REFRESH_ID, serviceComponent);
-            builder.setMinimumLatency(Values.refreshLoop);
-            JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
-            if (jobScheduler != null) {
-                //                Log.i("RefreshService", "Scheduled");
-                jobScheduler.schedule(builder.build());
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
+            if (!isJobServiceOn(c, REFRESH_ID)) {
+                ComponentName serviceComponent = new ComponentName(c, RefreshService.class);
+                JobInfo.Builder builder = new JobInfo.Builder(REFRESH_ID, serviceComponent);
+                builder.setMinimumLatency(Values.refreshLoop);
+                JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
+                if (jobScheduler != null) {
+                    //                Log.i("RefreshService", "Scheduled");
+                    jobScheduler.schedule(builder.build());
+                }
             }
         }
     }
 
     static void startPush(Context c) {
-        if (!isJobServiceOn(c, PUSH_ID)) {
-            ComponentName serviceComponent = new ComponentName(c, PushService.class);
-            JobInfo.Builder builder = new JobInfo.Builder(PUSH_ID, serviceComponent);
-            builder.setMinimumLatency(Values.refreshLoop);
-            JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
-            if (jobScheduler != null) {
-                //                Log.i("PushService", "Scheduled");
-                jobScheduler.schedule(builder.build());
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
+            if (!isJobServiceOn(c, PUSH_ID)) {
+                ComponentName serviceComponent = new ComponentName(c, PushService.class);
+                JobInfo.Builder builder = new JobInfo.Builder(PUSH_ID, serviceComponent);
+                builder.setMinimumLatency(Values.refreshLoop);
+                JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
+                if (jobScheduler != null) {
+                    //                Log.i("PushService", "Scheduled");
+                    jobScheduler.schedule(builder.build());
+                }
             }
         }
     }
@@ -1895,9 +1899,10 @@ public class Main extends Activity {
                 teacherTv.setSingleLine(true);
                 timeTv.setSingleLine(true);
                 lessonTv.setSingleLine(true);
-                timeTv.setEllipsize(TextUtils.TruncateAt.END);
                 teacherTv.setEllipsize(TextUtils.TruncateAt.END);
-                lessonTv.setEllipsize(TextUtils.TruncateAt.END);
+                teacherTv.setSingleLine();
+//                lessonTv.setEllipsize(TextUtils.TruncateAt.END);
+                lessonTv.setSingleLine();
                 timeTv.setGravity(Gravity.CENTER);
                 teacherTv.setGravity(Gravity.CENTER);
                 addView(top);
