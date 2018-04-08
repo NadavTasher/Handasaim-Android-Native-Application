@@ -20,7 +20,7 @@ import java.util.Random;
 
 import nadav.tasher.lightool.Net;
 
-public class Refresh extends JobService {
+public class PushService extends JobService {
 
     static int getDay(int day, int month, int year) {
         int m = 31;
@@ -35,19 +35,14 @@ public class Refresh extends JobService {
             new Net.Pinger(Main.Values.puzProvider, 5000, new Net.Pinger.OnEnd() {
                 @Override
                 public void onPing(boolean b) {
-                    if (b) checkForPushes(sp);
+                    if (b) {
+                        checkForPushes(sp,params);
+                    }else{
+                        jobFinished(params,true);
+                    }
                 }
             }).execute();
         }
-        if (sp.getBoolean(Main.Values.scheduleService, Main.Values.scheduleDefault)) {
-            new Net.Pinger(Main.Values.scheduleProvider, 5000, new Net.Pinger.OnEnd() {
-                @Override
-                public void onPing(boolean b) {
-                    if (b) checkForSchedule(sp);
-                }
-            }).execute();
-        }
-        Main.startRefresh(getApplicationContext());
         return false;
     }
 
@@ -56,51 +51,7 @@ public class Refresh extends JobService {
         return false;
     }
 
-    private void checkForSchedule(final SharedPreferences sp) {
-        new Main.GetLink(Main.Values.scheduleProvider, new Main.GetLink.GotLink() {
-
-            @Override
-            public void onLinkGet(String link) {
-                if (link != null) {
-                    String date = link.split("/")[link.split("/").length - 1].split("\\.")[0];
-                    if (!sp.getString(Main.Values.latestFileDateRefresher, "").equals(date)) {
-                        sp.edit().putString(Main.Values.latestFileDateRefresher, date).commit();
-                        showNewScheduleNotification();
-                    }
-                }
-            }
-
-            @Override
-            public void onFail(String e) {
-            }
-        }).execute();
-    }
-
-    private void showNewScheduleNotification() {
-        Notification.Builder mBuilder =
-                new Notification.Builder(this)
-                        .setSmallIcon(R.drawable.ic_notification)
-                        .setContentTitle("New Schedule")
-                        .setContentText("A New Schedule Has Been Uploaded. Click To Open App.")
-                        .setDefaults(Notification.DEFAULT_ALL);
-        NotificationManager mNotifyMgr =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Intent resultIntent = new Intent(this, Main.class);
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        mBuilder.setAutoCancel(true);
-        mBuilder.setContentIntent(resultPendingIntent);
-        mBuilder.setShowWhen(true);
-        if (mNotifyMgr != null)
-            mNotifyMgr.notify(new Random().nextInt(1000), mBuilder.build());
-    }
-
-    private void checkForPushes(final SharedPreferences sp) {
+    private void checkForPushes(final SharedPreferences sp, final JobParameters params) {
         new Main.FileReader(Main.Values.pushProvider, new Main.FileReader.OnRead() {
             @Override
             public void done(String s) {
@@ -140,7 +91,11 @@ public class Refresh extends JobService {
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        jobFinished(params,true);
                     }
+                    jobFinished(params,false);
+                }else{
+                    jobFinished(params,true);
                 }
             }
         }).execute();

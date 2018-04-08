@@ -31,7 +31,12 @@
         <service android:name=".DNDService">
         </service>
         <service
-            android:name=".Refresh"
+            android:name=".RefreshService"
+            android:label="Refresh Service"
+            android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service
+            android:name=".PushService"
             android:label="Push Service"
             android:permission="android.permission.BIND_JOB_SERVICE">
         </service>

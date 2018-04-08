@@ -41,6 +41,7 @@ import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,7 +118,8 @@ import static nadav.tasher.handasaim.Main.Values.scheduleDefault;
 import static nadav.tasher.handasaim.Main.Values.scheduleService;
 
 public class Main extends Activity {
-    static final int JOB_ID = 102;
+    static final int REFRESH_ID = 102;
+    static final int PUSH_ID = 103;
     static int textColor = fontColorDefault;
     static Tunnel<Integer> colorChangeTunnle = new Tunnel<>();
     static Tunnel<Integer> fontSizeChangeTunnle = new Tunnel<>();
@@ -151,17 +153,15 @@ public class Main extends Activity {
     }
 
     static void startRefresh(Context c) {
-        try {
-            if (!isJobServiceOn(c)) {
-                ComponentName serviceComponent = new ComponentName(c, Refresh.class);
-                JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, serviceComponent);
-                builder.setMinimumLatency(Values.refreshLoop);
-                JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
-                if (jobScheduler != null) {
-                    jobScheduler.schedule(builder.build());
-                }
+        if (!isJobServiceOn(c)) {
+            ComponentName serviceComponent = new ComponentName(c, RefreshService.class);
+            JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, serviceComponent);
+            builder.setPeriodic(1000, 100);
+            JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
+            if (jobScheduler != null) {
+                Log.i("RefreshService", "Scheduled");
+//                jobScheduler.schedule(builder.build());
             }
-        } catch (Exception ignored) {
         }
     }
 
@@ -417,7 +417,7 @@ public class Main extends Activity {
         return "";
     }
 
-    public static boolean isJobServiceOn(Context context) {
+    static boolean isJobServiceOn(Context context) {
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         boolean hasBeenScheduled = false;
         if (scheduler != null) {
@@ -2411,7 +2411,7 @@ public class Main extends Activity {
         static final int maxKeyEntering = 4;
         static final int waitTime = 10;
         static final int bakedIconColor = 0xffdd8833;
-        static final int refreshLoop = 1000 * 60 * 30;
+        static final int refreshLoop = 1000 * 10 * 1;
         static final int fontSizeDefault = 30;
         static final int circleAlpha = 172;
         static final int defaultColorA = 0xFF4A8DCA;
