@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.tools.online.PictureLoader;
 import nadav.tasher.handasaim.tools.specific.GetNews;
+import nadav.tasher.handasaim.values.Egg;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.info.Device;
 
@@ -87,7 +88,7 @@ public class News extends Activity {
             loadingTView.addView(loadingText);
             loadingTView.setPadding(20, 20, 20, 20);
             egg.setGravity(Gravity.CENTER);
-            egg.setText(Main.getEasterEgg());
+            egg.setText(Egg.dispenseEgg(Egg.TYPE_BOTH));
             egg.setTextColor(Color.LTGRAY);
             egg.setTypeface(Main.getTypeface(getApplicationContext()));
             egg.setTextSize(Main.getFontSize(getApplicationContext()) - 8);

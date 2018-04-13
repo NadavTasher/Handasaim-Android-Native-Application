@@ -11,7 +11,7 @@ public class Values {
     public static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
     public static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
     public static final String fontName = "rubik.ttf";
-    public static final String latestFileDate = "latest_file_date";
+    public static final String latestFileDate = "latest_file_date_v2";
     public static final String latestFileDateRefresher = "latest_file_date_refresher";
     public static final String messageBoardSkipEnabler = "installed_pass_news_code_v3";
     public static final String teacherModeEnabler = "installed_teacher_mode_v2";
@@ -28,7 +28,6 @@ public class Values {
     public static final String favoriteTeacher = "favorite_teacher";
     public static final String pushID = "push_id_";
     public static final String firstLaunch = "first";
-    public static final String latestFileNameDefault = "hs.xls";
     public static final boolean pushDefault = true;
     public static final boolean scheduleDefault = true;
     public static final boolean breakTimeDefault = true;
