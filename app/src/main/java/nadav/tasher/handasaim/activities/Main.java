@@ -84,15 +84,10 @@ import static nadav.tasher.handasaim.tools.architecture.AppCore.getTimeForLesson
 import static nadav.tasher.handasaim.tools.architecture.AppCore.minuteOfDay;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.readExcelFile;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.readExcelFileXLSX;
-import static nadav.tasher.handasaim.values.Values.circleAlpha;
-import static nadav.tasher.handasaim.values.Values.classCoasterColor;
-import static nadav.tasher.handasaim.values.Values.classCoasterMarkColor;
-import static nadav.tasher.handasaim.values.Values.fontColor;
-import static nadav.tasher.handasaim.values.Values.fontColorDefault;
-import static nadav.tasher.handasaim.values.Values.prefName;
+
 
 public class Main extends Activity {
-    static int textColor = fontColorDefault;
+    static int textColor = Values.fontColorDefault;
     static Tunnel<Integer> colorChangeTunnle = new Tunnel<>();
     static Tunnel<Integer> fontSizeChangeTunnle = new Tunnel<>();
     static Tunnel<Boolean> breakTimeTunnle = new Tunnel<>();
@@ -114,22 +109,22 @@ public class Main extends Activity {
     private boolean breakTime = true;
 
     public static int getFontSize(Context c) {
-        SharedPreferences sp = c.getSharedPreferences(prefName, Context.MODE_PRIVATE);
+        SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
         return sp.getInt(Values.fontSizeNumber, Values.fontSizeDefault);
     }
 
     public static int getColorA(Context c) {
-        SharedPreferences sp = c.getSharedPreferences(prefName, Context.MODE_PRIVATE);
+        SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
         return sp.getInt(Values.colorA, Values.defaultColorA);
     }
 
     public static int getColorB(Context c) {
-        SharedPreferences sp = c.getSharedPreferences(prefName, Context.MODE_PRIVATE);
+        SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
         return sp.getInt(Values.colorB, Values.defaultColorB);
     }
 
     public static int getTextColor(Context c) {
-        SharedPreferences sp = c.getSharedPreferences(prefName, Context.MODE_PRIVATE);
+        SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
         return sp.getInt(Values.fontColor, Values.fontColorDefault);
     }
 
@@ -144,7 +139,6 @@ public class Main extends Activity {
     public static void startMe(Activity c) {
         Intent intent = new Intent(c, Main.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         c.startActivity(intent);
         c.overridePendingTransition(R.anim.out, R.anim.in);
         c.finish();
@@ -168,14 +162,14 @@ public class Main extends Activity {
     }
 
     private void loadTheme() {
-        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
-        textColor = sp.getInt(fontColor, fontColorDefault);
+        final SharedPreferences sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
+        textColor = sp.getInt(Values.fontColor, Values.fontColorDefault);
         colorA = sp.getInt(Values.colorA, colorA);
         colorB = sp.getInt(Values.colorB, colorB);
         gradient = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{colorA, colorB});
-        coaster = generateCoaster(Color.argb(circleAlpha, Color.red(colorA), Color.green(colorA), Color.blue(colorA)));
-        classCoaster = generateCoaster(classCoasterColor);
-        classCoasterMarked = generateCoaster(classCoasterMarkColor);
+        coaster = generateCoaster(Color.argb(Values.circleAlpha, Color.red(colorA), Color.green(colorA), Color.blue(colorA)));
+        classCoaster = generateCoaster(Values.classCoasterColor);
+        classCoasterMarked = generateCoaster(Values.classCoasterMarkColor);
     }
 
     private void refreshTheme() {
@@ -185,9 +179,9 @@ public class Main extends Activity {
         mAppView.setBottomColor(colorB);
         mAppView.overlaySelf(getWindow());
         if (circleView != null)
-            circleView.circle(Color.argb(circleAlpha, Color.red(colorA), Color.green(colorA), Color.blue(colorA)));
+            circleView.circle(Color.argb(Values.circleAlpha, Color.red(colorA), Color.green(colorA), Color.blue(colorA)));
         if (optionHolder != null)
-            optionHolder.drawCircles(Color.argb(circleAlpha, Color.red(colorA), Color.green(colorA), Color.blue(colorA)));
+            optionHolder.drawCircles(Color.argb(Values.circleAlpha, Color.red(colorA), Color.green(colorA), Color.blue(colorA)));
         taskDesc();
     }
 
@@ -203,7 +197,7 @@ public class Main extends Activity {
     }
 
     private void initStageA() {
-        sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
+        sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
         String file = sp.getString(Values.scheduleFile, null);
         if (file != null) {
             parseAndLoad(new File(file));
@@ -211,7 +205,6 @@ public class Main extends Activity {
     }
 
     private void loadKey(int type) {
-        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         switch (type) {
             case 1:
                 sp.edit().putBoolean(Values.messageBoardSkipEnabler, true).commit();
@@ -458,13 +451,13 @@ public class Main extends Activity {
             }
         });
         refreshTheme();
+        optionHolder.content.setBackground(classCoaster);
         StudentClass c = getFavoriteClass();
         if (classes != null) if (c != null) setStudentMode(c);
         setContentView(mAppView);
     }
 
     private StudentClass getFavoriteClass() {
-        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         int selectedClass = 0;
         if (sp.getString(Values.favoriteClass, null) != null) {
             if (classes != null) {
@@ -483,7 +476,6 @@ public class Main extends Activity {
     }
 
     private Teacher getFavoriteTeacher() {
-        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         int selectedTeacher = 0;
         if (sp.getString(Values.favoriteTeacher, null) != null) {
             if (teachers != null) {
@@ -565,7 +557,6 @@ public class Main extends Activity {
     }
 
     private ScrollView getSettingsView() {
-        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         ScrollView sv = new ScrollView(getApplicationContext());
         sv.setPadding(10, 10, 10, 10);
         LinearLayout settings = new LinearLayout(this);
@@ -704,7 +695,7 @@ public class Main extends Activity {
         textColorPicker.setOnColorChanged(new ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
-                sp.edit().putInt(fontColor, color).apply();
+                sp.edit().putInt(Values.fontColor, color).apply();
                 refreshTheme();
                 colorChangeTunnle.send(textColor);
             }
@@ -772,7 +763,6 @@ public class Main extends Activity {
     }
 
     private ScrollView generateClassSwitchView() {
-        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         LinearLayout all = new LinearLayout(this);
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.CENTER);
@@ -868,6 +858,25 @@ public class Main extends Activity {
     //        hsplace.addView(scheduleForClass(c));
     //    }
 
+    @Override
+    public void onBackPressed(){
+        if(mAppView!=null) {
+            if(mAppView.getDragNavigation()!=null) {
+                if (mAppView.getDragNavigation().isOpen()) {
+                    mAppView.getDragNavigation().close(true);
+                }
+            }
+        }
+        if(circleView!=null) {
+            if (circleView.isOpened) {
+                circleView.isOpened = false;
+                if (circleView.onstate != null) {
+                    circleView.onstate.onClose();
+                }
+            }
+        }
+    }
+
     private void parseAndLoad(File f) {
         String filename = f.getName();
         if (filename.endsWith(".xlsx")) {
@@ -924,7 +933,6 @@ public class Main extends Activity {
     }
 
     private int getFontSize() {
-        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         return sp.getInt(Values.fontSizeNumber, Values.fontSizeDefault);
     }
 
@@ -1429,7 +1437,7 @@ public class Main extends Activity {
 
             public void drawCircles(int color) {
                 for (CircleView.CircleOption circleOption : circleOptions) {
-                    circleOption.circle(Color.argb(circleAlpha, Color.red(color), Color.green(color), Color.blue(color)));
+                    circleOption.circle(Color.argb(Values.circleAlpha, Color.red(color), Color.green(color), Color.blue(color)));
                 }
             }
         }

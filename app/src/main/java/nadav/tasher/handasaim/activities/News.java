@@ -43,7 +43,6 @@ public class News extends Activity {
     public static void startMe(Activity c){
         Intent intent = new Intent(c, News.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         c.startActivity(intent);
         c.overridePendingTransition(R.anim.out, R.anim.in);
         c.finish();
