@@ -62,8 +62,8 @@ public class DNDReceiver extends BroadcastReceiver{
 
     void checkTime(Context context, SharedPreferences sp) {
         Calendar c = Calendar.getInstance();
-        File excel = new File(context.getFilesDir(), sp.getString(Values.latestFileName, Values.latestFileNameDefault));
-        String name = sp.getString(Values.latestFileName, "");
+        File excel = new File(sp.getString(Values.scheduleFile, ""));
+        String name = excel.getName();
         ArrayList<StudentClass.Subject.Time> classTimes = new ArrayList<>();
         ArrayList<StudentClass> classes;
         if (!name.equals("")) {

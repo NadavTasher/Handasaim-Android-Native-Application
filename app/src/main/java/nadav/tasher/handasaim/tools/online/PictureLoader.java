@@ -12,7 +12,7 @@ public class PictureLoader extends AsyncTask<String, String, Bitmap> {
     private String furl;
     private GotImage ong;
 
-    PictureLoader(String url, GotImage og) {
+    public PictureLoader(String url, GotImage og) {
         furl = url;
         ong = og;
     }
@@ -35,7 +35,7 @@ public class PictureLoader extends AsyncTask<String, String, Bitmap> {
         }
     }
 
-    interface GotImage {
+    public interface GotImage {
         void onGet(Bitmap image);
     }
 }

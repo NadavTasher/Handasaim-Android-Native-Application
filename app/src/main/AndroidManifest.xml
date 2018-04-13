@@ -19,10 +19,6 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@android:style/Theme.Material.NoActionBar">
-    <activity android:name=".activities.Main">
-        <intent-filter>
-        </intent-filter>
-    </activity>
 
     <receiver android:name=".services.receivers.BootReceiver">
         <intent-filter>
@@ -51,10 +47,9 @@
             <category android:name="android.intent.category.LAUNCHER"/>
         </intent-filter>
     </activity>
-    <activity android:name=".activities.Welcome">
-    </activity>
-    <activity android:name=".activities.News">
-    </activity>
+    <activity android:name=".activities.Welcome"/>
+    <activity android:name=".activities.News"/>
+    <activity android:name=".activities.Main"/>
 </application>
 
 </manifest>

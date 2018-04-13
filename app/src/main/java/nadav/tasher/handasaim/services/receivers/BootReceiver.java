@@ -5,13 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
-import nadav.tasher.handasaim.activities.Main;
+import nadav.tasher.handasaim.tools.architecture.Starter;
 
 public class BootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) Main.beginDND(context);
-        Main.scheduleJobs(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) Starter.beginDND(context);
+        Starter.scheduleJobs(context);
     }
 }

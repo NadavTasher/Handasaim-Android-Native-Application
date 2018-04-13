@@ -23,10 +23,10 @@ public class Values {
     public static final String colorA = "colorA";
     public static final String colorB = "colorB";
     public static final String scheduleService = "schedule_service";
+    public static final String scheduleFile = "schedule_file";
     public static final String favoriteClass = "favorite_class";
     public static final String favoriteTeacher = "favorite_teacher";
     public static final String pushID = "push_id_";
-    public static final String latestFileName = "latest_file_name";
     public static final String firstLaunch = "first";
     public static final String latestFileNameDefault = "hs.xls";
     public static final boolean pushDefault = true;
