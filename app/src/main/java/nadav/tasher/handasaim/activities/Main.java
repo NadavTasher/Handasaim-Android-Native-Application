@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -85,7 +86,6 @@ import static nadav.tasher.handasaim.tools.architecture.AppCore.minuteOfDay;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.readExcelFile;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.readExcelFileXLSX;
 
-
 public class Main extends Activity {
     static int textColor = Values.fontColorDefault;
     static Tunnel<Integer> colorChangeTunnle = new Tunnel<>();
@@ -95,13 +95,14 @@ public class Main extends Activity {
     private static String[] infact = new String[]{"Every year more than 2500 left-handed people are killed from using right-handed products.", "In 1895 Hampshire police handed out the first ever speeding ticket, fining a man for doing 6mph!", "Over 1000 birds a year die from smashing into windows.", "Squirrels forget where they hide about half of their nuts.", "The average person walks the equivalent of twice around the world in a lifetime.", "A company in Taiwan makes dinnerware out of wheat, so you can eat your plate!", "An apple, potato, and onion all taste the same if you eat them with your nose plugged.", "Dying is illegal in the Houses of Parliaments – This has been voted as the most ridiculous law by the British citizens.", "The first alarm clock could only ring at 4am.", "If you leave everything to the last minute… it will only take a minute.", "Every human spent about half an hour as a single cell.", "The Twitter bird actually has a name – Larry.", "Sea otters hold hands when they sleep so they don’t drift away from each other.", "The French language has seventeen different words for ‘surrender’.", "The Titanic was the first ship to use the SOS signal.", "A baby octopus is about the size of a flea when it is born.", "You cannot snore and dream at the same time.", "A toaster uses almost half as much energy as a full-sized oven.", "If you consistently fart for 6 years & 9 months, enough gas is produced to create the energy of an atomic bomb!", "An eagle can kill a young deer and fly away with it.", "Polar bears can eat as many as 86 penguins in a single sitting.", "If Pinokio says “My Nose Will Grow Now”, it would cause a paradox.", "Bananas are curved because they grow towards the sun.", "Human saliva has a boiling point three times that of regular water.", "Cherophobia is the fear of fun.", "When hippos are upset, their sweat turns red.", "Pteronophobia is the fear of being tickled by feathers!", "Banging your head against a wall burns 150 calories an hour."};
     private int colorA = Values.defaultColorA;
     private int colorB = Values.defaultColorB;
+    private int coasterColor = Values.defaultColorB;
     private int keyentering = 0;
     private String day;
     private StudentClass currentClass;
     private Teacher currentTeacher;
     private MyGraphics.OptionHolder optionHolder;
     private MyGraphics.CircleView circleView;
-    private Drawable gradient, coaster, classCoaster, classCoasterMarked;
+    private Drawable gradient;
     private AppView mAppView;
     private ArrayList<StudentClass> classes;
     private ArrayList<Teacher> teachers;
@@ -162,14 +163,11 @@ public class Main extends Activity {
     }
 
     private void loadTheme() {
-        final SharedPreferences sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
         textColor = sp.getInt(Values.fontColor, Values.fontColorDefault);
         colorA = sp.getInt(Values.colorA, colorA);
         colorB = sp.getInt(Values.colorB, colorB);
         gradient = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{colorA, colorB});
-        coaster = generateCoaster(Color.argb(Values.circleAlpha, Color.red(colorA), Color.green(colorA), Color.blue(colorA)));
-        classCoaster = generateCoaster(Values.classCoasterColor);
-        classCoasterMarked = generateCoaster(Values.classCoasterMarkColor);
+        coasterColor = Color.argb(Values.circleAlpha, Color.red(colorA), Color.green(colorA), Color.blue(colorA));
     }
 
     private void refreshTheme() {
@@ -197,6 +195,7 @@ public class Main extends Activity {
     }
 
     private void initStageA() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
         String file = sp.getString(Values.scheduleFile, null);
         if (file != null) {
@@ -329,7 +328,7 @@ public class Main extends Activity {
             }
         });
         MyGraphics.CircleView.CircleOption[] options = getCircleOptions(circleSize, circlePadding);
-        optionHolder = new MyGraphics.OptionHolder(getApplicationContext(), classCoaster, options, circlePadding);
+        optionHolder = new MyGraphics.OptionHolder(getApplicationContext(), generateCoaster(Values.classCoasterColor), options, circlePadding);
         //        optionHolder.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, options.length * circleSize + 2 * circlePadding));
         optionHolder.setVisibility(View.GONE);
         circleView.setOnStateChangedListener(new MyGraphics.CircleView.OnStateChangedListener() {
@@ -410,7 +409,7 @@ public class Main extends Activity {
                                 cls.setEllipsize(TextUtils.TruncateAt.END);
                                 cls.setLines(2);
                                 //                            cls.setBackgroundColor(Color.TRANSPARENT);
-                                cls.setBackground(coaster);
+                                cls.setBackground(generateCoaster(coasterColor));
                                 cls.setTypeface(getTypeface());
                                 cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 8)));
                                 news.addView(cls);
@@ -451,7 +450,6 @@ public class Main extends Activity {
             }
         });
         refreshTheme();
-        optionHolder.content.setBackground(classCoaster);
         StudentClass c = getFavoriteClass();
         if (classes != null) if (c != null) setStudentMode(c);
         setContentView(mAppView);
@@ -539,7 +537,7 @@ public class Main extends Activity {
         Button shareB = new Button(this);
         String shareText = getString(R.string.share) + " " + currentClass.name;
         shareB.setText(shareText);
-        shareB.setBackground(coaster);
+        shareB.setBackground(generateCoaster(coasterColor));
         shareB.setTextColor(textColor);
         shareB.setTextSize(getFontSize() - 7);
         shareB.setTypeface(getTypeface());
@@ -793,7 +791,7 @@ public class Main extends Activity {
             cls.setGravity(Gravity.CENTER);
             cls.setText(classes.get(cs).name);
             cls.setTextColor(textColor);
-            cls.setBackground(coaster);
+            cls.setBackground(generateCoaster(coasterColor));
             cls.setPadding(10, 0, 10, 0);
             cls.setTypeface(getTypeface());
             cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 12)));
@@ -816,7 +814,7 @@ public class Main extends Activity {
                 cls.setGravity(Gravity.CENTER);
                 cls.setText(teachers.get(cs).mainName);
                 cls.setTextColor(textColor);
-                cls.setBackground(coaster);
+                cls.setBackground(generateCoaster(coasterColor));
                 cls.setPadding(10, 0, 10, 0);
                 cls.setTypeface(getTypeface());
                 cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 12)));
@@ -844,6 +842,13 @@ public class Main extends Activity {
         }
         return gd;
     }
+    public static Drawable generateCoaster(Context c,int color) {
+        GradientDrawable gd = (GradientDrawable) c.getDrawable(R.drawable.rounded_rect);
+        if (gd != null) {
+            gd.setColor(color);
+        }
+        return gd;
+    }
     //    private void showSchedule(final StudentClass c) {
     //        currentClass = c;
     //        circleView.text(c.name, day);
@@ -859,15 +864,15 @@ public class Main extends Activity {
     //    }
 
     @Override
-    public void onBackPressed(){
-        if(mAppView!=null) {
-            if(mAppView.getDragNavigation()!=null) {
+    public void onBackPressed() {
+        if (mAppView != null) {
+            if (mAppView.getDragNavigation() != null) {
                 if (mAppView.getDragNavigation().isOpen()) {
                     mAppView.getDragNavigation().close(true);
                 }
             }
         }
-        if(circleView!=null) {
+        if (circleView != null) {
             if (circleView.isOpened) {
                 circleView.isOpened = false;
                 if (circleView.onstate != null) {
@@ -982,7 +987,7 @@ public class Main extends Activity {
         ArrayList<MyGraphics.LessonView> lessons = new ArrayList<>();
         for (int s = 0; s < fclass.subjects.size(); s++) {
             if (getBreak(fclass.subjects.get(s).hour - 1) != -1) {
-                final MyGraphics.LessonView breakt = new MyGraphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, -1, "הפסקה", getBreak(fclass.subjects.get(s).hour - 1) + " דקות", "");
+                final MyGraphics.LessonView breakt = new MyGraphics.LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), -1, "הפסקה", getBreak(fclass.subjects.get(s).hour - 1) + " דקות", "");
                 if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
                     lessons.add(breakt);
                 }
@@ -1012,7 +1017,7 @@ public class Main extends Activity {
             }
             String txt = getRealTimeForHourNumber(fclass.subjects.get(s).hour) + "-" + getRealEndTimeForHourNumber(fclass.subjects.get(s).hour);
             String tcnm = (fclass.subjects.get(s).fullName.substring(fclass.subjects.get(s).fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0]).split(",")[0];
-            MyGraphics.LessonView subject = new MyGraphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, fclass.subjects.get(s).hour, fclass.subjects.get(s).name.replaceAll(",", "/"), txt, tcnm);
+            MyGraphics.LessonView subject = new MyGraphics.LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), fclass.subjects.get(s).hour, fclass.subjects.get(s).name.replaceAll(",", "/"), txt, tcnm);
             if (isCurrent) subject.mark();
             if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
                 lessons.add(subject);
@@ -1053,7 +1058,7 @@ public class Main extends Activity {
             }
             if (currentLesson.size() >= 1) {
                 if (getBreak(h - 1) != -1) {
-                    final MyGraphics.LessonView breakt = new MyGraphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, -1, "הפסקה", getBreak(h - 1) + " דקות", "");
+                    final MyGraphics.LessonView breakt = new MyGraphics.LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), -1, "הפסקה", getBreak(h - 1) + " דקות", "");
                     lessons.add(breakt);
                     if (!breakTime) {
                         breakt.setVisibility(View.GONE);
@@ -1072,7 +1077,7 @@ public class Main extends Activity {
                     });
                 }
                 String txt = getRealTimeForHourNumber(h) + "-" + getRealEndTimeForHourNumber(h);
-                MyGraphics.LessonView lesson = new MyGraphics.LessonView(getApplicationContext(), classCoaster, classCoasterMarked, h, currentText, txt, lessonName);
+                MyGraphics.LessonView lesson = new MyGraphics.LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), h, currentText, txt, lessonName);
                 if (isCurrent) lesson.mark();
                 lessons.add(lesson);
             }

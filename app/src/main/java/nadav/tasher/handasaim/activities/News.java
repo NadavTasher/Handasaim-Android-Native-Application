@@ -126,6 +126,7 @@ public class News extends Activity {
                         Button newtopic = new Button(getApplicationContext());
                         nt.addView(newtopic);
                         nt.setPadding(10, 10, 10, 10);
+                        nt.setBackground(Main.generateCoaster(getApplicationContext(),Values.classCoasterColor));
                         newtopic.setText(link.get(n).name);
                         newtopic.setEllipsize(TextUtils.TruncateAt.END);
                         newtopic.setTextColor(Main.getTextColor(getApplicationContext()));

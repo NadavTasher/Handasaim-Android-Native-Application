@@ -82,7 +82,7 @@ public class Welcome extends Activity {
         icon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         int is = (int) (Device.screenX(getApplicationContext()) * 0.7);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
-        ObjectAnimator iconSlide = ObjectAnimator.ofFloat(icon, View.TRANSLATION_X, -Device.screenX(getApplicationContext()), 0);
+        ObjectAnimator iconSlide = ObjectAnimator.ofFloat(icon, View.TRANSLATION_X, Device.screenX(getApplicationContext()), 0);
         iconSlide.setDuration(1000);
         iconSlide.addListener(new Animator.AnimatorListener() {
             @Override
