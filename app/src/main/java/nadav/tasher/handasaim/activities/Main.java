@@ -306,10 +306,7 @@ public class Main extends Activity {
         final int x = Device.screenX(getApplicationContext());
         final int circlePadding = x / 30;
         final int circleSize = x / 4;
-        final ScrollView contentScroll = new ScrollView(this);
         breakTime = sp.getBoolean(Values.breakTime, Values.breakTimeDefault);
-        contentScroll.setVerticalScrollBarEnabled(false);
-        contentScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         LinearLayout circleHolder = new LinearLayout(this), optionAndCircleHolder = new LinearLayout(this);
         circleHolder.setOrientation(LinearLayout.HORIZONTAL);
         circleHolder.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
