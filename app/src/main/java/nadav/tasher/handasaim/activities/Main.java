@@ -28,6 +28,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -296,6 +297,20 @@ public class Main extends Activity {
         mAppView.setBottomColor(colorB);
         main=new Squircle(getApplicationContext(),squircleSize,colorA);
         bar=new Bar(getApplicationContext(),main);
+        bar.setOnMainSquircle(new Squircle.OnState() {
+            @Override
+            public void onOpen() {
+            }
+
+            @Override
+            public void onClose() {
+                mAppView.getDragNavigation().close(true);
+            }
+
+            @Override
+            public void onBoth(boolean isOpened) {
+            }
+        });
         bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,squircleSize+2*squirclePadding));
         topper.addView(bar);
         mAppView.addView(topper);
@@ -306,7 +321,8 @@ public class Main extends Activity {
         mAppView.getDragNavigation().setOnStateChangedListener(new DragNavigation.OnStateChangedListener() {
             @Override
             public void onOpen() {
-                showNews();
+                mAppView.getDragNavigation().emptyContent();
+                mAppView.getDragNavigation().setContent(getNews());
             }
 
             @Override
@@ -387,18 +403,24 @@ public class Main extends Activity {
         ArrayList<Squircle> squircles=new ArrayList<>();
         final Squircle news=new Squircle(getApplicationContext(),size,colorA);
         news.setDrawable(getDrawable(R.drawable.ic_news));
+        final FrameLayout newsContent=getNews();
         news.setOnState(new Squircle.OnState() {
             @Override
             public void onOpen() {
                 mAppView.getDragNavigation().emptyContent();
                 mAppView.getDragNavigation().open(false);
-                showNews();
+                mAppView.getDragNavigation().setContent(newsContent);
             }
 
             @Override
             public void onClose() {
                 if(mAppView.getDragNavigation().isOpen()) {
-                    mAppView.getDragNavigation().close(true);
+                    if(mAppView.getDragNavigation().getContent() ==newsContent) {
+                        mAppView.getDragNavigation().close(true);
+                    }else{
+                        news.setState(true);
+                        this.onOpen();
+                    }
                 }else{
                     news.setState(true);
                     this.onOpen();
@@ -413,18 +435,24 @@ public class Main extends Activity {
 
         final Squircle choose=new Squircle(getApplicationContext(),size,colorA);
         choose.setDrawable(getDrawable(R.drawable.ic_class));
+        final ScrollView chooseContent=getSwitcher();
         choose.setOnState(new Squircle.OnState() {
             @Override
             public void onOpen() {
                 mAppView.getDragNavigation().emptyContent();
                 mAppView.getDragNavigation().open(false);
-                mAppView.getDragNavigation().setContent(getSwitcher());
+                mAppView.getDragNavigation().setContent(chooseContent);
             }
 
             @Override
             public void onClose() {
                 if(mAppView.getDragNavigation().isOpen()) {
-                    mAppView.getDragNavigation().close(true);
+                    if(mAppView.getDragNavigation().getContent() ==chooseContent) {
+                        mAppView.getDragNavigation().close(true);
+                    }else{
+                        choose.setState(true);
+                        this.onOpen();
+                    }
                 }else{
                     choose.setState(true);
                     this.onOpen();
@@ -439,19 +467,25 @@ public class Main extends Activity {
 
         final Squircle settings=new Squircle(getApplicationContext(),size,colorA);
         settings.setDrawable(getDrawable(R.drawable.ic_gear));
+        final ScrollView settingsContent=getSettings();
         settings.setOnState(new Squircle.OnState() {
 
             @Override
             public void onOpen() {
                 mAppView.getDragNavigation().emptyContent();
                 mAppView.getDragNavigation().open(false);
-                mAppView.getDragNavigation().setContent(getSettings());
+                mAppView.getDragNavigation().setContent(settingsContent);
             }
 
             @Override
             public void onClose() {
                 if(mAppView.getDragNavigation().isOpen()) {
-                    mAppView.getDragNavigation().close(true);
+                    if(mAppView.getDragNavigation().getContent() ==settingsContent) {
+                        mAppView.getDragNavigation().close(true);
+                    }else{
+                        settings.setState(true);
+                        this.onOpen();
+                    }
                 }else{
                     settings.setState(true);
                     this.onOpen();
@@ -828,28 +862,28 @@ public class Main extends Activity {
         }
     }
 
-    private void showNews(){
+    private FrameLayout getNews(){
+        final FrameLayout masterLayout = new FrameLayout(getApplicationContext());
+        masterLayout.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
         TextView load = new TextView(getApplicationContext());
         load.setTextSize(getFontSize());
         load.setTypeface(getTypeface());
         load.setTextColor(textColor);
         load.setText(R.string.loading_text);
         load.setGravity(Gravity.CENTER);
-        mAppView.getDragNavigation().setContent(load);
+        load.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        masterLayout.removeAllViews();
+        masterLayout.addView(load);
+
         final int fontSize = getFontSize();
-        final LinearLayout fullPage = new LinearLayout(getApplicationContext());
+        final ScrollView masterScroll = new ScrollView(getApplicationContext());
+        masterScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        masterScroll.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         final LinearLayout news = new LinearLayout(getApplicationContext());
-        ScrollView npscroll = new ScrollView(getApplicationContext());
-        npscroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        LinearLayout newsAndPush = new LinearLayout(getApplicationContext());
-        fullPage.setOrientation(LinearLayout.VERTICAL);
+        masterScroll.addView(news);
         news.setOrientation(LinearLayout.VERTICAL);
-        newsAndPush.setOrientation(LinearLayout.VERTICAL);
-        fullPage.setGravity(Gravity.CENTER);
         news.setGravity(Gravity.CENTER);
-        newsAndPush.setGravity(Gravity.CENTER);
-        npscroll.addView(newsAndPush);
-        newsAndPush.addView(news);
         TextView newsTitle;
         newsTitle = new TextView(getApplicationContext());
         newsTitle.setText(R.string.news);
@@ -858,10 +892,6 @@ public class Main extends Activity {
         newsTitle.setTextSize(fontSize);
         newsTitle.setGravity(Gravity.CENTER);
         newsTitle.setTypeface(getTypeface());
-        fullPage.addView(npscroll);
-        //                fullPage.setPadding(5, 5, 5, 5);
-        fullPage.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        npscroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         if (Device.isOnline(getApplicationContext())) {
             new GetNews(Values.serviceProvider, new GetNews.GotNews() {
                 @Override
@@ -893,7 +923,8 @@ public class Main extends Activity {
                             });
                         }
                     }
-                    mAppView.getDragNavigation().setContent(fullPage);
+                    masterLayout.removeAllViews();
+                    masterLayout.addView(masterScroll);
                 }
 
                 @Override
@@ -908,6 +939,7 @@ public class Main extends Activity {
                 }
             }).execute("");
         }
+        return masterLayout;
     }
 
     private void parseAndLoad(File f) {

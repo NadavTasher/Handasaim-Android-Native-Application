@@ -1,5 +1,7 @@
 package nadav.tasher.handasaim.tools.graphics.bar;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.view.Gravity;
 import android.view.View;
@@ -15,6 +17,7 @@ public class Bar extends LinearLayout{
     private HorizontalScrollView hsv;
     private LinearLayout squircles;
     private Squircle mainSquircle;
+    private Squircle.OnState onState;
     private ArrayList<Squircle> squircleList;
     private boolean isOpen=false;
 
@@ -30,15 +33,24 @@ public class Bar extends LinearLayout{
             @Override
             public void onOpen() {
                 open();
+                if(onState!=null){
+                    onState.onOpen();
+                }
             }
 
             @Override
             public void onClose() {
                 close();
+                if(onState!=null){
+                    onState.onClose();
+                }
             }
 
             @Override
             public void onBoth(boolean isOpened) {
+                if(onState!=null){
+                    onState.onBoth(isOpened);
+                }
             }
         });
     }
@@ -59,6 +71,10 @@ public class Bar extends LinearLayout{
         hsv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         addView(hsv);
         close();
+    }
+
+    public void setOnMainSquircle(Squircle.OnState o){
+        this.onState=o;
     }
 
     public void addSquircle(Squircle squircle){
@@ -86,11 +102,63 @@ public class Bar extends LinearLayout{
 
     public void open(){
         isOpen=true;
-        hsv.setVisibility(View.VISIBLE);
+        hsv.setAlpha(0);
+        ObjectAnimator slide=ObjectAnimator.ofFloat(hsv,View.TRANSLATION_X, -hsv.getWidth(),0);
+        slide.setDuration(500);
+        ObjectAnimator transparancy=ObjectAnimator.ofFloat(hsv,View.ALPHA,0,1);
+        transparancy.setDuration(500);
+        transparancy.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mainSquircle.setClickable(false);
+                hsv.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mainSquircle.setClickable(true);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+            }
+        });
+        slide.start();
+        transparancy.start();
     }
 
     public void close(){
         isOpen=false;
-        hsv.setVisibility(View.GONE);
+        hsv.setAlpha(1);
+        ObjectAnimator slide=ObjectAnimator.ofFloat(hsv,View.TRANSLATION_X, 0,-hsv.getWidth());
+        slide.setDuration(500);
+        ObjectAnimator transparancy=ObjectAnimator.ofFloat(hsv,View.ALPHA,1,0);
+        transparancy.setDuration(500);
+        transparancy.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mainSquircle.setClickable(false);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mainSquircle.setClickable(true);
+                hsv.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+            }
+        });
+        slide.start();
+        transparancy.start();
     }
 }
