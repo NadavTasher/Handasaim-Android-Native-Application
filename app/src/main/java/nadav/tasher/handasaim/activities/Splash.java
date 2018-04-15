@@ -29,6 +29,7 @@ import java.io.File;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.tools.architecture.Starter;
+import nadav.tasher.handasaim.tools.graphics.CurvedTextView;
 import nadav.tasher.handasaim.tools.online.FileDownloader;
 import nadav.tasher.handasaim.tools.specific.GetLink;
 import nadav.tasher.handasaim.values.Values;
@@ -41,7 +42,7 @@ import static nadav.tasher.handasaim.tools.architecture.Starter.beginDND;
 
 public class Splash extends Activity {
 
-    private Main.MyGraphics.CurvedTextView ctv;
+    private CurvedTextView ctv;
     private SharedPreferences sp;
 
     @Override
@@ -81,7 +82,7 @@ public class Splash extends Activity {
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
         ll.addView(icon);
         String curved = getString(R.string.app_name);
-        ctv = new Main.MyGraphics.CurvedTextView(this, curved, 50, Values.bakedIconColor, Device.screenX(this), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
+        ctv = new CurvedTextView(this, curved, 50, Values.bakedIconColor, Device.screenX(this), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.3)));
         ll.addView(ctv);
         RotateAnimation rotateAnimation = new RotateAnimation(0, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
