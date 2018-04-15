@@ -96,13 +96,13 @@ public class Splash extends Activity {
         oa.setDuration(1000);
         oa.start();
         setContentView(ll);
-        ColorFadeAnimation cfa = new ColorFadeAnimation(Main.getColorB(getApplicationContext()),Main.getColorA(getApplicationContext()), new ColorFadeAnimation.ColorState() {
+        ColorFadeAnimation cfa = new ColorFadeAnimation(Main.getColorB(getApplicationContext()), Main.getColorA(getApplicationContext()), new ColorFadeAnimation.ColorState() {
             @Override
             public void onColor(final int color) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ll.setBackground(generateGradient(color,Main.getColorB(getApplicationContext())));
+                        ll.setBackground(generateGradient(color, Main.getColorB(getApplicationContext())));
                         getWindow().setNavigationBarColor(Main.getColorB(getApplicationContext()));
                         getWindow().setStatusBarColor(color);
                     }
@@ -124,8 +124,11 @@ public class Splash extends Activity {
         initStageC();
     }
 
-    private Drawable generateGradient(int colorA,int colorB){
-            return new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{colorA, colorB});
+    private Drawable generateGradient(int colorA, int colorB) {
+        return new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{
+                colorA,
+                colorB
+        });
     }
 
     private void initStageC() {

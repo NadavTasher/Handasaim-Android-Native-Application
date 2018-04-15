@@ -89,8 +89,8 @@ public class Main extends Activity {
     private String day;
     private StudentClass currentClass;
     private Teacher currentTeacher;
-//    private MyGraphics.OptionHolder optionHolder;
-//    private MyGraphics.CircleView circleView;
+    //    private MyGraphics.OptionHolder optionHolder;
+    //    private MyGraphics.CircleView circleView;
     private Bar bar;
     private Squircle main;
     private Drawable gradient;
@@ -121,7 +121,10 @@ public class Main extends Activity {
     }
 
     public static Drawable getGradient(Context c) {
-        return new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{getColorA(c), getColorB(c)});
+        return new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{
+                getColorA(c),
+                getColorB(c)
+        });
     }
 
     public static Typeface getTypeface(Context c) {
@@ -136,6 +139,14 @@ public class Main extends Activity {
         c.finish();
     }
 
+    public static Drawable generateCoaster(Context c, int color) {
+        GradientDrawable gd = (GradientDrawable) c.getDrawable(R.drawable.rounded_rect);
+        if (gd != null) {
+            gd.setColor(color);
+        }
+        return gd;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,7 +157,10 @@ public class Main extends Activity {
         textColor = sp.getInt(Values.fontColor, Values.fontColorDefault);
         colorA = sp.getInt(Values.colorA, colorA);
         colorB = sp.getInt(Values.colorB, colorB);
-        gradient = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{colorA, colorB});
+        gradient = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{
+                colorA,
+                colorB
+        });
         coasterColor = Color.argb(Values.squircleAlpha, Color.red(colorA), Color.green(colorA), Color.blue(colorA));
     }
 
@@ -235,7 +249,10 @@ public class Main extends Activity {
         pop.setCancelable(true);
         pop.setTitle("Enter Unlock Key");
         final EditText key = new EditText(this);
-        key.setFilters(new InputFilter[]{Filters.codeFilter, new InputFilter.AllCaps()});
+        key.setFilters(new InputFilter[]{
+                Filters.codeFilter,
+                new InputFilter.AllCaps()
+        });
         pop.setView(key);
         key.setLayoutParams(new WindowManager.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         pop.setPositiveButton("Unlock", new DialogInterface.OnClickListener() {
@@ -284,7 +301,7 @@ public class Main extends Activity {
         LinearLayout topper = new LinearLayout(this);
         topper.setOrientation(LinearLayout.VERTICAL);
         topper.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
-        topper.setPadding(squirclePadding,0,squirclePadding,0);
+        topper.setPadding(squirclePadding, 0, squirclePadding, 0);
         mAppView = new AppView(getApplicationContext(), getDrawable(R.drawable.ic_icon), Values.navColor);
         mAppView.getDragNavigation().setOnIconClick(new View.OnClickListener() {
             @Override
@@ -295,8 +312,8 @@ public class Main extends Activity {
         mAppView.setBackground(gradient);
         mAppView.setTopColor(colorA);
         mAppView.setBottomColor(colorB);
-        main=new Squircle(getApplicationContext(),squircleSize,colorA);
-        bar=new Bar(getApplicationContext(),main);
+        main = new Squircle(getApplicationContext(), squircleSize, colorA);
+        bar = new Bar(getApplicationContext(), main);
         bar.setOnMainSquircle(new Squircle.OnState() {
             @Override
             public void onOpen() {
@@ -311,7 +328,7 @@ public class Main extends Activity {
             public void onBoth(boolean isOpened) {
             }
         });
-        bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,squircleSize+2*squirclePadding));
+        bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, squircleSize + 2 * squirclePadding));
         topper.addView(bar);
         mAppView.addView(topper);
         //        masterLayout.addView(optionHolder);
@@ -354,6 +371,31 @@ public class Main extends Activity {
             return classes.get(selectedClass);
         }
     }
+    //    private MyGraphics.CircleView.CircleOption[] getCircleOptions(int circleSize, int circlePadding) {
+    //        MyGraphics.CircleView.CircleOption share = new MyGraphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
+    //        share.setIcon(getDrawable(R.drawable.ic_share));
+    //        share.setDesiredViewOnDemand(new MyGraphics.CircleView.CircleOption.OnDemand() {
+    //            @Override
+    //            public View demandView() {
+    //                return generateShareView();
+    //            }
+    //        });
+    //        MyGraphics.CircleView.CircleOption changeClass = new MyGraphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
+    //        changeClass.setIcon(getDrawable(R.drawable.ic_class));
+    //        changeClass.setDesiredViewOnDemand(new MyGraphics.CircleView.CircleOption.OnDemand() {
+    //            @Override
+    //            public View demandView() {
+    //                return generateClassSwitchView();
+    //            }
+    //        });
+    //        MyGraphics.CircleView.CircleOption settings = new MyGraphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
+    //        settings.setIcon(getDrawable(R.drawable.ic_gear));
+    //        settings.setDesiredView(getSettingsView());
+    //        MyGraphics.CircleView.CircleOption[] options = new MyGraphics.CircleView.CircleOption[]{
+    //                share, changeClass, settings
+    //        };
+    //        return options;
+    //    }
 
     private Teacher getFavoriteTeacher() {
         int selectedTeacher = 0;
@@ -373,37 +415,11 @@ public class Main extends Activity {
         }
     }
 
-//    private MyGraphics.CircleView.CircleOption[] getCircleOptions(int circleSize, int circlePadding) {
-//        MyGraphics.CircleView.CircleOption share = new MyGraphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
-//        share.setIcon(getDrawable(R.drawable.ic_share));
-//        share.setDesiredViewOnDemand(new MyGraphics.CircleView.CircleOption.OnDemand() {
-//            @Override
-//            public View demandView() {
-//                return generateShareView();
-//            }
-//        });
-//        MyGraphics.CircleView.CircleOption changeClass = new MyGraphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
-//        changeClass.setIcon(getDrawable(R.drawable.ic_class));
-//        changeClass.setDesiredViewOnDemand(new MyGraphics.CircleView.CircleOption.OnDemand() {
-//            @Override
-//            public View demandView() {
-//                return generateClassSwitchView();
-//            }
-//        });
-//        MyGraphics.CircleView.CircleOption settings = new MyGraphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
-//        settings.setIcon(getDrawable(R.drawable.ic_gear));
-//        settings.setDesiredView(getSettingsView());
-//        MyGraphics.CircleView.CircleOption[] options = new MyGraphics.CircleView.CircleOption[]{
-//                share, changeClass, settings
-//        };
-//        return options;
-//    }
-
-    private ArrayList<Squircle> getSquircles(int size){
-        ArrayList<Squircle> squircles=new ArrayList<>();
-        final Squircle news=new Squircle(getApplicationContext(),size,colorA);
+    private ArrayList<Squircle> getSquircles(int size) {
+        ArrayList<Squircle> squircles = new ArrayList<>();
+        final Squircle news = new Squircle(getApplicationContext(), size, colorA);
         news.setDrawable(getDrawable(R.drawable.ic_news));
-        final FrameLayout newsContent=getNews();
+        final FrameLayout newsContent = getNews();
         news.setOnState(new Squircle.OnState() {
             @Override
             public void onOpen() {
@@ -414,14 +430,14 @@ public class Main extends Activity {
 
             @Override
             public void onClose() {
-                if(mAppView.getDragNavigation().isOpen()) {
-                    if(mAppView.getDragNavigation().getContent() ==newsContent) {
+                if (mAppView.getDragNavigation().isOpen()) {
+                    if (mAppView.getDragNavigation().getContent() == newsContent) {
                         mAppView.getDragNavigation().close(true);
-                    }else{
+                    } else {
                         news.setState(true);
                         this.onOpen();
                     }
-                }else{
+                } else {
                     news.setState(true);
                     this.onOpen();
                 }
@@ -432,10 +448,9 @@ public class Main extends Activity {
             }
         });
         squircles.add(news);
-
-        final Squircle choose=new Squircle(getApplicationContext(),size,colorA);
+        final Squircle choose = new Squircle(getApplicationContext(), size, colorA);
         choose.setDrawable(getDrawable(R.drawable.ic_class));
-        final ScrollView chooseContent=getSwitcher();
+        final ScrollView chooseContent = getSwitcher();
         choose.setOnState(new Squircle.OnState() {
             @Override
             public void onOpen() {
@@ -446,14 +461,14 @@ public class Main extends Activity {
 
             @Override
             public void onClose() {
-                if(mAppView.getDragNavigation().isOpen()) {
-                    if(mAppView.getDragNavigation().getContent() ==chooseContent) {
+                if (mAppView.getDragNavigation().isOpen()) {
+                    if (mAppView.getDragNavigation().getContent() == chooseContent) {
                         mAppView.getDragNavigation().close(true);
-                    }else{
+                    } else {
                         choose.setState(true);
                         this.onOpen();
                     }
-                }else{
+                } else {
                     choose.setState(true);
                     this.onOpen();
                 }
@@ -464,10 +479,43 @@ public class Main extends Activity {
             }
         });
         squircles.add(choose);
+        final Squircle share = new Squircle(getApplicationContext(), size, colorA);
+        share.setDrawable(getDrawable(R.drawable.ic_share));
+        share.setOnState(new Squircle.OnState() {
 
-        final Squircle settings=new Squircle(getApplicationContext(),size,colorA);
+            private LinearLayout shareContent;
+
+            @Override
+            public void onOpen() {
+                shareContent = getShare();
+                mAppView.getDragNavigation().emptyContent();
+                mAppView.getDragNavigation().open(false);
+                mAppView.getDragNavigation().setContent(shareContent);
+            }
+
+            @Override
+            public void onClose() {
+                if (mAppView.getDragNavigation().isOpen()) {
+                    if (mAppView.getDragNavigation().getContent() == shareContent) {
+                        mAppView.getDragNavigation().close(true);
+                    } else {
+                        share.setState(true);
+                        this.onOpen();
+                    }
+                } else {
+                    share.setState(true);
+                    this.onOpen();
+                }
+            }
+
+            @Override
+            public void onBoth(boolean isOpened) {
+            }
+        });
+        squircles.add(share);
+        final Squircle settings = new Squircle(getApplicationContext(), size, colorA);
         settings.setDrawable(getDrawable(R.drawable.ic_gear));
-        final ScrollView settingsContent=getSettings();
+        final ScrollView settingsContent = getSettings();
         settings.setOnState(new Squircle.OnState() {
 
             @Override
@@ -479,14 +527,14 @@ public class Main extends Activity {
 
             @Override
             public void onClose() {
-                if(mAppView.getDragNavigation().isOpen()) {
-                    if(mAppView.getDragNavigation().getContent() ==settingsContent) {
+                if (mAppView.getDragNavigation().isOpen()) {
+                    if (mAppView.getDragNavigation().getContent() == settingsContent) {
                         mAppView.getDragNavigation().close(true);
-                    }else{
+                    } else {
                         settings.setState(true);
                         this.onOpen();
                     }
-                }else{
+                } else {
                     settings.setState(true);
                     this.onOpen();
                 }
@@ -500,7 +548,7 @@ public class Main extends Activity {
         return squircles;
     }
 
-    private LinearLayout generateShareView() {
+    private LinearLayout getShare() {
         LinearLayout shareView = new LinearLayout(this);
         shareView.setGravity(Gravity.CENTER);
         shareView.setOrientation(LinearLayout.VERTICAL);
@@ -825,26 +873,6 @@ public class Main extends Activity {
         }
         return gd;
     }
-    public static Drawable generateCoaster(Context c,int color) {
-        GradientDrawable gd = (GradientDrawable) c.getDrawable(R.drawable.rounded_rect);
-        if (gd != null) {
-            gd.setColor(color);
-        }
-        return gd;
-    }
-    //    private void showSchedule(final StudentClass c) {
-    //        currentClass = c;
-    //        circleView.text(c.name, day);
-    //        LinearLayout hsplace = new LinearLayout(this);
-    //        hsplace.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
-    //        hsplace.setOrientation(LinearLayout.VERTICAL);
-    //        content.removeAllViews();
-    //        content.addView(hsplace);
-    //        View ph = new View(this);
-    //        ph.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, placeHold));
-    //        hsplace.addView(ph);
-    //        hsplace.addView(scheduleForClass(c));
-    //    }
 
     @Override
     public void onBackPressed() {
@@ -862,10 +890,9 @@ public class Main extends Activity {
         }
     }
 
-    private FrameLayout getNews(){
+    private FrameLayout getNews() {
         final FrameLayout masterLayout = new FrameLayout(getApplicationContext());
         masterLayout.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
         TextView load = new TextView(getApplicationContext());
         load.setTextSize(getFontSize());
         load.setTypeface(getTypeface());
@@ -875,7 +902,6 @@ public class Main extends Activity {
         load.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         masterLayout.removeAllViews();
         masterLayout.addView(load);
-
         final int fontSize = getFontSize();
         final ScrollView masterScroll = new ScrollView(getApplicationContext());
         masterScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -972,13 +998,13 @@ public class Main extends Activity {
 
     private void setStudentMode(StudentClass c) {
         currentClass = c;
-        main.setText(textColor,c.name, day);
+        main.setText(textColor, c.name, day);
         displayLessonViews(scheduleForClass(c));
     }
 
     private void setTeacherMode(Teacher t) {
         currentTeacher = t;
-        main.setText(textColor,t.mainName.split(" ")[0], day);
+        main.setText(textColor, t.mainName.split(" ")[0], day);
         displayLessonViews(scheduleForTeacher(t));
     }
 
@@ -1144,272 +1170,4 @@ public class Main extends Activity {
         }
         return lessons;
     }
-
-//    static class MyGraphics {
-//        static class CircleView extends FrameLayout {
-//            private int sqXY, xy;
-//            private OnStateChangedListener onstate;
-//            private boolean isOpened = false;
-//
-//            public CircleView(Context context, int xy) {
-//                super(context);
-//                this.xy = xy;
-//                init();
-//            }
-//
-//            public CircleView(Context c) {
-//                super(c);
-//            }
-//
-//            private void init() {
-//                sqXY = (int) ((xy * Math.sqrt(2)) / 2);
-//                setLayoutParams(new LayoutParams(xy, xy));
-//                setOnClickListener(new OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        isOpened = !isOpened;
-//                        if (isOpened) {
-//                            if (onstate != null) onstate.onOpen();
-//                        } else {
-//                            if (onstate != null) onstate.onClose();
-//                        }
-//                    }
-//                });
-//            }
-//
-//            public void circle(int color) {
-//                ShapeDrawable oval = new ShapeDrawable(new OvalShape());
-//                oval.setIntrinsicHeight(xy);
-//                oval.setIntrinsicWidth(xy);
-//                oval.getPaint().setColor(color);
-//                setBackground(oval);
-//            }
-//
-//            public void text(String upper, String lower) {
-//                if (upper.length() > 4) {
-//                    upper = upper.substring(0, 4);
-//                }
-//                removeAllViews();
-//                LinearLayout texts = new LinearLayout(getContext());
-//                texts.setOrientation(LinearLayout.VERTICAL);
-//                texts.setGravity(Gravity.CENTER);
-//                texts.addView(getTextView(upper, Main.getFontSize(getContext()) + 4, xy));
-//                texts.addView(getTextView(lower, Main.getFontSize(getContext()) - 10, sqXY));
-//                addView(texts);
-//            }
-//
-//            private TextView getTextView(String t, int s, int par) {
-//                final TextView v = new TextView(getContext());
-//                v.setTextColor(Main.textColor);
-//                v.setTextSize(s);
-//                v.setText(t);
-//                v.setGravity(Gravity.CENTER);
-//                v.setTypeface(Main.getTypeface(getContext()));
-//                v.setLayoutParams(new LinearLayout.LayoutParams(par, par / 2));
-//                Main.colorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
-//                    @Override
-//                    public void onReceive(Integer response) {
-//                        v.setTextColor(response);
-//                    }
-//                });
-//                return v;
-//            }
-//
-//            public void setOnStateChangedListener(OnStateChangedListener osc) {
-//                onstate = osc;
-//            }
-//
-//            interface OnStateChangedListener {
-//                void onOpen();
-//
-//                void onClose();
-//            }
-//
-//            static class CircleOption extends LinearLayout {
-//                private int xy, sqXY, pad;
-//                private FrameLayout icon;
-//                private FrameLayout desiredView;
-//                private OnDemand demandView;
-//
-//                public CircleOption(Context context, int xy, int padding) {
-//                    super(context);
-//                    this.xy = xy;
-//                    pad = padding;
-//                    init();
-//                }
-//
-//                public CircleOption(Context c) {
-//                    super(c);
-//                }
-//
-//                private void init() {
-//                    desiredView = new FrameLayout(getContext());
-//                    icon = new FrameLayout(getContext());
-//                    sqXY = (int) ((xy * Math.sqrt(2)) / 2);
-//                    addView(icon);
-//                    setOrientation(HORIZONTAL);
-//                    setGravity(Gravity.CENTER);
-//                    setLayoutDirection(LAYOUT_DIRECTION_RTL);
-//                    setPadding(pad, pad, 0, 0);
-//                    setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, xy + pad));
-//                    //                    setBackgroundColor(Color.rgb(new Random().nextInt(255),new Random().nextInt(255),new Random().nextInt(255)));
-//                }
-//
-//                public void circle(int color) {
-//                    ShapeDrawable oval = new ShapeDrawable(new OvalShape());
-//                    oval.setIntrinsicHeight(xy);
-//                    oval.setIntrinsicWidth(xy);
-//                    oval.getPaint().setColor(color);
-//                    icon.setBackground(oval);
-//                    icon.setLayoutParams(new LinearLayout.LayoutParams(xy, xy));
-//                    int pad = (xy - sqXY) / 2;
-//                    icon.setPadding(pad, pad, pad, pad);
-//                }
-//
-//                public void setIcon(Drawable d) {
-//                    icon.removeAllViews();
-//                    ImageView iv = new ImageView(getContext());
-//                    iv.setImageDrawable(d);
-//                    iv.setLayoutParams(new LayoutParams(sqXY, sqXY));
-//                    icon.addView(iv);
-//                }
-//
-//                public void setDesiredView(View v) {
-//                    desiredView.removeAllViews();
-//                    desiredView.addView(v);
-//                }
-//
-//                public void setDesiredViewOnDemand(OnDemand desiredView) {
-//                    demandView = desiredView;
-//                }
-//
-//                public interface OnDemand {
-//                    View demandView();
-//                }
-//            }
-//        }
-//
-//        static class OptionHolder extends LinearLayout {
-//            FrameLayout content;
-//            LinearLayout options;
-//            int sidePadding;
-//            Drawable back;
-//            CircleView.CircleOption[] circleOptions;
-//
-//            public OptionHolder(Context c) {
-//                super(c);
-//            }
-//
-//            public OptionHolder(Context context, Drawable back, CircleView.CircleOption[] circleOptions, int sidePadding) {
-//                super(context);
-//                this.circleOptions = circleOptions;
-//                this.sidePadding = sidePadding;
-//                this.back = back;
-//                init();
-//            }
-//
-//            public void emptyContent() {
-//                content.removeAllViews();
-//                content.setVisibility(View.GONE);
-//            }
-//
-//            public void fadeIn() {
-//                setVisibility(View.VISIBLE);
-//                for (int o = circleOptions.length - 1; o >= 0; o--) {
-//                    circleOptions[o].setAlpha(0);
-//                    final Handler handler = new Handler();
-//                    final int finalO = o;
-//                    handler.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            ObjectAnimator.ofFloat(circleOptions[finalO], View.ALPHA, 0, 1).setDuration(250).start();
-//                        }
-//                    }, 250 * (circleOptions.length - 1 - o));
-//                }
-//            }
-//
-//            public void fadeOut() {
-//                for (int o = 0; o < circleOptions.length; o++) {
-//                    circleOptions[o].setAlpha(1);
-//                    final Handler handler = new Handler();
-//                    final int finalO = o;
-//                    handler.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            ObjectAnimator.ofFloat(circleOptions[finalO], View.ALPHA, 1, 0).setDuration(250).start();
-//                        }
-//                    }, 250 * o);
-//                }
-//                final Handler handler = new Handler();
-//                handler.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        setVisibility(View.GONE);
-//                    }
-//                }, 250 * circleOptions.length);
-//            }
-//
-//            public void fadeOutContent() {
-//                ObjectAnimator oa = ObjectAnimator.ofFloat(content, View.ALPHA, 1, 0);
-//                oa.setDuration(250);
-//                oa.addListener(new Animator.AnimatorListener() {
-//                    @Override
-//                    public void onAnimationStart(Animator animation) {
-//                    }
-//
-//                    @Override
-//                    public void onAnimationEnd(Animator animation) {
-//                        emptyContent();
-//                        content.setAlpha(1);
-//                    }
-//
-//                    @Override
-//                    public void onAnimationCancel(Animator animation) {
-//                    }
-//
-//                    @Override
-//                    public void onAnimationRepeat(Animator animation) {
-//                    }
-//                });
-//                oa.start();
-//            }
-//
-//            private void init() {
-//                content = new FrameLayout(getContext());
-//                options = new LinearLayout(getContext());
-//                options.setOrientation(LinearLayout.VERTICAL);
-//                options.setGravity(Gravity.CENTER);
-//                for (final CircleView.CircleOption current : circleOptions) {
-//                    current.setOnClickListener(new OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            content.removeAllViews();
-//                            if (current.demandView != null) {
-//                                content.addView(current.demandView.demandView());
-//                            } else {
-//                                content.addView(current.desiredView);
-//                            }
-//                            content.setVisibility(View.VISIBLE);
-//                        }
-//                    });
-//                    options.addView(current);
-//                }
-//                setLayoutDirection(LAYOUT_DIRECTION_RTL);
-//                addView(options);
-//                addView(content);
-//                //                content.setBackground(getContext().getDrawable(R.drawable.rounded_rect));
-//                content.setBackground(back);
-//                content.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-//                content.setPadding(15, 15, 15, 15);
-//                content.setVisibility(View.GONE);
-//                setPadding(0, 0, 0, sidePadding);
-//            }
-//
-//            public void drawCircles(int color) {
-//                for (CircleView.CircleOption circleOption : circleOptions) {
-//                    circleOption.circle(Color.argb(Values.circleAlpha, Color.red(color), Color.green(color), Color.blue(color)));
-//                }
-//            }
-//        }
-//    }
 }
