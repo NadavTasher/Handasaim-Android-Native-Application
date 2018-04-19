@@ -11,4 +11,5 @@ public class TunnelHub {
     public static Tunnel<Integer> colorBChangeTunnle = new Tunnel<>();
     public static Tunnel<Integer> fontSizeChangeTunnle = new Tunnel<>();
     public static Tunnel<Boolean> breakTimeTunnle = new Tunnel<>();
+    public static Tunnel<String> scriptEventTunnel = new Tunnel<>();
 }

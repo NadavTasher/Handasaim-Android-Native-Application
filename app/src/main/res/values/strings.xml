@@ -16,8 +16,12 @@
     <string name="schedule_notification">New Schedule Notification</string>
     <string name="show_breaks">Show Breaks</string>
     <string name="auto_mute">Auto Mute</string>
+    <string name="developer_mode">Developer Mode</string>
     <string name="choose_text_color">Choose Text Color:</string>
     <string name="choose_text_size">Choose Text Size:</string>
     <string name="students_text">Student Classes</string>
     <string name="teachers_text">Teachers</string>
+    <string name="developer_load_new">Load New Script</string>
+    <string name="developer_run_specific">Run Speific Reference</string>
+    <string name="developer_view_current_variables">View And Modify Variables</string>
 </resources>

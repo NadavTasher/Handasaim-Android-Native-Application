@@ -138,6 +138,14 @@ public class Main extends Activity {
         c.finish();
     }
 
+    public static void returnToMe(Activity c) {
+        Intent intent = new Intent(c, Main.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        c.startActivity(intent);
+        c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
+        c.finish();
+    }
+
     public static Drawable generateCoaster(Context c, int color) {
         GradientDrawable gd = (GradientDrawable) c.getDrawable(R.drawable.rounded_rect);
         if (gd != null) {
@@ -558,6 +566,27 @@ public class Main extends Activity {
             }
         });
         squircles.add(settings);
+
+        final Squircle devPanel = new Squircle(getApplicationContext(), size, colorA);
+        devPanel.setDrawable(getDrawable(R.drawable.ic_developer));
+        devPanel.setOnState(new Squircle.OnState() {
+
+            @Override
+            public void onOpen() {
+            }
+
+            @Override
+            public void onClose() {
+            }
+
+            @Override
+            public void onBoth(boolean isOpened) {
+                Developer.startMe(Main.this);
+            }
+        });
+        if(sp.getBoolean(Values.devMode,Values.devModeDefault)) {
+            squircles.add(devPanel);
+        }
         return squircles;
     }
 
@@ -605,23 +634,27 @@ public class Main extends Activity {
         settings.setOrientation(LinearLayout.VERTICAL);
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        final Switch autoMuteSwitch = new Switch(this), newScheduleSwitch = new Switch(this), breakTimeSwitch = new Switch(this), pushSwitch = new Switch(this);
+        final Switch autoMuteSwitch = new Switch(this),devSwitch = new Switch(this), newScheduleSwitch = new Switch(this), breakTimeSwitch = new Switch(this), pushSwitch = new Switch(this);
         pushSwitch.setText(R.string.live_messages);
         newScheduleSwitch.setText(R.string.schedule_notification);
         breakTimeSwitch.setText(R.string.show_breaks);
         autoMuteSwitch.setText(R.string.auto_mute);
+        devSwitch.setText(R.string.developer_mode);
         pushSwitch.setChecked(sp.getBoolean(Values.pushService, Values.pushDefault));
         newScheduleSwitch.setChecked(sp.getBoolean(Values.scheduleService, Values.scheduleDefault));
         breakTimeSwitch.setChecked(sp.getBoolean(Values.breakTime, Values.breakTimeDefault));
         autoMuteSwitch.setChecked(sp.getBoolean(Values.autoMute, Values.autoMuteDefault));
+        devSwitch.setChecked(sp.getBoolean(Values.devMode, Values.devModeDefault));
         pushSwitch.setTextSize((float) (getFontSize() / 1.5));
         breakTimeSwitch.setTextSize((float) (getFontSize() / 1.5));
         autoMuteSwitch.setTextSize((float) (getFontSize() / 1.5));
         newScheduleSwitch.setTextSize((float) (getFontSize() / 1.5));
+        devSwitch.setTextSize((float) (getFontSize() / 1.5));
         pushSwitch.setTypeface(getTypeface());
         newScheduleSwitch.setTypeface(getTypeface());
         breakTimeSwitch.setTypeface(getTypeface());
         autoMuteSwitch.setTypeface(getTypeface());
+        devSwitch.setTypeface(getTypeface());
         breakTimeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -686,6 +719,13 @@ public class Main extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 sp.edit().putBoolean(Values.scheduleService, isChecked).apply();
+            }
+        });
+        devSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                sp.edit().putBoolean(Values.devMode, isChecked).apply();
+                Splash.startMe(Main.this);
             }
         });
         final TextView explainTextSize = new TextView(getApplicationContext());
@@ -768,6 +808,7 @@ public class Main extends Activity {
                 breakTimeSwitch.setTextSize((float) (response / 1.5));
                 autoMuteSwitch.setTextSize((float) (response / 1.5));
                 newScheduleSwitch.setTextSize((float) (response / 1.5));
+                devSwitch.setTextSize((float) (response / 1.5));
                 explainColorA.setTextSize((float) (response / 1.5));
                 explainColorB.setTextSize((float) (response / 1.5));
                 explainTextColor.setTextSize((float) (response / 1.5));
@@ -781,6 +822,7 @@ public class Main extends Activity {
                 breakTimeSwitch.setTextColor(response);
                 autoMuteSwitch.setTextColor(response);
                 newScheduleSwitch.setTextColor(response);
+                devSwitch.setTextColor(response);
                 explainColorA.setTextColor(response);
                 explainColorB.setTextColor(response);
                 explainTextColor.setTextColor(response);
@@ -799,6 +841,7 @@ public class Main extends Activity {
         settings.addView(colorApicker);
         settings.addView(explainColorB);
         settings.addView(colorBpicker);
+        settings.addView(devSwitch);
         sv.addView(settings);
         sv.setVerticalScrollBarEnabled(false);
         return sv;

@@ -6,6 +6,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -85,6 +86,9 @@ public class Splash extends Activity {
         String curved = getString(R.string.app_name);
         if(new Random().nextInt(5)==3&&(sp.getBoolean(Values.teacherModeEnabler,false))){
             curved="Shlomi";
+        }
+        if(sp.getBoolean(Values.devMode,Values.devModeDefault)){
+            curved="Developer Mode";
         }
         ctv = new CurvedTextView(this, curved, 50, Values.bakedIconColor, Device.screenX(this), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.3)));
@@ -221,4 +225,13 @@ public class Splash extends Activity {
         });
         pop.show();
     }
+
+    public static void startMe(Activity c) {
+        Intent intent = new Intent(c, Splash.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        c.startActivity(intent);
+        c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
+        c.finish();
+    }
+
 }

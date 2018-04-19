@@ -3,53 +3,54 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="nadav.tasher.handasaim">
 
-<uses-permission
-    android:name="android.permission.BLUETOOTH_ADMIN"
-    tools:node="remove"/>
-<uses-permission
-    android:name="android.permission.BLUETOOTH"
-    tools:node="remove"/>
-<uses-permission android:name="android.permission.INTERNET"/>
-<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-<uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        tools:node="remove"/>
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        tools:node="remove"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
 
-<application
-    android:icon="@mipmap/ic_launcher"
-    android:label="@string/app_name_short"
-    android:roundIcon="@mipmap/ic_launcher_round"
-    android:supportsRtl="true"
-    android:theme="@android:style/Theme.Material.NoActionBar">
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name_short"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.NoActionBar">
+        <receiver android:name=".services.receivers.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
 
-    <receiver android:name=".services.receivers.BootReceiver">
-        <intent-filter>
-            <action android:name="android.intent.action.BOOT_COMPLETED"/>
-        </intent-filter>
-    </receiver>
+        <service android:name=".services.DNDService">
+        </service>
+        <service
+            android:name=".services.RefreshService"
+            android:label="Refresh Service"
+            android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service
+            android:name=".services.PushService"
+            android:label="Push Service"
+            android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
 
-    <service android:name=".services.DNDService">
-    </service>
-    <service
-        android:name=".services.RefreshService"
-        android:label="Refresh Service"
-        android:permission="android.permission.BIND_JOB_SERVICE">
-    </service>
-    <service
-        android:name=".services.PushService"
-        android:label="Push Service"
-        android:permission="android.permission.BIND_JOB_SERVICE">
-    </service>
+        <activity android:name=".activities.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.VIEW"/>
 
-    <activity android:name=".activities.Splash">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN"/>
-            <action android:name="android.intent.action.VIEW"/>
-
-            <category android:name="android.intent.category.LAUNCHER"/>
-        </intent-filter>
-    </activity>
-    <activity android:name=".activities.Welcome"/>
-    <activity android:name=".activities.News"/>
-    <activity android:name=".activities.Main"/>
-</application>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.Welcome"/>
+        <activity android:name=".activities.News"/>
+        <activity android:name=".activities.Main"/>
+        <activity android:name=".activities.Developer">
+        </activity>
+    </application>
 
 </manifest>

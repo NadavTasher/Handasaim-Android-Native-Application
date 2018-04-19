@@ -26,12 +26,14 @@ public class Values {
     public static final String scheduleFile = "schedule_file";
     public static final String favoriteClass = "favorite_class";
     public static final String favoriteTeacher = "favorite_teacher";
+    public static final String devMode = "developer_mode_v1";
     public static final String pushID = "push_id_";
     public static final String firstLaunch = "first";
     public static final boolean pushDefault = true;
     public static final boolean scheduleDefault = true;
     public static final boolean breakTimeDefault = true;
     public static final boolean autoMuteDefault = false;
+    public static final boolean devModeDefault = false;
     public static final int maxKeyEntering = 4;
     public static final int waitTime = 10;
     public static final int bakedIconColor = 0xffdd8833;
