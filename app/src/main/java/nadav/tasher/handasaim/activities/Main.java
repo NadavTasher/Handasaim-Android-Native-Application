@@ -724,8 +724,14 @@ public class Main extends Activity {
         devSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                sp.edit().putBoolean(Values.devMode, isChecked).apply();
-                Splash.startMe(Main.this);
+                if(isChecked){
+                    devModeConfirm(devSwitch);
+                }else{
+                    if(sp.getBoolean(Values.devMode,Values.devModeDefault)!=isChecked) {
+                        sp.edit().putBoolean(Values.devMode, false).apply();
+                        Splash.startMe(Main.this);
+                    }
+                }
             }
         });
         final TextView explainTextSize = new TextView(getApplicationContext());
@@ -845,6 +851,27 @@ public class Main extends Activity {
         sv.addView(settings);
         sv.setVerticalScrollBarEnabled(false);
         return sv;
+    }
+
+    private void devModeConfirm(final Switch s) {
+        AlertDialog.Builder pop = new AlertDialog.Builder(this);
+        pop.setCancelable(false);
+        pop.setTitle("Be Cautious!");
+        pop.setMessage("I'm not responsible for anything that happens because of a script you ran.");
+        pop.setPositiveButton("I Agree", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                sp.edit().putBoolean(Values.devMode, true).apply();
+                Splash.startMe(Main.this);
+            }
+        });
+        pop.setNegativeButton("I Do Not Agree", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                s.setChecked(false);
+            }
+        });
+        pop.show();
     }
 
     private ScrollView getSwitcher() {
