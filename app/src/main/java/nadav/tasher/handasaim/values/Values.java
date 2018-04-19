@@ -43,5 +43,6 @@ public class Values {
     public static final int navColor = 0x80111111;
     public static final int classCoasterColor = 0xBB333333;
     public static final int classCoasterMarkColor = 0xBB222222;
+    public static final int messageColor = classCoasterColor;
     public static final int fontColorDefault = 0xFFFFFFFF;
 }

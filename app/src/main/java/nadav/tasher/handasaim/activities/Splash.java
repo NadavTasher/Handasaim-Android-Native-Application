@@ -26,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.Random;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.tools.architecture.Starter;
@@ -82,6 +83,9 @@ public class Splash extends Activity {
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
         ll.addView(icon);
         String curved = getString(R.string.app_name);
+        if(new Random().nextInt(5)==3&&(sp.getBoolean(Values.teacherModeEnabler,false))){
+            curved="Shlomi";
+        }
         ctv = new CurvedTextView(this, curved, 50, Values.bakedIconColor, Device.screenX(this), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.3)));
         ll.addView(ctv);

@@ -144,6 +144,7 @@ public class Squircle extends FrameLayout {
 
     public static class Holder extends LinearLayout {
 
+        private final double pad = 0.05;
         private int size;
         private Squircle squircle;
 
@@ -155,13 +156,24 @@ public class Squircle extends FrameLayout {
         }
 
         private void init() {
-            double pad = 0.05;
             int padding = (int) (size * pad);
             setOrientation(VERTICAL);
             setGravity(Gravity.CENTER);
             setLayoutParams(new LinearLayout.LayoutParams(size + 2 * padding, size + 2 * padding));
             setPadding(padding, padding, padding, padding);
             addView(squircle);
+        }
+
+        public int getSidePad() {
+            return (int) (pad * size);
+        }
+
+        public void disableRight() {
+            setPadding(getPaddingLeft(), getPaddingTop(), 0, getPaddingBottom());
+        }
+
+        public void disableLeft() {
+            setPadding(0, getPaddingTop(), getPaddingRight(), getPaddingBottom());
         }
     }
 }

@@ -1,5 +1,8 @@
 package nadav.tasher.handasaim.tools.architecture;
 
+import org.apache.poi.hssf.usermodel.HSSFPatriarch;
+import org.apache.poi.hssf.usermodel.HSSFShape;
+import org.apache.poi.hssf.usermodel.HSSFTextbox;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
@@ -10,8 +13,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import nadav.tasher.handasaim.architecture.StudentClass;
 import nadav.tasher.handasaim.architecture.Teacher;
@@ -90,46 +95,49 @@ public class AppCore {
         return null;
     }
 
-    public static ArrayList<StudentClass> readExcelFile(File f) {
-        try {
-            ArrayList<StudentClass> classes = new ArrayList<>();
-            POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
-            Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
-            Sheet mySheet = myWorkBook.getSheetAt(0);
-            int startReadingRow = startReadingRow(mySheet);
-            int rows = mySheet.getLastRowNum();
-            int cols = mySheet.getRow(startReadingRow).getLastCellNum();
-            for (int c = 1; c < cols; c++) {
-                ArrayList<StudentClass.Subject> subs = new ArrayList<>();
-                for (int r = startReadingRow + 1; r < rows; r++) {
-                    Row row = mySheet.getRow(r);
-                    subs.add(new StudentClass.Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
-                }
-                classes.add(new StudentClass(mySheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
+    public static ArrayList<String> getMessages(Sheet sheet){
+        ArrayList<String> messages=new ArrayList<>();
+        HSSFPatriarch patriarch = (HSSFPatriarch)sheet.createDrawingPatriarch();
+        List<HSSFShape> shapes=patriarch.getChildren();
+        for(int s=0;s<shapes.size();s++){
+            if(shapes.get(s) instanceof HSSFTextbox){
+                messages.add(((HSSFTextbox)shapes.get(s)).getString().getString());
             }
-            return classes;
-        } catch (Exception e) {
+        }
+        return messages;
+    }
+
+    public static Sheet getSheet(File f){
+        try {
+            if (f.toString().endsWith(".xls")) {
+                POIFSFileSystem fileSystem = new POIFSFileSystem(new FileInputStream(f));
+                Workbook workBook = new HSSFWorkbook(fileSystem);
+                return workBook.getSheetAt(0);
+            } else {
+                XSSFWorkbook workBook = new XSSFWorkbook(new FileInputStream(f));
+                return workBook.getSheetAt(0);
+            }
+        }catch(IOException ignored){
             return null;
         }
     }
 
-    public static ArrayList<StudentClass> readExcelFileXLSX(File f) {
+    public static ArrayList<StudentClass> getClasses(Sheet sheet) {
         try {
-            ArrayList<StudentClass> classes = new ArrayList<>();
-            XSSFWorkbook myWorkBook = new XSSFWorkbook(new FileInputStream(f));
-            Sheet mySheet = myWorkBook.getSheetAt(0);
-            int startReadingRow = startReadingRow(mySheet);
-            int rows = mySheet.getLastRowNum();
-            int cols = mySheet.getRow(startReadingRow).getLastCellNum();
-            for (int c = 1; c < cols; c++) {
-                ArrayList<StudentClass.Subject> subs = new ArrayList<>();
-                for (int r = startReadingRow + 1; r < rows; r++) {
-                    Row row = mySheet.getRow(r);
-                    subs.add(new StudentClass.Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+                ArrayList<StudentClass> classes = new ArrayList<>();
+                int startReadingRow = startReadingRow(sheet);
+                int rows = sheet.getLastRowNum();
+                int cols = sheet.getRow(startReadingRow).getLastCellNum();
+                for (int c = 1; c < cols; c++) {
+                    ArrayList<StudentClass.Subject> subs = new ArrayList<>();
+                    for (int r = startReadingRow + 1; r < rows; r++) {
+                        Row row = sheet.getRow(r);
+                        subs.add(new StudentClass.Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+                    }
+                    classes.add(new StudentClass(sheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
                 }
-                classes.add(new StudentClass(mySheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
-            }
-            return classes;
+                return classes;
+
         } catch (Exception e) {
             return null;
         }
@@ -205,6 +213,14 @@ public class AppCore {
             return 1;
         }
         return 0;
+    }
+
+    public static String getDay(Sheet s) {
+        try {
+            return s.getRow(0).getCell(0).getStringCellValue();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static int getGrade(ArrayList<Teacher.Lesson> classNames) {

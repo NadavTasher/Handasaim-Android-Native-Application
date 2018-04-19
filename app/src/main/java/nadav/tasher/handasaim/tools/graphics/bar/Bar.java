@@ -18,6 +18,7 @@ public class Bar extends LinearLayout {
     private LinearLayout squircles;
     private Squircle mainSquircle;
     private Squircle.OnState onState;
+    private Squircle.Holder mainHolder;
     private ArrayList<Squircle> squircleList;
     private boolean isOpen = false;
 
@@ -64,13 +65,15 @@ public class Bar extends LinearLayout {
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
         setLayoutDirection(LAYOUT_DIRECTION_RTL);
-        addView(new Squircle.Holder(getContext(), mainSquircle.getMaxXY(), mainSquircle));
+        mainHolder=new Squircle.Holder(getContext(), mainSquircle.getMaxXY(), mainSquircle);
+        mainHolder.disableRight();
+        addView(mainHolder);
         hsv.addView(squircles);
         hsv.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
         hsv.setHorizontalScrollBarEnabled(false);
         hsv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         addView(hsv);
-        close();
+        closeNoAnimation();
     }
 
     public void setOnMainSquircle(Squircle.OnState o) {
@@ -158,5 +161,17 @@ public class Bar extends LinearLayout {
         });
         slide.start();
         transparancy.start();
+    }
+
+    public void closeNoAnimation() {
+        isOpen = false;
+        hsv.setAlpha(0);
+        hsv.setVisibility(View.GONE);
+    }
+
+    public void openNoAnimation() {
+        isOpen = true;
+        hsv.setAlpha(1);
+        hsv.setVisibility(View.VISIBLE);
     }
 }

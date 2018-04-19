@@ -36,16 +36,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -54,6 +49,7 @@ import nadav.tasher.handasaim.architecture.StudentClass;
 import nadav.tasher.handasaim.architecture.Teacher;
 import nadav.tasher.handasaim.tools.TunnelHub;
 import nadav.tasher.handasaim.tools.graphics.LessonView;
+import nadav.tasher.handasaim.tools.graphics.MessageBar;
 import nadav.tasher.handasaim.tools.graphics.bar.Bar;
 import nadav.tasher.handasaim.tools.graphics.bar.Squircle;
 import nadav.tasher.handasaim.tools.specific.GetNews;
@@ -71,14 +67,16 @@ import nadav.tasher.lightool.graphics.views.DragNavigation;
 import nadav.tasher.lightool.info.Device;
 
 import static nadav.tasher.handasaim.tools.architecture.AppCore.getBreak;
+import static nadav.tasher.handasaim.tools.architecture.AppCore.getClasses;
+import static nadav.tasher.handasaim.tools.architecture.AppCore.getDay;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.getGrade;
+import static nadav.tasher.handasaim.tools.architecture.AppCore.getMessages;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.getRealEndTimeForHourNumber;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.getRealTimeForHourNumber;
+import static nadav.tasher.handasaim.tools.architecture.AppCore.getSheet;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.getTeacherSchudleForClasses;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.getTimeForLesson;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.minuteOfDay;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.readExcelFile;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.readExcelFileXLSX;
 
 public class Main extends Activity {
     static int textColor = Values.fontColorDefault;
@@ -89,14 +87,15 @@ public class Main extends Activity {
     private String day;
     private StudentClass currentClass;
     private Teacher currentTeacher;
-    //    private MyGraphics.OptionHolder optionHolder;
-    //    private MyGraphics.CircleView circleView;
     private Bar bar;
     private Squircle main;
+    private MessageBar messageBar;
+    private LinearLayout scheduleLayout,lessonViewHolder;
     private Drawable gradient;
     private AppView mAppView;
     private ArrayList<StudentClass> classes;
     private ArrayList<Teacher> teachers;
+    private ArrayList<String> messages;
     private SharedPreferences sp;
     private boolean breakTime = true;
 
@@ -296,7 +295,7 @@ public class Main extends Activity {
     private void initStageB() {
         final int x = Device.screenX(getApplicationContext());
         final int squirclePadding = x / 30;
-        final int squircleSize = x / 4;
+        final int squircleSize = (int) (x / 4.2);
         breakTime = sp.getBoolean(Values.breakTime, Values.breakTimeDefault);
         LinearLayout topper = new LinearLayout(this);
         topper.setOrientation(LinearLayout.VERTICAL);
@@ -349,6 +348,20 @@ public class Main extends Activity {
         });
         refreshTheme();
         bar.addSquircles(getSquircles(squircleSize));
+
+        scheduleLayout=new LinearLayout(this);
+        scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
+        scheduleLayout.setOrientation(LinearLayout.VERTICAL);
+        scheduleLayout.setPadding(10, 10, 10, 10);
+        messageBar=new MessageBar(this,messages);
+        messageBar.start();
+        scheduleLayout.addView(messageBar);
+        lessonViewHolder = new LinearLayout(this);
+        lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
+        lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
+        scheduleLayout.addView(lessonViewHolder);
+        mAppView.setContent(scheduleLayout);
+
         StudentClass c = getFavoriteClass();
         if (classes != null) if (c != null) setStudentMode(c);
         setContentView(mAppView);
@@ -969,22 +982,16 @@ public class Main extends Activity {
     }
 
     private void parseAndLoad(File f) {
-        String filename = f.getName();
-        if (filename.endsWith(".xlsx")) {
-            classes = readExcelFileXLSX(f);
-            day = readExcelDayXLSX(f);
-        } else {
-            classes = readExcelFile(f);
-            day = readExcelDay(f);
-        }
-        /////
-        //                                file = new File(getApplicationContext().getFilesDir(), "hs.xlsx");
-        //                                classes = readExcelFileXLSX(file);
-        //                                day = readExcelDayXLSX(file);
-        /////
-        if (classes != null) {
-            teachers = getTeacherSchudleForClasses(classes);
-            initStageB();
+        Sheet s=getSheet(f);
+        if(s!=null) {
+            classes = getClasses(s);
+            messages = getMessages(s);
+            day = getDay(s);
+//            Log.i("Messages",messages.toString());
+            if (classes != null) {
+                teachers = getTeacherSchudleForClasses(classes);
+                initStageB();
+            }
         }
     }
 
@@ -1009,18 +1016,10 @@ public class Main extends Activity {
     }
 
     private void displayLessonViews(ArrayList<LessonView> lessonViews) {
-        LinearLayout hsplace = new LinearLayout(this);
-        hsplace.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
-        hsplace.setOrientation(LinearLayout.VERTICAL);
-        mAppView.setContent(hsplace);
-        LinearLayout lessonViewHolder = new LinearLayout(this);
-        lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
-        lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
-        lessonViewHolder.setPadding(10, 10, 10, 10);
+        lessonViewHolder.removeAllViews();
         for (int l = 0; l < lessonViews.size(); l++) {
             lessonViewHolder.addView(lessonViews.get(l));
         }
-        hsplace.addView(lessonViewHolder);
     }
 
     private int getFontSize() {
@@ -1042,27 +1041,6 @@ public class Main extends Activity {
             }
         }
         return allsubj;
-    }
-
-    private String readExcelDay(File f) {
-        try {
-            POIFSFileSystem myFileSystem = new POIFSFileSystem(new FileInputStream(f));
-            Workbook myWorkBook = new HSSFWorkbook(myFileSystem);
-            Sheet mySheet = myWorkBook.getSheetAt(0);
-            return mySheet.getRow(0).getCell(0).getStringCellValue();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private String readExcelDayXLSX(File f) {
-        try {
-            XSSFWorkbook myWorkBook = new XSSFWorkbook(new FileInputStream(f));
-            Sheet mySheet = myWorkBook.getSheetAt(0);
-            return mySheet.getRow(0).getCell(0).getStringCellValue();
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     private Typeface getTypeface() {

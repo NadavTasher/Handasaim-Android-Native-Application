@@ -19,9 +19,9 @@ import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.StudentClass;
 import nadav.tasher.handasaim.values.Values;
 
+import static nadav.tasher.handasaim.tools.architecture.AppCore.getClasses;
+import static nadav.tasher.handasaim.tools.architecture.AppCore.getSheet;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.getTimeForLesson;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.readExcelFile;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.readExcelFileXLSX;
 
 public class DNDReceiver extends BroadcastReceiver{
     private boolean isAlive = true;
@@ -67,11 +67,7 @@ public class DNDReceiver extends BroadcastReceiver{
         ArrayList<StudentClass.Subject.Time> classTimes = new ArrayList<>();
         ArrayList<StudentClass> classes;
         if (!name.equals("")) {
-            if (name.endsWith(".xlsx")) {
-                classes = readExcelFileXLSX(excel);
-            } else {
-                classes = readExcelFile(excel);
-            }
+            classes=getClasses(getSheet(excel));
         } else {
             classes = new ArrayList<>();
         }
