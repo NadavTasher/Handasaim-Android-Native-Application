@@ -34,6 +34,7 @@ public class RefreshService extends JobService {
                 public void onPing(boolean b) {
                     if (b) {
                         //                        Log.i("Current Value",sp.getString(Values.latestFileDateRefresher,"None"));
+                        Log.i("Refresh","Refreshing");
                         checkForSchedule(sp, params);
                     } else {
                         jobFinished(params, true);

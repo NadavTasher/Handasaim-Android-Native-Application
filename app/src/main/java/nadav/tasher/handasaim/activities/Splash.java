@@ -27,10 +27,8 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.File;
-import java.util.Random;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.tools.architecture.Starter;
 import nadav.tasher.handasaim.tools.graphics.CurvedTextView;
 import nadav.tasher.handasaim.tools.online.FileDownloader;
 import nadav.tasher.handasaim.tools.specific.GetLink;
@@ -84,7 +82,7 @@ public class Splash extends Activity {
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
         ll.addView(icon);
         String curved = getString(R.string.app_name);
-        if(new Random().nextInt(5)==3&&(sp.getBoolean(Values.teacherModeEnabler,false))){
+        if(sp.getBoolean(Values.teacherModeEnabler,false)){
             curved="Shlomi";
         }
         if(sp.getBoolean(Values.devMode,Values.devModeDefault)){
@@ -157,7 +155,6 @@ public class Splash extends Activity {
     }
 
     private void initStageD() {
-        Starter.scheduleJobs(getApplicationContext());
         new GetLink(Values.scheduleProvider, new GetLink.GotLink() {
 
             @Override

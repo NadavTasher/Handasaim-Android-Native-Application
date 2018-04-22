@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 
 import nadav.tasher.handasaim.services.DNDService;
 import nadav.tasher.handasaim.services.PushService;
@@ -28,13 +29,15 @@ public class Starter {
     public static void startRefresh(Context c) {
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
             if (!isJobServiceOn(c, REFRESH_ID)) {
+                Log.i("Starter","Refresh Scheduling");
                 ComponentName serviceComponent = new ComponentName(c, RefreshService.class);
                 JobInfo.Builder builder = new JobInfo.Builder(REFRESH_ID, serviceComponent);
                 builder.setMinimumLatency(Values.refreshLoop);
                 JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
                 if (jobScheduler != null) {
-                    //                Log.i("RefreshService", "Scheduled");
                     jobScheduler.schedule(builder.build());
+                    Log.i("Starter","Refresh Scheduled");
+
                 }
             }
         }
@@ -43,30 +46,34 @@ public class Starter {
     public static void startPush(Context c) {
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
             if (!isJobServiceOn(c, PUSH_ID)) {
+                Log.i("Starter","Push Scheduling");
                 ComponentName serviceComponent = new ComponentName(c, PushService.class);
                 JobInfo.Builder builder = new JobInfo.Builder(PUSH_ID, serviceComponent);
                 builder.setMinimumLatency(Values.refreshLoop);
                 JobScheduler jobScheduler = c.getSystemService(JobScheduler.class);
                 if (jobScheduler != null) {
-                    //                Log.i("PushService", "Scheduled");
                     jobScheduler.schedule(builder.build());
+                    Log.i("Starter","Push Scheduled");
                 }
             }
         }
     }
 
     public static void scheduleJobs(Context c) {
+        Log.i("Starter","Scheduled");
         startPush(c);
         startRefresh(c);
     }
 
     public static boolean isJobServiceOn(Context context, int id) {
-        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        JobScheduler scheduler = context.getSystemService(JobScheduler.class);
         boolean hasBeenScheduled = false;
         if (scheduler != null) {
+            Log.i("Starter","Searching For Service");
             for (JobInfo jobInfo : scheduler.getAllPendingJobs()) {
                 if (jobInfo.getId() == id) {
                     hasBeenScheduled = true;
+                    Log.i("Starter","Found! "+jobInfo.toString());
                     break;
                 }
             }

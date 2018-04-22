@@ -37,9 +37,9 @@ public class Values {
     public static final int maxKeyEntering = 4;
     public static final int waitTime = 10;
     public static final int bakedIconColor = 0xffdd8833;
-    public static final int refreshLoop = 1000 * 60 * 30;
+    public static final int refreshLoop = (int) (1000 * 60 * 30);
     public static final int fontSizeDefault = 30;
-    public static final int squircleAlpha = 172;
+    public static final int squircleAlpha = 190;
     public static final int defaultColorA = 0xFF4A8DCA;
     public static final int defaultColorB = 0xFF9045AB;
     public static final int navColor = 0x80111111;

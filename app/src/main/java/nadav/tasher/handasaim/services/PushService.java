@@ -45,6 +45,7 @@ public class PushService extends JobService {
                 @Override
                 public void onPing(boolean b) {
                     if (b) {
+                        Log.i("Push","Fetching");
                         checkForPushes(sp, params);
                     } else {
                         jobFinished(params, true);

@@ -48,6 +48,7 @@ import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.StudentClass;
 import nadav.tasher.handasaim.architecture.Teacher;
 import nadav.tasher.handasaim.tools.TunnelHub;
+import nadav.tasher.handasaim.tools.architecture.Starter;
 import nadav.tasher.handasaim.tools.graphics.LessonView;
 import nadav.tasher.handasaim.tools.graphics.MessageBar;
 import nadav.tasher.handasaim.tools.graphics.bar.Bar;
@@ -90,7 +91,7 @@ public class Main extends Activity {
     private Bar bar;
     private Squircle main;
     private MessageBar messageBar;
-    private LinearLayout scheduleLayout,lessonViewHolder;
+    private LinearLayout scheduleLayout, lessonViewHolder;
     private Drawable gradient;
     private AppView mAppView;
     private ArrayList<StudentClass> classes;
@@ -133,6 +134,7 @@ public class Main extends Activity {
     public static void startMe(Activity c) {
         Intent intent = new Intent(c, Main.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS);
         c.startActivity(intent);
         c.overridePendingTransition(R.anim.out, R.anim.in);
         c.finish();
@@ -141,6 +143,7 @@ public class Main extends Activity {
     public static void returnToMe(Activity c) {
         Intent intent = new Intent(c, Main.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS);
         c.startActivity(intent);
         c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
         c.finish();
@@ -196,6 +199,7 @@ public class Main extends Activity {
     private void initStageA() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
+        Starter.scheduleJobs(getApplicationContext());
         String file = sp.getString(Values.scheduleFile, null);
         if (file != null) {
             parseAndLoad(new File(file));
@@ -356,12 +360,11 @@ public class Main extends Activity {
         });
         refreshTheme();
         bar.addSquircles(getSquircles(squircleSize));
-
-        scheduleLayout=new LinearLayout(this);
+        scheduleLayout = new LinearLayout(this);
         scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         scheduleLayout.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.setPadding(10, 10, 10, 10);
-        messageBar=new MessageBar(this,messages);
+        messageBar = new MessageBar(this, messages);
         messageBar.start();
         scheduleLayout.addView(messageBar);
         lessonViewHolder = new LinearLayout(this);
@@ -369,7 +372,6 @@ public class Main extends Activity {
         lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.addView(lessonViewHolder);
         mAppView.setContent(scheduleLayout);
-
         StudentClass c = getFavoriteClass();
         if (classes != null) if (c != null) setStudentMode(c);
         setContentView(mAppView);
@@ -566,7 +568,6 @@ public class Main extends Activity {
             }
         });
         squircles.add(settings);
-
         final Squircle devPanel = new Squircle(getApplicationContext(), size, colorA);
         devPanel.setDrawable(getDrawable(R.drawable.ic_developer));
         devPanel.setOnState(new Squircle.OnState() {
@@ -584,7 +585,7 @@ public class Main extends Activity {
                 Developer.startMe(Main.this);
             }
         });
-        if(sp.getBoolean(Values.devMode,Values.devModeDefault)) {
+        if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
             squircles.add(devPanel);
         }
         return squircles;
@@ -634,7 +635,7 @@ public class Main extends Activity {
         settings.setOrientation(LinearLayout.VERTICAL);
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        final Switch autoMuteSwitch = new Switch(this),devSwitch = new Switch(this), newScheduleSwitch = new Switch(this), breakTimeSwitch = new Switch(this), pushSwitch = new Switch(this);
+        final Switch autoMuteSwitch = new Switch(this), devSwitch = new Switch(this), newScheduleSwitch = new Switch(this), breakTimeSwitch = new Switch(this), pushSwitch = new Switch(this);
         pushSwitch.setText(R.string.live_messages);
         newScheduleSwitch.setText(R.string.schedule_notification);
         breakTimeSwitch.setText(R.string.show_breaks);
@@ -724,10 +725,10 @@ public class Main extends Activity {
         devSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
+                if (isChecked) {
                     devModeConfirm(devSwitch);
-                }else{
-                    if(sp.getBoolean(Values.devMode,Values.devModeDefault)!=isChecked) {
+                } else {
+                    if (sp.getBoolean(Values.devMode, Values.devModeDefault) != isChecked) {
                         sp.edit().putBoolean(Values.devMode, false).apply();
                         Splash.startMe(Main.this);
                     }
@@ -1052,12 +1053,12 @@ public class Main extends Activity {
     }
 
     private void parseAndLoad(File f) {
-        Sheet s=getSheet(f);
-        if(s!=null) {
+        Sheet s = getSheet(f);
+        if (s != null) {
             classes = getClasses(s);
             messages = getMessages(s);
             day = getDay(s);
-//            Log.i("Messages",messages.toString());
+            //            Log.i("Messages",messages.toString());
             if (classes != null) {
                 teachers = getTeacherSchudleForClasses(classes);
                 initStageB();
