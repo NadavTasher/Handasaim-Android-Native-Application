@@ -387,17 +387,18 @@ public class Main extends Activity {
             config.setDelay(500);
             config.setShape(new CircleShape());
             config.setShapePadding(60);
-            config.setMaskColor(0xa0111111);
-            config.setContentTextColor(Color.WHITE);
+            config.setMaskColor(0xA0111111);
+            //            config.setContentTextColor(Color.WHITE);
             config.setDismissTextStyle(getTypeface());
             config.setRenderOverNavigationBar(true);
             MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this);
             sequence.setConfig(config);
-            sequence.addSequenceItem(bar.getMainSquircle(), "Menu Button",
+            sequence.addSequenceItem(bar.getMainSquircle(),
                     "This is the menu button.\nOne tap to open, one to close.", "Next");
-            sequence.addSequenceItem(mAppView.getDragNavigation(), "Drag Bar",
-                    "This is the drag bar.\nWhen you pull it down you will be able to see all the news.", "Done. Take Me There!");
+            sequence.addSequenceItem(mAppView.getDragNavigation(),
+                    "This is the drag bar.\nWhen you pull it down you will be able to see all the news.", "Done. Take Me To The App!");
             sequence.start();
+            sp.edit().putBoolean(Values.guidedTutorial, true).apply();
         }
     }
 
