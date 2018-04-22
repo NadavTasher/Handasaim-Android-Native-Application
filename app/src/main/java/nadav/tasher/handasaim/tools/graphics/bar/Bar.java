@@ -29,6 +29,10 @@ public class Bar extends LinearLayout {
         init();
     }
 
+    public Squircle getMainSquircle() {
+        return mainSquircle;
+    }
+
     private void makeMain() {
         mainSquircle.setOnState(new Squircle.OnState() {
             @Override

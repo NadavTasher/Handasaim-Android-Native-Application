@@ -27,6 +27,7 @@ public class Values {
     public static final String favoriteClass = "favorite_class";
     public static final String favoriteTeacher = "favorite_teacher";
     public static final String devMode = "developer_mode_v1";
+    public static final String guidedTutorial = "guided_v5";
     public static final String pushID = "push_id_";
     public static final String firstLaunch = "first";
     public static final boolean pushDefault = true;

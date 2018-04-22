@@ -66,6 +66,9 @@ import nadav.tasher.lightool.graphics.views.AppView;
 import nadav.tasher.lightool.graphics.views.ColorPicker;
 import nadav.tasher.lightool.graphics.views.DragNavigation;
 import nadav.tasher.lightool.info.Device;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
+import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
 
 import static nadav.tasher.handasaim.tools.architecture.AppCore.getBreak;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.getClasses;
@@ -375,6 +378,27 @@ public class Main extends Activity {
         StudentClass c = getFavoriteClass();
         if (classes != null) if (c != null) setStudentMode(c);
         setContentView(mAppView);
+        initStageC();
+    }
+
+    private void initStageC() {
+        if (!sp.getBoolean(Values.guidedTutorial, false)) {
+            ShowcaseConfig config = new ShowcaseConfig();
+            config.setDelay(500);
+            config.setShape(new CircleShape());
+            config.setShapePadding(60);
+            config.setMaskColor(0xa0111111);
+            config.setContentTextColor(Color.WHITE);
+            config.setDismissTextStyle(getTypeface());
+            config.setRenderOverNavigationBar(true);
+            MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this);
+            sequence.setConfig(config);
+            sequence.addSequenceItem(bar.getMainSquircle(), "Menu Button",
+                    "This is the menu button.\nOne tap to open, one to close.", "Next");
+            sequence.addSequenceItem(mAppView.getDragNavigation(), "Drag Bar",
+                    "This is the drag bar.\nWhen you pull it down you will be able to see all the news.", "Done. Take Me There!");
+            sequence.start();
+        }
     }
 
     private StudentClass getFavoriteClass() {

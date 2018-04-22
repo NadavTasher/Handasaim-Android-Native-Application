@@ -1,6 +1,5 @@
 package nadav.tasher.handasaim.activities;
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -14,6 +13,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -80,37 +80,23 @@ public class Welcome extends Activity {
         welcome.setTextColor(Color.WHITE);
         welcome.setText(R.string.welcome);
         icon.setImageDrawable(getDrawable(R.drawable.ic_icon));
+        icon.setAlpha(0f);
         int is = (int) (Device.screenX(getApplicationContext()) * 0.7);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
-        ObjectAnimator iconSlide = ObjectAnimator.ofFloat(icon, View.TRANSLATION_X, Device.screenX(getApplicationContext()), 0);
-        iconSlide.setDuration(1000);
-        iconSlide.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                ObjectAnimator buttonAn = ObjectAnimator.ofFloat(setup, View.ALPHA, Animations.INVISIBLE_TO_VISIBLE);
-                buttonAn.setDuration(500);
-                buttonAn.start();
-                ObjectAnimator welAn = ObjectAnimator.ofFloat(welcome, View.ALPHA, Animations.INVISIBLE_TO_VISIBLE);
-                welAn.setDuration(500);
-                welAn.start();
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-            }
-        });
-        iconSlide.start();
+        ObjectAnimator buttonAn = ObjectAnimator.ofFloat(setup, View.ALPHA, Animations.INVISIBLE_TO_VISIBLE);
+        buttonAn.setDuration(2000);
+        buttonAn.start();
+        ObjectAnimator welAn = ObjectAnimator.ofFloat(welcome, View.ALPHA, Animations.INVISIBLE_TO_VISIBLE);
+        welAn.setDuration(2000);
+        welAn.start();
+        ObjectAnimator icoAn = ObjectAnimator.ofFloat(icon, View.ALPHA, Animations.INVISIBLE_TO_VISIBLE);
+        icoAn.setDuration(2000);
+        icoAn.start();
         part1.addView(welcome);
         part1.addView(icon);
         part1.addView(setup);
+        setup.setBackground(Main.generateCoaster(getApplicationContext(),Main.getColorA(getApplicationContext())));
+        setup.setLayoutParams(new LinearLayout.LayoutParams((int) (Device.screenX(getApplicationContext())*0.6), ViewGroup.LayoutParams.WRAP_CONTENT));
         setup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
