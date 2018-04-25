@@ -23,7 +23,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="scalingPercent" value="61" />
+                                                <entry key="scalingPercent" value="63" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -34,8 +34,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="4a8dca" />
-                                      <entry key="foregroundImage" value="$USER_HOME$/Pictures/handasaim4.svg" />
+                                      <entry key="backgroundColor" value="b8d0ed" />
+                                      <entry key="foregroundImage" value="$USER_HOME$/Pictures/handasaim4.png" />
                                       <entry key="legacyIconShape" value="CIRCLE" />
                                       <entry key="webIconShape" value="CIRCLE" />
                                     </map>
