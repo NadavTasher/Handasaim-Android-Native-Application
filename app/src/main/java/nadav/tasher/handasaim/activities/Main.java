@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +55,7 @@ import nadav.tasher.handasaim.tools.graphics.MessageBar;
 import nadav.tasher.handasaim.tools.graphics.bar.Bar;
 import nadav.tasher.handasaim.tools.graphics.bar.Squircle;
 import nadav.tasher.handasaim.tools.specific.GetNews;
+import nadav.tasher.handasaim.values.Egg;
 import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.communication.OnFinish;
@@ -134,6 +136,12 @@ public class Main extends Activity {
         return Typeface.createFromAsset(c.getAssets(), Values.fontName);
     }
 
+    public static void installColors(Context c) {
+        SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
+        sp.edit().putInt(Values.colorA,Values.defaultColorA).apply();
+        sp.edit().putInt(Values.colorB,Values.defaultColorB).apply();
+    }
+
     public static void startMe(Activity c) {
         Intent intent = new Intent(c, Main.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -146,7 +154,6 @@ public class Main extends Activity {
     public static void returnToMe(Activity c) {
         Intent intent = new Intent(c, Main.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS);
         c.startActivity(intent);
         c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
         c.finish();
@@ -295,12 +302,12 @@ public class Main extends Activity {
                 }
             });
         } else {
-            ab.setNegativeButton("Developing For H+", new DialogInterface.OnClickListener() {
+            ab.setNegativeButton("Easter Egg", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(Values.developingUrl));
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+                    keyentering = 0;
+                    mAppView.getDragNavigation().setContent(getTextView(Egg.dispenseEgg(Egg.TYPE_BOTH), textColor));
+                    mAppView.getDragNavigation().open(false);
                 }
             });
         }
@@ -367,7 +374,7 @@ public class Main extends Activity {
         scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         scheduleLayout.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.setPadding(10, 10, 10, 10);
-        messageBar = new MessageBar(this, messages);
+        messageBar = new MessageBar(this, messages, mAppView.getDragNavigation());
         messageBar.start();
         scheduleLayout.addView(messageBar);
         lessonViewHolder = new LinearLayout(this);
@@ -607,7 +614,8 @@ public class Main extends Activity {
 
             @Override
             public void onBoth(boolean isOpened) {
-                Developer.startMe(Main.this);
+                //                Developer.startMe(Main.this);
+                Toast.makeText(getApplicationContext(), "Coming Soon", Toast.LENGTH_LONG).show();
             }
         });
         if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
@@ -818,6 +826,9 @@ public class Main extends Activity {
         colorApicker.setOnColorChanged(new ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
+                Log.i("Red",Color.red(color)+"");
+                Log.i("Gre",Color.green(color)+"");
+                Log.i("Blu",Color.blue(color)+"");
                 sp.edit().putInt(Values.colorA, color).apply();
                 refreshTheme();
             }
@@ -985,11 +996,16 @@ public class Main extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (mAppView != null) {
-            if (mAppView.getDragNavigation() != null) {
+        if (mAppView != null && bar != null && mAppView.getDragNavigation() != null) {
+            if (mAppView.getDragNavigation().isOpen() || bar.isOpen()) {
                 if (mAppView.getDragNavigation().isOpen()) {
                     mAppView.getDragNavigation().close(true);
                 }
+                if (bar.isOpen()) {
+                    bar.close();
+                }
+            } else {
+                finish();
             }
         }
         if (bar != null) {
@@ -1243,5 +1259,24 @@ public class Main extends Activity {
             }
         }
         return lessons;
+    }
+
+    private TextView getTextView(String t, int textColor) {
+        final TextView v = new TextView(getApplicationContext());
+        v.setTextColor(textColor);
+        v.setTextSize((float) (Main.getFontSize(getApplicationContext()) / 1.5));
+        v.setText(t);
+        v.setGravity(Gravity.CENTER);
+        v.setTypeface(Main.getTypeface(getApplicationContext()));
+        v.setSingleLine(false);
+        v.setEllipsize(TextUtils.TruncateAt.END);
+        v.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        TunnelHub.textColorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+            @Override
+            public void onReceive(Integer response) {
+                v.setTextColor(response);
+            }
+        });
+        return v;
     }
 }

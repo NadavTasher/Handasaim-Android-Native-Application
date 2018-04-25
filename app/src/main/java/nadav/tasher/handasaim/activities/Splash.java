@@ -39,6 +39,8 @@ import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.tools.Animations;
 
 import static nadav.tasher.handasaim.tools.architecture.Starter.beginDND;
+import static nadav.tasher.handasaim.values.Values.colorForce;
+import static nadav.tasher.handasaim.values.Values.colorForceDefault;
 
 public class Splash extends Activity {
 
@@ -61,6 +63,10 @@ public class Splash extends Activity {
     private void initStageA() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
+        if(!sp.getBoolean(Values.colorForce,colorForceDefault)){
+            Main.installColors(getApplicationContext());
+            sp.edit().putBoolean(colorForce,true).apply();
+        }
         initStageB();
     }
 
@@ -80,16 +86,17 @@ public class Splash extends Activity {
         icon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         int is = (int) (Device.screenX(getApplicationContext()) * 0.8);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
-        ll.addView(icon);
+
         String curved = getString(R.string.app_name);
         if(sp.getBoolean(Values.teacherModeEnabler,false)){
-            curved="Shlomi";
+            curved="Shlomi Mode";
         }
         if(sp.getBoolean(Values.devMode,Values.devModeDefault)){
             curved="Developer Mode";
         }
         ctv = new CurvedTextView(this, curved, 50, Values.bakedIconColor, Device.screenX(this), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.3)));
+        ll.addView(icon);
         ll.addView(ctv);
         RotateAnimation rotateAnimation = new RotateAnimation(0, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         rotateAnimation.setInterpolator(new LinearInterpolator());
@@ -115,7 +122,7 @@ public class Splash extends Activity {
                 });
             }
         });
-        cfa.start(2000);
+        cfa.start(3000);
         if (getIntent().getExtras() != null) {
             if (getIntent().getExtras().getString("toast") != null) {
                 Toast.makeText(this, getIntent().getExtras().getString("toast"), Toast.LENGTH_LONG).show();

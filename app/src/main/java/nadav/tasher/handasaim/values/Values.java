@@ -28,6 +28,7 @@ public class Values {
     public static final String favoriteTeacher = "favorite_teacher";
     public static final String devMode = "developer_mode_v1";
     public static final String guidedTutorial = "guided_v5";
+    public static final String colorForce = "color_force_v2";
     public static final String pushID = "push_id_";
     public static final String firstLaunch = "first";
     public static final boolean pushDefault = true;
@@ -35,14 +36,15 @@ public class Values {
     public static final boolean breakTimeDefault = true;
     public static final boolean autoMuteDefault = false;
     public static final boolean devModeDefault = false;
+    public static final boolean colorForceDefault = false;
     public static final int maxKeyEntering = 4;
     public static final int waitTime = 10;
     public static final int bakedIconColor = 0xffdd8833;
     public static final int refreshLoop = (int) (1000 * 60 * 30);
     public static final int fontSizeDefault = 30;
     public static final int squircleAlpha = 190;
-    public static final int defaultColorA = 0xFF4A8DCA;
-    public static final int defaultColorB = 0xFF9045AB;
+    public static final int defaultColorA = 0xFFb1d4f3;
+    public static final int defaultColorB = 0xFF213b5a;
     public static final int navColor = 0x80111111;
     public static final int classCoasterColor = 0xBB333333;
     public static final int classCoasterMarkColor = 0xBB222222;
