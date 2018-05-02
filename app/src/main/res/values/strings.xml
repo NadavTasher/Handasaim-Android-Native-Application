@@ -7,7 +7,8 @@
     <string name="news">News</string>
     <string name="loading_text">Loading…</string>
     <string name="share_menu">Share Menu</string>
-    <string name="lesson_time">Lesson Time</string>
+    <string name="lesson_time">Include Time</string>
+    <string name="messages_switch">Include Messages</string>
     <string name="choose_first_color">Choose First Color:</string>
     <string name="choose_second_color">Choose Second Color:</string>
     <string name="news_load_failed">Failed To Load News.</string>

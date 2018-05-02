@@ -641,6 +641,13 @@ public class Main extends Activity {
         shareTimeSwitch.setTextSize(getFontSize() - 4);
         shareTimeSwitch.setTextColor(textColor);
         shareTimeSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        final Switch shareMessageSwitch = new Switch(this);
+        shareMessageSwitch.setPadding(10, 0, 10, 0);
+        shareMessageSwitch.setText(R.string.messages_switch);
+        shareMessageSwitch.setTypeface(getTypeface());
+        shareMessageSwitch.setTextSize(getFontSize() - 4);
+        shareMessageSwitch.setTextColor(textColor);
+        shareMessageSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         Button shareB = new Button(this);
         String shareText = getString(R.string.share) + " " + currentClass.name;
         shareB.setText(shareText);
@@ -652,11 +659,19 @@ public class Main extends Activity {
         shareB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                share(currentClass.name + "\n" + scheduleForClassString(currentClass, shareTimeSwitch.isChecked()));
+                String message="";
+                if(shareMessageSwitch.isChecked()){
+                    message="Messages:\n";
+                    for(int i=0;i<messages.size();i++){
+                        message+=(i+1)+". " + messages.get(i)+"\n";
+                    }
+                }
+                share(currentClass.name+" ("+day+")" + "\n" + scheduleForClassString(currentClass, shareTimeSwitch.isChecked())+message);
             }
         });
         shareView.addView(shareTitle);
         shareView.addView(shareTimeSwitch);
+        shareView.addView(shareMessageSwitch);
         shareView.addView(shareB);
         return shareView;
     }

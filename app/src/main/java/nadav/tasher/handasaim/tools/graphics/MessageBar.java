@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -53,7 +54,9 @@ public class MessageBar extends LinearLayout {
                 t.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        dn.setContent(getTextView(messages.get(finalA),Main.getTextColor(getContext()),false));
+                        ScrollView sv=new ScrollView(getContext());
+                        sv.addView(getTextView(messages.get(finalA),Main.getTextColor(getContext()),false));
+                        dn.setContent(sv);
                         dn.open(false);
                     }
                 });
