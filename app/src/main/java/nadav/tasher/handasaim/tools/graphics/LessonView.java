@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import nadav.tasher.handasaim.activities.Main;
-import nadav.tasher.handasaim.tools.TunnelHub;
+import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.lightool.communication.Tunnel;
 import nadav.tasher.lightool.info.Device;
 
@@ -89,7 +89,7 @@ public class LessonView  extends LinearLayout {
         teacherTv.setLayoutParams(new LayoutParams(Device.screenX(getContext()) / 2 - getPaddingRight(), ViewGroup.LayoutParams.WRAP_CONTENT));
         timeTv.setLayoutParams(new LayoutParams(Device.screenX(getContext()) / 2 - getPaddingLeft(), ViewGroup.LayoutParams.WRAP_CONTENT));
         setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 7));
-        TunnelHub.textColorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+        TowerHub.textColorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
             @Override
             public void onReceive(Integer response) {
                 lessonTv.setTextColor(response);
@@ -97,7 +97,7 @@ public class LessonView  extends LinearLayout {
                 timeTv.setTextColor(response);
             }
         });
-        TunnelHub.fontSizeChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+        TowerHub.fontSizeChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
             @Override
             public void onReceive(Integer response) {
                 lessonTv.setTextSize(response);

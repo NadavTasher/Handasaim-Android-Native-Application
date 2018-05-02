@@ -15,10 +15,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import nadav.tasher.handasaim.activities.Main;
-import nadav.tasher.handasaim.tools.TunnelHub;
+import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.communication.Tunnel;
-import nadav.tasher.lightool.graphics.views.DragNavigation;
+import nadav.tasher.lightool.graphics.views.appview.navigation.Drag;
 import nadav.tasher.lightool.info.Device;
 
 public class MessageBar extends LinearLayout {
@@ -27,11 +27,11 @@ public class MessageBar extends LinearLayout {
     private ArrayList<TextView> messageViews;
     private int currentIndex = 0;
     private boolean alive = true;
-    private DragNavigation dn;
+    private Drag dn;
     private Thread animate;
     private Activity a;
 
-    public MessageBar(Activity context, ArrayList<String> messages, DragNavigation drag) {
+    public MessageBar(Activity context, ArrayList<String> messages, Drag drag) {
         super(context);
         this.a = context;
         this.messages = messages;
@@ -187,7 +187,7 @@ public class MessageBar extends LinearLayout {
         v.setSingleLine(singleLine);
         v.setEllipsize(TextUtils.TruncateAt.END);
         v.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        TunnelHub.textColorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+        TowerHub.textColorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
             @Override
             public void onReceive(Integer response) {
                 v.setTextColor(response);

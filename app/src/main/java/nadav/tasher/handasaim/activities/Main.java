@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,26 +47,25 @@ import java.util.Calendar;
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.StudentClass;
 import nadav.tasher.handasaim.architecture.Teacher;
-import nadav.tasher.handasaim.tools.TunnelHub;
+import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.tools.architecture.Starter;
 import nadav.tasher.handasaim.tools.graphics.LessonView;
 import nadav.tasher.handasaim.tools.graphics.MessageBar;
-import nadav.tasher.handasaim.tools.graphics.bar.Bar;
-import nadav.tasher.handasaim.tools.graphics.bar.Squircle;
 import nadav.tasher.handasaim.tools.specific.GetNews;
 import nadav.tasher.handasaim.values.Egg;
 import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.communication.OnFinish;
 import nadav.tasher.lightool.communication.SessionStatus;
-import nadav.tasher.lightool.communication.Tunnel;
 import nadav.tasher.lightool.communication.network.Ping;
 import nadav.tasher.lightool.communication.network.request.Post;
 import nadav.tasher.lightool.communication.network.request.RequestParameter;
-import nadav.tasher.lightool.graphics.views.AppView;
 import nadav.tasher.lightool.graphics.views.ColorPicker;
-import nadav.tasher.lightool.graphics.views.DragNavigation;
+import nadav.tasher.lightool.graphics.views.appview.AppView;
+import nadav.tasher.lightool.graphics.views.appview.navigation.Drag;
+import nadav.tasher.lightool.graphics.views.appview.navigation.bar.Squircle;
 import nadav.tasher.lightool.info.Device;
+import nadav.tasher.lightool.parts.Peer;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
@@ -93,7 +91,6 @@ public class Main extends Activity {
     private String day;
     private StudentClass currentClass;
     private Teacher currentTeacher;
-    private Bar bar;
     private Squircle main;
     private MessageBar messageBar;
     private LinearLayout scheduleLayout, lessonViewHolder;
@@ -138,8 +135,8 @@ public class Main extends Activity {
 
     public static void installColors(Context c) {
         SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
-        sp.edit().putInt(Values.colorA,Values.defaultColorA).apply();
-        sp.edit().putInt(Values.colorB,Values.defaultColorB).apply();
+        sp.edit().putInt(Values.colorA, Values.defaultColorA).apply();
+        sp.edit().putInt(Values.colorB, Values.defaultColorB).apply();
     }
 
     public static void startMe(Activity c) {
@@ -190,8 +187,8 @@ public class Main extends Activity {
         mAppView.setTopColor(colorA);
         mAppView.setBottomColor(colorB);
         mAppView.overlaySelf(getWindow());
-        TunnelHub.colorAChangeTunnle.send(colorA);
-        TunnelHub.colorBChangeTunnle.send(colorB);
+        TowerHub.colorAChangeTunnle.tell(colorA);
+        TowerHub.colorBChangeTunnle.tell(colorB);
         taskDesc();
     }
 
@@ -201,7 +198,7 @@ public class Main extends Activity {
         if (mAppView == null) {
             taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, (colorA));
         } else {
-            taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, (mAppView.getDragNavigation().calculateOverlayedColor(colorA)));
+            taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, (mAppView.getDrag().calculateOverlayedColor(colorA)));
         }
         setTaskDescription(taskDesc);
     }
@@ -306,8 +303,8 @@ public class Main extends Activity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     keyentering = 0;
-                    mAppView.getDragNavigation().setContent(getTextView(Egg.dispenseEgg(Egg.TYPE_BOTH), textColor));
-                    mAppView.getDragNavigation().open(false);
+                    mAppView.getDrag().setContent(getTextView(Egg.dispenseEgg(Egg.TYPE_BOTH), textColor));
+                    mAppView.getDrag().open(false);
                 }
             });
         }
@@ -323,8 +320,9 @@ public class Main extends Activity {
         topper.setOrientation(LinearLayout.VERTICAL);
         topper.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
         topper.setPadding(squirclePadding, 0, squirclePadding, 0);
-        mAppView = new AppView(getApplicationContext(), getDrawable(R.drawable.ic_icon), Values.navColor);
-        mAppView.getDragNavigation().setOnIconClick(new View.OnClickListener() {
+        main = new Squircle(getApplicationContext(), squircleSize, colorA);
+        mAppView = new AppView(getApplicationContext(), getDrawable(R.drawable.ic_icon), Values.navColor, main);
+        mAppView.getDrag().setOnIconClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 aboutPopup();
@@ -333,48 +331,43 @@ public class Main extends Activity {
         mAppView.setBackground(gradient);
         mAppView.setTopColor(colorA);
         mAppView.setBottomColor(colorB);
-        main = new Squircle(getApplicationContext(), squircleSize, colorA);
-        bar = new Bar(getApplicationContext(), main);
-        bar.setOnMainSquircle(new Squircle.OnState() {
+        mAppView.getBar().getMainSquircle().addOnState(new Squircle.OnState() {
             @Override
             public void onOpen() {
             }
 
             @Override
             public void onClose() {
-                mAppView.getDragNavigation().close(true);
+                mAppView.getDrag().close(true);
             }
 
             @Override
-            public void onBoth(boolean isOpened) {
+            public void onBoth(boolean b) {
             }
         });
-        bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, squircleSize + 2 * squirclePadding));
-        topper.addView(bar);
-        mAppView.addView(topper);
         //        masterLayout.addView(optionHolder);
         //        circleView.setX(x - circleView.xy - circlePadding);
         //        circleView.setY(y - circleView.xy - getNavSize() / 2 - circlePadding);
         //        optionHolder.setY(y - (y - circleView.getY()) - (((options.length + 1) * circlePadding) / 2) - (options.length * circleSize + circlePadding));
-        mAppView.getDragNavigation().setOnStateChangedListener(new DragNavigation.OnStateChangedListener() {
+        mAppView.getDrag().setOnStateChangedListener(new Drag.OnStateChangedListener() {
             @Override
             public void onOpen() {
-                mAppView.getDragNavigation().emptyContent();
-                mAppView.getDragNavigation().setContent(getNews());
+                mAppView.getDrag().emptyContent();
+                mAppView.getDrag().setContent(getNews());
             }
 
             @Override
             public void onClose() {
-                mAppView.getDragNavigation().emptyContent();
+                mAppView.getDrag().emptyContent();
             }
         });
         refreshTheme();
-        bar.addSquircles(getSquircles(squircleSize));
+        mAppView.getBar().addSquircles(getSquircles(squircleSize));
         scheduleLayout = new LinearLayout(this);
         scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         scheduleLayout.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.setPadding(10, 10, 10, 10);
-        messageBar = new MessageBar(this, messages, mAppView.getDragNavigation());
+        messageBar = new MessageBar(this, messages, mAppView.getDrag());
         messageBar.start();
         scheduleLayout.addView(messageBar);
         lessonViewHolder = new LinearLayout(this);
@@ -400,9 +393,9 @@ public class Main extends Activity {
             config.setRenderOverNavigationBar(true);
             MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this);
             sequence.setConfig(config);
-            sequence.addSequenceItem(bar.getMainSquircle(),
+            sequence.addSequenceItem(mAppView.getBar().getMainSquircle(),
                     "This is the menu button.\nOne tap to open, one to close.", "Next");
-            sequence.addSequenceItem(mAppView.getDragNavigation(),
+            sequence.addSequenceItem(mAppView.getDrag(),
                     "This is the drag bar.\nWhen you pull it down you will be able to see all the news.", "Done. Take Me To The App!");
             sequence.start();
             sp.edit().putBoolean(Values.guidedTutorial, true).apply();
@@ -426,31 +419,6 @@ public class Main extends Activity {
             return classes.get(selectedClass);
         }
     }
-    //    private MyGraphics.CircleView.CircleOption[] getCircleOptions(int circleSize, int circlePadding) {
-    //        MyGraphics.CircleView.CircleOption share = new MyGraphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
-    //        share.setIcon(getDrawable(R.drawable.ic_share));
-    //        share.setDesiredViewOnDemand(new MyGraphics.CircleView.CircleOption.OnDemand() {
-    //            @Override
-    //            public View demandView() {
-    //                return generateShareView();
-    //            }
-    //        });
-    //        MyGraphics.CircleView.CircleOption changeClass = new MyGraphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
-    //        changeClass.setIcon(getDrawable(R.drawable.ic_class));
-    //        changeClass.setDesiredViewOnDemand(new MyGraphics.CircleView.CircleOption.OnDemand() {
-    //            @Override
-    //            public View demandView() {
-    //                return generateClassSwitchView();
-    //            }
-    //        });
-    //        MyGraphics.CircleView.CircleOption settings = new MyGraphics.CircleView.CircleOption(getApplicationContext(), circleSize, circlePadding);
-    //        settings.setIcon(getDrawable(R.drawable.ic_gear));
-    //        settings.setDesiredView(getSettingsView());
-    //        MyGraphics.CircleView.CircleOption[] options = new MyGraphics.CircleView.CircleOption[]{
-    //                share, changeClass, settings
-    //        };
-    //        return options;
-    //    }
 
     private Teacher getFavoriteTeacher() {
         int selectedTeacher = 0;
@@ -475,19 +443,19 @@ public class Main extends Activity {
         final Squircle news = new Squircle(getApplicationContext(), size, colorA);
         news.setDrawable(getDrawable(R.drawable.ic_news));
         final FrameLayout newsContent = getNews();
-        news.setOnState(new Squircle.OnState() {
+        news.addOnState(new Squircle.OnState() {
             @Override
             public void onOpen() {
-                mAppView.getDragNavigation().emptyContent();
-                mAppView.getDragNavigation().open(false);
-                mAppView.getDragNavigation().setContent(newsContent);
+                mAppView.getDrag().emptyContent();
+                mAppView.getDrag().open(false);
+                mAppView.getDrag().setContent(newsContent);
             }
 
             @Override
             public void onClose() {
-                if (mAppView.getDragNavigation().isOpen()) {
-                    if (mAppView.getDragNavigation().getContent() == newsContent) {
-                        mAppView.getDragNavigation().close(true);
+                if (mAppView.getDrag().isOpen()) {
+                    if (mAppView.getDrag().getContent() == newsContent) {
+                        mAppView.getDrag().close(true);
                     } else {
                         news.setState(true);
                         this.onOpen();
@@ -506,19 +474,19 @@ public class Main extends Activity {
         final Squircle choose = new Squircle(getApplicationContext(), size, colorA);
         choose.setDrawable(getDrawable(R.drawable.ic_class));
         final ScrollView chooseContent = getSwitcher();
-        choose.setOnState(new Squircle.OnState() {
+        choose.addOnState(new Squircle.OnState() {
             @Override
             public void onOpen() {
-                mAppView.getDragNavigation().emptyContent();
-                mAppView.getDragNavigation().open(false);
-                mAppView.getDragNavigation().setContent(chooseContent);
+                mAppView.getDrag().emptyContent();
+                mAppView.getDrag().open(false);
+                mAppView.getDrag().setContent(chooseContent);
             }
 
             @Override
             public void onClose() {
-                if (mAppView.getDragNavigation().isOpen()) {
-                    if (mAppView.getDragNavigation().getContent() == chooseContent) {
-                        mAppView.getDragNavigation().close(true);
+                if (mAppView.getDrag().isOpen()) {
+                    if (mAppView.getDrag().getContent() == chooseContent) {
+                        mAppView.getDrag().close(true);
                     } else {
                         choose.setState(true);
                         this.onOpen();
@@ -536,23 +504,23 @@ public class Main extends Activity {
         squircles.add(choose);
         final Squircle share = new Squircle(getApplicationContext(), size, colorA);
         share.setDrawable(getDrawable(R.drawable.ic_share));
-        share.setOnState(new Squircle.OnState() {
+        share.addOnState(new Squircle.OnState() {
 
             private LinearLayout shareContent;
 
             @Override
             public void onOpen() {
                 shareContent = getShare();
-                mAppView.getDragNavigation().emptyContent();
-                mAppView.getDragNavigation().open(false);
-                mAppView.getDragNavigation().setContent(shareContent);
+                mAppView.getDrag().emptyContent();
+                mAppView.getDrag().open(false);
+                mAppView.getDrag().setContent(shareContent);
             }
 
             @Override
             public void onClose() {
-                if (mAppView.getDragNavigation().isOpen()) {
-                    if (mAppView.getDragNavigation().getContent() == shareContent) {
-                        mAppView.getDragNavigation().close(true);
+                if (mAppView.getDrag().isOpen()) {
+                    if (mAppView.getDrag().getContent() == shareContent) {
+                        mAppView.getDrag().close(true);
                     } else {
                         share.setState(true);
                         this.onOpen();
@@ -571,20 +539,20 @@ public class Main extends Activity {
         final Squircle settings = new Squircle(getApplicationContext(), size, colorA);
         settings.setDrawable(getDrawable(R.drawable.ic_gear));
         final ScrollView settingsContent = getSettings();
-        settings.setOnState(new Squircle.OnState() {
+        settings.addOnState(new Squircle.OnState() {
 
             @Override
             public void onOpen() {
-                mAppView.getDragNavigation().emptyContent();
-                mAppView.getDragNavigation().open(false);
-                mAppView.getDragNavigation().setContent(settingsContent);
+                mAppView.getDrag().emptyContent();
+                mAppView.getDrag().open(false);
+                mAppView.getDrag().setContent(settingsContent);
             }
 
             @Override
             public void onClose() {
-                if (mAppView.getDragNavigation().isOpen()) {
-                    if (mAppView.getDragNavigation().getContent() == settingsContent) {
-                        mAppView.getDragNavigation().close(true);
+                if (mAppView.getDrag().isOpen()) {
+                    if (mAppView.getDrag().getContent() == settingsContent) {
+                        mAppView.getDrag().close(true);
                     } else {
                         settings.setState(true);
                         this.onOpen();
@@ -602,7 +570,7 @@ public class Main extends Activity {
         squircles.add(settings);
         final Squircle devPanel = new Squircle(getApplicationContext(), size, colorA);
         devPanel.setDrawable(getDrawable(R.drawable.ic_developer));
-        devPanel.setOnState(new Squircle.OnState() {
+        devPanel.addOnState(new Squircle.OnState() {
 
             @Override
             public void onOpen() {
@@ -659,14 +627,14 @@ public class Main extends Activity {
         shareB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String message="";
-                if(shareMessageSwitch.isChecked()){
-                    message="Messages:\n";
-                    for(int i=0;i<messages.size();i++){
-                        message+=(i+1)+". " + messages.get(i)+"\n";
+                String message = "";
+                if (shareMessageSwitch.isChecked()) {
+                    message = "Messages:\n";
+                    for (int i = 0; i < messages.size(); i++) {
+                        message += (i + 1) + ". " + messages.get(i) + "\n";
                     }
                 }
-                share(currentClass.name+" ("+day+")" + "\n" + scheduleForClassString(currentClass, shareTimeSwitch.isChecked())+message);
+                share(currentClass.name + " (" + day + ")" + "\n" + scheduleForClassString(currentClass, shareTimeSwitch.isChecked()) + message);
             }
         });
         shareView.addView(shareTitle);
@@ -710,7 +678,7 @@ public class Main extends Activity {
                 sp.edit().putBoolean(Values.breakTime, isChecked).apply();
                 //                breakTime=sp.getBoolean(Values.breakTime,Values.breakTimeDefault);
                 breakTime = isChecked;
-                TunnelHub.breakTimeTunnle.send(breakTime);
+                TowerHub.breakTimeTunnle.tell(breakTime);
             }
         });
         autoMuteSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -725,7 +693,7 @@ public class Main extends Activity {
                     if (!granted) {
                         AlertDialog.Builder pop = new AlertDialog.Builder(Main.this);
                         pop.setCancelable(true);
-                        pop.setMessage("You need to enable 'Do Not Disturb' permissions for the app.");
+                        pop.setMessage("You must enable 'Do Not Disturb' permissions for the app.");
                         pop.setPositiveButton("Open Settings", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
@@ -816,7 +784,7 @@ public class Main extends Activity {
                 if (fromUser) {
                     sp.edit().putInt(Values.fontSizeNumber, progress).apply();
                     refreshTheme();
-                    TunnelHub.fontSizeChangeTunnle.send(progress);
+                    TowerHub.fontSizeChangeTunnle.tell(progress);
                 }
             }
 
@@ -834,16 +802,16 @@ public class Main extends Activity {
             public void onColorChange(int color) {
                 sp.edit().putInt(Values.fontColor, color).apply();
                 refreshTheme();
-                TunnelHub.textColorChangeTunnle.send(textColor);
+                TowerHub.textColorChangeTunnle.tell(textColor);
             }
         });
         ColorPicker colorApicker = new ColorPicker(this, colorA);
         colorApicker.setOnColorChanged(new ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
-                Log.i("Red",Color.red(color)+"");
-                Log.i("Gre",Color.green(color)+"");
-                Log.i("Blu",Color.blue(color)+"");
+                //                Log.i("Red", Color.red(color) + "");
+                //                Log.i("Gre", Color.green(color) + "");
+                //                Log.i("Blu", Color.blue(color) + "");
                 sp.edit().putInt(Values.colorA, color).apply();
                 refreshTheme();
             }
@@ -859,9 +827,9 @@ public class Main extends Activity {
         textColorPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 5));
         colorApicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 5));
         colorBpicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 5));
-        TunnelHub.fontSizeChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+        TowerHub.fontSizeChangeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
             @Override
-            public void onReceive(Integer response) {
+            public boolean onPeer(Integer response) {
                 pushSwitch.setTextSize((float) (response / 1.5));
                 breakTimeSwitch.setTextSize((float) (response / 1.5));
                 autoMuteSwitch.setTextSize((float) (response / 1.5));
@@ -871,11 +839,12 @@ public class Main extends Activity {
                 explainColorB.setTextSize((float) (response / 1.5));
                 explainTextColor.setTextSize((float) (response / 1.5));
                 explainTextSize.setTextSize((float) (response / 1.5));
+                return true;
             }
-        });
-        TunnelHub.textColorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+        }));
+        TowerHub.textColorChangeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
             @Override
-            public void onReceive(Integer response) {
+            public boolean onPeer(Integer response) {
                 pushSwitch.setTextColor(response);
                 breakTimeSwitch.setTextColor(response);
                 autoMuteSwitch.setTextColor(response);
@@ -885,8 +854,9 @@ public class Main extends Activity {
                 explainColorB.setTextColor(response);
                 explainTextColor.setTextColor(response);
                 explainTextSize.setTextColor(response);
+                return true;
             }
-        });
+        }));
         settings.addView(autoMuteSwitch);
         settings.addView(newScheduleSwitch);
         settings.addView(pushSwitch);
@@ -1011,21 +981,21 @@ public class Main extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (mAppView != null && bar != null && mAppView.getDragNavigation() != null) {
-            if (mAppView.getDragNavigation().isOpen() || bar.isOpen()) {
-                if (mAppView.getDragNavigation().isOpen()) {
-                    mAppView.getDragNavigation().close(true);
+        if (mAppView != null && mAppView.getBar() != null && mAppView.getDrag() != null) {
+            if (mAppView.getDrag().isOpen() || mAppView.getBar().isOpen()) {
+                if (mAppView.getDrag().isOpen()) {
+                    mAppView.getDrag().close(true);
                 }
-                if (bar.isOpen()) {
-                    bar.close();
+                if (mAppView.getBar().isOpen()) {
+                    mAppView.getBar().close(true);
                 }
             } else {
                 finish();
             }
         }
-        if (bar != null) {
-            if (bar.isOpen()) {
-                bar.close();
+        if (mAppView != null && mAppView.getBar() != null) {
+            if (mAppView.getBar().isOpen()) {
+                mAppView.getBar().close(true);
             }
         }
     }
@@ -1101,7 +1071,7 @@ public class Main extends Activity {
                     fail.setTextColor(textColor);
                     fail.setText(R.string.news_load_failed);
                     fail.setGravity(Gravity.CENTER);
-                    mAppView.getDragNavigation().setContent(fail);
+                    mAppView.getDrag().setContent(fail);
                 }
             }).execute("");
         }
@@ -1132,13 +1102,13 @@ public class Main extends Activity {
 
     private void setStudentMode(StudentClass c) {
         currentClass = c;
-        main.setText(textColor, c.name, day);
+        main.setText(textColor, getFontSize(), c.name, day);
         displayLessonViews(scheduleForClass(c));
     }
 
     private void setTeacherMode(Teacher t) {
         currentTeacher = t;
-        main.setText(textColor, t.mainName.split(" ")[0], day);
+        main.setText(textColor, getFontSize(), t.mainName.split(" ")[0], day);
         displayLessonViews(scheduleForTeacher(t));
     }
 
@@ -1187,16 +1157,17 @@ public class Main extends Activity {
                 } else {
                     breakt.setVisibility(View.VISIBLE);
                 }
-                TunnelHub.breakTimeTunnle.addReceiver(new Tunnel.OnTunnel<Boolean>() {
+                TowerHub.breakTimeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Boolean>() {
                     @Override
-                    public void onReceive(Boolean response) {
-                        if (!response) {
+                    public boolean onPeer(Boolean aBoolean) {
+                        if (!aBoolean) {
                             breakt.setVisibility(View.GONE);
                         } else {
                             breakt.setVisibility(View.VISIBLE);
                         }
+                        return true;
                     }
-                });
+                }));
             }
             StudentClass.Subject.Time classTime = getTimeForLesson(fclass.subjects.get(s).hour);
             boolean isCurrent = false;
@@ -1256,16 +1227,17 @@ public class Main extends Activity {
                     } else {
                         breakt.setVisibility(View.VISIBLE);
                     }
-                    TunnelHub.breakTimeTunnle.addReceiver(new Tunnel.OnTunnel<Boolean>() {
+                    TowerHub.breakTimeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Boolean>() {
                         @Override
-                        public void onReceive(Boolean response) {
-                            if (!response) {
+                        public boolean onPeer(Boolean aBoolean) {
+                            if (!aBoolean) {
                                 breakt.setVisibility(View.GONE);
                             } else {
                                 breakt.setVisibility(View.VISIBLE);
                             }
+                            return true;
                         }
-                    });
+                    }));
                 }
                 String txt = getRealTimeForHourNumber(h) + "-" + getRealEndTimeForHourNumber(h);
                 LessonView lesson = new LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), h, currentText, txt, lessonName);
@@ -1286,12 +1258,13 @@ public class Main extends Activity {
         v.setSingleLine(false);
         v.setEllipsize(TextUtils.TruncateAt.END);
         v.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        TunnelHub.textColorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+        TowerHub.textColorChangeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
             @Override
-            public void onReceive(Integer response) {
-                v.setTextColor(response);
+            public boolean onPeer(Integer integer) {
+                v.setTextColor(integer);
+                return true;
             }
-        });
+        }));
         return v;
     }
 }
