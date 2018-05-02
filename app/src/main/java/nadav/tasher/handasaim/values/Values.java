@@ -10,7 +10,7 @@ public class Values {
     public static final String scheduleProvider = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/index.php";
     public static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
     public static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
-    public static final String fontName = "rubik.ttf";
+    public static final String fontName = "varela.ttf";
     public static final String latestFileDate = "latest_file_date_v2";
     public static final String latestFileDateRefresher = "latest_file_date_refresher";
     public static final String messageBoardSkipEnabler = "installed_pass_news_code_v3";

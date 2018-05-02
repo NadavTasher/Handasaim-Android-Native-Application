@@ -193,7 +193,7 @@ public class Main extends Activity {
     }
 
     private void taskDesc() {
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_icon);
         ActivityManager.TaskDescription taskDesc;
         if (mAppView == null) {
             taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, (colorA));
