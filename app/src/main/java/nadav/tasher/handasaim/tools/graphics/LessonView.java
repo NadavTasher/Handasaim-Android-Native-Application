@@ -3,6 +3,7 @@ package nadav.tasher.handasaim.tools.graphics;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -10,8 +11,8 @@ import android.widget.TextView;
 
 import nadav.tasher.handasaim.activities.Main;
 import nadav.tasher.handasaim.tools.TowerHub;
-import nadav.tasher.lightool.communication.Tunnel;
 import nadav.tasher.lightool.info.Device;
+import nadav.tasher.lightool.parts.Peer;
 
 public class LessonView  extends LinearLayout {
     static final String rtlMark = "\u200F";
@@ -89,21 +90,24 @@ public class LessonView  extends LinearLayout {
         teacherTv.setLayoutParams(new LayoutParams(Device.screenX(getContext()) / 2 - getPaddingRight(), ViewGroup.LayoutParams.WRAP_CONTENT));
         timeTv.setLayoutParams(new LayoutParams(Device.screenX(getContext()) / 2 - getPaddingLeft(), ViewGroup.LayoutParams.WRAP_CONTENT));
         setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 7));
-        TowerHub.textColorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+        Log.i("LessonView",""+Device.screenY(getContext()) / 7);
+        TowerHub.textColorChangeTunnle.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
             @Override
-            public void onReceive(Integer response) {
-                lessonTv.setTextColor(response);
-                teacherTv.setTextColor(response);
-                timeTv.setTextColor(response);
+            public boolean onPeer(Integer integer) {
+                lessonTv.setTextColor(integer);
+                teacherTv.setTextColor(integer);
+                timeTv.setTextColor(integer);
+                return true;
             }
-        });
-        TowerHub.fontSizeChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+        }));
+        TowerHub.fontSizeChangeTunnle.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
             @Override
-            public void onReceive(Integer response) {
+            public boolean onPeer(Integer response) {
                 lessonTv.setTextSize(response);
                 teacherTv.setTextSize((float) (response * 0.8));
                 timeTv.setTextSize((float) (response * 0.8));
+                return true;
             }
-        });
+        }));
     }
 }

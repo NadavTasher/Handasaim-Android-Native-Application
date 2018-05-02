@@ -252,6 +252,21 @@ public class AppCore {
         }
     }
 
+    public static int getGrade(StudentClass s) {
+        String parsing = s.name;
+        if (parsing.contains("י")) {
+            if (parsing.contains("א")) {
+                return 2;
+            } else if (parsing.contains("ב")) {
+                return 3;
+            } else {
+                return 1;
+            }
+        } else {
+            return 0;
+        }
+    }
+
     public static String getGrade(int grade) {
         switch (grade) {
             case 0:

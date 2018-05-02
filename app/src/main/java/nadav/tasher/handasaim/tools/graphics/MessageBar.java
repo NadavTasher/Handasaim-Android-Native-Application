@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +18,9 @@ import java.util.ArrayList;
 import nadav.tasher.handasaim.activities.Main;
 import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.values.Values;
-import nadav.tasher.lightool.communication.Tunnel;
 import nadav.tasher.lightool.graphics.views.appview.navigation.Drag;
 import nadav.tasher.lightool.info.Device;
+import nadav.tasher.lightool.parts.Peer;
 
 public class MessageBar extends LinearLayout {
 
@@ -32,7 +33,7 @@ public class MessageBar extends LinearLayout {
     private Activity a;
 
     public MessageBar(Activity context, ArrayList<String> messages, Drag drag) {
-        super(context);
+        super(context.getApplicationContext());
         this.a = context;
         this.messages = messages;
         this.messageViews = new ArrayList<>();
@@ -45,7 +46,8 @@ public class MessageBar extends LinearLayout {
         setGravity(Gravity.CENTER);
         setBackground(Main.generateCoaster(getContext(), Values.messageColor));
         setPadding(10,10,10,10);
-        setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext())/10));
+        setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext())/10));
+        Log.i("MessageBar",""+Device.screenY(getContext())/10);
 
         for (int a = 0; a < messages.size(); a++) {
             TextView t=getTextView(messages.get(a), Main.getTextColor(getContext()),true);
@@ -56,6 +58,7 @@ public class MessageBar extends LinearLayout {
                     public void onClick(View v) {
                         ScrollView sv=new ScrollView(getContext());
                         sv.addView(getTextView(messages.get(finalA),Main.getTextColor(getContext()),false));
+                        sv.setFillViewport(true);
                         dn.setContent(sv);
                         dn.open(false);
                     }
@@ -187,12 +190,13 @@ public class MessageBar extends LinearLayout {
         v.setSingleLine(singleLine);
         v.setEllipsize(TextUtils.TruncateAt.END);
         v.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        TowerHub.textColorChangeTunnle.addReceiver(new Tunnel.OnTunnel<Integer>() {
+        TowerHub.textColorChangeTunnle.addPeer( new Peer<Integer>(new Peer.OnPeer<Integer>() {
             @Override
-            public void onReceive(Integer response) {
-                v.setTextColor(response);
+            public boolean onPeer(Integer integer) {
+                v.setTextColor(integer);
+                return true;
             }
-        });
+        }));
         return v;
     }
 }

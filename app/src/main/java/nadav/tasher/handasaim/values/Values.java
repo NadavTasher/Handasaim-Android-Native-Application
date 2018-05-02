@@ -15,6 +15,7 @@ public class Values {
     public static final String latestFileDateRefresher = "latest_file_date_refresher";
     public static final String messageBoardSkipEnabler = "installed_pass_news_code_v3";
     public static final String teacherModeEnabler = "installed_teacher_mode_v2";
+    public static final String betaModeEnabler = "beta_mode_v1";
     public static final String breakTime = "break_time";
     public static final String pushService = "push_service";
     public static final String fontColor = "font_color";

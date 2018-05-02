@@ -24,7 +24,6 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -48,6 +47,7 @@ import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.StudentClass;
 import nadav.tasher.handasaim.architecture.Teacher;
 import nadav.tasher.handasaim.tools.TowerHub;
+import nadav.tasher.handasaim.tools.architecture.AppCore;
 import nadav.tasher.handasaim.tools.architecture.Starter;
 import nadav.tasher.handasaim.tools.graphics.LessonView;
 import nadav.tasher.handasaim.tools.graphics.MessageBar;
@@ -215,6 +215,13 @@ public class Main extends Activity {
 
     private void loadKey(int type) {
         switch (type) {
+            case -1:
+                Toast.makeText(getApplicationContext(), "Beta Mode Enabled.", Toast.LENGTH_SHORT).show();
+                sp.edit().putBoolean(Values.betaModeEnabler, true).commit();
+                break;
+            case 0:
+                Toast.makeText(getApplicationContext(), "Dummy Key! This Key Is Useless!", Toast.LENGTH_SHORT).show();
+                break;
             case 1:
                 sp.edit().putBoolean(Values.messageBoardSkipEnabler, true).commit();
                 break;
@@ -265,14 +272,19 @@ public class Main extends Activity {
     private void popupKeyEntering() {
         AlertDialog.Builder pop = new AlertDialog.Builder(this);
         pop.setCancelable(true);
-        pop.setTitle("Enter Unlock Key");
+        pop.setTitle("Unlock Features");
+        pop.setMessage("Enter The Unlock Key You Got To Unlock Special Features.");
         final EditText key = new EditText(this);
         key.setFilters(new InputFilter[]{
                 Filters.codeFilter,
                 new InputFilter.AllCaps()
         });
-        pop.setView(key);
-        key.setLayoutParams(new WindowManager.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        FrameLayout f = new FrameLayout(getApplicationContext());
+        f.setPadding(50, 10, 50, 10);
+        f.addView(key);
+        key.setHint("Unlock Key");
+        pop.setView(f);
+        key.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         pop.setPositiveButton("Unlock", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -292,26 +304,26 @@ public class Main extends Activity {
         keyentering++;
         if (keyentering == Values.maxKeyEntering) {
             keyentering = 0;
-            ab.setNegativeButton("Enter Code", new DialogInterface.OnClickListener() {
+            ab.setNeutralButton("Enter Code", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     popupKeyEntering();
                 }
             });
-        } else {
-            ab.setNegativeButton("Easter Egg", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    keyentering = 0;
-                    mAppView.getDrag().setContent(getTextView(Egg.dispenseEgg(Egg.TYPE_BOTH), textColor));
-                    mAppView.getDrag().open(false);
-                }
-            });
         }
+        ab.setNegativeButton("Easter Egg", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                keyentering = 0;
+                mAppView.getDrag().setContent(getTextView(Egg.dispenseEgg(Egg.TYPE_BOTH), textColor));
+                mAppView.getDrag().open(false);
+            }
+        });
         ab.show();
     }
 
     private void initStageB() {
+        loadTheme();
         final int x = Device.screenX(getApplicationContext());
         final int squirclePadding = x / 30;
         final int squircleSize = (int) (x / 4.2);
@@ -321,6 +333,7 @@ public class Main extends Activity {
         topper.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
         topper.setPadding(squirclePadding, 0, squirclePadding, 0);
         main = new Squircle(getApplicationContext(), squircleSize, colorA);
+        main.setTypeface(getTypeface());
         mAppView = new AppView(getApplicationContext(), getDrawable(R.drawable.ic_icon), Values.navColor, main);
         mAppView.getDrag().setOnIconClick(new View.OnClickListener() {
             @Override
@@ -345,10 +358,6 @@ public class Main extends Activity {
             public void onBoth(boolean b) {
             }
         });
-        //        masterLayout.addView(optionHolder);
-        //        circleView.setX(x - circleView.xy - circlePadding);
-        //        circleView.setY(y - circleView.xy - getNavSize() / 2 - circlePadding);
-        //        optionHolder.setY(y - (y - circleView.getY()) - (((options.length + 1) * circlePadding) / 2) - (options.length * circleSize + circlePadding));
         mAppView.getDrag().setOnStateChangedListener(new Drag.OnStateChangedListener() {
             @Override
             public void onOpen() {
@@ -361,7 +370,13 @@ public class Main extends Activity {
                 mAppView.getDrag().emptyContent();
             }
         });
-        refreshTheme();
+        TowerHub.colorAChangeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
+            @Override
+            public boolean onPeer(Integer integer) {
+                main.setColor(integer);
+                return true;
+            }
+        }));
         mAppView.getBar().addSquircles(getSquircles(squircleSize));
         scheduleLayout = new LinearLayout(this);
         scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
@@ -374,6 +389,8 @@ public class Main extends Activity {
         lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.addView(lessonViewHolder);
+        refreshTheme();
+
         mAppView.setContent(scheduleLayout);
         StudentClass c = getFavoriteClass();
         if (classes != null) if (c != null) setStudentMode(c);
@@ -589,6 +606,17 @@ public class Main extends Activity {
         if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
             squircles.add(devPanel);
         }
+        TowerHub.colorAChangeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
+            @Override
+            public boolean onPeer(Integer integer) {
+                news.setColor(integer);
+                choose.setColor(integer);
+                share.setColor(integer);
+                settings.setColor(integer);
+                devPanel.setColor(integer);
+                return true;
+            }
+        }));
         return squircles;
     }
 
@@ -920,8 +948,16 @@ public class Main extends Activity {
         teachersTitle.setTextSize(getFontSize() - 5);
         teachersTitle.setTextColor(textColor);
         teachersTitle.setGravity(Gravity.CENTER);
-        students.addView(studentsTitle);
+        all.addView(studentsTitle);
+        students.setPadding(10, 10, 10, 10);
+        teachersv.setPadding(10, 10, 10, 10);
+        if (!sp.getBoolean(Values.teacherModeEnabler, false)) {
+            students.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            all.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
+        ArrayList<LinearLayout> groups = new ArrayList<>();
         for (int cs = 0; cs < classes.size(); cs++) {
+            int grade = AppCore.getGrade(classes.get(cs));
             Button cls = new Button(getApplicationContext());
             cls.setTextSize((float) getFontSize());
             cls.setGravity(Gravity.CENTER);
@@ -930,8 +966,7 @@ public class Main extends Activity {
             cls.setBackground(generateCoaster(coasterColor));
             cls.setPadding(10, 0, 10, 0);
             cls.setTypeface(getTypeface());
-            cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 12)));
-            students.addView(cls);
+            cls.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getApplicationContext()) / 5, (Device.screenY(getApplicationContext()) / 12)));
             final int finalCs = cs;
             cls.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -940,10 +975,22 @@ public class Main extends Activity {
                     setStudentMode(classes.get(finalCs));
                 }
             });
+            if (groups.size() > grade && groups.get(grade) != null) {
+                groups.get(grade).addView(cls);
+            } else {
+                LinearLayout c = new LinearLayout(getApplicationContext());
+                c.setOrientation(LinearLayout.HORIZONTAL);
+                c.setGravity(Gravity.CENTER);
+                groups.add(grade, c);
+                groups.get(grade).addView(cls);
+            }
+        }
+        for (int i = 0; i < groups.size(); i++) {
+            students.addView(groups.get(i));
         }
         all.addView(students);
         if (sp.getBoolean(Values.teacherModeEnabler, false)) {
-            teachersv.addView(teachersTitle);
+            all.addView(teachersTitle);
             for (int cs = 0; cs < teachers.size(); cs++) {
                 Button cls = new Button(getApplicationContext());
                 cls.setTextSize((float) getFontSize());
@@ -968,6 +1015,8 @@ public class Main extends Activity {
         }
         ScrollView sv = new ScrollView(this);
         sv.addView(all);
+        sv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        sv.setFillViewport(true);
         return sv;
     }
 
