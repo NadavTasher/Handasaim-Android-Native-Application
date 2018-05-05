@@ -390,7 +390,6 @@ public class Main extends Activity {
         lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.addView(lessonViewHolder);
         refreshTheme();
-
         mAppView.setContent(scheduleLayout);
         StudentClass c = getFavoriteClass();
         if (classes != null) if (c != null) setStudentMode(c);

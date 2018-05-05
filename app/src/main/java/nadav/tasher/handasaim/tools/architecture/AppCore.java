@@ -1,6 +1,7 @@
 package nadav.tasher.handasaim.tools.architecture;
 
 import org.apache.poi.hssf.usermodel.HSSFPatriarch;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFShape;
 import org.apache.poi.hssf.usermodel.HSSFTextbox;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -101,7 +102,19 @@ public class AppCore {
         List<HSSFShape> shapes=patriarch.getChildren();
         for(int s=0;s<shapes.size();s++){
             if(shapes.get(s) instanceof HSSFTextbox){
-                messages.add(((HSSFTextbox)shapes.get(s)).getString().getString());
+                try {
+                    HSSFShape mShape = shapes.get(s);
+                    if (mShape != null) {
+                        HSSFTextbox mTextShape = (HSSFTextbox) mShape;
+                        HSSFRichTextString mString = mTextShape.getString();
+                        if (mString != null) {
+                            messages.add(mString.getString());
+                        }
+                    }
+                }catch (NullPointerException ignored){
+
+                }
+//                messages.add(((HSSFTextbox)shapes.get(s)).getString().getString());
             }
         }
         return messages;

@@ -5,7 +5,6 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +36,7 @@ public class MessageBar extends LinearLayout {
         this.a = context;
         this.messages = messages;
         this.messageViews = new ArrayList<>();
-        this.dn=drag;
+        this.dn = drag;
         init();
     }
 
@@ -45,25 +44,23 @@ public class MessageBar extends LinearLayout {
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER);
         setBackground(Main.generateCoaster(getContext(), Values.messageColor));
-        setPadding(10,10,10,10);
-        setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext())/10));
-        Log.i("MessageBar",""+Device.screenY(getContext())/10);
-
+        setPadding(20, 10, 20, 10);
+        setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
+        //        Log.i("MessageBar",""+Device.screenY(getContext())/10);
         for (int a = 0; a < messages.size(); a++) {
-            TextView t=getTextView(messages.get(a), Main.getTextColor(getContext()),true);
-            if(dn!=null){
+            TextView t = getTextView(messages.get(a), Main.getTextColor(getContext()), true);
+            if (dn != null) {
                 final int finalA = a;
                 t.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ScrollView sv=new ScrollView(getContext());
-                        sv.addView(getTextView(messages.get(finalA),Main.getTextColor(getContext()),false));
+                        ScrollView sv = new ScrollView(getContext());
+                        sv.addView(getTextView(messages.get(finalA), Main.getTextColor(getContext()), false));
                         sv.setFillViewport(true);
                         dn.setContent(sv);
                         dn.open(false);
                     }
                 });
-
             }
             messageViews.add(t);
         }
@@ -160,37 +157,36 @@ public class MessageBar extends LinearLayout {
 
             @Override
             public void run() {
-                    a.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            go();
-                        }
-                    });
-
+                a.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        go();
+                    }
+                });
             }
         });
     }
 
     public void start() {
-        if(animate!=null)
-        animate.start();
+        if (animate != null)
+            animate.start();
     }
 
     public void stop() {
         alive = false;
     }
 
-    private TextView getTextView(String t, int textColor,boolean singleLine) {
+    private TextView getTextView(String t, int textColor, boolean singleLine) {
         final TextView v = new TextView(getContext());
         v.setTextColor(textColor);
-        v.setTextSize((float) (Main.getFontSize(getContext())/1.5));
+        v.setTextSize((float) (Main.getFontSize(getContext()) / 1.5));
         v.setText(t);
         v.setGravity(Gravity.CENTER);
         v.setTypeface(Main.getTypeface(getContext()));
         v.setSingleLine(singleLine);
         v.setEllipsize(TextUtils.TruncateAt.END);
         v.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        TowerHub.textColorChangeTunnle.addPeer( new Peer<Integer>(new Peer.OnPeer<Integer>() {
+        TowerHub.textColorChangeTunnle.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
             @Override
             public boolean onPeer(Integer integer) {
                 v.setTextColor(integer);
