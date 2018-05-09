@@ -115,7 +115,6 @@ public class Welcome extends Activity {
         se.putInt(Values.fontSizeNumber, Values.fontSizeDefault);
         se.putBoolean(Values.pushService, Values.pushDefault);
         se.putBoolean(Values.breakTime, Values.breakTimeDefault);
-        se.putBoolean(Values.autoMute, Values.autoMuteDefault);
         se.putInt(fontColor, fontColorDefault);
         se.putInt(Values.colorA, Values.defaultColorA);
         se.putInt(Values.colorB, Values.defaultColorB);

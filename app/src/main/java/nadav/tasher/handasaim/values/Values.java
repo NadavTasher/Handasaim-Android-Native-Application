@@ -1,7 +1,7 @@
 package nadav.tasher.handasaim.values;
 
 public class Values {
-    public static final String prefName = "app_v4";
+    public static final String prefName = "app_v5";
     public static final String keyPrefName = "keys_v1";
     public static final String pushProvider = "http://h.nockio.com/pushes.json";
     public static final String keyProvider = "http://h.nockio.com/keys/index.php";
@@ -9,15 +9,12 @@ public class Values {
     public static final String developingUrl = "http://p.nockio.com/handasaim/develop";
     public static final String serviceProvider = "http://handasaim.co.il";
     public static final String scheduleProvider = "http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/index.php";
-    public static final String KILL_DND = "nadav.tasher.handasaim.KILL_DND";
-    public static final String KILL_DND_SERVICE = "nadav.tasher.handasaim.KILL_DND_SERVICE";
     public static final String fontName = "varela.ttf";
     public static final String latestFileDate = "latest_file_date_v2";
     public static final String latestFileDateRefresher = "latest_file_date_refresher";
     public static final String breakTime = "break_time";
     public static final String pushService = "push_service";
     public static final String fontColor = "font_color";
-    public static final String autoMute = "auto_mute";
     public static final String fontSizeNumber = "font_size_v2";
     public static final String colorA = "colorA";
     public static final String colorB = "colorB";
@@ -33,10 +30,8 @@ public class Values {
     public static final boolean pushDefault = true;
     public static final boolean scheduleDefault = true;
     public static final boolean breakTimeDefault = true;
-    public static final boolean autoMuteDefault = false;
     public static final boolean devModeDefault = false;
     public static final boolean colorForceDefault = false;
-    public static final int maxKeyEntering = 4;
     public static final int waitTime = 10;
     public static final int bakedIconColor = 0xffdd8833;
     public static final int refreshLoop = (int) (1000 * 60 * 30);

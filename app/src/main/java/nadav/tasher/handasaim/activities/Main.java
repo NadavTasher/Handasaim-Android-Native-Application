@@ -3,7 +3,6 @@ package nadav.tasher.handasaim.activities;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,9 +15,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -197,7 +194,7 @@ public class Main extends Activity {
     private void initStageA() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
-        keyManager=new KeyManager(getApplicationContext());
+        keyManager = new KeyManager(getApplicationContext());
         Starter.scheduleJobs(getApplicationContext());
         String file = sp.getString(Values.scheduleFile, null);
         if (file != null) {
@@ -237,17 +234,15 @@ public class Main extends Activity {
         ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Device.getVersionCode(getApplicationContext(), getPackageName()));
         ab.setCancelable(true);
         ab.setPositiveButton("Close", null);
-
-            ab.setNeutralButton("Enter Code", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    popupKeyEntering();
-                }
-            });
+        ab.setNeutralButton("Enter Code", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                popupKeyEntering();
+            }
+        });
         ab.setNegativeButton("Easter Egg", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
                 mAppView.getDrag().setContent(getTextView(Egg.dispenseEgg(Egg.TYPE_BOTH), textColor));
                 mAppView.getDrag().open(false);
             }
@@ -576,6 +571,7 @@ public class Main extends Activity {
         shareMessageSwitch.setTextSize(getFontSize() - 4);
         shareMessageSwitch.setTextColor(textColor);
         shareMessageSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        shareMessageSwitch.setEnabled(!messages.isEmpty());
         Button shareB = new Button(this);
         String shareText = getString(R.string.share) + " " + currentClass.name;
         shareB.setText(shareText);
@@ -611,26 +607,22 @@ public class Main extends Activity {
         settings.setOrientation(LinearLayout.VERTICAL);
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        final Switch autoMuteSwitch = new Switch(this), devSwitch = new Switch(this), newScheduleSwitch = new Switch(this), breakTimeSwitch = new Switch(this), pushSwitch = new Switch(this);
+        final Switch devSwitch = new Switch(this), newScheduleSwitch = new Switch(this), breakTimeSwitch = new Switch(this), pushSwitch = new Switch(this);
         pushSwitch.setText(R.string.live_messages);
         newScheduleSwitch.setText(R.string.schedule_notification);
         breakTimeSwitch.setText(R.string.show_breaks);
-        autoMuteSwitch.setText(R.string.auto_mute);
         devSwitch.setText(R.string.developer_mode);
         pushSwitch.setChecked(sp.getBoolean(Values.pushService, Values.pushDefault));
         newScheduleSwitch.setChecked(sp.getBoolean(Values.scheduleService, Values.scheduleDefault));
         breakTimeSwitch.setChecked(sp.getBoolean(Values.breakTime, Values.breakTimeDefault));
-        autoMuteSwitch.setChecked(sp.getBoolean(Values.autoMute, Values.autoMuteDefault));
         devSwitch.setChecked(sp.getBoolean(Values.devMode, Values.devModeDefault));
         pushSwitch.setTextSize((float) (getFontSize() / 1.5));
         breakTimeSwitch.setTextSize((float) (getFontSize() / 1.5));
-        autoMuteSwitch.setTextSize((float) (getFontSize() / 1.5));
         newScheduleSwitch.setTextSize((float) (getFontSize() / 1.5));
         devSwitch.setTextSize((float) (getFontSize() / 1.5));
         pushSwitch.setTypeface(getTypeface());
         newScheduleSwitch.setTypeface(getTypeface());
         breakTimeSwitch.setTypeface(getTypeface());
-        autoMuteSwitch.setTypeface(getTypeface());
         devSwitch.setTypeface(getTypeface());
         breakTimeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -639,51 +631,6 @@ public class Main extends Activity {
                 //                breakTime=sp.getBoolean(Values.breakTime,Values.breakTimeDefault);
                 breakTime = isChecked;
                 TowerHub.breakTimeTunnle.tell(breakTime);
-            }
-        });
-        autoMuteSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    boolean granted = false;
-                    if (nm != null) {
-                        granted = nm.isNotificationPolicyAccessGranted();
-                    }
-                    if (!granted) {
-                        AlertDialog.Builder pop = new AlertDialog.Builder(Main.this);
-                        pop.setCancelable(true);
-                        pop.setMessage("You must enable 'Do Not Disturb' permissions for the app.");
-                        pop.setPositiveButton("Open Settings", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                if (Build.VERSION.SDK_INT >= 23) {
-                                    sp.edit().putBoolean(Values.autoMute, true).apply();
-                                    startActivityForResult(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), 0);
-                                }
-                            }
-                        });
-                        pop.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                autoMuteSwitch.setChecked(false);
-                                sp.edit().putBoolean(Values.autoMute, false).apply();
-                            }
-                        });
-                        pop.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                            @Override
-                            public void onCancel(DialogInterface dialogInterface) {
-                                autoMuteSwitch.setChecked(false);
-                                sp.edit().putBoolean(Values.autoMute, false).apply();
-                            }
-                        });
-                        pop.show();
-                    } else {
-                        sp.edit().putBoolean(Values.autoMute, true).apply();
-                    }
-                } else {
-                    sp.edit().putBoolean(Values.autoMute, false).apply();
-                }
             }
         });
         pushSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -792,7 +739,6 @@ public class Main extends Activity {
             public boolean onPeer(Integer response) {
                 pushSwitch.setTextSize((float) (response / 1.5));
                 breakTimeSwitch.setTextSize((float) (response / 1.5));
-                autoMuteSwitch.setTextSize((float) (response / 1.5));
                 newScheduleSwitch.setTextSize((float) (response / 1.5));
                 devSwitch.setTextSize((float) (response / 1.5));
                 explainColorA.setTextSize((float) (response / 1.5));
@@ -807,7 +753,6 @@ public class Main extends Activity {
             public boolean onPeer(Integer response) {
                 pushSwitch.setTextColor(response);
                 breakTimeSwitch.setTextColor(response);
-                autoMuteSwitch.setTextColor(response);
                 newScheduleSwitch.setTextColor(response);
                 devSwitch.setTextColor(response);
                 explainColorA.setTextColor(response);
@@ -817,7 +762,6 @@ public class Main extends Activity {
                 return true;
             }
         }));
-        settings.addView(autoMuteSwitch);
         settings.addView(newScheduleSwitch);
         settings.addView(pushSwitch);
         settings.addView(breakTimeSwitch);
