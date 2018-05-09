@@ -36,8 +36,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.poi.ss.usermodel.Sheet;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -48,6 +46,7 @@ import nadav.tasher.handasaim.architecture.StudentClass;
 import nadav.tasher.handasaim.architecture.Teacher;
 import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.tools.architecture.AppCore;
+import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.tools.architecture.Starter;
 import nadav.tasher.handasaim.tools.graphics.LessonView;
 import nadav.tasher.handasaim.tools.graphics.MessageBar;
@@ -55,11 +54,6 @@ import nadav.tasher.handasaim.tools.specific.GetNews;
 import nadav.tasher.handasaim.values.Egg;
 import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.handasaim.values.Values;
-import nadav.tasher.lightool.communication.OnFinish;
-import nadav.tasher.lightool.communication.SessionStatus;
-import nadav.tasher.lightool.communication.network.Ping;
-import nadav.tasher.lightool.communication.network.request.Post;
-import nadav.tasher.lightool.communication.network.request.RequestParameter;
 import nadav.tasher.lightool.graphics.views.ColorPicker;
 import nadav.tasher.lightool.graphics.views.appview.AppView;
 import nadav.tasher.lightool.graphics.views.appview.navigation.Drag;
@@ -87,7 +81,6 @@ public class Main extends Activity {
     private int colorA = Values.defaultColorA;
     private int colorB = Values.defaultColorB;
     private int coasterColor = Values.defaultColorB;
-    private int keyentering = 0;
     private String day;
     private StudentClass currentClass;
     private Teacher currentTeacher;
@@ -100,6 +93,7 @@ public class Main extends Activity {
     private ArrayList<Teacher> teachers;
     private ArrayList<String> messages;
     private SharedPreferences sp;
+    private KeyManager keyManager;
     private boolean breakTime = true;
 
     public static int getFontSize(Context c) {
@@ -141,8 +135,6 @@ public class Main extends Activity {
 
     public static void startMe(Activity c) {
         Intent intent = new Intent(c, Main.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS);
         c.startActivity(intent);
         c.overridePendingTransition(R.anim.out, R.anim.in);
         c.finish();
@@ -150,7 +142,6 @@ public class Main extends Activity {
 
     public static void returnToMe(Activity c) {
         Intent intent = new Intent(c, Main.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         c.startActivity(intent);
         c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
         c.finish();
@@ -206,67 +197,12 @@ public class Main extends Activity {
     private void initStageA() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
+        keyManager=new KeyManager(getApplicationContext());
         Starter.scheduleJobs(getApplicationContext());
         String file = sp.getString(Values.scheduleFile, null);
         if (file != null) {
             parseAndLoad(new File(file));
         }
-    }
-
-    private void loadKey(int type) {
-        switch (type) {
-            case -1:
-                Toast.makeText(getApplicationContext(), "Beta Mode Enabled.", Toast.LENGTH_SHORT).show();
-                sp.edit().putBoolean(Values.betaModeEnabler, true).commit();
-                break;
-            case 0:
-                Toast.makeText(getApplicationContext(), "Dummy Key! This Key Is Useless!", Toast.LENGTH_SHORT).show();
-                break;
-            case 1:
-                sp.edit().putBoolean(Values.messageBoardSkipEnabler, true).commit();
-                break;
-            case 2:
-                Toast.makeText(getApplicationContext(), "Teacher Mode Enabled.", Toast.LENGTH_SHORT).show();
-                sp.edit().putBoolean(Values.teacherModeEnabler, true).commit();
-                break;
-            default:
-                break;
-        }
-        Toast.makeText(getApplicationContext(), "Key loaded successfully.", Toast.LENGTH_SHORT).show();
-    }
-
-    private void checkAndLoadKey(final String key) {
-        new Ping(Values.puzProvider, 10000, new Ping.OnEnd() {
-            @Override
-            public void onPing(boolean b) {
-                if (b) {
-                    RequestParameter[] requestParameters = new RequestParameter[]{new RequestParameter("deactivate", key)};
-                    new Post(Values.keyProvider, requestParameters, new OnFinish() {
-                        @Override
-                        public void onFinish(SessionStatus sessionStatus) {
-                            try {
-                                JSONObject o = new JSONObject(sessionStatus.getExtra());
-                                if (o.getBoolean("success")) {
-                                    if (o.getString("key").equals(key)) {
-                                        loadKey(o.getInt("type"));
-                                    } else {
-                                        Toast.makeText(getApplicationContext(), "Key comparison failed.", Toast.LENGTH_SHORT).show();
-                                    }
-                                } else {
-                                    Toast.makeText(getApplicationContext(), "Key does not exist, or already used", Toast.LENGTH_SHORT).show();
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                Toast.makeText(getApplicationContext(), "Key verification failed.", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                    ).execute();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Key provider unreachable.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }).execute();
     }
 
     private void popupKeyEntering() {
@@ -288,7 +224,7 @@ public class Main extends Activity {
         pop.setPositiveButton("Unlock", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                checkAndLoadKey(key.getText().toString().toUpperCase());
+                keyManager.loadKey(key.getText().toString().toUpperCase());
             }
         });
         pop.setNegativeButton("Close", null);
@@ -301,20 +237,17 @@ public class Main extends Activity {
         ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Device.getVersionCode(getApplicationContext(), getPackageName()));
         ab.setCancelable(true);
         ab.setPositiveButton("Close", null);
-        keyentering++;
-        if (keyentering == Values.maxKeyEntering) {
-            keyentering = 0;
+
             ab.setNeutralButton("Enter Code", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     popupKeyEntering();
                 }
             });
-        }
         ab.setNegativeButton("Easter Egg", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                keyentering = 0;
+
                 mAppView.getDrag().setContent(getTextView(Egg.dispenseEgg(Egg.TYPE_BOTH), textColor));
                 mAppView.getDrag().open(false);
             }
@@ -950,7 +883,7 @@ public class Main extends Activity {
         all.addView(studentsTitle);
         students.setPadding(10, 10, 10, 10);
         teachersv.setPadding(10, 10, 10, 10);
-        if (!sp.getBoolean(Values.teacherModeEnabler, false)) {
+        if (!keyManager.isKeyLoaded(KeyManager.TYPE_TEACHER_MODE)) {
             students.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             all.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
@@ -988,7 +921,7 @@ public class Main extends Activity {
             students.addView(groups.get(i));
         }
         all.addView(students);
-        if (sp.getBoolean(Values.teacherModeEnabler, false)) {
+        if (keyManager.isKeyLoaded(KeyManager.TYPE_TEACHER_MODE)) {
             all.addView(teachersTitle);
             for (int cs = 0; cs < teachers.size(); cs++) {
                 Button cls = new Button(getApplicationContext());

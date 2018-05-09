@@ -25,7 +25,6 @@ import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.tools.Animations;
 
-import static nadav.tasher.handasaim.tools.architecture.Starter.beginDND;
 import static nadav.tasher.handasaim.values.Values.fontColor;
 import static nadav.tasher.handasaim.values.Values.fontColorDefault;
 import static nadav.tasher.handasaim.values.Values.prefName;
@@ -101,7 +100,6 @@ public class Welcome extends Activity {
             @Override
             public void onClick(View view) {
                 writeDefaults();
-                beginDND(getApplicationContext());
                 Starter.scheduleJobs(getApplicationContext());
                 Main.startMe(Welcome.this);
             }
@@ -110,7 +108,6 @@ public class Welcome extends Activity {
     }
     public static void startMe(Activity c){
         Intent intent = new Intent(c, Welcome.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         c.startActivity(intent);
         c.overridePendingTransition(R.anim.out, R.anim.in);
         c.finish();

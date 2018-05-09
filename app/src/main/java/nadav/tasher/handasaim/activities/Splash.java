@@ -29,6 +29,7 @@ import android.widget.Toast;
 import java.io.File;
 
 import nadav.tasher.handasaim.R;
+import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.tools.graphics.CurvedTextView;
 import nadav.tasher.handasaim.tools.online.FileDownloader;
 import nadav.tasher.handasaim.tools.specific.GetLink;
@@ -38,7 +39,6 @@ import nadav.tasher.lightool.graphics.ColorFadeAnimation;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.tools.Animations;
 
-import static nadav.tasher.handasaim.tools.architecture.Starter.beginDND;
 import static nadav.tasher.handasaim.values.Values.colorForce;
 import static nadav.tasher.handasaim.values.Values.colorForceDefault;
 
@@ -46,6 +46,14 @@ public class Splash extends Activity {
 
     private CurvedTextView ctv;
     private SharedPreferences sp;
+    private KeyManager keyManager;
+
+    public static void startMe(Activity c) {
+        Intent intent = new Intent(c, Splash.class);
+        c.startActivity(intent);
+        c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
+        c.finish();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,9 +71,10 @@ public class Splash extends Activity {
     private void initStageA() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
-        if(!sp.getBoolean(Values.colorForce,colorForceDefault)){
+        keyManager = new KeyManager(getApplicationContext());
+        if (!sp.getBoolean(Values.colorForce, colorForceDefault)) {
             Main.installColors(getApplicationContext());
-            sp.edit().putBoolean(colorForce,true).apply();
+            sp.edit().putBoolean(colorForce, true).apply();
         }
         initStageB();
     }
@@ -86,13 +95,12 @@ public class Splash extends Activity {
         icon.setImageDrawable(getDrawable(R.drawable.ic_icon));
         int is = (int) (Device.screenX(getApplicationContext()) * 0.8);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
-
         String curved = getString(R.string.app_name);
-        if(sp.getBoolean(Values.teacherModeEnabler,false)){
-            curved="Shlomi Mode";
+        if (keyManager.isKeyLoaded(KeyManager.TYPE_TEACHER_MODE)) {
+            curved = "Shlomi Mode";
         }
-        if(sp.getBoolean(Values.devMode,Values.devModeDefault)){
-            curved="Developer Mode";
+        if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
+            curved = "Developer Mode";
         }
         ctv = new CurvedTextView(this, curved, 50, Values.bakedIconColor, Device.screenX(this), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.3)));
@@ -204,7 +212,6 @@ public class Splash extends Activity {
 
     private void initStageE() {
         if (!sp.getBoolean(Values.firstLaunch, true)) {
-            beginDND(getApplicationContext());
             News.startMe(this);
         } else {
             Welcome.startMe(this);
@@ -229,13 +236,4 @@ public class Splash extends Activity {
         });
         pop.show();
     }
-
-    public static void startMe(Activity c) {
-        Intent intent = new Intent(c, Splash.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        c.startActivity(intent);
-        c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
-        c.finish();
-    }
-
 }

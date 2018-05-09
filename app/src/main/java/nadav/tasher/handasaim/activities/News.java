@@ -25,6 +25,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import nadav.tasher.handasaim.R;
+import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.tools.online.PictureLoader;
 import nadav.tasher.handasaim.tools.specific.GetNews;
 import nadav.tasher.handasaim.values.Egg;
@@ -34,19 +35,20 @@ import nadav.tasher.lightool.info.Device;
 public class News extends Activity {
 
     private SharedPreferences sp;
+    private KeyManager keyManager;
+    private boolean started = false;
+
+    public static void startMe(Activity c) {
+        Intent intent = new Intent(c, News.class);
+        c.startActivity(intent);
+        c.overridePendingTransition(R.anim.out, R.anim.in);
+        c.finish();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initStageA();
-    }
-
-    public static void startMe(Activity c){
-        Intent intent = new Intent(c, News.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        c.startActivity(intent);
-        c.overridePendingTransition(R.anim.out, R.anim.in);
-        c.finish();
     }
 
     private void taskDesc() {
@@ -59,6 +61,7 @@ public class News extends Activity {
     private void initStageA() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
+        keyManager=new KeyManager(getApplicationContext());
         initStageB();
     }
 
@@ -66,8 +69,11 @@ public class News extends Activity {
         taskDesc();
         getWindow().setStatusBarColor(Main.getColorA(getApplicationContext()));
         getWindow().setNavigationBarColor(Main.getColorB(getApplicationContext()));
-        if (sp.getBoolean(Values.messageBoardSkipEnabler, false)) {
-            Main.startMe(this);
+        if (keyManager.isKeyLoaded(KeyManager.TYPE_MESSAGE_BOARD)) {
+            if (!started) {
+                started = true;
+                Main.startMe(this);
+            }
         } else {
             final LinearLayout full = new LinearLayout(getApplicationContext());
             full.setGravity(Gravity.CENTER);
@@ -107,7 +113,7 @@ public class News extends Activity {
             //        news.setAlpha(0.5f);
             newsAll.addView(news);
             final ScrollView newsAllSV = new ScrollView(getApplicationContext());
-//            full.setBackgroundColor(Main.getColorB(getApplicationContext()));
+            //            full.setBackgroundColor(Main.getColorB(getApplicationContext()));
             full.setBackground(Main.getGradient(getApplicationContext()));
             newsAllSV.addView(newsAll);
             newsAllSV.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -127,7 +133,7 @@ public class News extends Activity {
                         Button newtopic = new Button(getApplicationContext());
                         nt.addView(newtopic);
                         nt.setPadding(10, 10, 10, 10);
-                        nt.setBackground(Main.generateCoaster(getApplicationContext(),Values.classCoasterColor));
+                        nt.setBackground(Main.generateCoaster(getApplicationContext(), Values.classCoasterColor));
                         newtopic.setText(link.get(n).name);
                         newtopic.setEllipsize(TextUtils.TruncateAt.END);
                         newtopic.setTextColor(Main.getTextColor(getApplicationContext()));
@@ -178,7 +184,10 @@ public class News extends Activity {
 
                 @Override
                 public void onFail(ArrayList<GetNews.Link> e) {
-
+                    if (!started) {
+                        started = true;
+                        Main.startMe(News.this);
+                    }
                 }
             }).execute();
             new CountDownTimer((Values.waitTime + 1) * 1000, 1000) {
@@ -186,7 +195,10 @@ public class News extends Activity {
                 @Override
                 public void onTick(long millisUntilFinished) {
                     if (millisUntilFinished <= 2000) {
-                        Main.startMe(News.this);
+                        if (!started) {
+                            started = true;
+                            Main.startMe(News.this);
+                        }
                     }
                 }
 

@@ -4,11 +4,9 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
-import nadav.tasher.handasaim.services.DNDService;
 import nadav.tasher.handasaim.services.PushService;
 import nadav.tasher.handasaim.services.RefreshService;
 import nadav.tasher.handasaim.values.Values;
@@ -17,14 +15,6 @@ public class Starter {
 
     static final int REFRESH_ID = 102;
     static final int PUSH_ID = 103;
-
-    public static void beginDND(Context c) {
-        try {
-            c.sendBroadcast(new Intent(Values.KILL_DND_SERVICE));
-            c.startService(new Intent(c, DNDService.class));
-        } catch (IllegalStateException ignored) {
-        }
-    }
 
     public static void startRefresh(Context c) {
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
