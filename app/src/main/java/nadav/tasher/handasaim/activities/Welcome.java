@@ -31,9 +31,6 @@ import static nadav.tasher.handasaim.values.Values.prefName;
 
 public class Welcome extends Activity {
 
-    private SharedPreferences sp;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +46,6 @@ public class Welcome extends Activity {
 
     private void initStageA() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
-        sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
         initStageB();
     }
 

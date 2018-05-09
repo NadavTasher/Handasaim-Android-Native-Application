@@ -2,9 +2,7 @@ package nadav.tasher.handasaim.activities;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -34,7 +32,6 @@ import nadav.tasher.lightool.info.Device;
 
 public class News extends Activity {
 
-    private SharedPreferences sp;
     private KeyManager keyManager;
     private boolean started = false;
 
@@ -60,7 +57,6 @@ public class News extends Activity {
 
     private void initStageA() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
-        sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
         keyManager=new KeyManager(getApplicationContext());
         initStageB();
     }

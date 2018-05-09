@@ -13,8 +13,8 @@ import nadav.tasher.handasaim.values.Values;
 
 public class Starter {
 
-    static final int REFRESH_ID = 102;
-    static final int PUSH_ID = 103;
+    private static final int REFRESH_ID = 102;
+    private static final int PUSH_ID = 103;
 
     public static void startRefresh(Context c) {
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
@@ -55,7 +55,7 @@ public class Starter {
         startRefresh(c);
     }
 
-    public static boolean isJobServiceOn(Context context, int id) {
+    private static boolean isJobServiceOn(Context context, int id) {
         JobScheduler scheduler = context.getSystemService(JobScheduler.class);
         boolean hasBeenScheduled = false;
         if (scheduler != null) {

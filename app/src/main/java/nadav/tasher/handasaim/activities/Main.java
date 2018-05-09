@@ -704,7 +704,7 @@ public class Main extends Activity {
                 if (isChecked) {
                     devModeConfirm(devSwitch);
                 } else {
-                    if (sp.getBoolean(Values.devMode, Values.devModeDefault) != isChecked) {
+                    if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
                         sp.edit().putBoolean(Values.devMode, false).apply();
                         Splash.startMe(Main.this);
                     }
