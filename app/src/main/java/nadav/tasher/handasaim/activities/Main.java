@@ -30,7 +30,6 @@ import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -526,8 +525,7 @@ public class Main extends Activity {
 
             @Override
             public void onBoth(boolean isOpened) {
-                //                Developer.startMe(Main.this);
-                Toast.makeText(getApplicationContext(), "Coming Soon", Toast.LENGTH_LONG).show();
+                Developer.startMe(Main.this);
             }
         });
         if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
