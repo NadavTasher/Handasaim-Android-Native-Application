@@ -21,9 +21,9 @@ import nadav.tasher.handasaim.architecture.app.Framable;
 import nadav.tasher.handasaim.architecture.development.SupportLibrary;
 import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.values.Values;
-import nadav.tasher.jsons.Library;
-import nadav.tasher.jsons.Script;
-import nadav.tasher.jsons.Variable;
+import nadav.tasher.jsons.android.framework.Library;
+import nadav.tasher.jsons.android.framework.Script;
+import nadav.tasher.jsons.android.framework.Variable;
 import nadav.tasher.lightool.info.Device;
 
 public class Developer extends Framable {

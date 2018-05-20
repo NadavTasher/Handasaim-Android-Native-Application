@@ -6,8 +6,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import nadav.tasher.jsons.Library;
-import nadav.tasher.jsons.Script;
+import nadav.tasher.jsons.android.framework.Library;
+import nadav.tasher.jsons.android.framework.Script;
 
 public class SupportLibrary {
     static final Library.Runnable[] limitedSupportCommands = new Library.Runnable[]{
