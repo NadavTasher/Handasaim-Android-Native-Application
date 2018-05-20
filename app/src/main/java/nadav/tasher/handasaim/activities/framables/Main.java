@@ -1,4 +1,4 @@
-package nadav.tasher.handasaim.activities;
+package nadav.tasher.handasaim.activities.framables;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -15,7 +14,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -30,6 +28,7 @@ import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -40,10 +39,10 @@ import java.util.Calendar;
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.StudentClass;
 import nadav.tasher.handasaim.architecture.Teacher;
+import nadav.tasher.handasaim.architecture.app.Framable;
 import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.tools.architecture.AppCore;
 import nadav.tasher.handasaim.tools.architecture.KeyManager;
-import nadav.tasher.handasaim.tools.architecture.Starter;
 import nadav.tasher.handasaim.tools.graphics.LessonView;
 import nadav.tasher.handasaim.tools.graphics.MessageBar;
 import nadav.tasher.handasaim.tools.specific.GetNews;
@@ -72,8 +71,8 @@ import static nadav.tasher.handasaim.tools.architecture.AppCore.getTeacherSchudl
 import static nadav.tasher.handasaim.tools.architecture.AppCore.getTimeForLesson;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.minuteOfDay;
 
-public class Main extends Activity {
-    static int textColor = Values.fontColorDefault;
+public class Main extends Framable {
+    private int textColor = Values.fontColorDefault;
     private int colorA = Values.defaultColorA;
     private int colorB = Values.defaultColorB;
     private int coasterColor = Values.defaultColorB;
@@ -88,9 +87,11 @@ public class Main extends Activity {
     private ArrayList<StudentClass> classes;
     private ArrayList<Teacher> teachers;
     private ArrayList<String> messages;
-    private SharedPreferences sp;
-    private KeyManager keyManager;
     private boolean breakTime = true;
+
+    public Main(Activity a, SharedPreferences sp, KeyManager keyManager) {
+        super(a, sp, keyManager);
+    }
 
     public static int getFontSize(Context c) {
         SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
@@ -129,19 +130,6 @@ public class Main extends Activity {
         sp.edit().putInt(Values.colorB, Values.defaultColorB).apply();
     }
 
-    public static void startMe(Activity c) {
-        Intent intent = new Intent(c, Main.class);
-        c.startActivity(intent);
-        c.overridePendingTransition(R.anim.out, R.anim.in);
-        c.finish();
-    }
-
-    public static void returnToMe(Activity c) {
-        Intent intent = new Intent(c, Main.class);
-        c.startActivity(intent);
-        c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
-        c.finish();
-    }
 
     public static Drawable generateCoaster(Context c, int color) {
         GradientDrawable gd = (GradientDrawable) c.getDrawable(R.drawable.rounded_rect);
@@ -149,12 +137,6 @@ public class Main extends Activity {
             gd.setColor(color);
         }
         return gd;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        initStageA();
     }
 
     private void loadTheme() {
@@ -180,21 +162,17 @@ public class Main extends Activity {
     }
 
     private void taskDesc() {
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_icon);
+        Bitmap bm = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_icon);
         ActivityManager.TaskDescription taskDesc;
         if (mAppView == null) {
-            taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, (colorA));
+            taskDesc = new ActivityManager.TaskDescription(getApplicationContext().getString(R.string.app_name), bm, (colorA));
         } else {
-            taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, (mAppView.getDrag().calculateOverlayedColor(colorA)));
+            taskDesc = new ActivityManager.TaskDescription(getApplicationContext().getString(R.string.app_name), bm, (mAppView.getDrag().calculateOverlayedColor(colorA)));
         }
-        setTaskDescription(taskDesc);
+        a.setTaskDescription(taskDesc);
     }
-
-    private void initStageA() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
-        sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
-        keyManager = new KeyManager(getApplicationContext());
-        Starter.scheduleJobs(getApplicationContext());
+    @Override
+    public void go() {
         String file = sp.getString(Values.scheduleFile, null);
         if (file != null) {
             parseAndLoad(new File(file));
@@ -202,11 +180,11 @@ public class Main extends Activity {
     }
 
     private void popupKeyEntering() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(this);
+        AlertDialog.Builder pop = new AlertDialog.Builder(a);
         pop.setCancelable(true);
         pop.setTitle("Unlock Features");
         pop.setMessage("Enter The Unlock Key You Got To Unlock Special Features.");
-        final EditText key = new EditText(this);
+        final EditText key = new EditText(a);
         key.setFilters(new InputFilter[]{
                 Filters.codeFilter,
                 new InputFilter.AllCaps()
@@ -228,9 +206,9 @@ public class Main extends Activity {
     }
 
     private void aboutPopup() {
-        AlertDialog.Builder ab = new AlertDialog.Builder(Main.this);
+        AlertDialog.Builder ab = new AlertDialog.Builder(a);
         ab.setTitle(R.string.app_name);
-        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getPackageName()) + "\nBuild: " + Device.getVersionCode(getApplicationContext(), getPackageName()));
+        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) + "\nBuild: " + Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()));
         ab.setCancelable(true);
         ab.setPositiveButton("Close", null);
         ab.setNeutralButton("Enter Code", new DialogInterface.OnClickListener() {
@@ -255,13 +233,13 @@ public class Main extends Activity {
         final int squirclePadding = x / 30;
         final int squircleSize = (int) (x / 4.2);
         breakTime = sp.getBoolean(Values.breakTime, Values.breakTimeDefault);
-        LinearLayout topper = new LinearLayout(this);
+        LinearLayout topper = new LinearLayout(getApplicationContext());
         topper.setOrientation(LinearLayout.VERTICAL);
         topper.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
         topper.setPadding(squirclePadding, 0, squirclePadding, 0);
         main = new Squircle(getApplicationContext(), squircleSize, colorA);
         main.setTypeface(getTypeface());
-        mAppView = new AppView(getApplicationContext(), getDrawable(R.drawable.ic_icon), Values.navColor, main);
+        mAppView = new AppView(getApplicationContext(), getApplicationContext().getDrawable(R.drawable.ic_icon), Values.navColor, main);
         mAppView.getDrag().setOnIconClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -305,14 +283,14 @@ public class Main extends Activity {
             }
         }));
         mAppView.getBar().addSquircles(getSquircles(squircleSize));
-        scheduleLayout = new LinearLayout(this);
+        scheduleLayout = new LinearLayout(getApplicationContext());
         scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         scheduleLayout.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.setPadding(10, 10, 10, 10);
-        messageBar = new MessageBar(this, messages, mAppView.getDrag());
+        messageBar = new MessageBar(a, messages, mAppView.getDrag());
         messageBar.start();
         scheduleLayout.addView(messageBar);
-        lessonViewHolder = new LinearLayout(this);
+        lessonViewHolder = new LinearLayout(getApplicationContext());
         lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.addView(lessonViewHolder);
@@ -334,7 +312,7 @@ public class Main extends Activity {
             //            config.setContentTextColor(Color.WHITE);
             config.setDismissTextStyle(getTypeface());
             config.setRenderOverNavigationBar(true);
-            MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this);
+            MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(a);
             sequence.setConfig(config);
             sequence.addSequenceItem(mAppView.getBar().getMainSquircle(),
                     "This is the menu button.\nOne tap to open, one to close.", "Next");
@@ -384,7 +362,7 @@ public class Main extends Activity {
     private ArrayList<Squircle> getSquircles(int size) {
         ArrayList<Squircle> squircles = new ArrayList<>();
         final Squircle news = new Squircle(getApplicationContext(), size, colorA);
-        news.setDrawable(getDrawable(R.drawable.ic_news));
+        news.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_news));
         final FrameLayout newsContent = getNews();
         news.addOnState(new Squircle.OnState() {
             @Override
@@ -415,7 +393,7 @@ public class Main extends Activity {
         });
         squircles.add(news);
         final Squircle choose = new Squircle(getApplicationContext(), size, colorA);
-        choose.setDrawable(getDrawable(R.drawable.ic_class));
+        choose.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_class));
         final ScrollView chooseContent = getSwitcher();
         choose.addOnState(new Squircle.OnState() {
             @Override
@@ -446,7 +424,7 @@ public class Main extends Activity {
         });
         squircles.add(choose);
         final Squircle share = new Squircle(getApplicationContext(), size, colorA);
-        share.setDrawable(getDrawable(R.drawable.ic_share));
+        share.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_share));
         share.addOnState(new Squircle.OnState() {
 
             private LinearLayout shareContent;
@@ -480,7 +458,7 @@ public class Main extends Activity {
         });
         squircles.add(share);
         final Squircle settings = new Squircle(getApplicationContext(), size, colorA);
-        settings.setDrawable(getDrawable(R.drawable.ic_gear));
+        settings.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_gear));
         final ScrollView settingsContent = getSettings();
         settings.addOnState(new Squircle.OnState() {
 
@@ -512,7 +490,7 @@ public class Main extends Activity {
         });
         squircles.add(settings);
         final Squircle devPanel = new Squircle(getApplicationContext(), size, colorA);
-        devPanel.setDrawable(getDrawable(R.drawable.ic_developer));
+        devPanel.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_developer));
         devPanel.addOnState(new Squircle.OnState() {
 
             @Override
@@ -525,7 +503,12 @@ public class Main extends Activity {
 
             @Override
             public void onBoth(boolean isOpened) {
-                Developer.startMe(Main.this);
+                if (keyManager.isKeyLoaded(KeyManager.TYPE_BETA)) {
+                    Developer developer = new Developer(a, sp, keyManager);
+                    developer.start();
+                }else{
+                    Toast.makeText(getApplicationContext(),"Beta Key Not Installed.\nFor Now, A Beta Key Must Be Installed To Enter The Developer Console.",Toast.LENGTH_LONG).show();
+                }
             }
         });
         if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
@@ -546,23 +529,23 @@ public class Main extends Activity {
     }
 
     private LinearLayout getShare() {
-        LinearLayout shareView = new LinearLayout(this);
+        LinearLayout shareView = new LinearLayout(getApplicationContext());
         shareView.setGravity(Gravity.CENTER);
         shareView.setOrientation(LinearLayout.VERTICAL);
-        TextView shareTitle = new TextView(this);
+        TextView shareTitle = new TextView(getApplicationContext());
         shareTitle.setTextSize(getFontSize());
         shareTitle.setTypeface(getTypeface());
         shareTitle.setTextColor(textColor);
         shareTitle.setText(R.string.share_menu);
         shareTitle.setGravity(Gravity.CENTER);
-        final Switch shareTimeSwitch = new Switch(this);
+        final Switch shareTimeSwitch = new Switch(getApplicationContext());
         shareTimeSwitch.setPadding(10, 0, 10, 0);
         shareTimeSwitch.setText(R.string.lesson_time);
         shareTimeSwitch.setTypeface(getTypeface());
         shareTimeSwitch.setTextSize(getFontSize() - 4);
         shareTimeSwitch.setTextColor(textColor);
         shareTimeSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        final Switch shareMessageSwitch = new Switch(this);
+        final Switch shareMessageSwitch = new Switch(getApplicationContext());
         shareMessageSwitch.setPadding(10, 0, 10, 0);
         shareMessageSwitch.setText(R.string.messages_switch);
         shareMessageSwitch.setTypeface(getTypeface());
@@ -570,8 +553,8 @@ public class Main extends Activity {
         shareMessageSwitch.setTextColor(textColor);
         shareMessageSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         shareMessageSwitch.setEnabled(!messages.isEmpty());
-        Button shareB = new Button(this);
-        String shareText = getString(R.string.share) + " " + currentClass.name;
+        Button shareB = new Button(getApplicationContext());
+        String shareText = getApplicationContext().getString(R.string.share) + " " + currentClass.name;
         shareB.setText(shareText);
         shareB.setBackground(generateCoaster(coasterColor));
         shareB.setTextColor(textColor);
@@ -601,11 +584,11 @@ public class Main extends Activity {
     private ScrollView getSettings() {
         ScrollView sv = new ScrollView(getApplicationContext());
         sv.setPadding(10, 10, 10, 10);
-        LinearLayout settings = new LinearLayout(this);
+        LinearLayout settings = new LinearLayout(getApplicationContext());
         settings.setOrientation(LinearLayout.VERTICAL);
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        final Switch devSwitch = new Switch(this), newScheduleSwitch = new Switch(this), breakTimeSwitch = new Switch(this), pushSwitch = new Switch(this);
+        final Switch devSwitch = new Switch(getApplicationContext()), newScheduleSwitch = new Switch(getApplicationContext()), breakTimeSwitch = new Switch(getApplicationContext()), pushSwitch = new Switch(getApplicationContext());
         pushSwitch.setText(R.string.live_messages);
         newScheduleSwitch.setText(R.string.schedule_notification);
         breakTimeSwitch.setText(R.string.show_breaks);
@@ -622,6 +605,10 @@ public class Main extends Activity {
         newScheduleSwitch.setTypeface(getTypeface());
         breakTimeSwitch.setTypeface(getTypeface());
         devSwitch.setTypeface(getTypeface());
+        newScheduleSwitch.setTextColor(textColor);
+        pushSwitch.setTextColor(textColor);
+        breakTimeSwitch.setTextColor(textColor);
+        devSwitch.setTextColor(textColor);
         breakTimeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -651,7 +638,8 @@ public class Main extends Activity {
                 } else {
                     if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
                         sp.edit().putBoolean(Values.devMode, false).apply();
-                        Splash.startMe(Main.this);
+                        Splash splash = new Splash(a, sp, keyManager);
+                        splash.start();
                     }
                 }
             }
@@ -680,7 +668,7 @@ public class Main extends Activity {
         explainColorB.setTextSize((float) (getFontSize() / 1.5));
         explainColorB.setTextColor(textColor);
         explainColorB.setGravity(Gravity.CENTER);
-        SeekBar fontSizeSeekBar = new SeekBar(this);
+        SeekBar fontSizeSeekBar = new SeekBar(getApplicationContext());
         fontSizeSeekBar.setMax(70);
         fontSizeSeekBar.setProgress(sp.getInt(Values.fontSizeNumber, Values.fontSizeDefault));
         fontSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -701,7 +689,7 @@ public class Main extends Activity {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        ColorPicker textColorPicker = new ColorPicker(this, textColor);
+        ColorPicker textColorPicker = new ColorPicker(getApplicationContext(), textColor);
         textColorPicker.setOnColorChanged(new ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
@@ -710,7 +698,7 @@ public class Main extends Activity {
                 TowerHub.textColorChangeTunnle.tell(textColor);
             }
         });
-        ColorPicker colorApicker = new ColorPicker(this, colorA);
+        ColorPicker colorApicker = new ColorPicker(getApplicationContext(), colorA);
         colorApicker.setOnColorChanged(new ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
@@ -721,7 +709,7 @@ public class Main extends Activity {
                 refreshTheme();
             }
         });
-        ColorPicker colorBpicker = new ColorPicker(this, colorB);
+        ColorPicker colorBpicker = new ColorPicker(getApplicationContext(), colorB);
         colorBpicker.setOnColorChanged(new ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
@@ -778,7 +766,7 @@ public class Main extends Activity {
     }
 
     private void devModeConfirm(final Switch s) {
-        AlertDialog.Builder pop = new AlertDialog.Builder(this);
+        AlertDialog.Builder pop = new AlertDialog.Builder(a);
         pop.setCancelable(false);
         pop.setTitle("Be Cautious!");
         pop.setMessage("I'm not responsible for anything that happens because of a script you ran.");
@@ -786,8 +774,8 @@ public class Main extends Activity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 sp.edit().putBoolean(Values.devMode, true).apply();
-                Splash.startMe(Main.this);
-            }
+                Splash splash = new Splash(a, sp, keyManager);
+                splash.start();            }
         });
         pop.setNegativeButton("I Do Not Agree", new DialogInterface.OnClickListener() {
             @Override
@@ -799,24 +787,24 @@ public class Main extends Activity {
     }
 
     private ScrollView getSwitcher() {
-        LinearLayout all = new LinearLayout(this);
+        LinearLayout all = new LinearLayout(getApplicationContext());
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.CENTER);
-        LinearLayout students = new LinearLayout(this);
+        LinearLayout students = new LinearLayout(getApplicationContext());
         students.setPadding(10, 10, 10, 10);
         students.setOrientation(LinearLayout.VERTICAL);
         students.setGravity(Gravity.CENTER);
-        LinearLayout teachersv = new LinearLayout(this);
+        LinearLayout teachersv = new LinearLayout(getApplicationContext());
         teachersv.setPadding(10, 10, 10, 10);
         teachersv.setOrientation(LinearLayout.VERTICAL);
         teachersv.setGravity(Gravity.CENTER);
-        TextView studentsTitle = new TextView(this);
+        TextView studentsTitle = new TextView(getApplicationContext());
         studentsTitle.setText(R.string.students_text);
         studentsTitle.setTypeface(getTypeface());
         studentsTitle.setTextSize(getFontSize() - 5);
         studentsTitle.setTextColor(textColor);
         studentsTitle.setGravity(Gravity.CENTER);
-        TextView teachersTitle = new TextView(this);
+        TextView teachersTitle = new TextView(getApplicationContext());
         teachersTitle.setText(R.string.teachers_text);
         teachersTitle.setTypeface(getTypeface());
         teachersTitle.setTextSize(getFontSize() - 5);
@@ -887,7 +875,7 @@ public class Main extends Activity {
             }
             all.addView(teachersv);
         }
-        ScrollView sv = new ScrollView(this);
+        ScrollView sv = new ScrollView(getApplicationContext());
         sv.addView(all);
         sv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         sv.setFillViewport(true);
@@ -895,7 +883,7 @@ public class Main extends Activity {
     }
 
     private Drawable generateCoaster(int color) {
-        GradientDrawable gd = (GradientDrawable) getDrawable(R.drawable.rounded_rect);
+        GradientDrawable gd = (GradientDrawable) getApplicationContext().getDrawable(R.drawable.rounded_rect);
         if (gd != null) {
             gd.setColor(color);
         }
@@ -913,7 +901,7 @@ public class Main extends Activity {
                     mAppView.getBar().close(true);
                 }
             } else {
-                finish();
+                a.finish();
             }
         }
         if (mAppView != null && mAppView.getBar() != null) {
@@ -977,7 +965,7 @@ public class Main extends Activity {
                                     String url = link.get(finalI).url;
                                     Intent i = new Intent(Intent.ACTION_VIEW);
                                     i.setData(Uri.parse(url));
-                                    startActivity(i);
+                                    getApplicationContext().startActivity(i);
                                 }
                             });
                         }
@@ -1020,7 +1008,7 @@ public class Main extends Activity {
         s.putExtra(Intent.EXTRA_TEXT, st);
         s.setType("text/plain");
         s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(Intent.createChooser(s, "Share With"));
+        getApplicationContext().startActivity(Intent.createChooser(s, "Share With"));
     }
 
     private void setStudentMode(StudentClass c) {
@@ -1064,7 +1052,7 @@ public class Main extends Activity {
     }
 
     private Typeface getTypeface() {
-        return Typeface.createFromAsset(getAssets(), Values.fontName);
+        return Typeface.createFromAsset(getApplicationContext().getAssets(), Values.fontName);
     }
 
     private ArrayList<LessonView> scheduleForClass(final StudentClass fclass) {

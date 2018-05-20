@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import nadav.tasher.handasaim.activities.Main;
+import nadav.tasher.handasaim.activities.framables.Main;
 import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;

@@ -1,13 +1,9 @@
-package nadav.tasher.handasaim.activities;
+package nadav.tasher.handasaim.activities.framables;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,40 +17,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import nadav.tasher.handasaim.R;
+import nadav.tasher.handasaim.architecture.app.Framable;
 import nadav.tasher.handasaim.architecture.development.SupportLibrary;
+import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.jsons.Library;
 import nadav.tasher.jsons.Script;
 import nadav.tasher.jsons.Variable;
 import nadav.tasher.lightool.info.Device;
 
-public class Developer extends Activity {
+public class Developer extends Framable {
 
-    private SharedPreferences sp;
     private Script s;
 
-    public static void startMe(Activity c) {
-        Intent intent = new Intent(c, Developer.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        c.startActivity(intent);
-        c.overridePendingTransition(R.anim.out, R.anim.in);
-        c.finish();
+    public Developer(Activity a, SharedPreferences sp, KeyManager keyManager) {
+        super(a, sp, keyManager);
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        initStageA();
-    }
-
-    private void initStageA() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
-        sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
-        Toast.makeText(getApplicationContext(), "Scripting Is Beta...", Toast.LENGTH_LONG).show();
-        initStageB();
-    }
-
-    private void initStageB() {
+    public void go() {
         LinearLayout all = new LinearLayout(getApplicationContext());
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.CENTER);
@@ -62,9 +43,9 @@ public class Developer extends Activity {
         all.setBackground(Main.getGradient(getApplicationContext()));
         getWindow().setStatusBarColor(Main.getColorA(getApplicationContext()));
         getWindow().setNavigationBarColor(Main.getColorB(getApplicationContext()));
-        Button loadScript = new Button(this);
-        Button runSpecific = new Button(this);
-        Button viewVariables = new Button(this);
+        Button loadScript = new Button(getApplicationContext());
+        Button runSpecific = new Button(getApplicationContext());
+        Button viewVariables = new Button(getApplicationContext());
         loadScript.setText(R.string.developer_load_new);
         runSpecific.setText(R.string.developer_run_specific);
         viewVariables.setText(R.string.developer_view_current_variables);
@@ -99,11 +80,11 @@ public class Developer extends Activity {
     }
 
     private void popupRun() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(this);
+        AlertDialog.Builder pop = new AlertDialog.Builder(getApplicationContext());
         pop.setCancelable(true);
         pop.setTitle("Run Function");
         pop.setMessage("Enter Your Function Name:");
-        final EditText key = new EditText(this);
+        final EditText key = new EditText(getApplicationContext());
         FrameLayout f = new FrameLayout(getApplicationContext());
         f.setPadding(50, 10, 50, 10);
         f.addView(key);
@@ -125,11 +106,11 @@ public class Developer extends Activity {
     }
 
     private void popupStatics() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(this);
+        AlertDialog.Builder pop = new AlertDialog.Builder(getApplicationContext());
         pop.setCancelable(true);
         pop.setTitle("View Statics");
-        StringBuilder b=new StringBuilder();
-        if(s.statics!=null) {
+        StringBuilder b = new StringBuilder();
+        if (s.statics != null) {
             for (int i = 0; i < s.statics.size(); i++) {
                 b.append(s.statics.get(i).name).append(" - ").append(s.statics.get(i).bareValue).append("\n");
             }
@@ -139,23 +120,21 @@ public class Developer extends Activity {
         pop.show();
     }
 
-
     private void popupLoad() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(this);
+        AlertDialog.Builder pop = new AlertDialog.Builder(getApplicationContext());
         pop.setCancelable(true);
         pop.setTitle("Load Script");
         pop.setMessage("Enter Your JSONScripting Script:");
-        final EditText key = new EditText(this);
+        final EditText key = new EditText(getApplicationContext());
         FrameLayout f = new FrameLayout(getApplicationContext());
         f.setPadding(50, 10, 50, 10);
         key.setHint("Script");
         key.setSingleLine(true);
-//        ScrollView sv=new ScrollView(getApplicationContext());
-//        sv.addView(key);
-//        sv.setFillViewport(true);
-//        sv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,Device.screenY(Developer.this)/2));
+        //        ScrollView sv=new ScrollView(getApplicationContext());
+        //        sv.addView(key);
+        //        sv.setFillViewport(true);
+        //        sv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,Device.screenY(Developer.this)/2));
         f.addView(key);
-
         pop.setView(f);
         key.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         pop.setPositiveButton("Load", new DialogInterface.OnClickListener() {
@@ -163,13 +142,13 @@ public class Developer extends Activity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 try {
                     sp.edit().putString("expirimental-beta-script", key.getText().toString()).apply();
-                    Library[] libs = new Library[]{SupportLibrary.getFullSupport(Developer.this)};
+                    Library[] libs = new Library[]{SupportLibrary.getFullSupport(a)};
                     s = new Script(key.getText().toString(), new ArrayList<>(Arrays.asList(libs)));
-                    s.addStatic(new Variable("versioncode", String.valueOf(Device.getVersionCode(getApplicationContext(),getPackageName()))));
-                    s.addStatic(new Variable("versionname", String.valueOf(Device.getVersionName(getApplicationContext(),getPackageName()))));
-                    Toast.makeText(getApplicationContext(),"Script Loaded.",Toast.LENGTH_SHORT).show();
+                    s.addStatic(new Variable("versioncode", String.valueOf(Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()))));
+                    s.addStatic(new Variable("versionname", String.valueOf(Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()))));
+                    Toast.makeText(getApplicationContext(), "Script Loaded.", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(),"Failed Loading Script.",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Failed Loading Script.", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
             }
@@ -180,7 +159,7 @@ public class Developer extends Activity {
 
     @Override
     public void onBackPressed() {
-        Main.returnToMe(this);
-        super.onBackPressed();
+        Main main = new Main(a, sp, keyManager);
+        main.start();
     }
 }

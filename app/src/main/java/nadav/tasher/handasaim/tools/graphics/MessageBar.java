@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import nadav.tasher.handasaim.activities.Main;
+import nadav.tasher.handasaim.activities.framables.Main;
 import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.graphics.views.appview.navigation.Drag;

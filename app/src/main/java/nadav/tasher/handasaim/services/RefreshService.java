@@ -13,7 +13,7 @@ import android.util.Log;
 import java.util.Random;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.activities.Main;
+import nadav.tasher.handasaim.activities.framables.Main;
 import nadav.tasher.handasaim.tools.architecture.Starter;
 import nadav.tasher.handasaim.tools.specific.GetLink;
 import nadav.tasher.handasaim.values.Values;

@@ -1,16 +1,12 @@
-package nadav.tasher.handasaim.activities;
+package nadav.tasher.handasaim.activities.framables;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,47 +16,40 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.tools.architecture.Starter;
+import nadav.tasher.handasaim.architecture.app.Framable;
+import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.tools.Animations;
 
 import static nadav.tasher.handasaim.values.Values.fontColor;
 import static nadav.tasher.handasaim.values.Values.fontColorDefault;
-import static nadav.tasher.handasaim.values.Values.prefName;
 
-public class Welcome extends Activity {
+public class Welcome extends Framable{
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        initStageA();
+    public Welcome(Activity a, SharedPreferences sp, KeyManager keyManager) {
+        super(a, sp, keyManager);
     }
 
     private void taskDesc() {
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_icon);
+        Bitmap bm = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_icon);
         ActivityManager.TaskDescription taskDesc;
-        taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, (Main.getColorB(getApplicationContext())));
-        setTaskDescription(taskDesc);
+        taskDesc = new ActivityManager.TaskDescription(getApplicationContext().getString(R.string.app_name), bm, (Main.getColorB(getApplicationContext())));
+        a.setTaskDescription(taskDesc);
     }
-
-    private void initStageA() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
-        initStageB();
-    }
-
-    private void initStageB() {
+    @Override
+    public void go() {
         taskDesc();
-        getWindow().setStatusBarColor(Main.getColorA(getApplicationContext()));
-        getWindow().setNavigationBarColor(Main.getColorB(getApplicationContext()));
-        LinearLayout part1 = new LinearLayout(this);
+        a.getWindow().setStatusBarColor(Main.getColorA(getApplicationContext()));
+        a.getWindow().setNavigationBarColor(Main.getColorB(getApplicationContext()));
+        LinearLayout part1 = new LinearLayout(getApplicationContext());
         part1.setGravity(Gravity.CENTER);
         part1.setOrientation(LinearLayout.VERTICAL);
         part1.setBackground(Main.getGradient(getApplicationContext()));
         //part1
-        ImageView icon = new ImageView(this);
-        final Button setup = new Button(this);
-        final TextView welcome = new TextView(this);
+        ImageView icon = new ImageView(getApplicationContext());
+        final Button setup = new Button(getApplicationContext());
+        final TextView welcome = new TextView(getApplicationContext());
         setup.setTypeface(Main.getTypeface(getApplicationContext()));
         setup.setAllCaps(false);
         welcome.setTypeface(Main.getTypeface(getApplicationContext()));
@@ -69,12 +58,13 @@ public class Welcome extends Activity {
         setup.setAlpha(0);
         setup.setBackgroundColor(Color.TRANSPARENT);
         setup.setTextSize((float) 30);
+        setup.setTextColor(Main.getTextColor(getApplicationContext()));
         welcome.setAlpha(0);
         welcome.setGravity(Gravity.CENTER);
         welcome.setTextSize((float) 29);
         welcome.setTextColor(Color.WHITE);
         welcome.setText(R.string.welcome);
-        icon.setImageDrawable(getDrawable(R.drawable.ic_icon));
+        icon.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_icon));
         icon.setAlpha(0f);
         int is = (int) (Device.screenX(getApplicationContext()) * 0.7);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
@@ -96,21 +86,14 @@ public class Welcome extends Activity {
             @Override
             public void onClick(View view) {
                 writeDefaults();
-                Starter.scheduleJobs(getApplicationContext());
-                Main.startMe(Welcome.this);
+                Main main=new Main(a,sp,keyManager);
+                main.start();
             }
         });
-        setContentView(part1);
-    }
-    public static void startMe(Activity c){
-        Intent intent = new Intent(c, Welcome.class);
-        c.startActivity(intent);
-        c.overridePendingTransition(R.anim.out, R.anim.in);
-        c.finish();
+        a.setContentView(part1);
     }
 
     private void writeDefaults() {
-        final SharedPreferences sp = getSharedPreferences(prefName, Context.MODE_PRIVATE);
         SharedPreferences.Editor se = sp.edit();
         se.putInt(Values.fontSizeNumber, Values.fontSizeDefault);
         se.putBoolean(Values.pushService, Values.pushDefault);

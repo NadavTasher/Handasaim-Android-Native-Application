@@ -1,14 +1,13 @@
-package nadav.tasher.handasaim.activities;
+package nadav.tasher.handasaim.activities.framables;
 
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -23,6 +22,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import nadav.tasher.handasaim.R;
+import nadav.tasher.handasaim.architecture.app.Framable;
 import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.tools.online.PictureLoader;
 import nadav.tasher.handasaim.tools.specific.GetNews;
@@ -30,45 +30,32 @@ import nadav.tasher.handasaim.values.Egg;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.info.Device;
 
-public class News extends Activity {
+public class News extends Framable {
 
-    private KeyManager keyManager;
+
     private boolean started = false;
 
-    public static void startMe(Activity c) {
-        Intent intent = new Intent(c, News.class);
-        c.startActivity(intent);
-        c.overridePendingTransition(R.anim.out, R.anim.in);
-        c.finish();
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        initStageA();
+    public News(Activity a, SharedPreferences sp, KeyManager keyManager) {
+        super(a, sp, keyManager);
     }
 
     private void taskDesc() {
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        Bitmap bm = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.mipmap.ic_launcher);
         ActivityManager.TaskDescription taskDesc;
-        taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, (Main.getColorB(getApplicationContext())));
-        setTaskDescription(taskDesc);
+        taskDesc = new ActivityManager.TaskDescription(getApplicationContext().getString(R.string.app_name), bm, (Main.getColorB(getApplicationContext())));
+        a.setTaskDescription(taskDesc);
     }
 
-    private void initStageA() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
-        keyManager=new KeyManager(getApplicationContext());
-        initStageB();
-    }
-
-    private void initStageB() {
+    @Override
+    public void go() {
         taskDesc();
         getWindow().setStatusBarColor(Main.getColorA(getApplicationContext()));
         getWindow().setNavigationBarColor(Main.getColorB(getApplicationContext()));
         if (keyManager.isKeyLoaded(KeyManager.TYPE_MESSAGE_BOARD)) {
             if (!started) {
                 started = true;
-                Main.startMe(this);
+                Main main = new Main(a, sp, keyManager);
+                main.start();
             }
         } else {
             final LinearLayout full = new LinearLayout(getApplicationContext());
@@ -116,7 +103,7 @@ public class News extends Activity {
             full.addView(newsAllSV);
             full.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             news.setVisibility(View.GONE);
-            setContentView(full);
+            a.setContentView(full);
             new GetNews(Values.serviceProvider, new GetNews.GotNews() {
                 @Override
                 public void onNewsGet(final ArrayList<GetNews.Link> link) {
@@ -155,7 +142,7 @@ public class News extends Activity {
                                             String url = link.get(finalN1).url;
                                             Intent i = new Intent(Intent.ACTION_VIEW);
                                             i.setData(Uri.parse(url));
-                                            startActivity(i);
+                                            getApplicationContext().startActivity(i);
                                         }
                                     });
                                     if (image != null) nt.addView(imageView);
@@ -170,7 +157,7 @@ public class News extends Activity {
                                 String url = link.get(finalN).url;
                                 Intent i = new Intent(Intent.ACTION_VIEW);
                                 i.setData(Uri.parse(url));
-                                startActivity(i);
+                                getApplicationContext().startActivity(i);
                             }
                         });
                         news.addView(nt);
@@ -182,7 +169,8 @@ public class News extends Activity {
                 public void onFail(ArrayList<GetNews.Link> e) {
                     if (!started) {
                         started = true;
-                        Main.startMe(News.this);
+                        Main main = new Main(a, sp, keyManager);
+                        main.start();
                     }
                 }
             }).execute();
@@ -193,7 +181,8 @@ public class News extends Activity {
                     if (millisUntilFinished <= 2000) {
                         if (!started) {
                             started = true;
-                            Main.startMe(News.this);
+                            Main main = new Main(a, sp, keyManager);
+                            main.start();
                         }
                     }
                 }

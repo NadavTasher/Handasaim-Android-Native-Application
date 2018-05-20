@@ -1,24 +1,18 @@
-package nadav.tasher.handasaim.activities;
+package nadav.tasher.handasaim.activities.framables;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
@@ -29,6 +23,7 @@ import android.widget.Toast;
 import java.io.File;
 
 import nadav.tasher.handasaim.R;
+import nadav.tasher.handasaim.architecture.app.Framable;
 import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.tools.graphics.CurvedTextView;
 import nadav.tasher.handasaim.tools.online.FileDownloader;
@@ -39,70 +34,43 @@ import nadav.tasher.lightool.graphics.ColorFadeAnimation;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.tools.Animations;
 
-import static nadav.tasher.handasaim.values.Values.colorForce;
-import static nadav.tasher.handasaim.values.Values.colorForceDefault;
-
-public class Splash extends Activity {
+public class Splash extends Framable {
 
     private CurvedTextView ctv;
-    private SharedPreferences sp;
-    private KeyManager keyManager;
 
-    public static void startMe(Activity c) {
-        Intent intent = new Intent(c, Splash.class);
-        c.startActivity(intent);
-        c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
-        c.finish();
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        initStageA();
+    public Splash(Activity a, SharedPreferences sp, KeyManager keyManager) {
+        super(a, sp, keyManager);
     }
 
     private void taskDesc() {
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        Bitmap bm = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.mipmap.ic_launcher);
         ActivityManager.TaskDescription taskDesc;
-        taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, (Main.getColorA(getApplicationContext())));
-        setTaskDescription(taskDesc);
+        taskDesc = new ActivityManager.TaskDescription(getApplicationContext().getString(R.string.app_name), bm, (Main.getColorA(getApplicationContext())));
+        a.setTaskDescription(taskDesc);
     }
 
-    private void initStageA() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
-        sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
-        keyManager = new KeyManager(getApplicationContext());
-        if (!sp.getBoolean(Values.colorForce, colorForceDefault)) {
-            Main.installColors(getApplicationContext());
-            sp.edit().putBoolean(colorForce, true).apply();
-        }
-        initStageB();
-    }
-
-    private void initStageB() {
-        final Window window = getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(Main.getColorA(getApplicationContext()));
-        window.setNavigationBarColor(Main.getColorB(getApplicationContext()));
+    @Override
+    public void go() {
+        getWindow().setStatusBarColor(Main.getColorA(getApplicationContext()));
+        getWindow().setNavigationBarColor(Main.getColorB(getApplicationContext()));
         taskDesc();
-        final LinearLayout ll = new LinearLayout(this);
+        final LinearLayout ll = new LinearLayout(getApplicationContext());
         ll.setGravity(Gravity.CENTER);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setBackgroundColor(Main.getColorA(getApplicationContext()));
-        final ImageView icon = new ImageView(this);
+        final ImageView icon = new ImageView(getApplicationContext());
         icon.setScaleType(ImageView.ScaleType.FIT_XY);
-        icon.setImageDrawable(getDrawable(R.drawable.ic_icon));
+        icon.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_icon));
         int is = (int) (Device.screenX(getApplicationContext()) * 0.8);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
-        String curved = getString(R.string.app_name);
+        String curved = getApplicationContext().getString(R.string.app_name);
         if (keyManager.isKeyLoaded(KeyManager.TYPE_TEACHER_MODE)) {
             curved = "Shlomi Mode";
         }
         if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
             curved = "Developer Mode";
         }
-        ctv = new CurvedTextView(this, curved, 50, Values.bakedIconColor, Device.screenX(this), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
+        ctv = new CurvedTextView(getApplicationContext(), curved, 50, Values.bakedIconColor, Device.screenX(getApplicationContext()), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.3)));
         ll.addView(icon);
         ll.addView(ctv);
@@ -120,7 +88,7 @@ public class Splash extends Activity {
         ColorFadeAnimation cfa = new ColorFadeAnimation(Main.getColorB(getApplicationContext()), Main.getColorA(getApplicationContext()), new ColorFadeAnimation.ColorState() {
             @Override
             public void onColor(final int color) {
-                runOnUiThread(new Runnable() {
+                a.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         ll.setBackground(generateGradient(color, Main.getColorB(getApplicationContext())));
@@ -131,13 +99,13 @@ public class Splash extends Activity {
             }
         });
         cfa.start(3000);
-        if (getIntent().getExtras() != null) {
-            if (getIntent().getExtras().getString("toast") != null) {
-                Toast.makeText(this, getIntent().getExtras().getString("toast"), Toast.LENGTH_LONG).show();
-            } else if (getIntent().getExtras().getString("popup") != null) {
-                AlertDialog.Builder pop = new AlertDialog.Builder(this);
+        if (a.getIntent().getExtras() != null) {
+            if (a.getIntent().getExtras().getString("toast") != null) {
+                Toast.makeText(getApplicationContext(), a.getIntent().getExtras().getString("toast"), Toast.LENGTH_LONG).show();
+            } else if (a.getIntent().getExtras().getString("popup") != null) {
+                AlertDialog.Builder pop = new AlertDialog.Builder(a);
                 pop.setCancelable(true);
-                pop.setMessage(getIntent().getExtras().getString("popup"));
+                pop.setMessage(a.getIntent().getExtras().getString("popup"));
                 pop.setPositiveButton("OK", null);
                 pop.show();
             }
@@ -212,14 +180,16 @@ public class Splash extends Activity {
 
     private void initStageE() {
         if (!sp.getBoolean(Values.firstLaunch, true)) {
-            News.startMe(this);
+            News news=new News(a,sp,keyManager);
+            news.start();
         } else {
-            Welcome.startMe(this);
+            Welcome welcome=new Welcome(a,sp,keyManager);
+            welcome.start();
         }
     }
 
     private void popup(String text) {
-        AlertDialog.Builder pop = new AlertDialog.Builder(this);
+        AlertDialog.Builder pop = new AlertDialog.Builder(a);
         pop.setCancelable(true);
         pop.setMessage(text);
         pop.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
