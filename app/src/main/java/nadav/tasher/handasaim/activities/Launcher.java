@@ -52,7 +52,7 @@ public class Launcher extends Activity {
     public void onBackPressed() {
         if (currentFramable != null) {
             currentFramable.onBackPressed();
-        }else{
+        } else {
             finish();
         }
     }

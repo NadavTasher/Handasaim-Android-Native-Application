@@ -32,7 +32,6 @@ import nadav.tasher.lightool.info.Device;
 
 public class News extends Framable {
 
-
     private boolean started = false;
 
     public News(Activity a, SharedPreferences sp, KeyManager keyManager) {

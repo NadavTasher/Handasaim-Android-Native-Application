@@ -180,10 +180,10 @@ public class Splash extends Framable {
 
     private void initStageE() {
         if (!sp.getBoolean(Values.firstLaunch, true)) {
-            News news=new News(a,sp,keyManager);
+            News news = new News(a, sp, keyManager);
             news.start();
         } else {
-            Welcome welcome=new Welcome(a,sp,keyManager);
+            Welcome welcome = new Welcome(a, sp, keyManager);
             welcome.start();
         }
     }

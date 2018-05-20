@@ -25,7 +25,7 @@ import nadav.tasher.lightool.tools.Animations;
 import static nadav.tasher.handasaim.values.Values.fontColor;
 import static nadav.tasher.handasaim.values.Values.fontColorDefault;
 
-public class Welcome extends Framable{
+public class Welcome extends Framable {
 
     public Welcome(Activity a, SharedPreferences sp, KeyManager keyManager) {
         super(a, sp, keyManager);
@@ -37,6 +37,7 @@ public class Welcome extends Framable{
         taskDesc = new ActivityManager.TaskDescription(getApplicationContext().getString(R.string.app_name), bm, (Main.getColorB(getApplicationContext())));
         a.setTaskDescription(taskDesc);
     }
+
     @Override
     public void go() {
         taskDesc();
@@ -80,13 +81,13 @@ public class Welcome extends Framable{
         part1.addView(welcome);
         part1.addView(icon);
         part1.addView(setup);
-        setup.setBackground(Main.generateCoaster(getApplicationContext(),Main.getColorA(getApplicationContext())));
-        setup.setLayoutParams(new LinearLayout.LayoutParams((int) (Device.screenX(getApplicationContext())*0.6), ViewGroup.LayoutParams.WRAP_CONTENT));
+        setup.setBackground(Main.generateCoaster(getApplicationContext(), Main.getColorA(getApplicationContext())));
+        setup.setLayoutParams(new LinearLayout.LayoutParams((int) (Device.screenX(getApplicationContext()) * 0.6), ViewGroup.LayoutParams.WRAP_CONTENT));
         setup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 writeDefaults();
-                Main main=new Main(a,sp,keyManager);
+                Main main = new Main(a, sp, keyManager);
                 main.start();
             }
         });
@@ -104,7 +105,4 @@ public class Welcome extends Framable{
         se.putBoolean(Values.firstLaunch, false);
         se.apply();
     }
-
-
-
 }

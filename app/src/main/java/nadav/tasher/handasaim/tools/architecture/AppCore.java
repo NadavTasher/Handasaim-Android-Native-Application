@@ -96,12 +96,12 @@ public class AppCore {
         return null;
     }
 
-    public static ArrayList<String> getMessages(Sheet sheet){
-        ArrayList<String> messages=new ArrayList<>();
-        HSSFPatriarch patriarch = (HSSFPatriarch)sheet.createDrawingPatriarch();
-        List<HSSFShape> shapes=patriarch.getChildren();
-        for(int s=0;s<shapes.size();s++){
-            if(shapes.get(s) instanceof HSSFTextbox){
+    public static ArrayList<String> getMessages(Sheet sheet) {
+        ArrayList<String> messages = new ArrayList<>();
+        HSSFPatriarch patriarch = (HSSFPatriarch) sheet.createDrawingPatriarch();
+        List<HSSFShape> shapes = patriarch.getChildren();
+        for (int s = 0; s < shapes.size(); s++) {
+            if (shapes.get(s) instanceof HSSFTextbox) {
                 try {
                     HSSFShape mShape = shapes.get(s);
                     if (mShape != null) {
@@ -111,16 +111,15 @@ public class AppCore {
                             messages.add(mString.getString());
                         }
                     }
-                }catch (NullPointerException ignored){
-
+                } catch (NullPointerException ignored) {
                 }
-//                messages.add(((HSSFTextbox)shapes.get(s)).getString().getString());
+                //                messages.add(((HSSFTextbox)shapes.get(s)).getString().getString());
             }
         }
         return messages;
     }
 
-    public static Sheet getSheet(File f){
+    public static Sheet getSheet(File f) {
         try {
             if (f.toString().endsWith(".xls")) {
                 POIFSFileSystem fileSystem = new POIFSFileSystem(new FileInputStream(f));
@@ -130,27 +129,26 @@ public class AppCore {
                 XSSFWorkbook workBook = new XSSFWorkbook(new FileInputStream(f));
                 return workBook.getSheetAt(0);
             }
-        }catch(IOException ignored){
+        } catch (IOException ignored) {
             return null;
         }
     }
 
     public static ArrayList<StudentClass> getClasses(Sheet sheet) {
         try {
-                ArrayList<StudentClass> classes = new ArrayList<>();
-                int startReadingRow = startReadingRow(sheet);
-                int rows = sheet.getLastRowNum();
-                int cols = sheet.getRow(startReadingRow).getLastCellNum();
-                for (int c = 1; c < cols; c++) {
-                    ArrayList<StudentClass.Subject> subs = new ArrayList<>();
-                    for (int r = startReadingRow + 1; r < rows; r++) {
-                        Row row = sheet.getRow(r);
-                        subs.add(new StudentClass.Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
-                    }
-                    classes.add(new StudentClass(sheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
+            ArrayList<StudentClass> classes = new ArrayList<>();
+            int startReadingRow = startReadingRow(sheet);
+            int rows = sheet.getLastRowNum();
+            int cols = sheet.getRow(startReadingRow).getLastCellNum();
+            for (int c = 1; c < cols; c++) {
+                ArrayList<StudentClass.Subject> subs = new ArrayList<>();
+                for (int r = startReadingRow + 1; r < rows; r++) {
+                    Row row = sheet.getRow(r);
+                    subs.add(new StudentClass.Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
                 }
-                return classes;
-
+                classes.add(new StudentClass(sheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
+            }
+            return classes;
         } catch (Exception e) {
             return null;
         }

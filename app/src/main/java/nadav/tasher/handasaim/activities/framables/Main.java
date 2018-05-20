@@ -130,7 +130,6 @@ public class Main extends Framable {
         sp.edit().putInt(Values.colorB, Values.defaultColorB).apply();
     }
 
-
     public static Drawable generateCoaster(Context c, int color) {
         GradientDrawable gd = (GradientDrawable) c.getDrawable(R.drawable.rounded_rect);
         if (gd != null) {
@@ -171,6 +170,7 @@ public class Main extends Framable {
         }
         a.setTaskDescription(taskDesc);
     }
+
     @Override
     public void go() {
         String file = sp.getString(Values.scheduleFile, null);
@@ -506,8 +506,8 @@ public class Main extends Framable {
                 if (keyManager.isKeyLoaded(KeyManager.TYPE_BETA)) {
                     Developer developer = new Developer(a, sp, keyManager);
                     developer.start();
-                }else{
-                    Toast.makeText(getApplicationContext(),"Beta Key Not Installed.\nFor Now, A Beta Key Must Be Installed To Enter The Developer Console.",Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Beta Key Not Installed.\nFor Now, A Beta Key Must Be Installed To Enter The Developer Console.", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -775,7 +775,8 @@ public class Main extends Framable {
             public void onClick(DialogInterface dialogInterface, int i) {
                 sp.edit().putBoolean(Values.devMode, true).apply();
                 Splash splash = new Splash(a, sp, keyManager);
-                splash.start();            }
+                splash.start();
+            }
         });
         pop.setNegativeButton("I Do Not Agree", new DialogInterface.OnClickListener() {
             @Override

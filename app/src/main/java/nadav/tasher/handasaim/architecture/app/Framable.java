@@ -14,33 +14,32 @@ public class Framable {
     public SharedPreferences sp;
     public Activity a;
 
-    public Framable(Activity a,SharedPreferences sp,KeyManager keyManager){
-        this.sp=sp;
-        this.keyManager=keyManager;
-        this.a=a;
+    public Framable(Activity a, SharedPreferences sp, KeyManager keyManager) {
+        this.sp = sp;
+        this.keyManager = keyManager;
+        this.a = a;
     }
 
-    public Context getApplicationContext(){
+    public Context getApplicationContext() {
         return a.getApplicationContext();
     }
 
-    public Window getWindow(){
+    public Window getWindow() {
         return a.getWindow();
     }
 
-    public void setContentView(View v){
+    public void setContentView(View v) {
         a.setContentView(v);
     }
 
-    public void start(){
-        Launcher.currentFramable=this;
+    public void start() {
+        Launcher.currentFramable = this;
         go();
     }
 
-    public void go(){
-
+    public void go() {
     }
 
-    public void onBackPressed(){
+    public void onBackPressed() {
     }
 }
