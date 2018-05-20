@@ -70,7 +70,7 @@ public class Splash extends Framable {
         if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
             curved = "Developer Mode";
         }
-        ctv = new CurvedTextView(getApplicationContext(), curved, 50, Values.bakedIconColor, Device.screenX(getApplicationContext()), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
+        ctv = new CurvedTextView(getApplicationContext(), curved, Main.getFontSize(getApplicationContext())*2, Values.bakedIconColor, Device.screenX(getApplicationContext()), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.3)));
         ll.addView(icon);
         ll.addView(ctv);

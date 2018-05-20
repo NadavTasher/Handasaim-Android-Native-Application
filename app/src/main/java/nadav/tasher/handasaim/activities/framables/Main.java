@@ -16,6 +16,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.text.InputFilter;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -900,16 +901,17 @@ public class Main extends Framable {
                 }
                 if (mAppView.getBar().isOpen()) {
                     mAppView.getBar().close(true);
+                    Log.i("State",""+mAppView.getBar().isOpen());
                 }
             } else {
                 a.finish();
             }
         }
-        if (mAppView != null && mAppView.getBar() != null) {
-            if (mAppView.getBar().isOpen()) {
-                mAppView.getBar().close(true);
-            }
-        }
+//        } else if (mAppView != null && mAppView.getBar() != null) {
+//            if (mAppView.getBar().isOpen()) {
+//                mAppView.getBar().close(true);
+//            }
+//        }
     }
 
     private FrameLayout getNews() {

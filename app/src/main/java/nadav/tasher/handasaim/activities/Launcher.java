@@ -9,7 +9,7 @@ import android.view.WindowManager;
 
 import nadav.tasher.handasaim.activities.framables.Main;
 import nadav.tasher.handasaim.activities.framables.Splash;
-import nadav.tasher.handasaim.architecture.app.Framable;
+import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.tools.architecture.Starter;
 import nadav.tasher.handasaim.values.Values;
@@ -19,7 +19,6 @@ import static nadav.tasher.handasaim.values.Values.colorForceDefault;
 
 public class Launcher extends Activity {
 
-    public static Framable currentFramable;
     private SharedPreferences sp;
     private KeyManager keyManager;
 
@@ -27,7 +26,6 @@ public class Launcher extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         lockState();
-        startSplash();
     }
 
     private void lockState() {
@@ -41,6 +39,7 @@ public class Launcher extends Activity {
             Main.installColors(getApplicationContext());
             sp.edit().putBoolean(colorForce, true).apply();
         }
+        startSplash();
     }
 
     private void startSplash() {
@@ -50,10 +49,8 @@ public class Launcher extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (currentFramable != null) {
-            currentFramable.onBackPressed();
-        } else {
-            finish();
+        if (TowerHub.current!=null) {
+            TowerHub.current.onBackPressed();
         }
     }
 }

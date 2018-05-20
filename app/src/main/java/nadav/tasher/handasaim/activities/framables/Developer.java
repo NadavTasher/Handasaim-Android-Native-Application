@@ -80,7 +80,7 @@ public class Developer extends Framable {
     }
 
     private void popupRun() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(getApplicationContext());
+        AlertDialog.Builder pop = new AlertDialog.Builder(a);
         pop.setCancelable(true);
         pop.setTitle("Run Function");
         pop.setMessage("Enter Your Function Name:");
@@ -106,11 +106,11 @@ public class Developer extends Framable {
     }
 
     private void popupStatics() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(getApplicationContext());
+        AlertDialog.Builder pop = new AlertDialog.Builder(a);
         pop.setCancelable(true);
         pop.setTitle("View Statics");
         StringBuilder b = new StringBuilder();
-        if (s.statics != null) {
+        if (s!=null&&s.statics != null) {
             for (int i = 0; i < s.statics.size(); i++) {
                 b.append(s.statics.get(i).name).append(" - ").append(s.statics.get(i).bareValue).append("\n");
             }
@@ -121,7 +121,7 @@ public class Developer extends Framable {
     }
 
     private void popupLoad() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(getApplicationContext());
+        AlertDialog.Builder pop = new AlertDialog.Builder(a);
         pop.setCancelable(true);
         pop.setTitle("Load Script");
         pop.setMessage("Enter Your JSONScripting Script:");
