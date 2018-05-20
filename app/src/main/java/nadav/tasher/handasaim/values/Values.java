@@ -1,7 +1,7 @@
 package nadav.tasher.handasaim.values;
 
 public class Values {
-    public static final String prefName = "app_v5";
+    public static final String prefName = "app_v6";
     public static final String keyPrefName = "keys_v1";
     public static final String pushProvider = "http://h.nockio.com/pushes.json";
     public static final String keyProvider = "http://h.nockio.com/keys/index.php";
@@ -38,7 +38,7 @@ public class Values {
     public static final int fontSizeDefault = 30;
     public static final int squircleAlpha = 190;
     public static final int defaultColorA = 0xFFb1d4f3;
-    public static final int defaultColorB = 0xFF213b5a;
+    public static final int defaultColorB = 0xFFbcb396;
     public static final int navColor = 0x80111111;
     public static final int classCoasterColor = 0xBB333333;
     public static final int classCoasterMarkColor = 0xBB222222;
