@@ -98,23 +98,27 @@ public class AppCore {
 
     public static ArrayList<String> getMessages(Sheet sheet) {
         ArrayList<String> messages = new ArrayList<>();
-        HSSFPatriarch patriarch = (HSSFPatriarch) sheet.createDrawingPatriarch();
-        List<HSSFShape> shapes = patriarch.getChildren();
-        for (int s = 0; s < shapes.size(); s++) {
-            if (shapes.get(s) instanceof HSSFTextbox) {
-                try {
-                    HSSFShape mShape = shapes.get(s);
-                    if (mShape != null) {
-                        HSSFTextbox mTextShape = (HSSFTextbox) mShape;
-                        HSSFRichTextString mString = mTextShape.getString();
-                        if (mString != null) {
-                            messages.add(mString.getString());
+        if(sheet.getWorkbook() instanceof HSSFWorkbook) {
+            HSSFPatriarch patriarch = (HSSFPatriarch) sheet.createDrawingPatriarch();
+            List<HSSFShape> shapes = patriarch.getChildren();
+            for (int s = 0; s < shapes.size(); s++) {
+                if (shapes.get(s) instanceof HSSFTextbox) {
+                    try {
+                        HSSFShape mShape = shapes.get(s);
+                        if (mShape != null) {
+                            HSSFTextbox mTextShape = (HSSFTextbox) mShape;
+                            HSSFRichTextString mString = mTextShape.getString();
+                            if (mString != null) {
+                                messages.add(mString.getString());
+                            }
                         }
+                    } catch (NullPointerException ignored) {
                     }
-                } catch (NullPointerException ignored) {
+                    //                messages.add(((HSSFTextbox)shapes.get(s)).getString().getString());
                 }
-                //                messages.add(((HSSFTextbox)shapes.get(s)).getString().getString());
             }
+        }else{
+            messages.add("Could Not Load Messages");
         }
         return messages;
     }
