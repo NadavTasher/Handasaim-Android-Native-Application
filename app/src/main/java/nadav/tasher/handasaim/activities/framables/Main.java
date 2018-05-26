@@ -36,12 +36,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.tools.architecture.appcore.components.Classroom;
-import nadav.tasher.handasaim.tools.architecture.appcore.components.Teacher;
 import nadav.tasher.handasaim.architecture.app.Framable;
 import nadav.tasher.handasaim.tools.TowerHub;
-import nadav.tasher.handasaim.tools.architecture.appcore.AppCore;
 import nadav.tasher.handasaim.tools.architecture.KeyManager;
+import nadav.tasher.handasaim.tools.architecture.appcore.AppCore;
+import nadav.tasher.handasaim.tools.architecture.appcore.components.Classroom;
+import nadav.tasher.handasaim.tools.architecture.appcore.components.Teacher;
 import nadav.tasher.handasaim.tools.graphics.LessonView;
 import nadav.tasher.handasaim.tools.graphics.MessageBar;
 import nadav.tasher.handasaim.tools.specific.GetNews;
@@ -203,7 +203,7 @@ public class Main extends Framable {
     private void aboutPopup() {
         AlertDialog.Builder ab = new AlertDialog.Builder(a);
         ab.setTitle(R.string.app_name);
-        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) + "\nBuild: " + Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()));
+        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) + " (" + Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()) + ")");
         ab.setCancelable(true);
         ab.setPositiveButton("Close", null);
         ab.setNegativeButton("Enter Code", new DialogInterface.OnClickListener() {
@@ -1174,25 +1174,5 @@ public class Main extends Framable {
             }
         }
         return lessons;
-    }
-
-    private TextView getTextView(String t, int textColor) {
-        final TextView v = new TextView(getApplicationContext());
-        v.setTextColor(textColor);
-        v.setTextSize((float) (Main.getFontSize(getApplicationContext()) / 1.5));
-        v.setText(t);
-        v.setGravity(Gravity.CENTER);
-        v.setTypeface(Main.getTypeface(getApplicationContext()));
-        v.setSingleLine(false);
-        v.setEllipsize(TextUtils.TruncateAt.END);
-        v.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        TowerHub.textColorChangeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
-            @Override
-            public boolean onPeer(Integer integer) {
-                v.setTextColor(integer);
-                return true;
-            }
-        }));
-        return v;
     }
 }
