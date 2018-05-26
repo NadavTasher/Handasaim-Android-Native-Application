@@ -22,8 +22,8 @@ public class Values {
     public static final String scheduleFile = "schedule_file";
     public static final String favoriteClass = "favorite_class";
     public static final String favoriteTeacher = "favorite_teacher";
+    public static final String messages = "show_messages";
     public static final String devMode = "developer_mode_v1";
-    public static final String guidedTutorial = "guided_v5";
     public static final String colorForce = "color_force_v2";
     public static final String pushID = "push_id_";
     public static final String firstLaunch = "first";
@@ -32,6 +32,7 @@ public class Values {
     public static final boolean breakTimeDefault = true;
     public static final boolean devModeDefault = false;
     public static final boolean colorForceDefault = false;
+    public static final boolean messagesDefault = true;
     public static final int waitTime = 10;
     public static final int bakedIconColor = 0xffdd8833;
     public static final int refreshLoop = (int) (1000 * 60 * 30);

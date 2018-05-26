@@ -5,7 +5,6 @@ import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.CountDownTimer;
@@ -39,10 +38,8 @@ public class News extends Framable {
     }
 
     private void taskDesc() {
-        Bitmap bm = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.mipmap.ic_launcher);
-        ActivityManager.TaskDescription taskDesc;
-        taskDesc = new ActivityManager.TaskDescription(getApplicationContext().getString(R.string.app_name), bm, (Main.getColorB(getApplicationContext())));
-        a.setTaskDescription(taskDesc);
+        ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(null, null, (Main.getColorA(getApplicationContext())));
+        a.setTaskDescription(taskDesc);a.setTaskDescription(taskDesc);
     }
 
     @Override

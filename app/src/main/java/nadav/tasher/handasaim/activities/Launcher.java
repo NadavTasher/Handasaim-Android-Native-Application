@@ -53,4 +53,16 @@ public class Launcher extends Activity {
             TowerHub.current.onBackPressed();
         }
     }
+
+    @Override
+    protected void onResume() {
+        if(getIntent().getExtras()!=null) {
+            if (getIntent().getExtras().containsKey("Refresh")) {
+                if (getIntent().getExtras().getBoolean("Refresh",false)){
+                    startSplash();
+                }
+            }
+        }
+        super.onResume();
+    }
 }

@@ -1,6 +1,7 @@
 package nadav.tasher.handasaim.tools;
 
 import nadav.tasher.handasaim.architecture.app.Framable;
+import nadav.tasher.lightool.parts.Peer;
 import nadav.tasher.lightool.parts.Tower;
 
 public class TowerHub {
@@ -10,6 +11,7 @@ public class TowerHub {
     public static Tower<Integer> fontSizeChangeTunnle = new Tower<>();
     public static Tower<Boolean> breakTimeTunnle = new Tower<>();
     public static Tower<String> scriptEventTunnel = new Tower<>();
+    public static Peer<Boolean> showMessagesPeer=new Peer<>();
     public static Framable current;
 
 }

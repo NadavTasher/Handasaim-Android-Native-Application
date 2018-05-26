@@ -27,6 +27,5 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'org.jsoup:jsoup:1.10.3'
     implementation project(':lightool-release')
-    implementation 'com.github.deano2390:MaterialShowcaseView:1.2.0'
     implementation project(':jsons-release')
 }

@@ -7,8 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -47,7 +45,6 @@ import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.tools.graphics.LessonView;
 import nadav.tasher.handasaim.tools.graphics.MessageBar;
 import nadav.tasher.handasaim.tools.specific.GetNews;
-import nadav.tasher.handasaim.values.Egg;
 import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.graphics.views.ColorPicker;
@@ -56,9 +53,6 @@ import nadav.tasher.lightool.graphics.views.appview.navigation.Drag;
 import nadav.tasher.lightool.graphics.views.appview.navigation.bar.Squircle;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
-import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
-import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
 
 import static nadav.tasher.handasaim.tools.architecture.AppCore.getBreak;
 import static nadav.tasher.handasaim.tools.architecture.AppCore.getClasses;
@@ -89,6 +83,7 @@ public class Main extends Framable {
     private ArrayList<Teacher> teachers;
     private ArrayList<String> messages;
     private boolean breakTime = true;
+    private boolean showMessages = true;
 
     public Main(Activity a, SharedPreferences sp, KeyManager keyManager) {
         super(a, sp, keyManager);
@@ -162,12 +157,11 @@ public class Main extends Framable {
     }
 
     private void taskDesc() {
-        Bitmap bm = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_icon);
         ActivityManager.TaskDescription taskDesc;
         if (mAppView == null) {
-            taskDesc = new ActivityManager.TaskDescription(getApplicationContext().getString(R.string.app_name), bm, (colorA));
+            taskDesc = new ActivityManager.TaskDescription(null, null, (colorA));
         } else {
-            taskDesc = new ActivityManager.TaskDescription(getApplicationContext().getString(R.string.app_name), bm, (mAppView.getDrag().calculateOverlayedColor(colorA)));
+            taskDesc = new ActivityManager.TaskDescription(null, null, (mAppView.getDrag().calculateOverlayedColor(colorA)));
         }
         a.setTaskDescription(taskDesc);
     }
@@ -212,17 +206,10 @@ public class Main extends Framable {
         ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) + "\nBuild: " + Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()));
         ab.setCancelable(true);
         ab.setPositiveButton("Close", null);
-        ab.setNeutralButton("Enter Code", new DialogInterface.OnClickListener() {
+        ab.setNegativeButton("Enter Code", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 popupKeyEntering();
-            }
-        });
-        ab.setNegativeButton("Easter Egg", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mAppView.getDrag().setContent(getTextView(Egg.dispenseEgg(Egg.TYPE_BOTH), textColor));
-                mAppView.getDrag().open(false);
             }
         });
         ab.show();
@@ -234,6 +221,7 @@ public class Main extends Framable {
         final int squirclePadding = x / 30;
         final int squircleSize = (int) (x / 4.2);
         breakTime = sp.getBoolean(Values.breakTime, Values.breakTimeDefault);
+        showMessages = sp.getBoolean(Values.messages, Values.messagesDefault);
         LinearLayout topper = new LinearLayout(getApplicationContext());
         topper.setOrientation(LinearLayout.VERTICAL);
         topper.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
@@ -291,6 +279,18 @@ public class Main extends Framable {
         messageBar = new MessageBar(a, messages, mAppView.getDrag());
         messageBar.start();
         scheduleLayout.addView(messageBar);
+        TowerHub.showMessagesPeer.setOnPeer(new Peer.OnPeer<Boolean>() {
+            @Override
+            public boolean onPeer(Boolean aBoolean) {
+                if (aBoolean && messages.size() != 0) {
+                    messageBar.setVisibility(View.VISIBLE);
+                } else {
+                    messageBar.setVisibility(View.GONE);
+                }
+                return false;
+            }
+        });
+        TowerHub.showMessagesPeer.tell(showMessages);
         lessonViewHolder = new LinearLayout(getApplicationContext());
         lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
@@ -300,28 +300,6 @@ public class Main extends Framable {
         StudentClass c = getFavoriteClass();
         if (classes != null) if (c != null) setStudentMode(c);
         setContentView(mAppView);
-        initStageC();
-    }
-
-    private void initStageC() {
-        if (!sp.getBoolean(Values.guidedTutorial, false)) {
-            ShowcaseConfig config = new ShowcaseConfig();
-            config.setDelay(500);
-            config.setShape(new CircleShape());
-            config.setShapePadding(60);
-            config.setMaskColor(0xA0111111);
-            //            config.setContentTextColor(Color.WHITE);
-            config.setDismissTextStyle(getTypeface());
-            config.setRenderOverNavigationBar(true);
-            MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(a);
-            sequence.setConfig(config);
-            sequence.addSequenceItem(mAppView.getBar().getMainSquircle(),
-                    "This is the menu button.\nOne tap to open, one to close.", "Next");
-            sequence.addSequenceItem(mAppView.getDrag(),
-                    "This is the drag bar.\nWhen you pull it down you will be able to see all the news.", "Done. Take Me To The App!");
-            sequence.start();
-            sp.edit().putBoolean(Values.guidedTutorial, true).apply();
-        }
     }
 
     private StudentClass getFavoriteClass() {
@@ -362,6 +340,25 @@ public class Main extends Framable {
 
     private ArrayList<Squircle> getSquircles(int size) {
         ArrayList<Squircle> squircles = new ArrayList<>();
+        final Squircle reload = new Squircle(getApplicationContext(), size, colorA);
+        reload.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_reload));
+        reload.addOnState(new Squircle.OnState() {
+
+            @Override
+            public void onOpen() {
+            }
+
+            @Override
+            public void onClose() {
+            }
+
+            @Override
+            public void onBoth(boolean isOpened) {
+                Splash splash = new Splash(a, sp, keyManager);
+                splash.start();
+            }
+        });
+        squircles.add(reload);
         final Squircle news = new Squircle(getApplicationContext(), size, colorA);
         news.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_news));
         final FrameLayout newsContent = getNews();
@@ -589,16 +586,19 @@ public class Main extends Framable {
         settings.setOrientation(LinearLayout.VERTICAL);
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        final Switch devSwitch = new Switch(getApplicationContext()), newScheduleSwitch = new Switch(getApplicationContext()), breakTimeSwitch = new Switch(getApplicationContext()), pushSwitch = new Switch(getApplicationContext());
+        final Switch devSwitch = new Switch(getApplicationContext()), messageSwitch = new Switch(getApplicationContext()), newScheduleSwitch = new Switch(getApplicationContext()), breakTimeSwitch = new Switch(getApplicationContext()), pushSwitch = new Switch(getApplicationContext());
         pushSwitch.setText(R.string.live_messages);
+        messageSwitch.setText(R.string.schedule_messages);
         newScheduleSwitch.setText(R.string.schedule_notification);
         breakTimeSwitch.setText(R.string.show_breaks);
         devSwitch.setText(R.string.developer_mode);
         pushSwitch.setChecked(sp.getBoolean(Values.pushService, Values.pushDefault));
+        messageSwitch.setChecked(sp.getBoolean(Values.messages, Values.messagesDefault));
         newScheduleSwitch.setChecked(sp.getBoolean(Values.scheduleService, Values.scheduleDefault));
         breakTimeSwitch.setChecked(sp.getBoolean(Values.breakTime, Values.breakTimeDefault));
         devSwitch.setChecked(sp.getBoolean(Values.devMode, Values.devModeDefault));
         pushSwitch.setTextSize((float) (getFontSize() / 1.5));
+        messageSwitch.setTextSize((float) (getFontSize() / 1.5));
         breakTimeSwitch.setTextSize((float) (getFontSize() / 1.5));
         newScheduleSwitch.setTextSize((float) (getFontSize() / 1.5));
         devSwitch.setTextSize((float) (getFontSize() / 1.5));
@@ -606,7 +606,9 @@ public class Main extends Framable {
         newScheduleSwitch.setTypeface(getTypeface());
         breakTimeSwitch.setTypeface(getTypeface());
         devSwitch.setTypeface(getTypeface());
+        messageSwitch.setTypeface(getTypeface());
         newScheduleSwitch.setTextColor(textColor);
+        messageSwitch.setTextColor(textColor);
         pushSwitch.setTextColor(textColor);
         breakTimeSwitch.setTextColor(textColor);
         devSwitch.setTextColor(textColor);
@@ -617,6 +619,15 @@ public class Main extends Framable {
                 //                breakTime=sp.getBoolean(Values.breakTime,Values.breakTimeDefault);
                 breakTime = isChecked;
                 TowerHub.breakTimeTunnle.tell(breakTime);
+            }
+        });
+        messageSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                sp.edit().putBoolean(Values.messages, isChecked).apply();
+                //                breakTime=sp.getBoolean(Values.breakTime,Values.breakTimeDefault);
+                showMessages = isChecked;
+                TowerHub.showMessagesPeer.tell(showMessages);
             }
         });
         pushSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -727,6 +738,7 @@ public class Main extends Framable {
                 pushSwitch.setTextSize((float) (response / 1.5));
                 breakTimeSwitch.setTextSize((float) (response / 1.5));
                 newScheduleSwitch.setTextSize((float) (response / 1.5));
+                messageSwitch.setTextSize((float) (response / 1.5));
                 devSwitch.setTextSize((float) (response / 1.5));
                 explainColorA.setTextSize((float) (response / 1.5));
                 explainColorB.setTextSize((float) (response / 1.5));
@@ -741,6 +753,7 @@ public class Main extends Framable {
                 pushSwitch.setTextColor(response);
                 breakTimeSwitch.setTextColor(response);
                 newScheduleSwitch.setTextColor(response);
+                messageSwitch.setTextColor(response);
                 devSwitch.setTextColor(response);
                 explainColorA.setTextColor(response);
                 explainColorB.setTextColor(response);
@@ -749,6 +762,7 @@ public class Main extends Framable {
                 return true;
             }
         }));
+        settings.addView(messageSwitch);
         settings.addView(newScheduleSwitch);
         settings.addView(pushSwitch);
         settings.addView(breakTimeSwitch);
@@ -901,17 +915,17 @@ public class Main extends Framable {
                 }
                 if (mAppView.getBar().isOpen()) {
                     mAppView.getBar().close(true);
-                    Log.i("State",""+mAppView.getBar().isOpen());
+                    Log.i("State", "" + mAppView.getBar().isOpen());
                 }
             } else {
                 a.finish();
             }
         }
-//        } else if (mAppView != null && mAppView.getBar() != null) {
-//            if (mAppView.getBar().isOpen()) {
-//                mAppView.getBar().close(true);
-//            }
-//        }
+        //        } else if (mAppView != null && mAppView.getBar() != null) {
+        //            if (mAppView.getBar().isOpen()) {
+        //                mAppView.getBar().close(true);
+        //            }
+        //        }
     }
 
     private FrameLayout getNews() {

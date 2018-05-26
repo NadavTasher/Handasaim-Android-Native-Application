@@ -4,8 +4,6 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
@@ -32,10 +30,8 @@ public class Welcome extends Framable {
     }
 
     private void taskDesc() {
-        Bitmap bm = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_icon);
-        ActivityManager.TaskDescription taskDesc;
-        taskDesc = new ActivityManager.TaskDescription(getApplicationContext().getString(R.string.app_name), bm, (Main.getColorB(getApplicationContext())));
-        a.setTaskDescription(taskDesc);
+        ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(null, null, (Main.getColorA(getApplicationContext())));
+        a.setTaskDescription(taskDesc);a.setTaskDescription(taskDesc);
     }
 
     @Override

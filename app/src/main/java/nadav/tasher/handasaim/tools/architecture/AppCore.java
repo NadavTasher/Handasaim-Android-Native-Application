@@ -1,5 +1,7 @@
 package nadav.tasher.handasaim.tools.architecture;
 
+import android.util.Log;
+
 import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFShape;
@@ -10,6 +12,10 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFDrawing;
+import org.apache.poi.xssf.usermodel.XSSFShape;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFSimpleShape;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
@@ -23,6 +29,15 @@ import nadav.tasher.handasaim.architecture.StudentClass;
 import nadav.tasher.handasaim.architecture.Teacher;
 
 public class AppCore {
+
+    public static double APPCODE_VERSION=1.2;
+
+    /*
+        Note That XSSF Resemmbles XLSX,
+        While HSSF Resembles XLS.
+        XSSF Is The Newer Format.
+     */
+
     public static int startReadingRow(Sheet s) {
         Cell secondCell = s.getRow(0).getCell(1);
         if (secondCell != null) {
@@ -98,27 +113,51 @@ public class AppCore {
 
     public static ArrayList<String> getMessages(Sheet sheet) {
         ArrayList<String> messages = new ArrayList<>();
-        if(sheet.getWorkbook() instanceof HSSFWorkbook) {
-            HSSFPatriarch patriarch = (HSSFPatriarch) sheet.createDrawingPatriarch();
-            List<HSSFShape> shapes = patriarch.getChildren();
-            for (int s = 0; s < shapes.size(); s++) {
-                if (shapes.get(s) instanceof HSSFTextbox) {
-                    try {
-                        HSSFShape mShape = shapes.get(s);
-                        if (mShape != null) {
-                            HSSFTextbox mTextShape = (HSSFTextbox) mShape;
-                            HSSFRichTextString mString = mTextShape.getString();
-                            if (mString != null) {
-                                messages.add(mString.getString());
+        try {
+            if (sheet.getWorkbook() instanceof HSSFWorkbook) {
+                HSSFPatriarch patriarch = (HSSFPatriarch) sheet.createDrawingPatriarch();
+                List<HSSFShape> shapes = patriarch.getChildren();
+                for (int s = 0; s < shapes.size(); s++) {
+                    if (shapes.get(s) instanceof HSSFTextbox) {
+                        try {
+                            HSSFShape mShape = shapes.get(s);
+                            if (mShape != null) {
+                                HSSFTextbox mTextShape = (HSSFTextbox) mShape;
+                                HSSFRichTextString mString = mTextShape.getString();
+                                if (mString != null) {
+                                    messages.add(mString.getString());
+                                }
                             }
+                        } catch (NullPointerException ignored) {
                         }
-                    } catch (NullPointerException ignored) {
                     }
-                    //                messages.add(((HSSFTextbox)shapes.get(s)).getString().getString());
+                }
+            } else {
+                //            messages.add("Could Not Load Messages");
+                XSSFSheet convertedSheet = (XSSFSheet) sheet;
+                XSSFDrawing drawing = convertedSheet.createDrawingPatriarch();
+                List<XSSFShape> shapes = drawing.getShapes();
+                for (int s = 0; s < shapes.size(); s++) {
+                    Log.i("Shape", shapes.get(s).toString());
+                    if (shapes.get(s) instanceof XSSFSimpleShape) {
+                        Log.i("Here", "Reached");
+                        try {
+                            XSSFSimpleShape mShape = (XSSFSimpleShape) shapes.get(s);
+                            if (mShape != null) {
+                                if (mShape.getText() != null) {
+                                    String mString = mShape.getText();
+                                    if (mString != null) {
+                                        messages.add(mString);
+                                    }
+                                }
+                            }
+                        } catch (NullPointerException ignored) {
+                        }
+                    }
                 }
             }
-        }else{
-            messages.add("Could Not Load Messages");
+        }catch (Exception e){
+            messages.add("A Reading Error Occured.");
         }
         return messages;
     }

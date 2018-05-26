@@ -6,8 +6,6 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
@@ -43,9 +41,7 @@ public class Splash extends Framable {
     }
 
     private void taskDesc() {
-        Bitmap bm = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.mipmap.ic_launcher);
-        ActivityManager.TaskDescription taskDesc;
-        taskDesc = new ActivityManager.TaskDescription(getApplicationContext().getString(R.string.app_name), bm, (Main.getColorA(getApplicationContext())));
+        ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(null, null, (Main.getColorA(getApplicationContext())));
         a.setTaskDescription(taskDesc);
     }
 
@@ -65,12 +61,12 @@ public class Splash extends Framable {
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
         String curved = getApplicationContext().getString(R.string.app_name);
         if (keyManager.isKeyLoaded(KeyManager.TYPE_TEACHER_MODE)) {
-            curved = "Shlomi Mode";
+            curved = "Find My Shlomi";
         }
         if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
             curved = "Developer Mode";
         }
-        ctv = new CurvedTextView(getApplicationContext(), curved, Main.getFontSize(getApplicationContext())*2, Values.bakedIconColor, Device.screenX(getApplicationContext()), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
+        ctv = new CurvedTextView(getApplicationContext(), curved, Main.getFontSize(getApplicationContext()) * 2, Values.bakedIconColor, Device.screenX(getApplicationContext()), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.3)));
         ll.addView(icon);
         ll.addView(ctv);
@@ -142,6 +138,7 @@ public class Splash extends Framable {
 
             @Override
             public void onLinkGet(String link) {
+                //                link="http://handasaim.co.il/wp-content/uploads/2017/06/22-5-1.xlsx";
                 if (link != null) {
                     String fileName = "hs.xls";
                     if (link.endsWith(".xlsx")) {
