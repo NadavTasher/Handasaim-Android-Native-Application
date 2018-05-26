@@ -1,12 +1,12 @@
-package nadav.tasher.handasaim.architecture;
+package nadav.tasher.handasaim.tools.architecture.appcore.components;
 
 import java.util.ArrayList;
 
-public class StudentClass {
+public class Classroom {
     public String name;
     public ArrayList<Subject> subjects;
 
-    public StudentClass(String name, ArrayList<Subject> subjects) {
+    public Classroom(String name, ArrayList<Subject> subjects) {
         this.name = name.split(" ")[0];
         this.subjects = subjects;
     }

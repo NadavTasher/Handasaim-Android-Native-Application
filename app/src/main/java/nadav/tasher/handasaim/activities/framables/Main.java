@@ -36,11 +36,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.architecture.StudentClass;
-import nadav.tasher.handasaim.architecture.Teacher;
+import nadav.tasher.handasaim.tools.architecture.appcore.components.Classroom;
+import nadav.tasher.handasaim.tools.architecture.appcore.components.Teacher;
 import nadav.tasher.handasaim.architecture.app.Framable;
 import nadav.tasher.handasaim.tools.TowerHub;
-import nadav.tasher.handasaim.tools.architecture.AppCore;
+import nadav.tasher.handasaim.tools.architecture.appcore.AppCore;
 import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.tools.graphics.LessonView;
 import nadav.tasher.handasaim.tools.graphics.MessageBar;
@@ -54,17 +54,17 @@ import nadav.tasher.lightool.graphics.views.appview.navigation.bar.Squircle;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
 
-import static nadav.tasher.handasaim.tools.architecture.AppCore.getBreak;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.getClasses;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.getDay;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.getGrade;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.getMessages;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.getRealEndTimeForHourNumber;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.getRealTimeForHourNumber;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.getSheet;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.getTeacherSchudleForClasses;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.getTimeForLesson;
-import static nadav.tasher.handasaim.tools.architecture.AppCore.minuteOfDay;
+import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getBreak;
+import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getClasses;
+import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getDay;
+import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getGrade;
+import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getMessages;
+import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getRealEndTimeForHourNumber;
+import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getRealTimeForHourNumber;
+import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getSheet;
+import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getTeacherSchudleForClasses;
+import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getTimeForLesson;
+import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.minuteOfDay;
 
 public class Main extends Framable {
     private int textColor = Values.fontColorDefault;
@@ -72,14 +72,14 @@ public class Main extends Framable {
     private int colorB = Values.defaultColorB;
     private int coasterColor = Values.defaultColorB;
     private String day;
-    private StudentClass currentClass;
+    private Classroom currentClass;
     private Teacher currentTeacher;
     private Squircle main;
     private MessageBar messageBar;
     private LinearLayout scheduleLayout, lessonViewHolder;
     private Drawable gradient;
     private AppView mAppView;
-    private ArrayList<StudentClass> classes;
+    private ArrayList<Classroom> classes;
     private ArrayList<Teacher> teachers;
     private ArrayList<String> messages;
     private boolean breakTime = true;
@@ -297,12 +297,12 @@ public class Main extends Framable {
         scheduleLayout.addView(lessonViewHolder);
         refreshTheme();
         mAppView.setContent(scheduleLayout);
-        StudentClass c = getFavoriteClass();
+        Classroom c = getFavoriteClass();
         if (classes != null) if (c != null) setStudentMode(c);
         setContentView(mAppView);
     }
 
-    private StudentClass getFavoriteClass() {
+    private Classroom getFavoriteClass() {
         int selectedClass = 0;
         if (sp.getString(Values.favoriteClass, null) != null) {
             if (classes != null) {
@@ -1028,7 +1028,7 @@ public class Main extends Framable {
         getApplicationContext().startActivity(Intent.createChooser(s, "Share With"));
     }
 
-    private void setStudentMode(StudentClass c) {
+    private void setStudentMode(Classroom c) {
         currentClass = c;
         main.setText(textColor, getFontSize(), c.name, day);
         displayLessonViews(scheduleForClass(c));
@@ -1051,7 +1051,7 @@ public class Main extends Framable {
         return sp.getInt(Values.fontSizeNumber, Values.fontSizeDefault);
     }
 
-    private String scheduleForClassString(StudentClass fclass, boolean showTime) {
+    private String scheduleForClassString(Classroom fclass, boolean showTime) {
         String allsubj = "";
         for (int s = 0; s < fclass.subjects.size(); s++) {
             String before;
@@ -1072,7 +1072,7 @@ public class Main extends Framable {
         return Typeface.createFromAsset(getApplicationContext().getAssets(), Values.fontName);
     }
 
-    private ArrayList<LessonView> scheduleForClass(final StudentClass fclass) {
+    private ArrayList<LessonView> scheduleForClass(final Classroom fclass) {
         ArrayList<LessonView> lessons = new ArrayList<>();
         for (int s = 0; s < fclass.subjects.size(); s++) {
             if (getBreak(fclass.subjects.get(s).hour - 1) != -1) {
@@ -1097,7 +1097,7 @@ public class Main extends Framable {
                     }
                 }));
             }
-            StudentClass.Subject.Time classTime = getTimeForLesson(fclass.subjects.get(s).hour);
+            Classroom.Subject.Time classTime = getTimeForLesson(fclass.subjects.get(s).hour);
             boolean isCurrent = false;
             Calendar c = Calendar.getInstance();
             int minute = c.get(Calendar.MINUTE);
@@ -1125,7 +1125,7 @@ public class Main extends Framable {
             String lessonName = "";
             for (int s = 0; s < fclass.teaching.size(); s++) {
                 if (fclass.teaching.get(s).hour == h) {
-                    StudentClass.Subject.Time classTime = getTimeForLesson(h);
+                    Classroom.Subject.Time classTime = getTimeForLesson(h);
                     Calendar ca = Calendar.getInstance();
                     int minute = ca.get(Calendar.MINUTE);
                     int hour = ca.get(Calendar.HOUR_OF_DAY);

@@ -1,4 +1,4 @@
-package nadav.tasher.handasaim.architecture;
+package nadav.tasher.handasaim.tools.architecture.appcore.components;
 
 import java.util.ArrayList;
 

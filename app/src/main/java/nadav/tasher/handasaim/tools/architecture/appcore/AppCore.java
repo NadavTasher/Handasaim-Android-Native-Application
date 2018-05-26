@@ -1,4 +1,4 @@
-package nadav.tasher.handasaim.tools.architecture;
+package nadav.tasher.handasaim.tools.architecture.appcore;
 
 import android.util.Log;
 
@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import nadav.tasher.handasaim.architecture.StudentClass;
-import nadav.tasher.handasaim.architecture.Teacher;
+import nadav.tasher.handasaim.tools.architecture.appcore.components.Classroom;
+import nadav.tasher.handasaim.tools.architecture.appcore.components.Teacher;
 
 public class AppCore {
 
@@ -177,19 +177,19 @@ public class AppCore {
         }
     }
 
-    public static ArrayList<StudentClass> getClasses(Sheet sheet) {
+    public static ArrayList<Classroom> getClasses(Sheet sheet) {
         try {
-            ArrayList<StudentClass> classes = new ArrayList<>();
+            ArrayList<Classroom> classes = new ArrayList<>();
             int startReadingRow = startReadingRow(sheet);
             int rows = sheet.getLastRowNum();
             int cols = sheet.getRow(startReadingRow).getLastCellNum();
             for (int c = 1; c < cols; c++) {
-                ArrayList<StudentClass.Subject> subs = new ArrayList<>();
+                ArrayList<Classroom.Subject> subs = new ArrayList<>();
                 for (int r = startReadingRow + 1; r < rows; r++) {
                     Row row = sheet.getRow(r);
-                    subs.add(new StudentClass.Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+                    subs.add(new Classroom.Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
                 }
-                classes.add(new StudentClass(sheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
+                classes.add(new Classroom(sheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
             }
             return classes;
         } catch (Exception e) {
@@ -217,36 +217,36 @@ public class AppCore {
         return -1;
     }
 
-    public static StudentClass.Subject.Time getTimeForLesson(int hour) {
+    public static Classroom.Subject.Time getTimeForLesson(int hour) {
         switch (hour) {
             case 0:
-                return new StudentClass.Subject.Time(7, 8, 45, 30);
+                return new Classroom.Subject.Time(7, 8, 45, 30);
             case 1:
-                return new StudentClass.Subject.Time(8, 9, 30, 15);
+                return new Classroom.Subject.Time(8, 9, 30, 15);
             case 2:
-                return new StudentClass.Subject.Time(9, 10, 15, 0);
+                return new Classroom.Subject.Time(9, 10, 15, 0);
             case 3:
-                return new StudentClass.Subject.Time(10, 11, 15, 0);
+                return new Classroom.Subject.Time(10, 11, 15, 0);
             case 4:
-                return new StudentClass.Subject.Time(11, 11, 0, 45);
+                return new Classroom.Subject.Time(11, 11, 0, 45);
             case 5:
-                return new StudentClass.Subject.Time(12, 12, 10, 55);
+                return new Classroom.Subject.Time(12, 12, 10, 55);
             case 6:
-                return new StudentClass.Subject.Time(12, 13, 55, 40);
+                return new Classroom.Subject.Time(12, 13, 55, 40);
             case 7:
-                return new StudentClass.Subject.Time(13, 14, 50, 35);
+                return new Classroom.Subject.Time(13, 14, 50, 35);
             case 8:
-                return new StudentClass.Subject.Time(14, 15, 35, 20);
+                return new Classroom.Subject.Time(14, 15, 35, 20);
             case 9:
-                return new StudentClass.Subject.Time(15, 16, 30, 15);
+                return new Classroom.Subject.Time(15, 16, 30, 15);
             case 10:
-                return new StudentClass.Subject.Time(16, 17, 15, 0);
+                return new Classroom.Subject.Time(16, 17, 15, 0);
             case 11:
-                return new StudentClass.Subject.Time(17, 17, 0, 45);
+                return new Classroom.Subject.Time(17, 17, 0, 45);
             case 12:
-                return new StudentClass.Subject.Time(17, 18, 45, 30);
+                return new Classroom.Subject.Time(17, 18, 45, 30);
         }
-        return new StudentClass.Subject.Time(-1, -1, -1, -1);
+        return new Classroom.Subject.Time(-1, -1, -1, -1);
     }
 
     public static int isTheSameTeacher(String a, String b) {
@@ -306,7 +306,7 @@ public class AppCore {
         }
     }
 
-    public static int getGrade(StudentClass s) {
+    public static int getGrade(Classroom s) {
         String parsing = s.name;
         if (parsing.contains("י")) {
             if (parsing.contains("א")) {
@@ -335,13 +335,13 @@ public class AppCore {
         return "";
     }
 
-    public static ArrayList<Teacher> getTeacherSchudleForClasses(ArrayList<StudentClass> classes) {
+    public static ArrayList<Teacher> getTeacherSchudleForClasses(ArrayList<Classroom> classes) {
         ArrayList<Teacher> teacherList = new ArrayList<>();
         for (int currentClass = 0; currentClass < classes.size(); currentClass++) {
-            StudentClass cClass = classes.get(currentClass);
+            Classroom cClass = classes.get(currentClass);
             cClass.name = cClass.name.split(" ")[0];
             for (int currentSubject = 0; currentSubject < cClass.subjects.size(); currentSubject++) {
-                StudentClass.Subject cSubject = cClass.subjects.get(currentSubject);
+                Classroom.Subject cSubject = cClass.subjects.get(currentSubject);
                 ArrayList<String> cSubjectTeachers = new ArrayList<>(Arrays.asList(cSubject.fullName.substring(cSubject.fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
                 Teacher.Lesson cLesson = new Teacher.Lesson(cClass.name, cSubject.name, cSubject.hour);
                 for (int currentTeacherOfSubject = 0; currentTeacherOfSubject < cSubjectTeachers.size(); currentTeacherOfSubject++) {
