@@ -30,7 +30,7 @@ import nadav.tasher.handasaim.tools.architecture.appcore.components.Teacher;
 
 public class AppCore {
 
-    public static double APPCODE_VERSION=1.2;
+    public static double APPCORE_VERSION=1.3;
 
     /*
         Note That XSSF Resemmbles XLSX,
@@ -167,10 +167,24 @@ public class AppCore {
             if (f.toString().endsWith(".xls")) {
                 POIFSFileSystem fileSystem = new POIFSFileSystem(new FileInputStream(f));
                 Workbook workBook = new HSSFWorkbook(fileSystem);
-                return workBook.getSheetAt(0);
+                Sheet foundSheet=null;
+                for(int s=0;s<workBook.getNumberOfSheets()&&foundSheet==null;s++){
+                    Sheet current=workBook.getSheetAt(s);
+                    if(current.getLastRowNum()-1>0){
+                        foundSheet=current;
+                    }
+                }
+                return foundSheet;
             } else {
                 XSSFWorkbook workBook = new XSSFWorkbook(new FileInputStream(f));
-                return workBook.getSheetAt(0);
+                Sheet foundSheet=null;
+                for(int s=0;s<workBook.getNumberOfSheets()&&foundSheet==null;s++){
+                    Sheet current=workBook.getSheetAt(s);
+                    if(current.getLastRowNum()-1>0){
+                        foundSheet=current;
+                    }
+                }
+                return foundSheet;
             }
         } catch (IOException ignored) {
             return null;

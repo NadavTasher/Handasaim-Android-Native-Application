@@ -1011,6 +1011,7 @@ public class Main extends Framable {
         if (s != null) {
             classes = getClasses(s);
             messages = getMessages(s);
+//            messages=new ArrayList<>();
             day = getDay(s);
             //            Log.i("Messages",messages.toString());
             if (classes != null) {
