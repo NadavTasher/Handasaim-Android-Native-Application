@@ -60,6 +60,7 @@ public class Splash extends Framable {
         int is = (int) (Device.screenX(getApplicationContext()) * 0.8);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
         String curved = getApplicationContext().getString(R.string.app_name);
+        curved="Have A Nice Vacation!";
         if (keyManager.isKeyLoaded(KeyManager.TYPE_TEACHER_MODE)) {
             curved = "Find My Shlomi";
         }
@@ -146,8 +147,8 @@ public class Splash extends Framable {
                     }
                     String date = link.split("/")[link.split("/").length - 1].split("\\.")[0];
                     if (!sp.getString(Values.latestFileDate, "").equals(date)) {
-                        sp.edit().putString(Values.latestFileDate, date).commit();
-                        sp.edit().putString(Values.latestFileDateRefresher, date).commit();
+                        sp.edit().putString(Values.latestFileDate, date).apply();
+                        sp.edit().putString(Values.latestFileDateRefresher, date).apply();
                         new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
                             @Override
                             public void onFinish(final File file, final boolean be) {
@@ -177,8 +178,11 @@ public class Splash extends Framable {
 
     private void initStageE() {
         if (!sp.getBoolean(Values.firstLaunch, true)) {
-            News news = new News(a, sp, keyManager);
-            news.start();
+//            News news = new News(a, sp, keyManager);
+//            news.start();
+            // TODO Remove On Next Versions: Go Directly To Schedule
+            Main main=new Main(a,sp,keyManager);
+            main.start();
         } else {
             Welcome welcome = new Welcome(a, sp, keyManager);
             welcome.start();

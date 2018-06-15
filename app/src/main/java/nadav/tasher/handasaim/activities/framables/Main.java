@@ -150,10 +150,11 @@ public class Main extends Framable {
         mAppView.setBackground(gradient);
         mAppView.setTopColor(colorA);
         mAppView.setBottomColor(colorB);
-        mAppView.overlaySelf(getWindow());
         TowerHub.colorAChangeTunnle.tell(colorA);
         TowerHub.colorBChangeTunnle.tell(colorB);
         taskDesc();
+        mAppView.overlaySelf(getWindow());
+
     }
 
     private void taskDesc() {
@@ -203,7 +204,7 @@ public class Main extends Framable {
     private void aboutPopup() {
         AlertDialog.Builder ab = new AlertDialog.Builder(a);
         ab.setTitle(R.string.app_name);
-        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) + " (" + Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()) + ")");
+        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) + " (" + Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()) + ")\nAppCore v"+AppCore.APPCORE_VERSION);
         ab.setCancelable(true);
         ab.setPositiveButton("Close", null);
         ab.setNegativeButton("Enter Code", new DialogInterface.OnClickListener() {
@@ -295,11 +296,11 @@ public class Main extends Framable {
         lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.addView(lessonViewHolder);
-        refreshTheme();
         mAppView.setContent(scheduleLayout);
         Classroom c = getFavoriteClass();
         if (classes != null) if (c != null) setStudentMode(c);
         setContentView(mAppView);
+        refreshTheme();
     }
 
     private Classroom getFavoriteClass() {
