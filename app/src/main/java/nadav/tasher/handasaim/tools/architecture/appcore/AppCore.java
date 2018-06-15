@@ -30,7 +30,7 @@ import nadav.tasher.handasaim.tools.architecture.appcore.components.Teacher;
 
 public class AppCore {
 
-    public static double APPCORE_VERSION=1.3;
+    public static double APPCORE_VERSION=1.4;
 
     /*
         Note That XSSF Resemmbles XLSX,
@@ -157,7 +157,7 @@ public class AppCore {
                 }
             }
         }catch (Exception e){
-            messages.add("A Reading Error Occured.");
+            messages.add("A Reading Error Occurred.");
         }
         return messages;
     }
@@ -201,7 +201,7 @@ public class AppCore {
                 ArrayList<Classroom.Subject> subs = new ArrayList<>();
                 for (int r = startReadingRow + 1; r < rows; r++) {
                     Row row = sheet.getRow(r);
-                    subs.add(new Classroom.Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue().split("\\r?\\n")[0], row.getCell(c).getStringCellValue()));
+                    subs.add(new Classroom.Subject(r - (startReadingRow + 1), row.getCell(c).getStringCellValue()));
                 }
                 classes.add(new Classroom(sheet.getRow(startReadingRow).getCell(c).getStringCellValue(), subs));
             }
@@ -321,7 +321,7 @@ public class AppCore {
     }
 
     public static int getGrade(Classroom s) {
-        String parsing = s.name;
+        String parsing = s.getName();
         if (parsing.contains("י")) {
             if (parsing.contains("א")) {
                 return 2;
@@ -353,35 +353,33 @@ public class AppCore {
         ArrayList<Teacher> teacherList = new ArrayList<>();
         for (int currentClass = 0; currentClass < classes.size(); currentClass++) {
             Classroom cClass = classes.get(currentClass);
-            cClass.name = cClass.name.split(" ")[0];
-            for (int currentSubject = 0; currentSubject < cClass.subjects.size(); currentSubject++) {
-                Classroom.Subject cSubject = cClass.subjects.get(currentSubject);
-                ArrayList<String> cSubjectTeachers = new ArrayList<>(Arrays.asList(cSubject.fullName.substring(cSubject.fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
-                Teacher.Lesson cLesson = new Teacher.Lesson(cClass.name, cSubject.name, cSubject.hour);
-                for (int currentTeacherOfSubject = 0; currentTeacherOfSubject < cSubjectTeachers.size(); currentTeacherOfSubject++) {
-                    String nameOfTeacher = cSubjectTeachers.get(currentTeacherOfSubject);
+            for (int currentSubject = 0; currentSubject < cClass.getSubjects().size(); currentSubject++) {
+                Classroom.Subject cSubject = cClass.getSubjects().get(currentSubject);
+                Teacher.Lesson cLesson = new Teacher.Lesson(cClass.getName(), cSubject.getName(), cSubject.getHour());
+                for (int currentTeacherOfSubject = 0; currentTeacherOfSubject < cSubject.getTeachers().size(); currentTeacherOfSubject++) {
+                    String nameOfTeacher =  cSubject.getTeachers().get(currentTeacherOfSubject);
                     boolean foundTeacher = false;
-                    if (!cSubject.name.equals("")) {
+                    if (!cSubject.getName().equals("")) {
                         for (int currentTeacher = 0; currentTeacher < teacherList.size(); currentTeacher++) {
                             Teacher cTeacher = teacherList.get(currentTeacher);
                             if (isTheSameTeacher(cTeacher.mainName, nameOfTeacher) == 1) {
                                 if (!cTeacher.mainName.equals(nameOfTeacher)) {
-                                    if (cTeacher.teaches(cSubject.name)) {
+                                    if (cTeacher.teaches(cSubject.getName())) {
                                         cTeacher.teaching.add(cLesson);
                                         foundTeacher = true;
                                         break;
                                     }
                                 } else {
-                                    if (!cTeacher.teaches(cSubject.name)) {
-                                        cTeacher.subjects.add(cSubject.name);
+                                    if (!cTeacher.teaches(cSubject.getName())) {
+                                        cTeacher.subjects.add(cSubject.getName());
                                     }
                                     cTeacher.teaching.add(cLesson);
                                     foundTeacher = true;
                                     break;
                                 }
                             } else if (isTheSameTeacher(cTeacher.mainName, nameOfTeacher) == 2) {
-                                if (!cTeacher.teaches(cSubject.name)) {
-                                    cTeacher.subjects.add(cSubject.name);
+                                if (!cTeacher.teaches(cSubject.getName())) {
+                                    cTeacher.subjects.add(cSubject.getName());
                                 }
                                 cTeacher.teaching.add(cLesson);
                                 foundTeacher = true;
@@ -392,7 +390,7 @@ public class AppCore {
                             Teacher teacher = new Teacher();
                             teacher.mainName = nameOfTeacher;
                             teacher.subjects = new ArrayList<>();
-                            teacher.subjects.add(cSubject.name);
+                            teacher.subjects.add(cSubject.getName());
                             teacher.teaching = new ArrayList<>();
                             teacher.teaching.add(cLesson);
                             if (!nameOfTeacher.equals(""))

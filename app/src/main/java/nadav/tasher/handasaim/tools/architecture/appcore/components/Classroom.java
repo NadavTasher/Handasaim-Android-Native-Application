@@ -1,28 +1,83 @@
 package nadav.tasher.handasaim.tools.architecture.appcore.components;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Classroom {
-    public String name;
-    public ArrayList<Subject> subjects;
+    private String name;
+    private ArrayList<Subject> subjects;
 
     public Classroom(String name, ArrayList<Subject> subjects) {
         this.name = name.split(" ")[0];
         this.subjects = subjects;
     }
 
-    public static class Subject {
-        public int hour;
-        public String name, fullName;
+    public String getName() {
+        return name;
+    }
 
-        public Subject(int hour, String name, String fullName) {
+    public ArrayList<Subject> getSubjects() {
+        return subjects;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSubjects(ArrayList<Subject> subjects) {
+        this.subjects = subjects;
+    }
+
+    public static class Subject {
+        private int hour;
+        private String name, fullName;
+        private ArrayList<String> teachers;
+
+        public Subject(int hour, String fullName) {
             this.hour = hour;
-            this.name = name;
             this.fullName = fullName;
+            this.name = fullName.split("\\r?\\n")[0];
+            this.teachers= new ArrayList<>(Arrays.asList(fullName.substring(fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
+
         }
 
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getHour() {
+            return hour;
+        }
+
+        public void setHour(int hour) {
+            this.hour = hour;
+        }
+
+        public String getFullName() {
+            return fullName;
+        }
+
+        public void setFullName(String fullName) {
+            this.fullName = fullName;
+            this.name = fullName.split("\\r?\\n")[0];
+            this.teachers= new ArrayList<>(Arrays.asList(fullName.substring(fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
+        }
+
+        public ArrayList<String> getTeachers() {
+            return teachers;
+        }
+
+        public void setTeachers(ArrayList<String> teachers) {
+            this.teachers = teachers;
+        }
+
+
         public static class Time{
-            public int startH, finishH, startM, finishM;
+            private int startH, finishH, startM, finishM;
 
             public Time(int sh, int fh, int sm, int fm) {
                 startH = sh;
@@ -30,6 +85,19 @@ public class Classroom {
                 finishH = fh;
                 finishM = fm;
             }
+
+            public int getFinishHour() {
+                return finishH;
+            }
+            public int getFinishMinute() {
+                return finishM;
+            }
+            public int getStartHour() {
+                return startH;
+            }public int getStartMinute() {
+                return startM;
+            }
+
         }
     }
 }

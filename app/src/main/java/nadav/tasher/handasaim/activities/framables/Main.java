@@ -308,7 +308,7 @@ public class Main extends Framable {
         if (sp.getString(Values.favoriteClass, null) != null) {
             if (classes != null) {
                 for (int fc = 0; fc < classes.size(); fc++) {
-                    if (sp.getString(Values.favoriteClass, "").equals(classes.get(fc).name)) {
+                    if (sp.getString(Values.favoriteClass, "").equals(classes.get(fc).getName())) {
                         return classes.get(fc);
                     }
                 }
@@ -553,7 +553,7 @@ public class Main extends Framable {
         shareMessageSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         shareMessageSwitch.setEnabled(!messages.isEmpty());
         Button shareB = new Button(getApplicationContext());
-        String shareText = getApplicationContext().getString(R.string.share) + " " + currentClass.name;
+        String shareText = getApplicationContext().getString(R.string.share) + " " + currentClass.getName();
         shareB.setText(shareText);
         shareB.setBackground(generateCoaster(coasterColor));
         shareB.setTextColor(textColor);
@@ -570,7 +570,7 @@ public class Main extends Framable {
                         message += (i + 1) + ". " + messages.get(i) + "\n";
                     }
                 }
-                share(currentClass.name + " (" + day + ")" + "\n" + scheduleForClassString(currentClass, shareTimeSwitch.isChecked()) + message);
+                share(currentClass.getName() + " (" + day + ")" + "\n" + scheduleForClassString(currentClass, shareTimeSwitch.isChecked()) + message);
             }
         });
         shareView.addView(shareTitle);
@@ -840,7 +840,7 @@ public class Main extends Framable {
             Button cls = new Button(getApplicationContext());
             cls.setTextSize((float) getFontSize());
             cls.setGravity(Gravity.CENTER);
-            cls.setText(classes.get(cs).name);
+            cls.setText(classes.get(cs).getName());
             cls.setTextColor(textColor);
             cls.setBackground(generateCoaster(coasterColor));
             cls.setPadding(10, 0, 10, 0);
@@ -850,7 +850,7 @@ public class Main extends Framable {
             cls.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    sp.edit().putString(Values.favoriteClass, classes.get(finalCs).name).commit();
+                    sp.edit().putString(Values.favoriteClass, classes.get(finalCs).getName()).apply();
                     setStudentMode(classes.get(finalCs));
                 }
             });
@@ -885,7 +885,7 @@ public class Main extends Framable {
                 cls.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        sp.edit().putString(Values.favoriteTeacher, teachers.get(finalCs).mainName).commit();
+                        sp.edit().putString(Values.favoriteTeacher, teachers.get(finalCs).mainName).apply();
                         setTeacherMode(teachers.get(finalCs));
                     }
                 });
@@ -1032,7 +1032,7 @@ public class Main extends Framable {
 
     private void setStudentMode(Classroom c) {
         currentClass = c;
-        main.setText(textColor, getFontSize(), c.name, day);
+        main.setText(textColor, getFontSize(), c.getName(), day);
         displayLessonViews(scheduleForClass(c));
     }
 
@@ -1054,20 +1054,20 @@ public class Main extends Framable {
     }
 
     private String scheduleForClassString(Classroom fclass, boolean showTime) {
-        String allsubj = "";
-        for (int s = 0; s < fclass.subjects.size(); s++) {
+        StringBuilder allsubj = new StringBuilder();
+        for (int s = 0; s < fclass.getSubjects().size(); s++) {
             String before;
             if (showTime) {
-                before = "(" + getRealTimeForHourNumber(fclass.subjects.get(s).hour) + ") " + fclass.subjects.get(s).hour + ". ";
+                before = "(" + getRealTimeForHourNumber(fclass.getSubjects().get(s).getHour()) + ") " + fclass.getSubjects().get(s).getHour() + ". ";
             } else {
-                before = fclass.subjects.get(s).hour + ". ";
+                before = fclass.getSubjects().get(s).getHour() + ". ";
             }
-            String total = before + fclass.subjects.get(s).name;
-            if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
-                allsubj += total + "\n";
+            String total = before + fclass.getSubjects().get(s).getName();
+            if (fclass.getSubjects().get(s).getName() != null && !fclass.getSubjects().get(s).getName().equals("")) {
+                allsubj.append(total).append("\n");
             }
         }
-        return allsubj;
+        return allsubj.toString();
     }
 
     private Typeface getTypeface() {
@@ -1076,10 +1076,10 @@ public class Main extends Framable {
 
     private ArrayList<LessonView> scheduleForClass(final Classroom fclass) {
         ArrayList<LessonView> lessons = new ArrayList<>();
-        for (int s = 0; s < fclass.subjects.size(); s++) {
-            if (getBreak(fclass.subjects.get(s).hour - 1) != -1) {
-                final LessonView breakt = new LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), -1, "הפסקה", getBreak(fclass.subjects.get(s).hour - 1) + " דקות", "");
-                if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
+        for (int s = 0; s < fclass.getSubjects().size(); s++) {
+            if (getBreak(fclass.getSubjects().get(s).getHour() - 1) != -1) {
+                final LessonView breakt = new LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), -1, "הפסקה", getBreak(fclass.getSubjects().get(s).getHour() - 1) + " דקות", "");
+                if (fclass.getSubjects().get(s).getName() != null && !fclass.getSubjects().get(s).getName().equals("")) {
                     lessons.add(breakt);
                 }
                 if (!breakTime) {
@@ -1099,19 +1099,19 @@ public class Main extends Framable {
                     }
                 }));
             }
-            Classroom.Subject.Time classTime = getTimeForLesson(fclass.subjects.get(s).hour);
+            Classroom.Subject.Time classTime = getTimeForLesson(fclass.getSubjects().get(s).getHour());
             boolean isCurrent = false;
             Calendar c = Calendar.getInstance();
             int minute = c.get(Calendar.MINUTE);
             int hour = c.get(Calendar.HOUR_OF_DAY);
-            if (minuteOfDay(hour, minute) > minuteOfDay(classTime.startH, classTime.startM) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.finishH, classTime.finishM)) {
+            if (minuteOfDay(hour, minute) > minuteOfDay(classTime.getStartHour(), classTime.getStartMinute()) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.getFinishHour(), classTime.getFinishMinute())) {
                 isCurrent = true;
             }
-            String txt = getRealTimeForHourNumber(fclass.subjects.get(s).hour) + "-" + getRealEndTimeForHourNumber(fclass.subjects.get(s).hour);
-            String tcnm = (fclass.subjects.get(s).fullName.substring(fclass.subjects.get(s).fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0]).split(",")[0];
-            LessonView subject = new LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), fclass.subjects.get(s).hour, fclass.subjects.get(s).name.replaceAll(",", "/"), txt, tcnm);
+            String txt = getRealTimeForHourNumber(fclass.getSubjects().get(s).getHour()) + "-" + getRealEndTimeForHourNumber(fclass.getSubjects().get(s).getHour());
+            String tcnm = fclass.getSubjects().get(s).getTeachers().get(0);
+            LessonView subject = new LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), fclass.getSubjects().get(s).getHour(), fclass.getSubjects().get(s).getName().replaceAll(",", "/"), txt, tcnm);
             if (isCurrent) subject.mark();
-            if (fclass.subjects.get(s).name != null && !fclass.subjects.get(s).name.equals("")) {
+            if (fclass.getSubjects().get(s).getName() != null && !fclass.getSubjects().get(s).getName().equals("")) {
                 lessons.add(subject);
             }
         }
@@ -1131,7 +1131,7 @@ public class Main extends Framable {
                     Calendar ca = Calendar.getInstance();
                     int minute = ca.get(Calendar.MINUTE);
                     int hour = ca.get(Calendar.HOUR_OF_DAY);
-                    if (minuteOfDay(hour, minute) >= minuteOfDay(classTime.startH, classTime.startM) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.finishH, classTime.finishM)) {
+                    if (minuteOfDay(hour, minute) >= minuteOfDay(classTime.getStartHour(), classTime.getStartMinute()) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.getFinishHour(), classTime.getFinishMinute())) {
                         isCurrent = true;
                     }
                     if (currentText.equals("")) {
