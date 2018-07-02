@@ -13,7 +13,8 @@ import android.util.Log;
 import java.util.Random;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.activities.Launcher;
+import nadav.tasher.handasaim.activities.HomeActivity;
+import nadav.tasher.handasaim.activities.SplashActivity;
 import nadav.tasher.handasaim.tools.architecture.Starter;
 import nadav.tasher.handasaim.tools.specific.GetLink;
 import nadav.tasher.handasaim.values.Values;
@@ -83,7 +84,7 @@ public class RefreshService extends JobService {
                         .setDefaults(Notification.DEFAULT_ALL);
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Intent resultIntent = new Intent(this, Launcher.class);
+        Intent resultIntent = new Intent(this, SplashActivity.class);
         resultIntent.putExtra("Refresh",true);
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(

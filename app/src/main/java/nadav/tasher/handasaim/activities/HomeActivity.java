@@ -1,4 +1,4 @@
-package nadav.tasher.handasaim.activities.framables;
+package nadav.tasher.handasaim.activities;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -12,6 +12,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.util.Log;
@@ -36,12 +37,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.architecture.app.Framable;
+import nadav.tasher.handasaim.architecture.app.Center;
+import nadav.tasher.handasaim.architecture.appcore.AppCore;
+import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
+import nadav.tasher.handasaim.architecture.appcore.components.Teacher;
 import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.tools.architecture.KeyManager;
-import nadav.tasher.handasaim.tools.architecture.appcore.AppCore;
-import nadav.tasher.handasaim.tools.architecture.appcore.components.Classroom;
-import nadav.tasher.handasaim.tools.architecture.appcore.components.Teacher;
 import nadav.tasher.handasaim.tools.graphics.LessonView;
 import nadav.tasher.handasaim.tools.graphics.MessageBar;
 import nadav.tasher.handasaim.tools.specific.GetNews;
@@ -54,19 +55,19 @@ import nadav.tasher.lightool.graphics.views.appview.navigation.bar.Squircle;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
 
-import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getBreak;
-import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getClasses;
-import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getDay;
-import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getGrade;
-import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getMessages;
-import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getRealEndTimeForHourNumber;
-import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getRealTimeForHourNumber;
-import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getSheet;
-import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getTeacherSchudleForClasses;
-import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.getTimeForLesson;
-import static nadav.tasher.handasaim.tools.architecture.appcore.AppCore.minuteOfDay;
+import static nadav.tasher.handasaim.architecture.appcore.AppCore.getBreak;
+import static nadav.tasher.handasaim.architecture.appcore.AppCore.getClasses;
+import static nadav.tasher.handasaim.architecture.appcore.AppCore.getDay;
+import static nadav.tasher.handasaim.architecture.appcore.AppCore.getGrade;
+import static nadav.tasher.handasaim.architecture.appcore.AppCore.getMessages;
+import static nadav.tasher.handasaim.architecture.appcore.AppCore.getRealEndTimeForHourNumber;
+import static nadav.tasher.handasaim.architecture.appcore.AppCore.getRealTimeForHourNumber;
+import static nadav.tasher.handasaim.architecture.appcore.AppCore.getSheet;
+import static nadav.tasher.handasaim.architecture.appcore.AppCore.getTeacherSchudleForClasses;
+import static nadav.tasher.handasaim.architecture.appcore.AppCore.getTimeForLesson;
+import static nadav.tasher.handasaim.architecture.appcore.AppCore.minuteOfDay;
 
-public class Main extends Framable {
+public class HomeActivity extends Activity {
     private int textColor = Values.fontColorDefault;
     private int colorA = Values.defaultColorA;
     private int colorB = Values.defaultColorB;
@@ -85,54 +86,33 @@ public class Main extends Framable {
     private boolean breakTime = true;
     private boolean showMessages = true;
 
-    public Main(Activity a, SharedPreferences sp, KeyManager keyManager) {
-        super(a, sp, keyManager);
+
+    private SharedPreferences sp;
+    private KeyManager keyManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        initVars();
+        go();
     }
 
-    public static int getFontSize(Context c) {
-        SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
-        return sp.getInt(Values.fontSizeNumber, Values.fontSizeDefault);
+    @Override
+    public Context getApplicationContext(){
+        return this;
     }
 
-    public static int getColorA(Context c) {
-        SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
-        return sp.getInt(Values.colorA, Values.defaultColorA);
+    private void initVars(){
+        sp=getSharedPreferences(Values.prefName,MODE_PRIVATE);
+        keyManager=new KeyManager(getApplicationContext());
     }
 
-    public static int getColorB(Context c) {
-        SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
-        return sp.getInt(Values.colorB, Values.defaultColorB);
+    private void taskDesc() {
+        ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(null, (Center.getColorA(getApplicationContext())));
+        setTaskDescription(taskDesc);
     }
 
-    public static int getTextColor(Context c) {
-        SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
-        return sp.getInt(Values.fontColor, Values.fontColorDefault);
-    }
 
-    public static Drawable getGradient(Context c) {
-        return new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{
-                getColorA(c),
-                getColorB(c)
-        });
-    }
-
-    public static Typeface getTypeface(Context c) {
-        return Typeface.createFromAsset(c.getAssets(), Values.fontName);
-    }
-
-    public static void installColors(Context c) {
-        SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
-        sp.edit().putInt(Values.colorA, Values.defaultColorA).apply();
-        sp.edit().putInt(Values.colorB, Values.defaultColorB).apply();
-    }
-
-    public static Drawable generateCoaster(Context c, int color) {
-        GradientDrawable gd = (GradientDrawable) c.getDrawable(R.drawable.rounded_rect);
-        if (gd != null) {
-            gd.setColor(color);
-        }
-        return gd;
-    }
 
     private void loadTheme() {
         textColor = sp.getInt(Values.fontColor, Values.fontColorDefault);
@@ -157,17 +137,6 @@ public class Main extends Framable {
 
     }
 
-    private void taskDesc() {
-        ActivityManager.TaskDescription taskDesc;
-        if (mAppView == null) {
-            taskDesc = new ActivityManager.TaskDescription(null, null, (colorA));
-        } else {
-            taskDesc = new ActivityManager.TaskDescription(null, null, (mAppView.getDrag().calculateOverlayedColor(colorA)));
-        }
-        a.setTaskDescription(taskDesc);
-    }
-
-    @Override
     public void go() {
         String file = sp.getString(Values.scheduleFile, null);
         if (file != null) {
@@ -176,11 +145,11 @@ public class Main extends Framable {
     }
 
     private void popupKeyEntering() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(a);
+        AlertDialog.Builder pop = new AlertDialog.Builder(this);
         pop.setCancelable(true);
         pop.setTitle("Unlock Features");
         pop.setMessage("Enter The Unlock Key You Got To Unlock Special Features.");
-        final EditText key = new EditText(a);
+        final EditText key = new EditText(getApplicationContext());
         key.setFilters(new InputFilter[]{
                 Filters.codeFilter,
                 new InputFilter.AllCaps()
@@ -202,9 +171,9 @@ public class Main extends Framable {
     }
 
     private void aboutPopup() {
-        AlertDialog.Builder ab = new AlertDialog.Builder(a);
+        AlertDialog.Builder ab = new AlertDialog.Builder(this);
         ab.setTitle(R.string.app_name);
-        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) + " (" + Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()) + ")\nAppCore v"+AppCore.APPCORE_VERSION);
+        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) + " (" + Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()) + ")\nAppCore v"+ AppCore.APPCORE_VERSION);
         ab.setCancelable(true);
         ab.setPositiveButton("Close", null);
         ab.setNegativeButton("Enter Code", new DialogInterface.OnClickListener() {
@@ -277,7 +246,7 @@ public class Main extends Framable {
         scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         scheduleLayout.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.setPadding(10, 10, 10, 10);
-        messageBar = new MessageBar(a, messages, mAppView.getDrag());
+        messageBar = new MessageBar(this, messages, mAppView.getDrag());
         messageBar.start();
         scheduleLayout.addView(messageBar);
         TowerHub.showMessagesPeer.setOnPeer(new Peer.OnPeer<Boolean>() {
@@ -355,8 +324,7 @@ public class Main extends Framable {
 
             @Override
             public void onBoth(boolean isOpened) {
-                Splash splash = new Splash(a, sp, keyManager);
-                splash.start();
+                // TODO RETURNTO splash
             }
         });
         squircles.add(reload);
@@ -503,8 +471,7 @@ public class Main extends Framable {
             @Override
             public void onBoth(boolean isOpened) {
                 if (keyManager.isKeyLoaded(KeyManager.TYPE_BETA)) {
-                    Developer developer = new Developer(a, sp, keyManager);
-                    developer.start();
+                    // TODO GOTO developer
                 } else {
                     Toast.makeText(getApplicationContext(), "Beta Key Not Installed.\nFor Now, A Beta Key Must Be Installed To Enter The Developer Console.", Toast.LENGTH_LONG).show();
                 }
@@ -651,8 +618,7 @@ public class Main extends Framable {
                 } else {
                     if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
                         sp.edit().putBoolean(Values.devMode, false).apply();
-                        Splash splash = new Splash(a, sp, keyManager);
-                        splash.start();
+                        // TODO RETURNTO splash
                     }
                 }
             }
@@ -782,7 +748,7 @@ public class Main extends Framable {
     }
 
     private void devModeConfirm(final Switch s) {
-        AlertDialog.Builder pop = new AlertDialog.Builder(a);
+        AlertDialog.Builder pop = new AlertDialog.Builder(this);
         pop.setCancelable(false);
         pop.setTitle("Be Cautious!");
         pop.setMessage("I'm not responsible for anything that happens because of a script you ran.");
@@ -790,8 +756,7 @@ public class Main extends Framable {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 sp.edit().putBoolean(Values.devMode, true).apply();
-                Splash splash = new Splash(a, sp, keyManager);
-                splash.start();
+                // TODO RETURNTO splash
             }
         });
         pop.setNegativeButton("I Do Not Agree", new DialogInterface.OnClickListener() {
@@ -919,14 +884,9 @@ public class Main extends Framable {
                     Log.i("State", "" + mAppView.getBar().isOpen());
                 }
             } else {
-                a.finish();
+                finish();
             }
         }
-        //        } else if (mAppView != null && mAppView.getBar() != null) {
-        //            if (mAppView.getBar().isOpen()) {
-        //                mAppView.getBar().close(true);
-        //            }
-        //        }
     }
 
     private FrameLayout getNews() {
@@ -1012,7 +972,7 @@ public class Main extends Framable {
         if (s != null) {
             classes = getClasses(s);
             messages = getMessages(s);
-//            messages=new ArrayList<>();
+            //            messages=new ArrayList<>();
             day = getDay(s);
             //            Log.i("Messages",messages.toString());
             if (classes != null) {
@@ -1122,7 +1082,7 @@ public class Main extends Framable {
         ArrayList<LessonView> lessons = new ArrayList<>();
         for (int h = 0; h <= 12; h++) {
             ArrayList<Teacher.Lesson> currentLesson = new ArrayList<>();
-            String currentText = "";
+            StringBuilder currentText = new StringBuilder();
             boolean isCurrent = false;
             String lessonName = "";
             for (int s = 0; s < fclass.teaching.size(); s++) {
@@ -1134,10 +1094,10 @@ public class Main extends Framable {
                     if (minuteOfDay(hour, minute) >= minuteOfDay(classTime.getStartHour(), classTime.getStartMinute()) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.getFinishHour(), classTime.getFinishMinute())) {
                         isCurrent = true;
                     }
-                    if (currentText.equals("")) {
-                        currentText += fclass.teaching.get(s).className;
+                    if (currentText.toString().equals("")) {
+                        currentText.append(fclass.teaching.get(s).className);
                     } else {
-                        currentText += ", " + fclass.teaching.get(s).className;
+                        currentText.append(", ").append(fclass.teaching.get(s).className);
                     }
                     lessonName = fclass.teaching.get(s).lessonName;
                     currentLesson.add(fclass.teaching.get(s));
@@ -1145,7 +1105,7 @@ public class Main extends Framable {
             }
             if (currentLesson.size() > 1) {
                 if (getGrade(currentLesson) != -1) {
-                    currentText = getGrade(getGrade(currentLesson));
+                    currentText = new StringBuilder(getGrade(getGrade(currentLesson)));
                 }
             }
             if (currentLesson.size() >= 1) {
@@ -1170,11 +1130,12 @@ public class Main extends Framable {
                     }));
                 }
                 String txt = getRealTimeForHourNumber(h) + "-" + getRealEndTimeForHourNumber(h);
-                LessonView lesson = new LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), h, currentText, txt, lessonName);
+                LessonView lesson = new LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), h, currentText.toString(), txt, lessonName);
                 if (isCurrent) lesson.mark();
                 lessons.add(lesson);
             }
         }
         return lessons;
     }
+
 }

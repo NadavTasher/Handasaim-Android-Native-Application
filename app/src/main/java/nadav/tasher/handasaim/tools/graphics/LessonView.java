@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import nadav.tasher.handasaim.activities.framables.Main;
+import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
@@ -53,9 +53,9 @@ public class LessonView extends LinearLayout {
         bottom.setOrientation(LinearLayout.HORIZONTAL);
         top.setLayoutDirection(LAYOUT_DIRECTION_RTL);
         bottom.setLayoutDirection(LAYOUT_DIRECTION_RTL);
-        lessonTv.setTextSize(Main.getFontSize(getContext()));
-        teacherTv.setTextSize((float) (Main.getFontSize(getContext()) * 0.8));
-        timeTv.setTextSize((float) (Main.getFontSize(getContext()) * 0.8));
+        lessonTv.setTextSize(Center.getFontSize(getContext()));
+        teacherTv.setTextSize((float) (Center.getFontSize(getContext()) * 0.8));
+        timeTv.setTextSize((float) (Center.getFontSize(getContext()) * 0.8));
         top.addView(lessonTv);
         bottom.addView(teacherTv);
         bottom.addView(timeTv);
@@ -67,12 +67,12 @@ public class LessonView extends LinearLayout {
         }
         timeTv.setText(tm);
         teacherTv.setText(tc);
-        lessonTv.setTextColor(Main.getTextColor(getContext()));
-        teacherTv.setTextColor(Main.getTextColor(getContext()));
-        timeTv.setTextColor(Main.getTextColor(getContext()));
-        timeTv.setTypeface(Main.getTypeface(getContext()));
-        lessonTv.setTypeface(Main.getTypeface(getContext()));
-        teacherTv.setTypeface(Main.getTypeface(getContext()));
+        lessonTv.setTextColor(Center.getTextColor(getContext()));
+        teacherTv.setTextColor(Center.getTextColor(getContext()));
+        timeTv.setTextColor(Center.getTextColor(getContext()));
+        timeTv.setTypeface(Center.getTypeface(getContext()));
+        lessonTv.setTypeface(Center.getTypeface(getContext()));
+        teacherTv.setTypeface(Center.getTypeface(getContext()));
         teacherTv.setSingleLine(true);
         timeTv.setSingleLine(true);
         lessonTv.setSingleLine(true);

@@ -1,4 +1,4 @@
-package nadav.tasher.handasaim.tools.architecture.appcore.components;
+package nadav.tasher.handasaim.architecture.appcore.components;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +31,7 @@ public class Classroom {
     public static class Subject {
         private int hour;
         private String name, fullName;
+        private boolean isTest=false;
         private ArrayList<String> teachers;
 
         public Subject(int hour, String fullName) {
@@ -39,6 +40,14 @@ public class Classroom {
             this.name = fullName.split("\\r?\\n")[0];
             this.teachers= new ArrayList<>(Arrays.asList(fullName.substring(fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
 
+        }
+
+        public void setTest(boolean isTest){
+            this.isTest=isTest;
+        }
+
+        public boolean isTest(){
+            return isTest;
         }
 
         public String getName() {

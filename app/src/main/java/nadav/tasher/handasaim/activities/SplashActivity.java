@@ -1,13 +1,15 @@
-package nadav.tasher.handasaim.activities.framables;
+package nadav.tasher.handasaim.activities;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +23,7 @@ import android.widget.Toast;
 import java.io.File;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.architecture.app.Framable;
+import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.tools.graphics.CurvedTextView;
 import nadav.tasher.handasaim.tools.online.FileDownloader;
@@ -32,42 +34,52 @@ import nadav.tasher.lightool.graphics.ColorFadeAnimation;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.tools.Animations;
 
-public class Splash extends Framable {
-
+public class SplashActivity extends Activity {
     private CurvedTextView ctv;
 
-    public Splash(Activity a, SharedPreferences sp, KeyManager keyManager) {
-        super(a, sp, keyManager);
-    }
+    private SharedPreferences sp;
+    private KeyManager keyManager;
 
-    private void taskDesc() {
-        ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(null, null, (Main.getColorA(getApplicationContext())));
-        a.setTaskDescription(taskDesc);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        initVars();
+        go();
     }
 
     @Override
-    public void go() {
-        getWindow().setStatusBarColor(Main.getColorA(getApplicationContext()));
-        getWindow().setNavigationBarColor(Main.getColorB(getApplicationContext()));
+    public Context getApplicationContext(){
+        return this;
+    }
+
+    private void initVars(){
+        sp=getSharedPreferences(Values.prefName,MODE_PRIVATE);
+        keyManager=new KeyManager(getApplicationContext());
+    }
+
+    private void taskDesc() {
+        ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(null, (Center.getColorA(getApplicationContext())));
+        setTaskDescription(taskDesc);
+    }
+
+    private void go() {
+        getWindow().setStatusBarColor(Center.getColorA(getApplicationContext()));
+        getWindow().setNavigationBarColor(Center.getColorB(getApplicationContext()));
         taskDesc();
         final LinearLayout ll = new LinearLayout(getApplicationContext());
         ll.setGravity(Gravity.CENTER);
         ll.setOrientation(LinearLayout.VERTICAL);
-        ll.setBackgroundColor(Main.getColorA(getApplicationContext()));
+        ll.setBackgroundColor(Center.getColorA(getApplicationContext()));
         final ImageView icon = new ImageView(getApplicationContext());
         icon.setScaleType(ImageView.ScaleType.FIT_XY);
         icon.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_icon));
         int is = (int) (Device.screenX(getApplicationContext()) * 0.8);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
-        String curved = getApplicationContext().getString(R.string.app_name);
-        curved="Have A Nice Vacation!";
-        if (keyManager.isKeyLoaded(KeyManager.TYPE_TEACHER_MODE)) {
-            curved = "Find My Shlomi";
-        }
+        String curved = getString(R.string.app_name);
         if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
             curved = "Developer Mode";
         }
-        ctv = new CurvedTextView(getApplicationContext(), curved, Main.getFontSize(getApplicationContext()) * 2, Values.bakedIconColor, Device.screenX(getApplicationContext()), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
+        ctv = new CurvedTextView(getApplicationContext(), curved, Center.getFontSize(getApplicationContext()) * 2, Values.bakedIconColor, Device.screenX(getApplicationContext()), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.3)));
         ll.addView(icon);
         ll.addView(ctv);
@@ -82,27 +94,27 @@ public class Splash extends Framable {
         oa.setDuration(1000);
         oa.start();
         setContentView(ll);
-        ColorFadeAnimation cfa = new ColorFadeAnimation(Main.getColorB(getApplicationContext()), Main.getColorA(getApplicationContext()), new ColorFadeAnimation.ColorState() {
+        ColorFadeAnimation cfa = new ColorFadeAnimation(Center.getColorB(getApplicationContext()), Center.getColorA(getApplicationContext()), new ColorFadeAnimation.ColorState() {
             @Override
             public void onColor(final int color) {
-                a.runOnUiThread(new Runnable() {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ll.setBackground(generateGradient(color, Main.getColorB(getApplicationContext())));
-                        getWindow().setNavigationBarColor(Main.getColorB(getApplicationContext()));
+                        ll.setBackground(generateGradient(color, Center.getColorB(getApplicationContext())));
+                        getWindow().setNavigationBarColor(Center.getColorB(getApplicationContext()));
                         getWindow().setStatusBarColor(color);
                     }
                 });
             }
         });
         cfa.start(3000);
-        if (a.getIntent().getExtras() != null) {
-            if (a.getIntent().getExtras().getString("toast") != null) {
-                Toast.makeText(getApplicationContext(), a.getIntent().getExtras().getString("toast"), Toast.LENGTH_LONG).show();
-            } else if (a.getIntent().getExtras().getString("popup") != null) {
-                AlertDialog.Builder pop = new AlertDialog.Builder(a);
+        if (getIntent().getExtras() != null) {
+            if (getIntent().getExtras().getString("toast") != null) {
+                Toast.makeText(getApplicationContext(), getIntent().getExtras().getString("toast"), Toast.LENGTH_LONG).show();
+            } else if (getIntent().getExtras().getString("popup") != null) {
+                AlertDialog.Builder pop = new AlertDialog.Builder(this);
                 pop.setCancelable(true);
-                pop.setMessage(a.getIntent().getExtras().getString("popup"));
+                pop.setMessage(getIntent().getExtras().getString("popup"));
                 pop.setPositiveButton("OK", null);
                 pop.show();
             }
@@ -178,19 +190,25 @@ public class Splash extends Framable {
 
     private void initStageE() {
         if (!sp.getBoolean(Values.firstLaunch, true)) {
-//            News news = new News(a, sp, keyManager);
-//            news.start();
+            //            News news = new News(a, sp, keyManager);
+            //            news.start();
             // TODO Remove On Next Versions: Go Directly To Schedule
-            Main main=new Main(a,sp,keyManager);
-            main.start();
+//            Main main=new Main(a,sp,keyManager);
+//            main.start();
+            if(keyManager.isKeyLoaded(KeyManager.TYPE_MESSAGE_BOARD)){
+                //TODO Launch Home
+            }else{
+                //TODO Launch News
+            }
         } else {
-            Welcome welcome = new Welcome(a, sp, keyManager);
-            welcome.start();
+            //TODO Update To Lunch New Activity
+//            Welcome welcome = new Welcome(a, sp, keyManager);
+//            welcome.start();
         }
     }
 
     private void popup(String text) {
-        AlertDialog.Builder pop = new AlertDialog.Builder(a);
+        AlertDialog.Builder pop = new AlertDialog.Builder(this);
         pop.setCancelable(true);
         pop.setMessage(text);
         pop.setPositiveButton("Retry", new DialogInterface.OnClickListener() {

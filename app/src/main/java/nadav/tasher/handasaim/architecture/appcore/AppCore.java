@@ -1,4 +1,4 @@
-package nadav.tasher.handasaim.tools.architecture.appcore;
+package nadav.tasher.handasaim.architecture.appcore;
 
 import android.util.Log;
 
@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import nadav.tasher.handasaim.tools.architecture.appcore.components.Classroom;
-import nadav.tasher.handasaim.tools.architecture.appcore.components.Teacher;
+import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
+import nadav.tasher.handasaim.architecture.appcore.components.Teacher;
 
 public class AppCore {
 

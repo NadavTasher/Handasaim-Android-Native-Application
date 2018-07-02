@@ -1,9 +1,12 @@
-package nadav.tasher.handasaim.activities.framables;
+package nadav.tasher.handasaim.activities;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.architecture.app.Framable;
+import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.development.SupportLibrary;
 import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.values.Values;
@@ -26,23 +29,43 @@ import nadav.tasher.jsons.android.framework.Script;
 import nadav.tasher.jsons.android.framework.Variable;
 import nadav.tasher.lightool.info.Device;
 
-public class Developer extends Framable {
+public class DeveloperActivity extends Activity {
 
     private Script s;
 
-    public Developer(Activity a, SharedPreferences sp, KeyManager keyManager) {
-        super(a, sp, keyManager);
+    private SharedPreferences sp;
+    private KeyManager keyManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        initVars();
+        go();
     }
 
     @Override
-    public void go() {
+    public Context getApplicationContext(){
+        return this;
+    }
+
+    private void initVars(){
+        sp=getSharedPreferences(Values.prefName,MODE_PRIVATE);
+        keyManager=new KeyManager(getApplicationContext());
+    }
+
+    private void taskDesc() {
+        ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(null, (Center.getColorA(getApplicationContext())));
+        setTaskDescription(taskDesc);
+    }
+
+    private void go() {
         LinearLayout all = new LinearLayout(getApplicationContext());
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.CENTER);
         all.setPadding(10, 10, 10, 10);
-        all.setBackground(Main.getGradient(getApplicationContext()));
-        getWindow().setStatusBarColor(Main.getColorA(getApplicationContext()));
-        getWindow().setNavigationBarColor(Main.getColorB(getApplicationContext()));
+        all.setBackground(Center.getGradient(getApplicationContext()));
+        getWindow().setStatusBarColor(Center.getColorA(getApplicationContext()));
+        getWindow().setNavigationBarColor(Center.getColorB(getApplicationContext()));
         Button loadScript = new Button(getApplicationContext());
         Button runSpecific = new Button(getApplicationContext());
         Button viewVariables = new Button(getApplicationContext());
@@ -52,9 +75,9 @@ public class Developer extends Framable {
         loadScript.setAllCaps(false);
         runSpecific.setAllCaps(false);
         viewVariables.setAllCaps(false);
-        loadScript.setBackground(Main.generateCoaster(getApplicationContext(), Values.classCoasterColor));
-        runSpecific.setBackground(Main.generateCoaster(getApplicationContext(), Values.classCoasterColor));
-        viewVariables.setBackground(Main.generateCoaster(getApplicationContext(), Values.classCoasterColor));
+        loadScript.setBackground(Center.generateCoaster(getApplicationContext(), Values.classCoasterColor));
+        runSpecific.setBackground(Center.generateCoaster(getApplicationContext(), Values.classCoasterColor));
+        viewVariables.setBackground(Center.generateCoaster(getApplicationContext(), Values.classCoasterColor));
         loadScript.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,7 +103,7 @@ public class Developer extends Framable {
     }
 
     private void popupRun() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(a);
+        AlertDialog.Builder pop = new AlertDialog.Builder(this);
         pop.setCancelable(true);
         pop.setTitle("Run Function");
         pop.setMessage("Enter Your Function Name:");
@@ -106,7 +129,7 @@ public class Developer extends Framable {
     }
 
     private void popupStatics() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(a);
+        AlertDialog.Builder pop = new AlertDialog.Builder(this);
         pop.setCancelable(true);
         pop.setTitle("View Statics");
         StringBuilder b = new StringBuilder();
@@ -121,7 +144,7 @@ public class Developer extends Framable {
     }
 
     private void popupLoad() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(a);
+        AlertDialog.Builder pop = new AlertDialog.Builder(this);
         pop.setCancelable(true);
         pop.setTitle("Load Script");
         pop.setMessage("Enter Your JSONScripting Script:");
@@ -142,7 +165,7 @@ public class Developer extends Framable {
             public void onClick(DialogInterface dialogInterface, int i) {
                 try {
                     sp.edit().putString("expirimental-beta-script", key.getText().toString()).apply();
-                    Library[] libs = new Library[]{SupportLibrary.getFullSupport(a)};
+                    Library[] libs = new Library[]{SupportLibrary.getFullSupport(DeveloperActivity.this)};
                     s = new Script(key.getText().toString(), new ArrayList<>(Arrays.asList(libs)));
                     s.addStatic(new Variable("versioncode", String.valueOf(Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()))));
                     s.addStatic(new Variable("versionname", String.valueOf(Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()))));
@@ -159,7 +182,6 @@ public class Developer extends Framable {
 
     @Override
     public void onBackPressed() {
-        Main main = new Main(a, sp, keyManager);
-        main.start();
+        // TODO Start Main
     }
 }

@@ -36,13 +36,21 @@
             android:label="Push Service"
             android:permission="android.permission.BIND_JOB_SERVICE">
         </service>
-        <activity android:name=".activities.Launcher">
+
+        <activity android:name=".activities.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-                <action android:name="android.intent.action.VIEW"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity android:name=".activities.DeveloperActivity">
+        </activity>
+        <activity android:name=".activities.HomeActivity">
+        </activity>
+        <activity android:name=".activities.NewsActivity">
+        </activity>
+        <activity android:name=".activities.TutorialActivity">
         </activity>
     </application>
 

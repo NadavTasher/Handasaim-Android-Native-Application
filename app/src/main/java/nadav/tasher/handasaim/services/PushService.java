@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.Random;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.activities.framables.Main;
+import nadav.tasher.handasaim.activities.HomeActivity;
 import nadav.tasher.handasaim.tools.architecture.Starter;
 import nadav.tasher.handasaim.tools.online.FileReader;
 import nadav.tasher.handasaim.values.Values;
@@ -127,11 +127,11 @@ public class PushService extends JobService {
                 resultIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(pi.value));
                 break;
             case PushItem.TOAST:
-                resultIntent = new Intent(this, Main.class);
+                resultIntent = new Intent(this, HomeActivity.class);
                 resultIntent.putExtra("toast", pi.value);
                 break;
             case PushItem.POPUP:
-                resultIntent = new Intent(this, Main.class);
+                resultIntent = new Intent(this, HomeActivity.class);
                 resultIntent.putExtra("popup", pi.value);
                 break;
             case PushItem.NONE:

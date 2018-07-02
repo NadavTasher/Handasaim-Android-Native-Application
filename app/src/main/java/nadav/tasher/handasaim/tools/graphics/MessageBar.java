@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import nadav.tasher.handasaim.activities.framables.Main;
+import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.graphics.views.appview.navigation.Drag;
@@ -43,19 +43,19 @@ public class MessageBar extends LinearLayout {
     private void init() {
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER);
-        setBackground(Main.generateCoaster(getContext(), Values.messageColor));
+        setBackground(Center.generateCoaster(getContext(), Values.messageColor));
         setPadding(20, 10, 20, 10);
         setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
         //        Log.i("MessageBar",""+Device.screenY(getContext())/10);
         for (int a = 0; a < messages.size(); a++) {
-            TextView t = getTextView(messages.get(a), Main.getTextColor(getContext()), true);
+            TextView t = getTextView(messages.get(a), Center.getTextColor(getContext()), true);
             if (dn != null) {
                 final int finalA = a;
                 t.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         ScrollView sv = new ScrollView(getContext());
-                        sv.addView(getTextView(messages.get(finalA), Main.getTextColor(getContext()), false));
+                        sv.addView(getTextView(messages.get(finalA), Center.getTextColor(getContext()), false));
                         sv.setFillViewport(true);
                         dn.setContent(sv);
                         dn.open(false);
@@ -179,10 +179,10 @@ public class MessageBar extends LinearLayout {
     private TextView getTextView(String t, int textColor, boolean singleLine) {
         final TextView v = new TextView(getContext());
         v.setTextColor(textColor);
-        v.setTextSize((float) (Main.getFontSize(getContext()) / 1.5));
+        v.setTextSize((float) (Center.getFontSize(getContext()) / 1.5));
         v.setText(t);
         v.setGravity(Gravity.CENTER);
-        v.setTypeface(Main.getTypeface(getContext()));
+        v.setTypeface(Center.getTypeface(getContext()));
         v.setSingleLine(singleLine);
         v.setEllipsize(TextUtils.TruncateAt.END);
         v.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
