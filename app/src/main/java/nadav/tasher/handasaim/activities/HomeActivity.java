@@ -1,7 +1,6 @@
 package nadav.tasher.handasaim.activities;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,7 +14,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +26,6 @@ import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -37,12 +34,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.architecture.app.Center;
+import nadav.tasher.handasaim.architecture.app.KeyManager;
 import nadav.tasher.handasaim.architecture.appcore.AppCore;
 import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
 import nadav.tasher.handasaim.architecture.appcore.components.Teacher;
 import nadav.tasher.handasaim.tools.TowerHub;
-import nadav.tasher.handasaim.tools.architecture.KeyManager;
 import nadav.tasher.handasaim.tools.graphics.LessonView;
 import nadav.tasher.handasaim.tools.graphics.MessageBar;
 import nadav.tasher.handasaim.tools.specific.GetNews;
@@ -50,8 +46,7 @@ import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.graphics.views.ColorPicker;
 import nadav.tasher.lightool.graphics.views.appview.AppView;
-import nadav.tasher.lightool.graphics.views.appview.navigation.Drag;
-import nadav.tasher.lightool.graphics.views.appview.navigation.bar.Squircle;
+import nadav.tasher.lightool.graphics.views.appview.navigation.Squircle;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
 
@@ -75,17 +70,15 @@ public class HomeActivity extends Activity {
     private String day;
     private Classroom currentClass;
     private Teacher currentTeacher;
-    private Squircle main;
+    private Squircle icon, info;
     private MessageBar messageBar;
     private LinearLayout scheduleLayout, lessonViewHolder;
-    private Drawable gradient;
     private AppView mAppView;
     private ArrayList<Classroom> classes;
     private ArrayList<Teacher> teachers;
     private ArrayList<String> messages;
     private boolean breakTime = true;
     private boolean showMessages = true;
-
 
     private SharedPreferences sp;
     private KeyManager keyManager;
@@ -98,43 +91,27 @@ public class HomeActivity extends Activity {
     }
 
     @Override
-    public Context getApplicationContext(){
+    public Context getApplicationContext() {
         return this;
     }
 
-    private void initVars(){
-        sp=getSharedPreferences(Values.prefName,MODE_PRIVATE);
-        keyManager=new KeyManager(getApplicationContext());
+    private void initVars() {
+        sp = getSharedPreferences(Values.prefName, MODE_PRIVATE);
+        keyManager = new KeyManager(getApplicationContext());
     }
-
-    private void taskDesc() {
-        ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(null, (Center.getColorA(getApplicationContext())));
-        setTaskDescription(taskDesc);
-    }
-
-
 
     private void loadTheme() {
         textColor = sp.getInt(Values.fontColor, Values.fontColorDefault);
         colorA = sp.getInt(Values.colorA, colorA);
         colorB = sp.getInt(Values.colorB, colorB);
-        gradient = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{
-                colorA,
-                colorB
-        });
         coasterColor = Color.argb(Values.squircleAlpha, Color.red(colorA), Color.green(colorA), Color.blue(colorA));
     }
 
     private void refreshTheme() {
         loadTheme();
-        mAppView.setBackground(gradient);
-        mAppView.setTopColor(colorA);
-        mAppView.setBottomColor(colorB);
+        mAppView.setBackgroundColor(new AppView.Gradient(colorA, colorB));
         TowerHub.colorAChangeTunnle.tell(colorA);
         TowerHub.colorBChangeTunnle.tell(colorB);
-        taskDesc();
-        mAppView.overlaySelf(getWindow());
-
     }
 
     public void go() {
@@ -173,7 +150,7 @@ public class HomeActivity extends Activity {
     private void aboutPopup() {
         AlertDialog.Builder ab = new AlertDialog.Builder(this);
         ab.setTitle(R.string.app_name);
-        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) + " (" + Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()) + ")\nAppCore v"+ AppCore.APPCORE_VERSION);
+        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) + " (" + Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()) + ")\nAppCore v" + AppCore.APPCORE_VERSION);
         ab.setCancelable(true);
         ab.setPositiveButton("Close", null);
         ab.setNegativeButton("Enter Code", new DialogInterface.OnClickListener() {
@@ -188,65 +165,43 @@ public class HomeActivity extends Activity {
     private void initStageB() {
         loadTheme();
         final int x = Device.screenX(getApplicationContext());
-        final int squirclePadding = x / 30;
-        final int squircleSize = (int) (x / 4.2);
+        final int squircleSize =(x / 5);
         breakTime = sp.getBoolean(Values.breakTime, Values.breakTimeDefault);
         showMessages = sp.getBoolean(Values.messages, Values.messagesDefault);
-        LinearLayout topper = new LinearLayout(getApplicationContext());
-        topper.setOrientation(LinearLayout.VERTICAL);
-        topper.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
-        topper.setPadding(squirclePadding, 0, squirclePadding, 0);
-        main = new Squircle(getApplicationContext(), squircleSize, colorA);
-        main.setTypeface(getTypeface());
-        mAppView = new AppView(getApplicationContext(), getApplicationContext().getDrawable(R.drawable.ic_icon), Values.navColor, main);
-        mAppView.getDrag().setOnIconClick(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                aboutPopup();
-            }
-        });
-        mAppView.setBackground(gradient);
-        mAppView.setTopColor(colorA);
-        mAppView.setBottomColor(colorB);
-        mAppView.getBar().getMainSquircle().addOnState(new Squircle.OnState() {
+        icon = new Squircle(getApplicationContext(), squircleSize, colorA);
+        info = new Squircle(getApplicationContext(), squircleSize, colorA);
+        icon.setColorAlpha(200);
+        info.setColorAlpha(200);
+        icon.setDrawable(getDrawable(R.drawable.ic_icon), 0.9);
+        icon.addOnState(new Squircle.OnState() {
             @Override
             public void onOpen() {
             }
 
             @Override
             public void onClose() {
-                mAppView.getDrag().close(true);
             }
 
             @Override
             public void onBoth(boolean b) {
+                aboutPopup();
             }
         });
-        mAppView.getDrag().setOnStateChangedListener(new Drag.OnStateChangedListener() {
-            @Override
-            public void onOpen() {
-                mAppView.getDrag().emptyContent();
-                mAppView.getDrag().setContent(getNews());
-            }
-
-            @Override
-            public void onClose() {
-                mAppView.getDrag().emptyContent();
-            }
-        });
-        TowerHub.colorAChangeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
-            @Override
-            public boolean onPeer(Integer integer) {
-                main.setColor(integer);
-                return true;
-            }
-        }));
-        mAppView.getBar().addSquircles(getSquircles(squircleSize));
+        TowerHub.textColorChangeTunnle.addPeer(icon.getTextColorPeer());
+        TowerHub.textColorChangeTunnle.addPeer(info.getTextColorPeer());
+        TowerHub.fontSizeChangeTunnle.addPeer(icon.getTextSizePeer());
+        TowerHub.fontSizeChangeTunnle.addPeer(info.getTextSizePeer());
+        mAppView = new AppView(getApplicationContext(), Values.navColor);
+        mAppView.setWindow(getWindow());
+        mAppView.getSquircleView().setBottomLeft(icon);
+        mAppView.getSquircleView().setBottomRight(info);
+        TowerHub.colorAChangeTunnle.addPeer(icon.getColorPeer());
+        TowerHub.colorAChangeTunnle.addPeer(info.getColorPeer());
         scheduleLayout = new LinearLayout(getApplicationContext());
         scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         scheduleLayout.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.setPadding(10, 10, 10, 10);
-        messageBar = new MessageBar(this, messages, mAppView.getDrag());
+        messageBar = new MessageBar(this, messages, mAppView.getDrawer());
         messageBar.start();
         scheduleLayout.addView(messageBar);
         TowerHub.showMessagesPeer.setOnPeer(new Peer.OnPeer<Boolean>() {
@@ -270,6 +225,12 @@ public class HomeActivity extends Activity {
         if (classes != null) if (c != null) setStudentMode(c);
         setContentView(mAppView);
         refreshTheme();
+        towerStart();
+    }
+
+    private void towerStart() {
+        TowerHub.fontSizeChangeTunnle.tell(getFontSize());
+        TowerHub.textColorChangeTunnle.tell(textColor);
     }
 
     private Classroom getFavoriteClass() {
@@ -307,192 +268,192 @@ public class HomeActivity extends Activity {
             return teachers.get(selectedTeacher);
         }
     }
-
-    private ArrayList<Squircle> getSquircles(int size) {
-        ArrayList<Squircle> squircles = new ArrayList<>();
-        final Squircle reload = new Squircle(getApplicationContext(), size, colorA);
-        reload.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_reload));
-        reload.addOnState(new Squircle.OnState() {
-
-            @Override
-            public void onOpen() {
-            }
-
-            @Override
-            public void onClose() {
-            }
-
-            @Override
-            public void onBoth(boolean isOpened) {
-                // TODO RETURNTO splash
-            }
-        });
-        squircles.add(reload);
-        final Squircle news = new Squircle(getApplicationContext(), size, colorA);
-        news.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_news));
-        final FrameLayout newsContent = getNews();
-        news.addOnState(new Squircle.OnState() {
-            @Override
-            public void onOpen() {
-                mAppView.getDrag().emptyContent();
-                mAppView.getDrag().open(false);
-                mAppView.getDrag().setContent(newsContent);
-            }
-
-            @Override
-            public void onClose() {
-                if (mAppView.getDrag().isOpen()) {
-                    if (mAppView.getDrag().getContent() == newsContent) {
-                        mAppView.getDrag().close(true);
-                    } else {
-                        news.setState(true);
-                        this.onOpen();
-                    }
-                } else {
-                    news.setState(true);
-                    this.onOpen();
-                }
-            }
-
-            @Override
-            public void onBoth(boolean isOpened) {
-            }
-        });
-        squircles.add(news);
-        final Squircle choose = new Squircle(getApplicationContext(), size, colorA);
-        choose.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_class));
-        final ScrollView chooseContent = getSwitcher();
-        choose.addOnState(new Squircle.OnState() {
-            @Override
-            public void onOpen() {
-                mAppView.getDrag().emptyContent();
-                mAppView.getDrag().open(false);
-                mAppView.getDrag().setContent(chooseContent);
-            }
-
-            @Override
-            public void onClose() {
-                if (mAppView.getDrag().isOpen()) {
-                    if (mAppView.getDrag().getContent() == chooseContent) {
-                        mAppView.getDrag().close(true);
-                    } else {
-                        choose.setState(true);
-                        this.onOpen();
-                    }
-                } else {
-                    choose.setState(true);
-                    this.onOpen();
-                }
-            }
-
-            @Override
-            public void onBoth(boolean isOpened) {
-            }
-        });
-        squircles.add(choose);
-        final Squircle share = new Squircle(getApplicationContext(), size, colorA);
-        share.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_share));
-        share.addOnState(new Squircle.OnState() {
-
-            private LinearLayout shareContent;
-
-            @Override
-            public void onOpen() {
-                shareContent = getShare();
-                mAppView.getDrag().emptyContent();
-                mAppView.getDrag().open(false);
-                mAppView.getDrag().setContent(shareContent);
-            }
-
-            @Override
-            public void onClose() {
-                if (mAppView.getDrag().isOpen()) {
-                    if (mAppView.getDrag().getContent() == shareContent) {
-                        mAppView.getDrag().close(true);
-                    } else {
-                        share.setState(true);
-                        this.onOpen();
-                    }
-                } else {
-                    share.setState(true);
-                    this.onOpen();
-                }
-            }
-
-            @Override
-            public void onBoth(boolean isOpened) {
-            }
-        });
-        squircles.add(share);
-        final Squircle settings = new Squircle(getApplicationContext(), size, colorA);
-        settings.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_gear));
-        final ScrollView settingsContent = getSettings();
-        settings.addOnState(new Squircle.OnState() {
-
-            @Override
-            public void onOpen() {
-                mAppView.getDrag().emptyContent();
-                mAppView.getDrag().open(false);
-                mAppView.getDrag().setContent(settingsContent);
-            }
-
-            @Override
-            public void onClose() {
-                if (mAppView.getDrag().isOpen()) {
-                    if (mAppView.getDrag().getContent() == settingsContent) {
-                        mAppView.getDrag().close(true);
-                    } else {
-                        settings.setState(true);
-                        this.onOpen();
-                    }
-                } else {
-                    settings.setState(true);
-                    this.onOpen();
-                }
-            }
-
-            @Override
-            public void onBoth(boolean isOpened) {
-            }
-        });
-        squircles.add(settings);
-        final Squircle devPanel = new Squircle(getApplicationContext(), size, colorA);
-        devPanel.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_developer));
-        devPanel.addOnState(new Squircle.OnState() {
-
-            @Override
-            public void onOpen() {
-            }
-
-            @Override
-            public void onClose() {
-            }
-
-            @Override
-            public void onBoth(boolean isOpened) {
-                if (keyManager.isKeyLoaded(KeyManager.TYPE_BETA)) {
-                    // TODO GOTO developer
-                } else {
-                    Toast.makeText(getApplicationContext(), "Beta Key Not Installed.\nFor Now, A Beta Key Must Be Installed To Enter The Developer Console.", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-        if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
-            squircles.add(devPanel);
-        }
-        TowerHub.colorAChangeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
-            @Override
-            public boolean onPeer(Integer integer) {
-                news.setColor(integer);
-                choose.setColor(integer);
-                share.setColor(integer);
-                settings.setColor(integer);
-                devPanel.setColor(integer);
-                return true;
-            }
-        }));
-        return squircles;
-    }
+    //    private ArrayList<Squircle> getSquircles(int size) {
+    //        ArrayList<Squircle> squircles = new ArrayList<>();
+    //        final Squircle reload = new Squircle(getApplicationContext(), size, colorA);
+    //        reload.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_reload));
+    //        reload.addOnState(new Squircle.OnState() {
+    //
+    //            @Override
+    //            public void onOpen() {
+    //            }
+    //
+    //            @Override
+    //            public void onClose() {
+    //            }
+    //
+    //            @Override
+    //            public void onBoth(boolean isOpened) {
+    //                Center.exit(HomeActivity.this,SplashActivity.class);
+    //                // TODO RETURNTO splash
+    //            }
+    //        });
+    //        squircles.add(reload);
+    //        final Squircle news = new Squircle(getApplicationContext(), size, colorA);
+    //        news.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_news));
+    //        final FrameLayout newsContent = getNews();
+    //        news.addOnState(new Squircle.OnState() {
+    //            @Override
+    //            public void onOpen() {
+    //                mAppView.getDrag().emptyContent();
+    //                mAppView.getDrag().open(false);
+    //                mAppView.getDrag().setContent(newsContent);
+    //            }
+    //
+    //            @Override
+    //            public void onClose() {
+    //                if (mAppView.getDrag().isOpen()) {
+    //                    if (mAppView.getDrag().getContent() == newsContent) {
+    //                        mAppView.getDrag().close(true);
+    //                    } else {
+    //                        news.setState(true);
+    //                        this.onOpen();
+    //                    }
+    //                } else {
+    //                    news.setState(true);
+    //                    this.onOpen();
+    //                }
+    //            }
+    //
+    //            @Override
+    //            public void onBoth(boolean isOpened) {
+    //            }
+    //        });
+    //        squircles.add(news);
+    //        final Squircle choose = new Squircle(getApplicationContext(), size, colorA);
+    //        choose.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_class));
+    //        final ScrollView chooseContent = getSwitcher();
+    //        choose.addOnState(new Squircle.OnState() {
+    //            @Override
+    //            public void onOpen() {
+    //                mAppView.getDrag().emptyContent();
+    //                mAppView.getDrag().open(false);
+    //                mAppView.getDrag().setContent(chooseContent);
+    //            }
+    //
+    //            @Override
+    //            public void onClose() {
+    //                if (mAppView.getDrag().isOpen()) {
+    //                    if (mAppView.getDrag().getContent() == chooseContent) {
+    //                        mAppView.getDrag().close(true);
+    //                    } else {
+    //                        choose.setState(true);
+    //                        this.onOpen();
+    //                    }
+    //                } else {
+    //                    choose.setState(true);
+    //                    this.onOpen();
+    //                }
+    //            }
+    //
+    //            @Override
+    //            public void onBoth(boolean isOpened) {
+    //            }
+    //        });
+    //        squircles.add(choose);
+    //        final Squircle share = new Squircle(getApplicationContext(), size, colorA);
+    //        share.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_share));
+    //        share.addOnState(new Squircle.OnState() {
+    //
+    //            private LinearLayout shareContent;
+    //
+    //            @Override
+    //            public void onOpen() {
+    //                shareContent = getShare();
+    //                mAppView.getDrag().emptyContent();
+    //                mAppView.getDrag().open(false);
+    //                mAppView.getDrag().setContent(shareContent);
+    //            }
+    //
+    //            @Override
+    //            public void onClose() {
+    //                if (mAppView.getDrag().isOpen()) {
+    //                    if (mAppView.getDrag().getContent() == shareContent) {
+    //                        mAppView.getDrag().close(true);
+    //                    } else {
+    //                        share.setState(true);
+    //                        this.onOpen();
+    //                    }
+    //                } else {
+    //                    share.setState(true);
+    //                    this.onOpen();
+    //                }
+    //            }
+    //
+    //            @Override
+    //            public void onBoth(boolean isOpened) {
+    //            }
+    //        });
+    //        squircles.add(share);
+    //        final Squircle settings = new Squircle(getApplicationContext(), size, colorA);
+    //        settings.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_gear));
+    //        final ScrollView settingsContent = getSettings();
+    //        settings.addOnState(new Squircle.OnState() {
+    //
+    //            @Override
+    //            public void onOpen() {
+    //                mAppView.getDrag().emptyContent();
+    //                mAppView.getDrag().open(false);
+    //                mAppView.getDrag().setContent(settingsContent);
+    //            }
+    //
+    //            @Override
+    //            public void onClose() {
+    //                if (mAppView.getDrag().isOpen()) {
+    //                    if (mAppView.getDrag().getContent() == settingsContent) {
+    //                        mAppView.getDrag().close(true);
+    //                    } else {
+    //                        settings.setState(true);
+    //                        this.onOpen();
+    //                    }
+    //                } else {
+    //                    settings.setState(true);
+    //                    this.onOpen();
+    //                }
+    //            }
+    //
+    //            @Override
+    //            public void onBoth(boolean isOpened) {
+    //            }
+    //        });
+    //        squircles.add(settings);
+    //        final Squircle devPanel = new Squircle(getApplicationContext(), size, colorA);
+    //        devPanel.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_developer));
+    //        devPanel.addOnState(new Squircle.OnState() {
+    //
+    //            @Override
+    //            public void onOpen() {
+    //            }
+    //
+    //            @Override
+    //            public void onClose() {
+    //            }
+    //
+    //            @Override
+    //            public void onBoth(boolean isOpened) {
+    //                if (keyManager.isKeyLoaded(KeyManager.TYPE_BETA)) {
+    //                    // TODO GOTO developer
+    //                } else {
+    //                    Toast.makeText(getApplicationContext(), "Beta Key Not Installed.\nFor Now, A Beta Key Must Be Installed To Enter The Developer Console.", Toast.LENGTH_LONG).show();
+    //                }
+    //            }
+    //        });
+    //        if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
+    //            squircles.add(devPanel);
+    //        }
+    //        TowerHub.colorAChangeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
+    //            @Override
+    //            public boolean onPeer(Integer integer) {
+    //                news.setColor(integer);
+    //                choose.setColor(integer);
+    //                share.setColor(integer);
+    //                settings.setColor(integer);
+    //                devPanel.setColor(integer);
+    //                return true;
+    //            }
+    //        }));
+    //        return squircles;
+    //    }
 
     private LinearLayout getShare() {
         LinearLayout shareView = new LinearLayout(getApplicationContext());
@@ -874,18 +835,10 @@ public class HomeActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (mAppView != null && mAppView.getBar() != null && mAppView.getDrag() != null) {
-            if (mAppView.getDrag().isOpen() || mAppView.getBar().isOpen()) {
-                if (mAppView.getDrag().isOpen()) {
-                    mAppView.getDrag().close(true);
-                }
-                if (mAppView.getBar().isOpen()) {
-                    mAppView.getBar().close(true);
-                    Log.i("State", "" + mAppView.getBar().isOpen());
-                }
-            } else {
-                finish();
-            }
+        if (mAppView.getDrawer().isOpen()) {
+            mAppView.getDrawer().close(true);
+        } else {
+            finish();
         }
     }
 
@@ -960,7 +913,7 @@ public class HomeActivity extends Activity {
                     fail.setTextColor(textColor);
                     fail.setText(R.string.news_load_failed);
                     fail.setGravity(Gravity.CENTER);
-                    mAppView.getDrag().setContent(fail);
+                    //                    mAppView.getDrag().setContent(fail);
                 }
             }).execute("");
         }
@@ -992,13 +945,17 @@ public class HomeActivity extends Activity {
 
     private void setStudentMode(Classroom c) {
         currentClass = c;
-        main.setText(textColor, getFontSize(), c.getName(), day);
+        // TODO
+        //        info.setText(textColor, getFontSize(), c.getName(), day);
+        info.setText(new Squircle.TextPiece(c.getName(), 1, textColor), new Squircle.TextPiece(day, 0.7, textColor));
         displayLessonViews(scheduleForClass(c));
     }
 
     private void setTeacherMode(Teacher t) {
         currentTeacher = t;
-        main.setText(textColor, getFontSize(), t.mainName.split(" ")[0], day);
+        // TODO
+        //        info.setText(textColor, getFontSize(), t.mainName.split(" ")[0], day);
+        info.setText(new Squircle.TextPiece(t.mainName.split(" ")[0], 1, textColor), new Squircle.TextPiece(day, 0.7, textColor));
         displayLessonViews(scheduleForTeacher(t));
     }
 
@@ -1137,5 +1094,4 @@ public class HomeActivity extends Activity {
         }
         return lessons;
     }
-
 }

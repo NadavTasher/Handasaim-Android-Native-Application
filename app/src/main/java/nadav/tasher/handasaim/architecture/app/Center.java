@@ -1,12 +1,15 @@
 package nadav.tasher.handasaim.architecture.app;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 
 import nadav.tasher.handasaim.R;
+import nadav.tasher.handasaim.activities.SplashActivity;
 import nadav.tasher.handasaim.values.Values;
 
 import static nadav.tasher.handasaim.values.Values.fontColor;
@@ -48,6 +51,22 @@ public class Center {
         SharedPreferences sp = c.getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
         sp.edit().putInt(Values.colorA, Values.defaultColorA).apply();
         sp.edit().putInt(Values.colorB, Values.defaultColorB).apply();
+    }
+
+    public static void enter(Activity c, Class a){
+        if(c.hasWindowFocus()){
+            c.startActivity(new Intent(c,a));
+            c.overridePendingTransition(R.anim.out, R.anim.in);
+            c.finish();
+        }
+    }
+
+    public static void exit(Activity c,Class a){
+        if(c.hasWindowFocus()){
+            c.startActivity(new Intent(c,a));
+            c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
+            c.finish();
+        }
     }
 
     public static Drawable generateCoaster(Context c, int color) {

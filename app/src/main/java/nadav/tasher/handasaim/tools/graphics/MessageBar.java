@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.values.Values;
-import nadav.tasher.lightool.graphics.views.appview.navigation.Drag;
+import nadav.tasher.lightool.graphics.views.appview.navigation.Drawer;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
 
@@ -27,11 +27,11 @@ public class MessageBar extends LinearLayout {
     private ArrayList<TextView> messageViews;
     private int currentIndex = 0;
     private boolean alive = true;
-    private Drag dn;
+    private Drawer dn;
     private Thread animate;
     private Activity a;
 
-    public MessageBar(Activity context, ArrayList<String> messages, Drag drag) {
+    public MessageBar(Activity context, ArrayList<String> messages, Drawer drag) {
         super(context.getApplicationContext());
         this.a = context;
         this.messages = messages;
@@ -58,7 +58,7 @@ public class MessageBar extends LinearLayout {
                         sv.addView(getTextView(messages.get(finalA), Center.getTextColor(getContext()), false));
                         sv.setFillViewport(true);
                         dn.setContent(sv);
-                        dn.open(false);
+                        dn.open(false,0.9);
                     }
                 });
             }

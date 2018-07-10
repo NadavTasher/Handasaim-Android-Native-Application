@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import nadav.tasher.handasaim.tools.architecture.Starter;
+import nadav.tasher.handasaim.architecture.app.Starter;
 
 public class BootReceiver extends BroadcastReceiver {
 

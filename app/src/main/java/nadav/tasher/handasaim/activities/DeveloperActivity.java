@@ -22,7 +22,7 @@ import java.util.Arrays;
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.development.SupportLibrary;
-import nadav.tasher.handasaim.tools.architecture.KeyManager;
+import nadav.tasher.handasaim.architecture.app.KeyManager;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.jsons.android.framework.Library;
 import nadav.tasher.jsons.android.framework.Script;

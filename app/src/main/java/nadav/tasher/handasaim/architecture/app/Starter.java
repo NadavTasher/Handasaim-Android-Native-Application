@@ -1,4 +1,4 @@
-package nadav.tasher.handasaim.tools.architecture;
+package nadav.tasher.handasaim.architecture.app;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;

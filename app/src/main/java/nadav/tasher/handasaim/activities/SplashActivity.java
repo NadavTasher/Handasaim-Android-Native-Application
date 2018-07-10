@@ -2,14 +2,15 @@ package nadav.tasher.handasaim.activities;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +25,7 @@ import java.io.File;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
-import nadav.tasher.handasaim.tools.architecture.KeyManager;
+import nadav.tasher.handasaim.architecture.app.KeyManager;
 import nadav.tasher.handasaim.tools.graphics.CurvedTextView;
 import nadav.tasher.handasaim.tools.online.FileDownloader;
 import nadav.tasher.handasaim.tools.specific.GetLink;
@@ -57,15 +58,9 @@ public class SplashActivity extends Activity {
         keyManager=new KeyManager(getApplicationContext());
     }
 
-    private void taskDesc() {
-        ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(null, (Center.getColorA(getApplicationContext())));
-        setTaskDescription(taskDesc);
-    }
-
     private void go() {
         getWindow().setStatusBarColor(Center.getColorA(getApplicationContext()));
         getWindow().setNavigationBarColor(Center.getColorB(getApplicationContext()));
-        taskDesc();
         final LinearLayout ll = new LinearLayout(getApplicationContext());
         ll.setGravity(Gravity.CENTER);
         ll.setOrientation(LinearLayout.VERTICAL);
@@ -93,6 +88,7 @@ public class SplashActivity extends Activity {
         ObjectAnimator oa = ObjectAnimator.ofFloat(ctv, View.ALPHA, Animations.INVISIBLE_TO_VISIBLE);
         oa.setDuration(1000);
         oa.start();
+        
         setContentView(ll);
         ColorFadeAnimation cfa = new ColorFadeAnimation(Center.getColorB(getApplicationContext()), Center.getColorA(getApplicationContext()), new ColorFadeAnimation.ColorState() {
             @Override
@@ -161,6 +157,7 @@ public class SplashActivity extends Activity {
                     if (!sp.getString(Values.latestFileDate, "").equals(date)) {
                         sp.edit().putString(Values.latestFileDate, date).apply();
                         sp.edit().putString(Values.latestFileDateRefresher, date).apply();
+                        Log.i("App Status","Downloading");
                         new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
                             @Override
                             public void onFinish(final File file, final boolean be) {
@@ -197,11 +194,15 @@ public class SplashActivity extends Activity {
 //            main.start();
             if(keyManager.isKeyLoaded(KeyManager.TYPE_MESSAGE_BOARD)){
                 //TODO Launch Home
+                Center.enter(this,HomeActivity.class);
             }else{
                 //TODO Launch News
+                Center.enter(this,NewsActivity.class);
             }
         } else {
             //TODO Update To Lunch New Activity
+            startActivity(new Intent(this,HomeActivity.class));
+//            Center.enter(this,HomeActivity.class);
 //            Welcome welcome = new Welcome(a, sp, keyManager);
 //            welcome.start();
         }

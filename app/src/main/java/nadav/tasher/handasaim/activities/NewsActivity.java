@@ -1,7 +1,6 @@
 package nadav.tasher.handasaim.activities;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,7 +23,7 @@ import java.util.ArrayList;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
-import nadav.tasher.handasaim.tools.architecture.KeyManager;
+import nadav.tasher.handasaim.architecture.app.KeyManager;
 import nadav.tasher.handasaim.tools.online.PictureLoader;
 import nadav.tasher.handasaim.tools.specific.GetNews;
 import nadav.tasher.handasaim.values.Egg;
@@ -55,13 +54,9 @@ public class NewsActivity extends Activity {
         keyManager=new KeyManager(getApplicationContext());
     }
 
-    private void taskDesc() {
-        ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(null, (Center.getColorA(getApplicationContext())));
-        setTaskDescription(taskDesc);
-    }
 
     private void go() {
-        taskDesc();
+        
         getWindow().setStatusBarColor(Center.getColorA(getApplicationContext()));
         getWindow().setNavigationBarColor(Center.getColorB(getApplicationContext()));
 
