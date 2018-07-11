@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -46,7 +47,9 @@ import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.graphics.views.ColorPicker;
 import nadav.tasher.lightool.graphics.views.appview.AppView;
-import nadav.tasher.lightool.graphics.views.appview.navigation.Squircle;
+import nadav.tasher.lightool.graphics.views.appview.navigation.corner.Corner;
+import nadav.tasher.lightool.graphics.views.appview.navigation.corner.CornerView;
+import nadav.tasher.lightool.graphics.views.appview.navigation.squircle.Squircle;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
 
@@ -70,8 +73,9 @@ public class HomeActivity extends Activity {
     private String day;
     private Classroom currentClass;
     private Teacher currentTeacher;
-    private Squircle icon, info;
+    private Corner icon, info;
     private MessageBar messageBar;
+    private CornerView cornerView;
     private LinearLayout scheduleLayout, lessonViewHolder;
     private AppView mAppView;
     private ArrayList<Classroom> classes;
@@ -110,6 +114,8 @@ public class HomeActivity extends Activity {
     private void refreshTheme() {
         loadTheme();
         mAppView.setBackgroundColor(new AppView.Gradient(colorA, colorB));
+        getWindow().setNavigationBarColor(colorA);
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN);
         TowerHub.colorAChangeTunnle.tell(colorA);
         TowerHub.colorBChangeTunnle.tell(colorB);
     }
@@ -168,12 +174,13 @@ public class HomeActivity extends Activity {
         final int squircleSize =(x / 5);
         breakTime = sp.getBoolean(Values.breakTime, Values.breakTimeDefault);
         showMessages = sp.getBoolean(Values.messages, Values.messagesDefault);
-        icon = new Squircle(getApplicationContext(), squircleSize, colorA);
-        info = new Squircle(getApplicationContext(), squircleSize, colorA);
+        cornerView=new CornerView(getApplicationContext());
+        icon = new Corner(getApplicationContext(), squircleSize, colorA);
+        info = new Corner(getApplicationContext(), squircleSize, colorA);
         icon.setColorAlpha(200);
         info.setColorAlpha(200);
-        icon.setDrawable(getDrawable(R.drawable.ic_icon), 0.9);
-        icon.addOnState(new Squircle.OnState() {
+        icon.setDrawable(getDrawable(R.drawable.ic_icon), 0.85);
+        icon.addOnState(new Corner.OnState() {
             @Override
             public void onOpen() {
             }
@@ -192,9 +199,11 @@ public class HomeActivity extends Activity {
         TowerHub.fontSizeChangeTunnle.addPeer(icon.getTextSizePeer());
         TowerHub.fontSizeChangeTunnle.addPeer(info.getTextSizePeer());
         mAppView = new AppView(getApplicationContext(), Values.navColor);
+        mAppView.setColorChangeNavigation(false);
         mAppView.setWindow(getWindow());
-        mAppView.getSquircleView().setBottomLeft(icon);
-        mAppView.getSquircleView().setBottomRight(info);
+        mAppView.setNavigationView(cornerView);
+        cornerView.setBottomLeft(icon);
+        cornerView.setBottomRight(info);
         TowerHub.colorAChangeTunnle.addPeer(icon.getColorPeer());
         TowerHub.colorAChangeTunnle.addPeer(info.getColorPeer());
         scheduleLayout = new LinearLayout(getApplicationContext());
@@ -934,7 +943,6 @@ public class HomeActivity extends Activity {
             }
         }
     }
-
     private void share(String st) {
         Intent s = new Intent(Intent.ACTION_SEND);
         s.putExtra(Intent.EXTRA_TEXT, st);
@@ -947,7 +955,7 @@ public class HomeActivity extends Activity {
         currentClass = c;
         // TODO
         //        info.setText(textColor, getFontSize(), c.getName(), day);
-        info.setText(new Squircle.TextPiece(c.getName(), 1, textColor), new Squircle.TextPiece(day, 0.7, textColor));
+        info.setText(0.9,new Corner.TextPiece(c.getName(), 0.9, textColor), new Corner.TextPiece(day, 0.65, textColor));
         displayLessonViews(scheduleForClass(c));
     }
 
@@ -955,7 +963,7 @@ public class HomeActivity extends Activity {
         currentTeacher = t;
         // TODO
         //        info.setText(textColor, getFontSize(), t.mainName.split(" ")[0], day);
-        info.setText(new Squircle.TextPiece(t.mainName.split(" ")[0], 1, textColor), new Squircle.TextPiece(day, 0.7, textColor));
+        info.setText(0.9,new Corner.TextPiece(t.mainName.split(" ")[0], 0.9, textColor), new Corner.TextPiece(day, 0.65, textColor));
         displayLessonViews(scheduleForTeacher(t));
     }
 

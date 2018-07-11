@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.values.Values;
-import nadav.tasher.lightool.graphics.views.appview.navigation.Drawer;
+import nadav.tasher.lightool.graphics.views.appview.navigation.drawer.Drawer;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
 
