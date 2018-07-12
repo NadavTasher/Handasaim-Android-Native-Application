@@ -15,10 +15,8 @@ import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -39,12 +37,13 @@ import java.util.Calendar;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.KeyManager;
+import nadav.tasher.handasaim.architecture.app.graphics.LessonView;
+import nadav.tasher.handasaim.architecture.app.graphics.MessageBar;
 import nadav.tasher.handasaim.architecture.appcore.AppCore;
 import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
+import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
 import nadav.tasher.handasaim.architecture.appcore.components.Teacher;
 import nadav.tasher.handasaim.tools.TowerHub;
-import nadav.tasher.handasaim.tools.graphics.LessonView;
-import nadav.tasher.handasaim.tools.graphics.MessageBar;
 import nadav.tasher.handasaim.tools.specific.GetNews;
 import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.handasaim.values.Values;
@@ -52,7 +51,6 @@ import nadav.tasher.lightool.graphics.views.ColorPicker;
 import nadav.tasher.lightool.graphics.views.appview.AppView;
 import nadav.tasher.lightool.graphics.views.appview.navigation.corner.Corner;
 import nadav.tasher.lightool.graphics.views.appview.navigation.corner.CornerView;
-import nadav.tasher.lightool.graphics.views.appview.navigation.squircle.Squircle;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
 
@@ -69,10 +67,7 @@ import static nadav.tasher.handasaim.architecture.appcore.AppCore.getTimeForLess
 import static nadav.tasher.handasaim.architecture.appcore.AppCore.minuteOfDay;
 
 public class HomeActivity extends Activity {
-    private int textColor = Values.fontColorDefault;
-    private int colorA = Values.defaultColorA;
-    private int colorB = Values.defaultColorB;
-    private int coasterColor = Values.defaultColorB;
+    private int textColor = Values.fontColorDefault, colorA = Values.defaultColorA, colorB = Values.defaultColorB, combinedColor = generateCombinedColor();
     private String day;
     private Classroom currentClass;
     private Teacher currentTeacher;
@@ -81,6 +76,7 @@ public class HomeActivity extends Activity {
     private CornerView cornerView;
     private LinearLayout scheduleLayout, lessonViewHolder;
     private AppView mAppView;
+    private Schedule schedule;
     private ArrayList<Classroom> classes;
     private ArrayList<Teacher> teachers;
     private ArrayList<String> messages;
@@ -113,16 +109,19 @@ public class HomeActivity extends Activity {
         textColor = sp.getInt(Values.fontColor, Values.fontColorDefault);
         colorA = sp.getInt(Values.colorA, colorA);
         colorB = sp.getInt(Values.colorB, colorB);
-        coasterColor = Color.argb(Values.squircleAlpha, Color.red(colorA), Color.green(colorA), Color.blue(colorA));
     }
 
     private void refreshTheme() {
-        loadTheme();
-        mAppView.setBackgroundColor(new AppView.Gradient(colorA, colorB));
-        getWindow().setNavigationBarColor(getNavBarColor(colorB,colorA));
-//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN);
+        textColor = sp.getInt(Values.fontColor, Values.fontColorDefault);
+        colorA = sp.getInt(Values.colorA, colorA);
+        colorB = sp.getInt(Values.colorB, colorB);
+        combinedColor = generateCombinedColor();
+        if (mAppView != null) mAppView.setBackgroundColor(new AppView.Gradient(colorA, colorB));
+        getWindow().setNavigationBarColor(combinedColor);
         TowerHub.colorAChangeTunnle.tell(colorA);
         TowerHub.colorBChangeTunnle.tell(colorB);
+        TowerHub.fontSizeChangeTunnle.tell(getFontSize());
+        TowerHub.textColorChangeTunnle.tell(textColor);
     }
 
     public void go() {
@@ -132,6 +131,7 @@ public class HomeActivity extends Activity {
         }
     }
 
+    // TODO move to drawer
     private void popupKeyEntering() {
         AlertDialog.Builder pop = new AlertDialog.Builder(this);
         pop.setCancelable(true);
@@ -158,6 +158,7 @@ public class HomeActivity extends Activity {
         pop.show();
     }
 
+    // TODO move to drawer
     private void aboutPopup() {
         AlertDialog.Builder ab = new AlertDialog.Builder(this);
         ab.setTitle(R.string.app_name);
@@ -173,7 +174,7 @@ public class HomeActivity extends Activity {
         ab.show();
     }
 
-    public int getNavBarColor(int colorA, int colorB) {
+    private int generateCombinedColor() {
         int redA = Color.red(colorA);
         int greenA = Color.green(colorA);
         int blueA = Color.blue(colorA);
@@ -183,7 +184,6 @@ public class HomeActivity extends Activity {
         int alphaA = Color.alpha(colorA);
         int alphaB = Color.alpha(colorB);
         int combineRed = redA - (redA - redB) / 2, combineGreen = greenA - (greenA - greenB) / 2, combineBlue = blueA - (blueA - blueB) / 2;
-        int combineAlpha = alphaA - (alphaA - alphaB) / 2;
         return Color.rgb(combineRed, combineGreen, combineBlue);
     }
 
@@ -191,10 +191,9 @@ public class HomeActivity extends Activity {
         mAppView = new AppView(getApplicationContext(), Values.navColor);
         mAppView.setColorChangeNavigation(false);
         mAppView.setWindow(getWindow());
-        cornerView=new CornerView(getApplicationContext());
+        cornerView = new CornerView(getApplicationContext());
         mAppView.setNavigationView(cornerView);
-
-        icon = new Corner(getApplicationContext(), Device.screenX(getApplicationContext())/5, Color.TRANSPARENT);
+        icon = new Corner(getApplicationContext(), Device.screenX(getApplicationContext()) / 5, Color.TRANSPARENT);
         icon.setDrawable(getDrawable(R.drawable.ic_icon), 0.85);
         icon.addOnState(new Corner.OnState() {
             @Override
@@ -210,19 +209,14 @@ public class HomeActivity extends Activity {
                 aboutPopup();
             }
         });
-        info = new Corner(getApplicationContext(), Device.screenX(getApplicationContext())/5, Color.TRANSPARENT);
-//        mAppView.getDrawer().setContent(generateImageView(R.drawable.ic_gear,500));
-//        mAppView.getDrawer().open(true,0.8);
-        assembleDrawers();
-
+        info = new Corner(getApplicationContext(), Device.screenX(getApplicationContext()) / 5, Color.TRANSPARENT);
         info.addOnState(new Corner.OnState() {
             @Override
             public void onOpen() {
                 mAppView.getDrawer().emptyContent();
-                if(menuDrawer!=null) {
+                if (menuDrawer != null) {
                     mAppView.getDrawer().setContent(menuDrawer);
-//                    mAppView.getDrawer().open(false, menuDrawer.getLayoutParams().height / Device.screenY(getApplicationContext()));
-                mAppView.getDrawer().open(false,0.5);
+                    mAppView.getDrawer().open(false, ((double) menuDrawer.getLayoutParams().height / (double) Device.screenY(getApplicationContext())));
                 }
             }
 
@@ -235,105 +229,17 @@ public class HomeActivity extends Activity {
             public void onBoth(boolean b) {
             }
         });
-
-        cornerView.setBottomLeft(icon);
-        cornerView.setBottomRight(info);
-
-        final AppView.Scrolly s=mAppView.getScrolly();
-        final View view=s.getChildAt(s.getChildCount()-1);
-        s.setOnScroll(new AppView.Scrolly.OnScroll() {
-            @Override
-            public void onScroll(int i, int i1, int i2, int i3) {
-                setCornerColors(s,view);
-            }
-        });
-
-        scheduleLayout = new LinearLayout(getApplicationContext());
-        scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
-        scheduleLayout.setOrientation(LinearLayout.VERTICAL);
-        scheduleLayout.setPadding(10, 10, 10, 10);
-
-        messageBar = new MessageBar(this, messages, mAppView.getDrawer());
-        messageBar.start();
-        scheduleLayout.addView(messageBar);
-
-        lessonViewHolder = new LinearLayout(getApplicationContext());
-        lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
-        lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
-
-        scheduleLayout.addView(lessonViewHolder);
-
-        mAppView.setContent(scheduleLayout);
-        setContentView(mAppView);
-
-        Classroom c = getFavoriteClass();
-        if (classes != null) if (c != null) setStudentMode(c);
-        refreshTheme();
-        towerStart();
-    }
-
-    private void assembleDrawers(){
-        menuDrawer=new HorizontalScrollView(getApplicationContext());
-        LinearLayout menu=new LinearLayout(getApplicationContext());
-        menu.setOrientation(LinearLayout.HORIZONTAL);
-        menu.setGravity(Gravity.CENTER);
-        final int size=Device.screenY(getApplicationContext())/13;
-        ImageView share,classroom,news,predict,refresh,settings;
-        share=generateImageView(R.drawable.ic_share,size);
-        classroom=generateImageView(R.drawable.ic_class,size);
-        news=generateImageView(R.drawable.ic_news,size);
-        predict=generateImageView(R.drawable.ic_notification,size);
-        refresh=generateImageView(R.drawable.ic_reload,size);
-        settings=generateImageView(R.drawable.ic_gear,size);
-        menu.addView(share);
-        menu.addView(classroom);
-        menu.addView(news);
-        menu.addView(predict);
-        menu.addView(refresh);
-        menu.addView(settings);
-        menu.setPadding(10,10,10,10);
-        menu.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,size+menu.getPaddingBottom()+menu.getPaddingTop()));
-        //menuDrawer.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getApplicationContext()),size+menu.getPaddingBottom()+menu.getPaddingTop()));
-        menuDrawer.addView(menu);
-
-    }
-
-    private ImageView generateImageView(int drawable,int size){
-        ImageView iv=new ImageView(getApplicationContext());
-        iv.setImageDrawable(getDrawable(drawable));
-        iv.setLayoutParams(new LinearLayout.LayoutParams(size,size));
-        return iv;
-    }
-
-    private void setCornerColors(AppView.Scrolly s, View v){
-        if(v.getBottom()-(s.getHeight()+s.getScrollY())==0){
-            icon.setColorAlpha(128);
-            info.setColorAlpha(128);
-            icon.setColor(colorA);
-            info.setColor(colorA);
-        }else{
-            info.setColorAlpha(255);
-            icon.setColorAlpha(255);
-            icon.setColor(getNavBarColor(colorB,colorA));
-            info.setColor(getNavBarColor(colorB,colorA));
-        }
-    }
-
-    private void towerStart() {
-        final AppView.Scrolly s=mAppView.getScrolly();
-        s.scrollTo(0,0);
-        final View view=s.getChildAt(s.getChildCount()-1);
         TowerHub.colorAChangeTunnle.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
             @Override
             public boolean onPeer(Integer integer) {
-                setCornerColors(s,view);
+                setCornerColors(mAppView.getScrolly());
                 return false;
             }
         }));
         TowerHub.colorBChangeTunnle.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
             @Override
             public boolean onPeer(Integer integer) {
-                setCornerColors(s,view);
+                setCornerColors(mAppView.getScrolly());
                 return false;
             }
         }));
@@ -341,6 +247,20 @@ public class HomeActivity extends Activity {
         TowerHub.textColorChangeTunnle.addPeer(info.getTextColorPeer());
         TowerHub.fontSizeChangeTunnle.addPeer(icon.getTextSizePeer());
         TowerHub.fontSizeChangeTunnle.addPeer(info.getTextSizePeer());
+        cornerView.setBottomLeft(icon);
+        cornerView.setBottomRight(info);
+        mAppView.getScrolly().setOnScroll(new AppView.Scrolly.OnScroll() {
+            @Override
+            public void onScroll(int i, int i1, int i2, int i3) {
+                setCornerColors(mAppView.getScrolly());
+            }
+        });
+        scheduleLayout = new LinearLayout(getApplicationContext());
+        scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
+        scheduleLayout.setOrientation(LinearLayout.VERTICAL);
+        scheduleLayout.setPadding(10, 10, 10, 10);
+        messageBar = new MessageBar(this, messages, mAppView.getDrawer());
+        messageBar.start();
         TowerHub.showMessagesPeer.setOnPeer(new Peer.OnPeer<Boolean>() {
             @Override
             public boolean onPeer(Boolean aBoolean) {
@@ -353,8 +273,75 @@ public class HomeActivity extends Activity {
             }
         });
         TowerHub.showMessagesPeer.tell(showMessages);
-        TowerHub.fontSizeChangeTunnle.tell(getFontSize());
-        TowerHub.textColorChangeTunnle.tell(textColor);
+        scheduleLayout.addView(messageBar);
+        lessonViewHolder = new LinearLayout(getApplicationContext());
+        lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
+        lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
+        scheduleLayout.addView(lessonViewHolder);
+        mAppView.setContent(scheduleLayout);
+        setContentView(mAppView);
+        Classroom c = getFavoriteClass();
+        if (classes != null) if (c != null) setStudentMode(c);
+        assembleDrawers();
+        refreshTheme();
+    }
+
+    private void assembleDrawers() {
+        assembleMenuDrawer();
+    }
+
+    private void assembleMenuDrawer() {
+        menuDrawer = new HorizontalScrollView(getApplicationContext());
+        menuDrawer.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
+        menuDrawer.setHorizontalScrollBarEnabled(false);
+        LinearLayout menu = new LinearLayout(getApplicationContext());
+        menu.setOrientation(LinearLayout.HORIZONTAL);
+        menu.setGravity(Gravity.CENTER);
+        menuDrawer.setFillViewport(true);
+        final int size = Device.screenY(getApplicationContext()) / 13;
+        FrameLayout share, classroom, news, predict, refresh, settings;
+        share = generateImageView(R.drawable.ic_share, size);
+        classroom = generateImageView(R.drawable.ic_class, size);
+        news = generateImageView(R.drawable.ic_news, size);
+        predict = generateImageView(R.drawable.ic_notification, size);
+        refresh = generateImageView(R.drawable.ic_reload, size);
+        settings = generateImageView(R.drawable.ic_gear, size);
+        menu.addView(share);
+        menu.addView(classroom);
+        menu.addView(news);
+        menu.addView(predict);
+        menu.addView(refresh);
+        menu.addView(settings);
+        menu.setPadding(10, 10, 10, 10);
+        menu.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, size + menu.getPaddingBottom() + menu.getPaddingTop()));
+        menuDrawer.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getApplicationContext()), size + menu.getPaddingBottom() + menu.getPaddingTop()));
+        menuDrawer.addView(menu);
+    }
+
+    private FrameLayout generateImageView(int drawable, int size) {
+        FrameLayout fl = new FrameLayout(getApplicationContext());
+        fl.setPadding(20, 0, 20, 0);
+        fl.setForegroundGravity(Gravity.CENTER);
+        fl.setLayoutParams(new LinearLayout.LayoutParams(size, size));
+        ImageView iv = new ImageView(getApplicationContext());
+        iv.setImageDrawable(getDrawable(drawable));
+        iv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        fl.addView(iv);
+        return fl;
+    }
+
+    private void setCornerColors(AppView.Scrolly s) {
+        if (s.getChildAt(s.getChildCount() - 1).getBottom() - (s.getHeight() + s.getScrollY()) == 0) {
+            icon.setColorAlpha(128);
+            info.setColorAlpha(128);
+            icon.setColor(colorA);
+            info.setColor(colorA);
+        } else {
+            info.setColorAlpha(255);
+            icon.setColorAlpha(255);
+            icon.setColor(combinedColor);
+            info.setColor(combinedColor);
+        }
     }
 
     private Classroom getFavoriteClass() {
@@ -607,7 +594,7 @@ public class HomeActivity extends Activity {
         Button shareB = new Button(getApplicationContext());
         String shareText = getApplicationContext().getString(R.string.share) + " " + currentClass.getName();
         shareB.setText(shareText);
-        shareB.setBackground(generateCoaster(coasterColor));
+        shareB.setBackground(generateCoaster(combinedColor));
         shareB.setTextColor(textColor);
         shareB.setTextSize(getFontSize() - 7);
         shareB.setTypeface(getTypeface());
@@ -892,7 +879,7 @@ public class HomeActivity extends Activity {
             cls.setGravity(Gravity.CENTER);
             cls.setText(classes.get(cs).getName());
             cls.setTextColor(textColor);
-            cls.setBackground(generateCoaster(coasterColor));
+            cls.setBackground(generateCoaster(combinedColor));
             cls.setPadding(10, 0, 10, 0);
             cls.setTypeface(getTypeface());
             cls.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getApplicationContext()) / 5, (Device.screenY(getApplicationContext()) / 12)));
@@ -926,7 +913,7 @@ public class HomeActivity extends Activity {
                 cls.setGravity(Gravity.CENTER);
                 cls.setText(teachers.get(cs).mainName);
                 cls.setTextColor(textColor);
-                cls.setBackground(generateCoaster(coasterColor));
+                cls.setBackground(generateCoaster(combinedColor));
                 cls.setPadding(10, 0, 10, 0);
                 cls.setTypeface(getTypeface());
                 cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 12)));
@@ -1008,7 +995,7 @@ public class HomeActivity extends Activity {
                         cls.setEllipsize(TextUtils.TruncateAt.END);
                         cls.setLines(2);
                         //                            cls.setBackgroundColor(Color.TRANSPARENT);
-                        cls.setBackground(generateCoaster(coasterColor));
+                        cls.setBackground(generateCoaster(combinedColor));
                         cls.setTypeface(getTypeface());
                         cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 8)));
                         news.addView(cls);
@@ -1058,6 +1045,7 @@ public class HomeActivity extends Activity {
             }
         }
     }
+
     private void share(String st) {
         Intent s = new Intent(Intent.ACTION_SEND);
         s.putExtra(Intent.EXTRA_TEXT, st);
@@ -1070,7 +1058,7 @@ public class HomeActivity extends Activity {
         currentClass = c;
         // TODO
         //        info.setText(textColor, getFontSize(), c.getName(), day);
-        info.setText(0.9,new Corner.TextPiece(c.getName(), 0.9, textColor), new Corner.TextPiece(day, 0.65, textColor));
+        info.setText(0.9, new Corner.TextPiece(c.getName(), 0.9, textColor), new Corner.TextPiece(day, 0.65, textColor));
         displayLessonViews(scheduleForClass(c));
     }
 
@@ -1078,7 +1066,7 @@ public class HomeActivity extends Activity {
         currentTeacher = t;
         // TODO
         //        info.setText(textColor, getFontSize(), t.mainName.split(" ")[0], day);
-        info.setText(0.9,new Corner.TextPiece(t.mainName.split(" ")[0], 0.9, textColor), new Corner.TextPiece(day, 0.65, textColor));
+        info.setText(0.9, new Corner.TextPiece(t.mainName.split(" ")[0], 0.9, textColor), new Corner.TextPiece(day, 0.65, textColor));
         displayLessonViews(scheduleForTeacher(t));
     }
 

@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Classroom {
+
+    public static final int UNKNOWN_GRADE = 0;
+    public static final int NINTH_GRADE = 9;
+    public static final int TENTH_GRADE = 10;
+    public static final int ELEVENTH_GRADE = 11;
+    public static final int TWELVETH_GRADE = 12;
+
     private String name;
     private ArrayList<Subject> subjects;
 
@@ -24,89 +31,18 @@ public class Classroom {
         this.name = name;
     }
 
-    public void setSubjects(ArrayList<Subject> subjects) {
-        this.subjects = subjects;
-    }
-
-    public static class Subject {
-        private int hour;
-        private String name, fullName;
-        private boolean isTest=false;
-        private ArrayList<String> teachers;
-
-        public Subject(int hour, String fullName) {
-            this.hour = hour;
-            this.fullName = fullName;
-            this.name = fullName.split("\\r?\\n")[0];
-            this.teachers= new ArrayList<>(Arrays.asList(fullName.substring(fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
-
-        }
-
-        public void setTest(boolean isTest){
-            this.isTest=isTest;
-        }
-
-        public boolean isTest(){
-            return isTest;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public int getHour() {
-            return hour;
-        }
-
-        public void setHour(int hour) {
-            this.hour = hour;
-        }
-
-        public String getFullName() {
-            return fullName;
-        }
-
-        public void setFullName(String fullName) {
-            this.fullName = fullName;
-            this.name = fullName.split("\\r?\\n")[0];
-            this.teachers= new ArrayList<>(Arrays.asList(fullName.substring(fullName.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
-        }
-
-        public ArrayList<String> getTeachers() {
-            return teachers;
-        }
-
-        public void setTeachers(ArrayList<String> teachers) {
-            this.teachers = teachers;
-        }
-
-
-        public static class Time{
-            private int startH, finishH, startM, finishM;
-
-            public Time(int sh, int fh, int sm, int fm) {
-                startH = sh;
-                startM = sm;
-                finishH = fh;
-                finishM = fm;
+    public int getGrade(){
+        if(name.startsWith("ט")){
+            return NINTH_GRADE;
+        }else if(name.startsWith("י")){
+            if(name.contains("א")){
+                return ELEVENTH_GRADE;
+            }else if(name.contains("ב")){
+                return TWELVETH_GRADE;
             }
-
-            public int getFinishHour() {
-                return finishH;
-            }
-            public int getFinishMinute() {
-                return finishM;
-            }
-            public int getStartHour() {
-                return startH;
-            }public int getStartMinute() {
-                return startM;
-            }
-
+            return TENTH_GRADE;
+        }else{
+            return UNKNOWN_GRADE;
         }
     }
 }

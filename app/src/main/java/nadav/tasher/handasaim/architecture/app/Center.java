@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -42,6 +43,22 @@ public class Center {
                 getColorB(c)
         });
     }
+
+    public static int getCombinedColor(Context c){
+        int colorA= Center.getColorA(c);
+        int colorB= Center.getColorB(c);
+        int redA = Color.red(colorA);
+        int greenA = Color.green(colorA);
+        int blueA = Color.blue(colorA);
+        int redB = Color.red(colorB);
+        int greenB = Color.green(colorB);
+        int blueB = Color.blue(colorB);
+        int alphaA = Color.alpha(colorA);
+        int alphaB = Color.alpha(colorB);
+        int combineRed = redA - (redA - redB) / 2, combineGreen = greenA - (greenA - greenB) / 2, combineBlue = blueA - (blueA - blueB) / 2;
+        return Color.rgb(combineRed, combineGreen, combineBlue);
+    }
+
 
     public static Typeface getTypeface(Context c) {
         return Typeface.createFromAsset(c.getAssets(), Values.fontName);

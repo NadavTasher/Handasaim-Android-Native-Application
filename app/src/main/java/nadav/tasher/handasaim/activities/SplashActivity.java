@@ -26,7 +26,7 @@ import java.io.File;
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.KeyManager;
-import nadav.tasher.handasaim.tools.graphics.CurvedTextView;
+import nadav.tasher.handasaim.architecture.app.graphics.CurvedTextView;
 import nadav.tasher.handasaim.tools.online.FileDownloader;
 import nadav.tasher.handasaim.tools.specific.GetLink;
 import nadav.tasher.handasaim.values.Values;

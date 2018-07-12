@@ -3,27 +3,37 @@ package nadav.tasher.handasaim.architecture.appcore.components;
 import java.util.ArrayList;
 
 public class Teacher {
-    public ArrayList<Lesson> teaching;
-    public ArrayList<String> subjects;
-    public String mainName;
+    private ArrayList<Subject> subjects=new ArrayList<>();
+    private ArrayList<String> names=new ArrayList<>();
 
-    public boolean teaches(String l) {
-        for (int tc = 0; tc < subjects.size(); tc++) {
-            if (subjects.get(tc).equals(l) || subjects.get(tc).contains(l) || l.contains(subjects.get(tc))) {
-                return true;
-            }
-        }
-        return false;
+    public Teacher(){}
+
+    public void addSubject(Subject subject){
+        subjects.add(subject);
     }
-    public static class Lesson {
-        public String className, lessonName;
-        public int hour;
 
-        public Lesson(String className, String lessonName, int hour) {
-            this.hour = hour;
-            this.className = className;
-            this.lessonName = lessonName;
-            this.lessonName = this.lessonName.replaceAll(",", "/");
+    public ArrayList<Subject> getSubjects() {
+        return subjects;
+    }
+
+    public void addName(String name){
+        names.add(name);
+    }
+
+    public ArrayList<String> getNames() {
+        return names;
+    }
+
+    public String getName(){
+        if(names.size()>0) {
+            int indexOfLongest = 0;
+            for (int name = 0; name < names.size(); name++) {
+                if (names.get(name).length() > names.get(indexOfLongest).length()) {
+                    indexOfLongest = name;
+                }
+            }
+            return names.get(indexOfLongest);
         }
+        return "Unknown Name";
     }
 }

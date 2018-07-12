@@ -1,44 +1,194 @@
 package nadav.tasher.handasaim.architecture.appcore.components;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class Schedule {
-    public static final int TYPE_REGULAR=0;
-    public static final int TYPE_PREDICTED=1;
+
+    public static final int TYPE_REGULAR = 0;
+    public static final int TYPE_PREDICTED = 1;
+
     private ArrayList<Classroom> classrooms;
     private ArrayList<Teacher> teachers;
     private ArrayList<String> messages;
-    private int type=TYPE_REGULAR;
+    private String name, day, date, origin, signature;
+    private int type;
 
-    public Schedule(int type){
-        this.type=type;
+    private Schedule() {
     }
 
-    public void setTeachers(ArrayList<Teacher> teachers) {
-        this.teachers = teachers;
+    public String getSignature() {
+        return signature;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getDay(){
+        return day;
+    }
+
+    public String getOrigin() {
+        return origin;
     }
 
     public ArrayList<Teacher> getTeachers() {
         return teachers;
     }
 
-    public void setClassrooms(ArrayList<Classroom> classrooms) {
-        this.classrooms = classrooms;
-    }
-
     public ArrayList<Classroom> getClassrooms() {
         return classrooms;
-    }
-
-    public void setMessages(ArrayList<String> messages) {
-        this.messages = messages;
     }
 
     public ArrayList<String> getMessages() {
         return messages;
     }
 
-    public int getType() {
-        return type;
+    public static class Builder {
+        // Schedule Assembler
+
+        private static final int COMPARE_CORRECT = 0;
+        private static final int COMPARE_ADD_NAME = 1;
+        private static final int COMPARE_ADD_SUBJECT = 2;
+        private static final int COMPARE_INCORRECT = 3;
+
+        private ArrayList<Classroom> classrooms = new ArrayList<>();
+        private ArrayList<Teacher> teachers = new ArrayList<>();
+        private ArrayList<String> messages = new ArrayList<>();
+        private String name = "Generic Schedule", date = "Unknown Date", origin = "Unknown Origin", signature = "Unsigned" ,day ="?";
+
+        private int type = TYPE_REGULAR;
+
+        public Builder(int type) {
+            this.type = type;
+        }
+
+        public void addMessage(String message) {
+            messages.add(message);
+        }
+
+        public void addClassroom(Classroom classroom) {
+            classrooms.add(classroom);
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setDate(String date) {
+            this.date = date;
+        }
+
+        public void setOrigin(String origin) {
+            this.origin = origin;
+        }
+
+        public void setDay(String day) {
+            this.day = day;
+        }
+
+        public Schedule build() {
+            assemble();
+            return generate();
+        }
+
+        private void assemble() {
+            assembleTeachers();
+            assembleSignature();
+        }
+
+        private void assembleTeachers() {
+            for (Classroom currentClassroom : classrooms) {
+                for (Subject currentSubject : currentClassroom.getSubjects()) {
+                    for (String currentTeacher : currentSubject.getTeacherNames()) {
+                        if (!currentSubject.getDescription().isEmpty() && !currentSubject.getName().isEmpty() && !currentTeacher.isEmpty()) {
+                            // Look For The Same Teacher In The Existing List
+                            boolean foundTeacher = false;
+                            for (Teacher scanTeacher : teachers) {
+                                if (foundTeacher) break;
+                                switch (compareTeachers(scanTeacher, currentTeacher, currentSubject)) {
+                                    case COMPARE_INCORRECT:
+                                        break;
+                                    case COMPARE_ADD_NAME:
+                                        scanTeacher.addName(currentTeacher);
+                                    case COMPARE_CORRECT:
+                                        scanTeacher.addSubject(currentSubject);
+                                        foundTeacher = true;
+                                        break;
+                                }
+                            }
+                            if (!foundTeacher) {
+                                // Fallback For Scan, Add A New Teacher To The List.
+                                Teacher newTeacher = new Teacher();
+                                newTeacher.addName(currentTeacher);
+                                newTeacher.addSubject(currentSubject);
+                                teachers.add(newTeacher);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private int compareTeachers(Teacher scanTeacher, String teacherName, Subject subject) {
+            boolean subjectFound = false;
+            for (Subject scanSubject : scanTeacher.getSubjects()) {
+                if (scanSubject.getName().equals(subject.getName())) {
+                    subjectFound = true;
+                }
+            }
+            if (scanTeacher.getName().equals(teacherName)) {
+                if (teacherName.length() > 2) {
+                    return COMPARE_CORRECT;
+                } else {
+                    if (subjectFound)
+                        return COMPARE_CORRECT;
+                }
+            } else {
+                if ((scanTeacher.getName().length() > teacherName.length() && scanTeacher.getName().contains(teacherName))) {
+                    if (!scanTeacher.getNames().contains(teacherName))
+                        return COMPARE_ADD_NAME;
+                    else
+                        return COMPARE_CORRECT;
+                } else if ((scanTeacher.getName().length() < teacherName.length() && teacherName.contains(scanTeacher.getName()))) {
+                    if (subjectFound)
+                        return COMPARE_CORRECT;
+                }
+            }
+            return COMPARE_INCORRECT;
+        }
+
+        private void assembleSignature() {
+            StringBuilder signatureBuilder = new StringBuilder();
+            signatureBuilder.append("Signed By Schedule.Builder At ");
+            Calendar calendar = Calendar.getInstance();
+            signatureBuilder.append(calendar.get(Calendar.HOUR_OF_DAY));
+            signatureBuilder.append(":");
+            signatureBuilder.append(calendar.get(Calendar.MINUTE));
+            signature = signatureBuilder.toString();
+        }
+
+        private Schedule generate() {
+            Schedule schedule = new Schedule();
+            schedule.type = type;
+            schedule.messages = messages;
+            schedule.name = name;
+            schedule.day = day;
+            schedule.date = date;
+            schedule.origin = origin;
+            schedule.signature = signature;
+            schedule.classrooms = classrooms;
+            schedule.teachers = teachers;
+            return schedule;
+        }
     }
 }
