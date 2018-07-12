@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -22,6 +23,8 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -83,7 +86,7 @@ public class HomeActivity extends Activity {
     private ArrayList<String> messages;
     private boolean breakTime = true;
     private boolean showMessages = true;
-
+    private HorizontalScrollView menuDrawer;
     private SharedPreferences sp;
     private KeyManager keyManager;
 
@@ -102,6 +105,8 @@ public class HomeActivity extends Activity {
     private void initVars() {
         sp = getSharedPreferences(Values.prefName, MODE_PRIVATE);
         keyManager = new KeyManager(getApplicationContext());
+        breakTime = sp.getBoolean(Values.breakTime, Values.breakTimeDefault);
+        showMessages = sp.getBoolean(Values.messages, Values.messagesDefault);
     }
 
     private void loadTheme() {
@@ -114,7 +119,7 @@ public class HomeActivity extends Activity {
     private void refreshTheme() {
         loadTheme();
         mAppView.setBackgroundColor(new AppView.Gradient(colorA, colorB));
-        getWindow().setNavigationBarColor(colorA);
+        getWindow().setNavigationBarColor(getNavBarColor(colorB,colorA));
 //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN);
         TowerHub.colorAChangeTunnle.tell(colorA);
         TowerHub.colorBChangeTunnle.tell(colorB);
@@ -168,17 +173,28 @@ public class HomeActivity extends Activity {
         ab.show();
     }
 
+    public int getNavBarColor(int colorA, int colorB) {
+        int redA = Color.red(colorA);
+        int greenA = Color.green(colorA);
+        int blueA = Color.blue(colorA);
+        int redB = Color.red(colorB);
+        int greenB = Color.green(colorB);
+        int blueB = Color.blue(colorB);
+        int alphaA = Color.alpha(colorA);
+        int alphaB = Color.alpha(colorB);
+        int combineRed = redA - (redA - redB) / 2, combineGreen = greenA - (greenA - greenB) / 2, combineBlue = blueA - (blueA - blueB) / 2;
+        int combineAlpha = alphaA - (alphaA - alphaB) / 2;
+        return Color.rgb(combineRed, combineGreen, combineBlue);
+    }
+
     private void initStageB() {
-        loadTheme();
-        final int x = Device.screenX(getApplicationContext());
-        final int squircleSize =(x / 5);
-        breakTime = sp.getBoolean(Values.breakTime, Values.breakTimeDefault);
-        showMessages = sp.getBoolean(Values.messages, Values.messagesDefault);
+        mAppView = new AppView(getApplicationContext(), Values.navColor);
+        mAppView.setColorChangeNavigation(false);
+        mAppView.setWindow(getWindow());
         cornerView=new CornerView(getApplicationContext());
-        icon = new Corner(getApplicationContext(), squircleSize, colorA);
-        info = new Corner(getApplicationContext(), squircleSize, colorA);
-        icon.setColorAlpha(200);
-        info.setColorAlpha(200);
+        mAppView.setNavigationView(cornerView);
+
+        icon = new Corner(getApplicationContext(), Device.screenX(getApplicationContext())/5, Color.TRANSPARENT);
         icon.setDrawable(getDrawable(R.drawable.ic_icon), 0.85);
         icon.addOnState(new Corner.OnState() {
             @Override
@@ -194,25 +210,137 @@ public class HomeActivity extends Activity {
                 aboutPopup();
             }
         });
-        TowerHub.textColorChangeTunnle.addPeer(icon.getTextColorPeer());
-        TowerHub.textColorChangeTunnle.addPeer(info.getTextColorPeer());
-        TowerHub.fontSizeChangeTunnle.addPeer(icon.getTextSizePeer());
-        TowerHub.fontSizeChangeTunnle.addPeer(info.getTextSizePeer());
-        mAppView = new AppView(getApplicationContext(), Values.navColor);
-        mAppView.setColorChangeNavigation(false);
-        mAppView.setWindow(getWindow());
-        mAppView.setNavigationView(cornerView);
+        info = new Corner(getApplicationContext(), Device.screenX(getApplicationContext())/5, Color.TRANSPARENT);
+//        mAppView.getDrawer().setContent(generateImageView(R.drawable.ic_gear,500));
+//        mAppView.getDrawer().open(true,0.8);
+        assembleDrawers();
+
+        info.addOnState(new Corner.OnState() {
+            @Override
+            public void onOpen() {
+                mAppView.getDrawer().emptyContent();
+                if(menuDrawer!=null) {
+                    mAppView.getDrawer().setContent(menuDrawer);
+//                    mAppView.getDrawer().open(false, menuDrawer.getLayoutParams().height / Device.screenY(getApplicationContext()));
+                mAppView.getDrawer().open(false,0.5);
+                }
+            }
+
+            @Override
+            public void onClose() {
+                mAppView.getDrawer().close(false);
+            }
+
+            @Override
+            public void onBoth(boolean b) {
+            }
+        });
+
         cornerView.setBottomLeft(icon);
         cornerView.setBottomRight(info);
-        TowerHub.colorAChangeTunnle.addPeer(icon.getColorPeer());
-        TowerHub.colorAChangeTunnle.addPeer(info.getColorPeer());
+
+        final AppView.Scrolly s=mAppView.getScrolly();
+        final View view=s.getChildAt(s.getChildCount()-1);
+        s.setOnScroll(new AppView.Scrolly.OnScroll() {
+            @Override
+            public void onScroll(int i, int i1, int i2, int i3) {
+                setCornerColors(s,view);
+            }
+        });
+
         scheduleLayout = new LinearLayout(getApplicationContext());
         scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         scheduleLayout.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.setPadding(10, 10, 10, 10);
+
         messageBar = new MessageBar(this, messages, mAppView.getDrawer());
         messageBar.start();
         scheduleLayout.addView(messageBar);
+
+        lessonViewHolder = new LinearLayout(getApplicationContext());
+        lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
+        lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
+
+        scheduleLayout.addView(lessonViewHolder);
+
+        mAppView.setContent(scheduleLayout);
+        setContentView(mAppView);
+
+        Classroom c = getFavoriteClass();
+        if (classes != null) if (c != null) setStudentMode(c);
+        refreshTheme();
+        towerStart();
+    }
+
+    private void assembleDrawers(){
+        menuDrawer=new HorizontalScrollView(getApplicationContext());
+        LinearLayout menu=new LinearLayout(getApplicationContext());
+        menu.setOrientation(LinearLayout.HORIZONTAL);
+        menu.setGravity(Gravity.CENTER);
+        final int size=Device.screenY(getApplicationContext())/13;
+        ImageView share,classroom,news,predict,refresh,settings;
+        share=generateImageView(R.drawable.ic_share,size);
+        classroom=generateImageView(R.drawable.ic_class,size);
+        news=generateImageView(R.drawable.ic_news,size);
+        predict=generateImageView(R.drawable.ic_notification,size);
+        refresh=generateImageView(R.drawable.ic_reload,size);
+        settings=generateImageView(R.drawable.ic_gear,size);
+        menu.addView(share);
+        menu.addView(classroom);
+        menu.addView(news);
+        menu.addView(predict);
+        menu.addView(refresh);
+        menu.addView(settings);
+        menu.setPadding(10,10,10,10);
+        menu.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,size+menu.getPaddingBottom()+menu.getPaddingTop()));
+        //menuDrawer.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getApplicationContext()),size+menu.getPaddingBottom()+menu.getPaddingTop()));
+        menuDrawer.addView(menu);
+
+    }
+
+    private ImageView generateImageView(int drawable,int size){
+        ImageView iv=new ImageView(getApplicationContext());
+        iv.setImageDrawable(getDrawable(drawable));
+        iv.setLayoutParams(new LinearLayout.LayoutParams(size,size));
+        return iv;
+    }
+
+    private void setCornerColors(AppView.Scrolly s, View v){
+        if(v.getBottom()-(s.getHeight()+s.getScrollY())==0){
+            icon.setColorAlpha(128);
+            info.setColorAlpha(128);
+            icon.setColor(colorA);
+            info.setColor(colorA);
+        }else{
+            info.setColorAlpha(255);
+            icon.setColorAlpha(255);
+            icon.setColor(getNavBarColor(colorB,colorA));
+            info.setColor(getNavBarColor(colorB,colorA));
+        }
+    }
+
+    private void towerStart() {
+        final AppView.Scrolly s=mAppView.getScrolly();
+        s.scrollTo(0,0);
+        final View view=s.getChildAt(s.getChildCount()-1);
+        TowerHub.colorAChangeTunnle.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
+            @Override
+            public boolean onPeer(Integer integer) {
+                setCornerColors(s,view);
+                return false;
+            }
+        }));
+        TowerHub.colorBChangeTunnle.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
+            @Override
+            public boolean onPeer(Integer integer) {
+                setCornerColors(s,view);
+                return false;
+            }
+        }));
+        TowerHub.textColorChangeTunnle.addPeer(icon.getTextColorPeer());
+        TowerHub.textColorChangeTunnle.addPeer(info.getTextColorPeer());
+        TowerHub.fontSizeChangeTunnle.addPeer(icon.getTextSizePeer());
+        TowerHub.fontSizeChangeTunnle.addPeer(info.getTextSizePeer());
         TowerHub.showMessagesPeer.setOnPeer(new Peer.OnPeer<Boolean>() {
             @Override
             public boolean onPeer(Boolean aBoolean) {
@@ -225,19 +353,6 @@ public class HomeActivity extends Activity {
             }
         });
         TowerHub.showMessagesPeer.tell(showMessages);
-        lessonViewHolder = new LinearLayout(getApplicationContext());
-        lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
-        lessonViewHolder.setOrientation(LinearLayout.VERTICAL);
-        scheduleLayout.addView(lessonViewHolder);
-        mAppView.setContent(scheduleLayout);
-        Classroom c = getFavoriteClass();
-        if (classes != null) if (c != null) setStudentMode(c);
-        setContentView(mAppView);
-        refreshTheme();
-        towerStart();
-    }
-
-    private void towerStart() {
         TowerHub.fontSizeChangeTunnle.tell(getFontSize());
         TowerHub.textColorChangeTunnle.tell(textColor);
     }
