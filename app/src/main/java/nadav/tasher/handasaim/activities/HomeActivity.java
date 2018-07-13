@@ -53,22 +53,15 @@ import nadav.tasher.lightool.graphics.views.appview.navigation.corner.Corner;
 import nadav.tasher.lightool.graphics.views.appview.navigation.corner.CornerView;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
-
-import static nadav.tasher.handasaim.architecture.appcore.AppCore.getBreak;
-import static nadav.tasher.handasaim.architecture.appcore.AppCore.getClasses;
-import static nadav.tasher.handasaim.architecture.appcore.AppCore.getDay;
-import static nadav.tasher.handasaim.architecture.appcore.AppCore.getGrade;
-import static nadav.tasher.handasaim.architecture.appcore.AppCore.getMessages;
-import static nadav.tasher.handasaim.architecture.appcore.AppCore.getRealEndTimeForHourNumber;
-import static nadav.tasher.handasaim.architecture.appcore.AppCore.getRealTimeForHourNumber;
-import static nadav.tasher.handasaim.architecture.appcore.AppCore.getSheet;
-import static nadav.tasher.handasaim.architecture.appcore.AppCore.getTeacherSchudleForClasses;
-import static nadav.tasher.handasaim.architecture.appcore.AppCore.getTimeForLesson;
-import static nadav.tasher.handasaim.architecture.appcore.AppCore.minuteOfDay;
+import nadav.tasher.lightool.parts.Tower;
 
 public class HomeActivity extends Activity {
-    private int textColor = Values.fontColorDefault, colorA = Values.defaultColorA, colorB = Values.defaultColorB, combinedColor = generateCombinedColor();
-    private String day;
+    private int combinedColor = generateCombinedColor();
+    private Tower<Boolean> showBreaks=new Tower<>();
+    private Tower<Boolean> showMessages=new Tower<>();
+    private Tower<AppView.Gradient> color=new Tower<>();
+    private Tower<Integer> textSize=new Tower<>();
+    private Tower<Integer> textColor=new Tower<>();
     private Classroom currentClass;
     private Teacher currentTeacher;
     private Corner icon, info;
@@ -77,11 +70,6 @@ public class HomeActivity extends Activity {
     private LinearLayout scheduleLayout, lessonViewHolder;
     private AppView mAppView;
     private Schedule schedule;
-    private ArrayList<Classroom> classes;
-    private ArrayList<Teacher> teachers;
-    private ArrayList<String> messages;
-    private boolean breakTime = true;
-    private boolean showMessages = true;
     private HorizontalScrollView menuDrawer;
     private SharedPreferences sp;
     private KeyManager keyManager;
@@ -101,27 +89,17 @@ public class HomeActivity extends Activity {
     private void initVars() {
         sp = getSharedPreferences(Values.prefName, MODE_PRIVATE);
         keyManager = new KeyManager(getApplicationContext());
-        breakTime = sp.getBoolean(Values.breakTime, Values.breakTimeDefault);
-        showMessages = sp.getBoolean(Values.messages, Values.messagesDefault);
-    }
-
-    private void loadTheme() {
-        textColor = sp.getInt(Values.fontColor, Values.fontColorDefault);
-        colorA = sp.getInt(Values.colorA, colorA);
-        colorB = sp.getInt(Values.colorB, colorB);
     }
 
     private void refreshTheme() {
-        textColor = sp.getInt(Values.fontColor, Values.fontColorDefault);
-        colorA = sp.getInt(Values.colorA, colorA);
-        colorB = sp.getInt(Values.colorB, colorB);
+        textColor.tell(sp.getInt(Values.fontColor, Values.fontColorDefault));
+        textSize.tell(sp.getInt(Values.fontSizeNumber, Values.fontSizeDefault));
+        showMessages.tell(sp.getBoolean(Values.messages, Values.messagesDefault));
+        showBreaks.tell(sp.getBoolean(Values.breakTime, Values.breakTimeDefault));
+        color.tell(new AppView.Gradient(sp.getInt(Values.colorA, Values.defaultColorA),sp.getInt(Values.colorB, Values.defaultColorB)));
         combinedColor = generateCombinedColor();
-        if (mAppView != null) mAppView.setBackgroundColor(new AppView.Gradient(colorA, colorB));
+        if (mAppView != null) mAppView.setBackgroundColor(color.getLast());
         getWindow().setNavigationBarColor(combinedColor);
-        TowerHub.colorAChangeTunnle.tell(colorA);
-        TowerHub.colorBChangeTunnle.tell(colorB);
-        TowerHub.fontSizeChangeTunnle.tell(getFontSize());
-        TowerHub.textColorChangeTunnle.tell(textColor);
     }
 
     public void go() {
@@ -175,14 +153,14 @@ public class HomeActivity extends Activity {
     }
 
     private int generateCombinedColor() {
-        int redA = Color.red(colorA);
-        int greenA = Color.green(colorA);
-        int blueA = Color.blue(colorA);
-        int redB = Color.red(colorB);
-        int greenB = Color.green(colorB);
-        int blueB = Color.blue(colorB);
-        int alphaA = Color.alpha(colorA);
-        int alphaB = Color.alpha(colorB);
+        int redA = Color.red(color.getLast().getColorTop());
+        int greenA = Color.green(color.getLast().getColorTop());
+        int blueA = Color.blue(color.getLast().getColorTop());
+        int redB = Color.red(color.getLast().getColorTop());
+        int greenB = Color.green(color.getLast().getColorTop());
+        int blueB = Color.blue(color.getLast().getColorTop());
+        int alphaA = Color.alpha(color.getLast().getColorTop());
+        int alphaB = Color.alpha(color.getLast().getColorTop());
         int combineRed = redA - (redA - redB) / 2, combineGreen = greenA - (greenA - greenB) / 2, combineBlue = blueA - (blueA - blueB) / 2;
         return Color.rgb(combineRed, combineGreen, combineBlue);
     }
@@ -259,12 +237,12 @@ public class HomeActivity extends Activity {
         scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         scheduleLayout.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.setPadding(10, 10, 10, 10);
-        messageBar = new MessageBar(this, messages, mAppView.getDrawer());
+        messageBar = new MessageBar(this, schedule.getMessages(), mAppView.getDrawer());
         messageBar.start();
         TowerHub.showMessagesPeer.setOnPeer(new Peer.OnPeer<Boolean>() {
             @Override
             public boolean onPeer(Boolean aBoolean) {
-                if (aBoolean && messages.size() != 0) {
+                if (aBoolean && schedule.getMessages().size() != 0) {
                     messageBar.setVisibility(View.VISIBLE);
                 } else {
                     messageBar.setVisibility(View.GONE);
@@ -280,8 +258,7 @@ public class HomeActivity extends Activity {
         scheduleLayout.addView(lessonViewHolder);
         mAppView.setContent(scheduleLayout);
         setContentView(mAppView);
-        Classroom c = getFavoriteClass();
-        if (classes != null) if (c != null) setStudentMode(c);
+        if (getFavoriteClass() != null) setStudentMode(getFavoriteClass());
         assembleDrawers();
         refreshTheme();
     }
@@ -347,36 +324,36 @@ public class HomeActivity extends Activity {
     private Classroom getFavoriteClass() {
         int selectedClass = 0;
         if (sp.getString(Values.favoriteClass, null) != null) {
-            if (classes != null) {
-                for (int fc = 0; fc < classes.size(); fc++) {
-                    if (sp.getString(Values.favoriteClass, "").equals(classes.get(fc).getName())) {
-                        return classes.get(fc);
+            if (!schedule.getClassrooms().isEmpty()) {
+                for (int fc = 0; fc < schedule.getClassrooms().size(); fc++) {
+                    if (sp.getString(Values.favoriteClass, "").equals(schedule.getClassrooms().get(fc).getName())) {
+                        return schedule.getClassrooms().get(fc);
                     }
                 }
-                return classes.get(selectedClass);
+                return schedule.getClassrooms().get(selectedClass);
             } else {
                 return null;
             }
         } else {
-            return classes.get(selectedClass);
+            return schedule.getClassrooms().get(selectedClass);
         }
     }
 
     private Teacher getFavoriteTeacher() {
         int selectedTeacher = 0;
         if (sp.getString(Values.favoriteTeacher, null) != null) {
-            if (teachers != null) {
-                for (int fc = 0; fc < teachers.size(); fc++) {
-                    if (sp.getString(Values.favoriteTeacher, "").equals(teachers.get(fc).mainName)) {
-                        return teachers.get(fc);
+            if (!schedule.getTeachers().isEmpty()) {
+                for (int fc = 0; fc < schedule.getTeachers().size(); fc++) {
+                    if (sp.getString(Values.favoriteTeacher, "").equals(schedule.getTeachers().get(fc).getName())) {
+                        return schedule.getTeachers().get(fc);
                     }
                 }
-                return teachers.get(selectedTeacher);
+                return schedule.getTeachers().get(selectedTeacher);
             } else {
                 return null;
             }
         } else {
-            return teachers.get(selectedTeacher);
+            return schedule.getTeachers().get(selectedTeacher);
         }
     }
     //    private ArrayList<Squircle> getSquircles(int size) {
@@ -590,7 +567,7 @@ public class HomeActivity extends Activity {
         shareMessageSwitch.setTextSize(getFontSize() - 4);
         shareMessageSwitch.setTextColor(textColor);
         shareMessageSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        shareMessageSwitch.setEnabled(!messages.isEmpty());
+        shareMessageSwitch.setEnabled(!schedule.getMessages().isEmpty());
         Button shareB = new Button(getApplicationContext());
         String shareText = getApplicationContext().getString(R.string.share) + " " + currentClass.getName();
         shareB.setText(shareText);
@@ -602,11 +579,11 @@ public class HomeActivity extends Activity {
         shareB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String message = "";
+                StringBuilder message = new StringBuilder();
                 if (shareMessageSwitch.isChecked()) {
-                    message = "Messages:\n";
-                    for (int i = 0; i < messages.size(); i++) {
-                        message += (i + 1) + ". " + messages.get(i) + "\n";
+                    message = new StringBuilder("Messages:\n");
+                    for (int i = 0; i < schedule.getMessages().size(); i++) {
+                        message.append(i + 1).append(". ").append(schedule.getMessages().get(i)).append("\n");
                     }
                 }
                 share(currentClass.getName() + " (" + day + ")" + "\n" + scheduleForClassString(currentClass, shareTimeSwitch.isChecked()) + message);
@@ -872,12 +849,12 @@ public class HomeActivity extends Activity {
             all.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
         ArrayList<LinearLayout> groups = new ArrayList<>();
-        for (int cs = 0; cs < classes.size(); cs++) {
-            int grade = AppCore.getGrade(classes.get(cs));
+        for (int cs = 0; cs < schedule.getClassrooms().size(); cs++) {
+            int grade = schedule.getClassrooms().get(cs).getGrade();
             Button cls = new Button(getApplicationContext());
             cls.setTextSize((float) getFontSize());
             cls.setGravity(Gravity.CENTER);
-            cls.setText(classes.get(cs).getName());
+            cls.setText(schedule.getClassrooms().get(cs).getName());
             cls.setTextColor(textColor);
             cls.setBackground(generateCoaster(combinedColor));
             cls.setPadding(10, 0, 10, 0);
@@ -887,8 +864,8 @@ public class HomeActivity extends Activity {
             cls.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    sp.edit().putString(Values.favoriteClass, classes.get(finalCs).getName()).apply();
-                    setStudentMode(classes.get(finalCs));
+                    sp.edit().putString(Values.favoriteClass, schedule.getClassrooms().get(finalCs).getName()).apply();
+                    setStudentMode(schedule.getClassrooms().get(finalCs));
                 }
             });
             if (groups.size() > grade && groups.get(grade) != null) {
@@ -907,11 +884,11 @@ public class HomeActivity extends Activity {
         all.addView(students);
         if (keyManager.isKeyLoaded(KeyManager.TYPE_TEACHER_MODE)) {
             all.addView(teachersTitle);
-            for (int cs = 0; cs < teachers.size(); cs++) {
+            for (int cs = 0; cs < schedule.getTeachers().size(); cs++) {
                 Button cls = new Button(getApplicationContext());
                 cls.setTextSize((float) getFontSize());
                 cls.setGravity(Gravity.CENTER);
-                cls.setText(teachers.get(cs).mainName);
+                cls.setText(schedule.getTeachers().get(cs).getName());
                 cls.setTextColor(textColor);
                 cls.setBackground(generateCoaster(combinedColor));
                 cls.setPadding(10, 0, 10, 0);
@@ -922,8 +899,8 @@ public class HomeActivity extends Activity {
                 cls.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        sp.edit().putString(Values.favoriteTeacher, teachers.get(finalCs).mainName).apply();
-                        setTeacherMode(teachers.get(finalCs));
+                        sp.edit().putString(Values.favoriteTeacher, schedule.getTeachers().get(finalCs).getName()).apply();
+                        setTeacherMode(schedule.getTeachers().get(finalCs));
                     }
                 });
             }

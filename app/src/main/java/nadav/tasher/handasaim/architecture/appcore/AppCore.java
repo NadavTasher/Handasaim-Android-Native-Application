@@ -222,7 +222,7 @@ public class AppCore {
         return readCell(s.getRow(0).getCell(0));
     }
 
-    public static String getGrade(ArrayList<Classroom> classrooms) {
+    public static String getGrades(ArrayList<Classroom> classrooms) {
         int previeusGrade = Classroom.UNKNOWN_GRADE;
         for (Classroom currentClassroom : classrooms) {
             if (currentClassroom.getGrade() == previeusGrade || previeusGrade == Classroom.UNKNOWN_GRADE) {
