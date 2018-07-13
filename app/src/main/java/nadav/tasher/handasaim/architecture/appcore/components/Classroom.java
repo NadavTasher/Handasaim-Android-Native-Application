@@ -12,11 +12,14 @@ public class Classroom {
     public static final int TWELVETH_GRADE = 12;
 
     private String name;
-    private ArrayList<Subject> subjects;
+    private ArrayList<Subject> subjects=new ArrayList<>();
 
-    public Classroom(String name, ArrayList<Subject> subjects) {
-        this.name = name.split(" ")[0];
-        this.subjects = subjects;
+    public Classroom(String name) {
+        this.name = name;
+    }
+
+    public void addSubject(Subject subject){
+        subjects.add(subject);
     }
 
     public String getName() {

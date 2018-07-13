@@ -177,6 +177,17 @@ public class Schedule {
             signature = signatureBuilder.toString();
         }
 
+        public static Builder fromSchedule(Schedule schedule){
+            Builder builder=new Builder(schedule.type);
+            builder.classrooms=schedule.classrooms;
+            builder.messages=schedule.messages;
+            builder.day=schedule.day;
+            builder.date=schedule.date;
+            builder.name=schedule.name;
+            builder.origin=schedule.origin;
+            return builder;
+        }
+
         private Schedule generate() {
             Schedule schedule = new Schedule();
             schedule.type = type;
