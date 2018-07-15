@@ -8,9 +8,9 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.InsetDrawable;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.activities.SplashActivity;
 import nadav.tasher.handasaim.values.Values;
 
 import static nadav.tasher.handasaim.values.Values.fontColor;
@@ -59,6 +59,13 @@ public class Center {
         return Color.rgb(combineRed, combineGreen, combineBlue);
     }
 
+    public static Drawable getCoaster(int color, int radii){
+        GradientDrawable coaster=new GradientDrawable();
+        coaster.setColor(color);
+        coaster.setCornerRadius(radii);
+        InsetDrawable coasterP=new InsetDrawable(coaster,10,10,10,10);
+        return coasterP;
+    }
 
     public static Typeface getTypeface(Context c) {
         return Typeface.createFromAsset(c.getAssets(), Values.fontName);

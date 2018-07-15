@@ -7,7 +7,8 @@ public class Subject {
     private int schoolHour,beginingMinute,endingMinute;
     private String description, subjectName;
     private boolean isTest=false;
-    private ArrayList<String> teacherNames;
+    private ArrayList<String> teacherStrings=new ArrayList<>();
+    private ArrayList<Teacher> teachers=new ArrayList<>();
     private Classroom classroom;
 
     public Subject(Classroom classroom,int schoolHour, String description) {
@@ -19,7 +20,8 @@ public class Subject {
 
     private void parseDescription(){
         this.subjectName = description.split("\\r?\\n")[0];
-        this.teacherNames= new ArrayList<>(Arrays.asList(description.substring(description.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
+        this.subjectName = this.subjectName.replaceAll(",","/");
+        this.teacherStrings= new ArrayList<>(Arrays.asList(description.substring(description.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
     }
 
     public void setTest(boolean isTest){
@@ -46,6 +48,22 @@ public class Subject {
         this.schoolHour = hour;
     }
 
+    public void addTeacher(Teacher teacher){
+        teachers.add(teacher);
+    }
+
+    public ArrayList<Teacher> getTeachers() {
+        return teachers;
+    }
+
+    public ArrayList<String> getTeacherNames(){
+        ArrayList<String> names=new ArrayList<>();
+        for(Teacher teacher : teachers){
+            names.add(teacher.getName());
+        }
+        return names;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -54,8 +72,8 @@ public class Subject {
         return classroom;
     }
 
-    public ArrayList<String> getTeacherNames() {
-        return teacherNames;
+    public ArrayList<String> getTeacherStrings() {
+        return teacherStrings;
     }
 
     public int getBeginingMinute() {

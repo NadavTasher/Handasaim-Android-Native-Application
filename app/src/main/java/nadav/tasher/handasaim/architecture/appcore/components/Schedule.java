@@ -107,8 +107,11 @@ public class Schedule {
         }
 
         private void assembleTeachers() {
-            for (Classroom currentClassroom : classrooms) {
-                for (Subject currentSubject : currentClassroom.getSubjects()) {
+            // Changed Back To Regular For To Add The Teachers To The Subjects
+            for (int a=0;a<classrooms.size();a++) {
+                Classroom currentClassroom=classrooms.get(a);
+                for (int b=0;b< currentClassroom.getSubjects().size();b++) {
+                    Subject currentSubject = currentClassroom.getSubjects().get(b);
                     for (String currentTeacher : currentSubject.getTeacherNames()) {
                         if (!currentSubject.getDescription().isEmpty() && !currentSubject.getName().isEmpty() && !currentTeacher.isEmpty()) {
                             // Look For The Same Teacher In The Existing List
@@ -122,6 +125,7 @@ public class Schedule {
                                         scanTeacher.addName(currentTeacher);
                                     case COMPARE_CORRECT:
                                         scanTeacher.addSubject(currentSubject);
+                                        currentSubject.addTeacher(scanTeacher);
                                         foundTeacher = true;
                                         break;
                                 }
@@ -131,6 +135,7 @@ public class Schedule {
                                 Teacher newTeacher = new Teacher();
                                 newTeacher.addName(currentTeacher);
                                 newTeacher.addSubject(currentSubject);
+                                currentSubject.addTeacher(newTeacher);
                                 teachers.add(newTeacher);
                             }
                         }

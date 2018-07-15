@@ -15,11 +15,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import nadav.tasher.handasaim.architecture.app.Center;
-import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.graphics.views.appview.navigation.drawer.Drawer;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
+import nadav.tasher.lightool.parts.Tower;
 
 public class MessageBar extends LinearLayout {
 
@@ -30,6 +30,7 @@ public class MessageBar extends LinearLayout {
     private Drawer dn;
     private Thread animate;
     private Activity a;
+    private Tower<Integer> textColor=new Tower<>();
 
     public MessageBar(Activity context, ArrayList<String> messages, Drawer drag) {
         super(context.getApplicationContext());
@@ -38,6 +39,16 @@ public class MessageBar extends LinearLayout {
         this.messageViews = new ArrayList<>();
         this.dn = drag;
         init();
+    }
+
+    public Peer<Integer> getTextColorPeer(){
+        return new Peer<>(new Peer.OnPeer<Integer>() {
+            @Override
+            public boolean onPeer(Integer integer) {
+                textColor.tell(integer);
+                return false;
+            }
+        });
     }
 
     private void init() {
@@ -186,13 +197,14 @@ public class MessageBar extends LinearLayout {
         v.setSingleLine(singleLine);
         v.setEllipsize(TextUtils.TruncateAt.END);
         v.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        TowerHub.textColorChangeTunnle.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
+        this.textColor.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
             @Override
             public boolean onPeer(Integer integer) {
                 v.setTextColor(integer);
                 return true;
             }
         }));
+
         return v;
     }
 }

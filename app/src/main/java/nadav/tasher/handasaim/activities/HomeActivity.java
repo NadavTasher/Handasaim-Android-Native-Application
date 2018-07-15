@@ -29,11 +29,9 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import org.apache.poi.ss.usermodel.Sheet;
-
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Collections;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.KeyManager;
@@ -42,8 +40,8 @@ import nadav.tasher.handasaim.architecture.app.graphics.MessageBar;
 import nadav.tasher.handasaim.architecture.appcore.AppCore;
 import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
 import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
+import nadav.tasher.handasaim.architecture.appcore.components.Subject;
 import nadav.tasher.handasaim.architecture.appcore.components.Teacher;
-import nadav.tasher.handasaim.tools.TowerHub;
 import nadav.tasher.handasaim.tools.specific.GetNews;
 import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.handasaim.values.Values;
@@ -56,12 +54,12 @@ import nadav.tasher.lightool.parts.Peer;
 import nadav.tasher.lightool.parts.Tower;
 
 public class HomeActivity extends Activity {
+    private Tower<Boolean> showBreaks = new Tower<>();
+    private Tower<Boolean> showMessages = new Tower<>();
+    private Tower<AppView.Gradient> color = new Tower<>();
     private int combinedColor = generateCombinedColor();
-    private Tower<Boolean> showBreaks=new Tower<>();
-    private Tower<Boolean> showMessages=new Tower<>();
-    private Tower<AppView.Gradient> color=new Tower<>();
-    private Tower<Integer> textSize=new Tower<>();
-    private Tower<Integer> textColor=new Tower<>();
+    private Tower<Integer> textSize = new Tower<>();
+    private Tower<Integer> textColor = new Tower<>();
     private Classroom currentClass;
     private Teacher currentTeacher;
     private Corner icon, info;
@@ -96,7 +94,7 @@ public class HomeActivity extends Activity {
         textSize.tell(sp.getInt(Values.fontSizeNumber, Values.fontSizeDefault));
         showMessages.tell(sp.getBoolean(Values.messages, Values.messagesDefault));
         showBreaks.tell(sp.getBoolean(Values.breakTime, Values.breakTimeDefault));
-        color.tell(new AppView.Gradient(sp.getInt(Values.colorA, Values.defaultColorA),sp.getInt(Values.colorB, Values.defaultColorB)));
+        color.tell(new AppView.Gradient(sp.getInt(Values.colorA, Values.defaultColorA), sp.getInt(Values.colorB, Values.defaultColorB)));
         combinedColor = generateCombinedColor();
         if (mAppView != null) mAppView.setBackgroundColor(color.getLast());
         getWindow().setNavigationBarColor(combinedColor);
@@ -153,18 +151,16 @@ public class HomeActivity extends Activity {
     }
 
     private int generateCombinedColor() {
-        if(color.getLast()!=null) {
+        if (color.getLast() != null) {
             int redA = Color.red(color.getLast().getColorTop());
             int greenA = Color.green(color.getLast().getColorTop());
             int blueA = Color.blue(color.getLast().getColorTop());
             int redB = Color.red(color.getLast().getColorBottom());
             int greenB = Color.green(color.getLast().getColorBottom());
             int blueB = Color.blue(color.getLast().getColorBottom());
-            int alphaA = Color.alpha(color.getLast().getColorTop());
-            int alphaB = Color.alpha(color.getLast().getColorBottom());
             int combineRed = redA - (redA - redB) / 2, combineGreen = greenA - (greenA - greenB) / 2, combineBlue = blueA - (blueA - blueB) / 2;
             return Color.rgb(combineRed, combineGreen, combineBlue);
-        }else{
+        } else {
             return 0;
         }
     }
@@ -211,24 +207,24 @@ public class HomeActivity extends Activity {
             public void onBoth(boolean b) {
             }
         });
-        TowerHub.colorAChangeTunnle.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
+        color.addPeer(new Peer<AppView.Gradient>(new Peer.OnPeer<AppView.Gradient>() {
             @Override
-            public boolean onPeer(Integer integer) {
+            public boolean onPeer(AppView.Gradient integer) {
                 setCornerColors(mAppView.getScrolly());
                 return false;
             }
         }));
-        TowerHub.colorBChangeTunnle.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
+        color.addPeer(new Peer<AppView.Gradient>(new Peer.OnPeer<AppView.Gradient>() {
             @Override
-            public boolean onPeer(Integer integer) {
+            public boolean onPeer(AppView.Gradient integer) {
                 setCornerColors(mAppView.getScrolly());
                 return false;
             }
         }));
-        TowerHub.textColorChangeTunnle.addPeer(icon.getTextColorPeer());
-        TowerHub.textColorChangeTunnle.addPeer(info.getTextColorPeer());
-        TowerHub.fontSizeChangeTunnle.addPeer(icon.getTextSizePeer());
-        TowerHub.fontSizeChangeTunnle.addPeer(info.getTextSizePeer());
+        textColor.addPeer(icon.getTextColorPeer());
+        textColor.addPeer(info.getTextColorPeer());
+        textSize.addPeer(icon.getTextSizePeer());
+        textSize.addPeer(info.getTextSizePeer());
         cornerView.setBottomLeft(icon);
         cornerView.setBottomRight(info);
         mAppView.getScrolly().setOnScroll(new AppView.Scrolly.OnScroll() {
@@ -243,7 +239,7 @@ public class HomeActivity extends Activity {
         scheduleLayout.setPadding(10, 10, 10, 10);
         messageBar = new MessageBar(this, schedule.getMessages(), mAppView.getDrawer());
         messageBar.start();
-        TowerHub.showMessagesPeer.setOnPeer(new Peer.OnPeer<Boolean>() {
+        showMessages.addPeer(new Peer<Boolean>(new Peer.OnPeer<Boolean>() {
             @Override
             public boolean onPeer(Boolean aBoolean) {
                 if (aBoolean && schedule.getMessages().size() != 0) {
@@ -253,8 +249,7 @@ public class HomeActivity extends Activity {
                 }
                 return false;
             }
-        });
-        TowerHub.showMessagesPeer.tell(showMessages);
+        }));
         scheduleLayout.addView(messageBar);
         lessonViewHolder = new LinearLayout(getApplicationContext());
         lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
@@ -262,9 +257,11 @@ public class HomeActivity extends Activity {
         scheduleLayout.addView(lessonViewHolder);
         mAppView.setContent(scheduleLayout);
         setContentView(mAppView);
-        if (getFavoriteClass() != null) setStudentMode(getFavoriteClass());
-        assembleDrawers();
         refreshTheme();
+
+        assembleDrawers();
+        if (getFavoriteClass() != null) setStudentMode(getFavoriteClass());
+
     }
 
     private void assembleDrawers() {
@@ -315,8 +312,8 @@ public class HomeActivity extends Activity {
         if (s.getChildAt(s.getChildCount() - 1).getBottom() - (s.getHeight() + s.getScrollY()) == 0) {
             icon.setColorAlpha(128);
             info.setColorAlpha(128);
-            icon.setColor(colorA);
-            info.setColor(colorA);
+            icon.setColor(color.getLast().getColorTop());
+            info.setColor(color.getLast().getColorTop());
         } else {
             info.setColorAlpha(255);
             icon.setColorAlpha(255);
@@ -554,7 +551,7 @@ public class HomeActivity extends Activity {
         TextView shareTitle = new TextView(getApplicationContext());
         shareTitle.setTextSize(getFontSize());
         shareTitle.setTypeface(getTypeface());
-        shareTitle.setTextColor(textColor);
+        shareTitle.setTextColor(textColor.getLast());
         shareTitle.setText(R.string.share_menu);
         shareTitle.setGravity(Gravity.CENTER);
         final Switch shareTimeSwitch = new Switch(getApplicationContext());
@@ -562,21 +559,21 @@ public class HomeActivity extends Activity {
         shareTimeSwitch.setText(R.string.lesson_time);
         shareTimeSwitch.setTypeface(getTypeface());
         shareTimeSwitch.setTextSize(getFontSize() - 4);
-        shareTimeSwitch.setTextColor(textColor);
+        shareTimeSwitch.setTextColor(textColor.getLast());
         shareTimeSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         final Switch shareMessageSwitch = new Switch(getApplicationContext());
         shareMessageSwitch.setPadding(10, 0, 10, 0);
         shareMessageSwitch.setText(R.string.messages_switch);
         shareMessageSwitch.setTypeface(getTypeface());
         shareMessageSwitch.setTextSize(getFontSize() - 4);
-        shareMessageSwitch.setTextColor(textColor);
+        shareMessageSwitch.setTextColor(textColor.getLast());
         shareMessageSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         shareMessageSwitch.setEnabled(!schedule.getMessages().isEmpty());
         Button shareB = new Button(getApplicationContext());
         String shareText = getApplicationContext().getString(R.string.share) + " " + currentClass.getName();
         shareB.setText(shareText);
         shareB.setBackground(generateCoaster(combinedColor));
-        shareB.setTextColor(textColor);
+        shareB.setTextColor(textColor.getLast());
         shareB.setTextSize(getFontSize() - 7);
         shareB.setTypeface(getTypeface());
         shareB.setAllCaps(false);
@@ -590,7 +587,7 @@ public class HomeActivity extends Activity {
                         message.append(i + 1).append(". ").append(schedule.getMessages().get(i)).append("\n");
                     }
                 }
-                share(currentClass.getName() + " (" + day + ")" + "\n" + scheduleForClassString(currentClass, shareTimeSwitch.isChecked()) + message);
+                share(currentClass.getName() + " (" + schedule.getDay() + ")" + "\n" + scheduleForClassString(currentClass, shareTimeSwitch.isChecked()) + message);
             }
         });
         shareView.addView(shareTitle);
@@ -628,27 +625,23 @@ public class HomeActivity extends Activity {
         breakTimeSwitch.setTypeface(getTypeface());
         devSwitch.setTypeface(getTypeface());
         messageSwitch.setTypeface(getTypeface());
-        newScheduleSwitch.setTextColor(textColor);
-        messageSwitch.setTextColor(textColor);
-        pushSwitch.setTextColor(textColor);
-        breakTimeSwitch.setTextColor(textColor);
-        devSwitch.setTextColor(textColor);
+        newScheduleSwitch.setTextColor(textColor.getLast());
+        messageSwitch.setTextColor(textColor.getLast());
+        pushSwitch.setTextColor(textColor.getLast());
+        breakTimeSwitch.setTextColor(textColor.getLast());
+        devSwitch.setTextColor(textColor.getLast());
         breakTimeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 sp.edit().putBoolean(Values.breakTime, isChecked).apply();
-                //                breakTime=sp.getBoolean(Values.breakTime,Values.breakTimeDefault);
-                breakTime = isChecked;
-                TowerHub.breakTimeTunnle.tell(breakTime);
+                showBreaks.tell(isChecked);
             }
         });
         messageSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 sp.edit().putBoolean(Values.messages, isChecked).apply();
-                //                breakTime=sp.getBoolean(Values.breakTime,Values.breakTimeDefault);
-                showMessages = isChecked;
-                TowerHub.showMessagesPeer.tell(showMessages);
+                showMessages.tell(isChecked);
             }
         });
         pushSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -680,25 +673,25 @@ public class HomeActivity extends Activity {
         explainTextSize.setText(R.string.choose_text_size);
         explainTextSize.setTypeface(getTypeface());
         explainTextSize.setTextSize((float) (getFontSize() / 1.5));
-        explainTextSize.setTextColor(textColor);
+        explainTextSize.setTextColor(textColor.getLast());
         explainTextSize.setGravity(Gravity.CENTER);
         final TextView explainTextColor = new TextView(getApplicationContext());
         explainTextColor.setText(R.string.choose_text_color);
         explainTextColor.setTypeface(getTypeface());
         explainTextColor.setTextSize((float) (getFontSize() / 1.5));
-        explainTextColor.setTextColor(textColor);
+        explainTextColor.setTextColor(textColor.getLast());
         explainTextColor.setGravity(Gravity.CENTER);
         final TextView explainColorA = new TextView(getApplicationContext());
         explainColorA.setText(R.string.choose_first_color);
         explainColorA.setTypeface(getTypeface());
         explainColorA.setTextSize((float) (getFontSize() / 1.5));
-        explainColorA.setTextColor(textColor);
+        explainColorA.setTextColor(textColor.getLast());
         explainColorA.setGravity(Gravity.CENTER);
         final TextView explainColorB = new TextView(getApplicationContext());
         explainColorB.setText(R.string.choose_second_color);
         explainColorB.setTypeface(getTypeface());
         explainColorB.setTextSize((float) (getFontSize() / 1.5));
-        explainColorB.setTextColor(textColor);
+        explainColorB.setTextColor(textColor.getLast());
         explainColorB.setGravity(Gravity.CENTER);
         SeekBar fontSizeSeekBar = new SeekBar(getApplicationContext());
         fontSizeSeekBar.setMax(70);
@@ -709,7 +702,6 @@ public class HomeActivity extends Activity {
                 if (fromUser) {
                     sp.edit().putInt(Values.fontSizeNumber, progress).apply();
                     refreshTheme();
-                    TowerHub.fontSizeChangeTunnle.tell(progress);
                 }
             }
 
@@ -721,16 +713,15 @@ public class HomeActivity extends Activity {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        ColorPicker textColorPicker = new ColorPicker(getApplicationContext(), textColor);
+        ColorPicker textColorPicker = new ColorPicker(getApplicationContext(), textColor.getLast());
         textColorPicker.setOnColorChanged(new ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
                 sp.edit().putInt(Values.fontColor, color).apply();
                 refreshTheme();
-                TowerHub.textColorChangeTunnle.tell(textColor);
             }
         });
-        ColorPicker colorApicker = new ColorPicker(getApplicationContext(), colorA);
+        ColorPicker colorApicker = new ColorPicker(getApplicationContext(), color.getLast().getColorTop());
         colorApicker.setOnColorChanged(new ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
@@ -741,7 +732,7 @@ public class HomeActivity extends Activity {
                 refreshTheme();
             }
         });
-        ColorPicker colorBpicker = new ColorPicker(getApplicationContext(), colorB);
+        ColorPicker colorBpicker = new ColorPicker(getApplicationContext(), color.getLast().getColorBottom());
         colorBpicker.setOnColorChanged(new ColorPicker.OnColorChanged() {
             @Override
             public void onColorChange(int color) {
@@ -752,7 +743,7 @@ public class HomeActivity extends Activity {
         textColorPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 5));
         colorApicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 5));
         colorBpicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 5));
-        TowerHub.fontSizeChangeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
+        textSize.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
             @Override
             public boolean onPeer(Integer response) {
                 pushSwitch.setTextSize((float) (response / 1.5));
@@ -767,7 +758,7 @@ public class HomeActivity extends Activity {
                 return true;
             }
         }));
-        TowerHub.textColorChangeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
+        textColor.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
             @Override
             public boolean onPeer(Integer response) {
                 pushSwitch.setTextColor(response);
@@ -837,13 +828,13 @@ public class HomeActivity extends Activity {
         studentsTitle.setText(R.string.students_text);
         studentsTitle.setTypeface(getTypeface());
         studentsTitle.setTextSize(getFontSize() - 5);
-        studentsTitle.setTextColor(textColor);
+        studentsTitle.setTextColor(textColor.getLast());
         studentsTitle.setGravity(Gravity.CENTER);
         TextView teachersTitle = new TextView(getApplicationContext());
         teachersTitle.setText(R.string.teachers_text);
         teachersTitle.setTypeface(getTypeface());
         teachersTitle.setTextSize(getFontSize() - 5);
-        teachersTitle.setTextColor(textColor);
+        teachersTitle.setTextColor(textColor.getLast());
         teachersTitle.setGravity(Gravity.CENTER);
         all.addView(studentsTitle);
         students.setPadding(10, 10, 10, 10);
@@ -859,7 +850,7 @@ public class HomeActivity extends Activity {
             cls.setTextSize((float) getFontSize());
             cls.setGravity(Gravity.CENTER);
             cls.setText(schedule.getClassrooms().get(cs).getName());
-            cls.setTextColor(textColor);
+            cls.setTextColor(textColor.getLast());
             cls.setBackground(generateCoaster(combinedColor));
             cls.setPadding(10, 0, 10, 0);
             cls.setTypeface(getTypeface());
@@ -893,7 +884,7 @@ public class HomeActivity extends Activity {
                 cls.setTextSize((float) getFontSize());
                 cls.setGravity(Gravity.CENTER);
                 cls.setText(schedule.getTeachers().get(cs).getName());
-                cls.setTextColor(textColor);
+                cls.setTextColor(textColor.getLast());
                 cls.setBackground(generateCoaster(combinedColor));
                 cls.setPadding(10, 0, 10, 0);
                 cls.setTypeface(getTypeface());
@@ -940,7 +931,7 @@ public class HomeActivity extends Activity {
         TextView load = new TextView(getApplicationContext());
         load.setTextSize(getFontSize());
         load.setTypeface(getTypeface());
-        load.setTextColor(textColor);
+        load.setTextColor(textColor.getLast());
         load.setText(R.string.loading_text);
         load.setGravity(Gravity.CENTER);
         load.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -958,7 +949,7 @@ public class HomeActivity extends Activity {
         newsTitle = new TextView(getApplicationContext());
         newsTitle.setText(R.string.news);
         news.addView(newsTitle);
-        newsTitle.setTextColor(textColor);
+        newsTitle.setTextColor(textColor.getLast());
         newsTitle.setTextSize(fontSize);
         newsTitle.setGravity(Gravity.CENTER);
         newsTitle.setTypeface(getTypeface());
@@ -972,7 +963,7 @@ public class HomeActivity extends Activity {
                         cls.setTextSize((float) fontSize - 10);
                         cls.setGravity(Gravity.CENTER);
                         cls.setText(link.get(i).name);
-                        cls.setTextColor(textColor);
+                        cls.setTextColor(textColor.getLast());
                         cls.setEllipsize(TextUtils.TruncateAt.END);
                         cls.setLines(2);
                         //                            cls.setBackgroundColor(Color.TRANSPARENT);
@@ -1002,7 +993,7 @@ public class HomeActivity extends Activity {
                     TextView fail = new TextView(getApplicationContext());
                     fail.setTextSize(getFontSize());
                     fail.setTypeface(getTypeface());
-                    fail.setTextColor(textColor);
+                    fail.setTextColor(textColor.getLast());
                     fail.setText(R.string.news_load_failed);
                     fail.setGravity(Gravity.CENTER);
                     //                    mAppView.getDrag().setContent(fail);
@@ -1013,18 +1004,8 @@ public class HomeActivity extends Activity {
     }
 
     private void parseAndLoad(File f) {
-        Sheet s = getSheet(f);
-        if (s != null) {
-            classes = getClasses(s);
-            messages = getMessages(s);
-            //            messages=new ArrayList<>();
-            day = getDay(s);
-            //            Log.i("Messages",messages.toString());
-            if (classes != null) {
-                teachers = getTeacherSchudleForClasses(classes);
-                initStageB();
-            }
-        }
+        schedule = AppCore.getSchedule(f);
+        initStageB();
     }
 
     private void share(String st) {
@@ -1039,7 +1020,7 @@ public class HomeActivity extends Activity {
         currentClass = c;
         // TODO
         //        info.setText(textColor, getFontSize(), c.getName(), day);
-        info.setText(0.9, new Corner.TextPiece(c.getName(), 0.9, textColor), new Corner.TextPiece(day, 0.65, textColor));
+        info.setText(0.9, new Corner.TextPiece(c.getName(), 0.9, textColor.getLast()), new Corner.TextPiece(schedule.getDay(), 0.65, textColor.getLast()));
         displayLessonViews(scheduleForClass(c));
     }
 
@@ -1047,7 +1028,7 @@ public class HomeActivity extends Activity {
         currentTeacher = t;
         // TODO
         //        info.setText(textColor, getFontSize(), t.mainName.split(" ")[0], day);
-        info.setText(0.9, new Corner.TextPiece(t.mainName.split(" ")[0], 0.9, textColor), new Corner.TextPiece(day, 0.65, textColor));
+        info.setText(0.9, new Corner.TextPiece(t.getName().split(" ")[0], 0.9, textColor.getLast()), new Corner.TextPiece(schedule.getDay(), 0.65, textColor.getLast()));
         displayLessonViews(scheduleForTeacher(t));
     }
 
@@ -1064,18 +1045,18 @@ public class HomeActivity extends Activity {
 
     private String scheduleForClassString(Classroom fclass, boolean showTime) {
         StringBuilder allsubj = new StringBuilder();
-        for (int s = 0; s < fclass.getSubjects().size(); s++) {
-            String before;
-            if (showTime) {
-                before = "(" + getRealTimeForHourNumber(fclass.getSubjects().get(s).getHour()) + ") " + fclass.getSubjects().get(s).getHour() + ". ";
-            } else {
-                before = fclass.getSubjects().get(s).getHour() + ". ";
-            }
-            String total = before + fclass.getSubjects().get(s).getName();
-            if (fclass.getSubjects().get(s).getName() != null && !fclass.getSubjects().get(s).getName().equals("")) {
-                allsubj.append(total).append("\n");
-            }
-        }
+        //        for (int s = 0; s < fclass.getSubjects().size(); s++) {
+        //            String before;
+        //            if (showTime) {
+        //                before = "(" + getRealTimeForHourNumber(fclass.getSubjects().get(s).getHour()) + ") " + fclass.getSubjects().get(s).getHour() + ". ";
+        //            } else {
+        //                before = fclass.getSubjects().get(s).getHour() + ". ";
+        //            }
+        //            String total = before + fclass.getSubjects().get(s).getName();
+        //            if (fclass.getSubjects().get(s).getName() != null && !fclass.getSubjects().get(s).getName().equals("")) {
+        //                allsubj.append(total).append("\n");
+        //            }
+        //        }
         return allsubj.toString();
     }
 
@@ -1083,107 +1064,76 @@ public class HomeActivity extends Activity {
         return Typeface.createFromAsset(getApplicationContext().getAssets(), Values.fontName);
     }
 
-    private ArrayList<LessonView> scheduleForClass(final Classroom fclass) {
-        ArrayList<LessonView> lessons = new ArrayList<>();
-        for (int s = 0; s < fclass.getSubjects().size(); s++) {
-            if (getBreak(fclass.getSubjects().get(s).getHour() - 1) != -1) {
-                final LessonView breakt = new LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), -1, "הפסקה", getBreak(fclass.getSubjects().get(s).getHour() - 1) + " דקות", "");
-                if (fclass.getSubjects().get(s).getName() != null && !fclass.getSubjects().get(s).getName().equals("")) {
-                    lessons.add(breakt);
-                }
-                if (!breakTime) {
-                    breakt.setVisibility(View.GONE);
+    private ArrayList<LessonView> scheduleForClass(final Classroom classroom) {
+        ArrayList<LessonView> views = new ArrayList<>();
+        for (Subject s : classroom.getSubjects()) {
+            if (AppCore.getBreak(s.getSchoolHour() - 1, s.getSchoolHour()) > 0) {
+                final LessonView breakView = new LessonView(getApplicationContext(), s.getSchoolHour(), "הפסקה", null);
+                if (showBreaks.getLast()) {
+                    breakView.setVisibility(View.VISIBLE);
                 } else {
-                    breakt.setVisibility(View.VISIBLE);
+                    breakView.setVisibility(View.GONE);
                 }
-                TowerHub.breakTimeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Boolean>() {
+                showBreaks.addPeer(new Peer<Boolean>(new Peer.OnPeer<Boolean>() {
                     @Override
                     public boolean onPeer(Boolean aBoolean) {
-                        if (!aBoolean) {
-                            breakt.setVisibility(View.GONE);
+                        if (aBoolean) {
+                            breakView.setVisibility(View.VISIBLE);
                         } else {
-                            breakt.setVisibility(View.VISIBLE);
+                            breakView.setVisibility(View.GONE);
                         }
-                        return true;
+                        return false;
                     }
                 }));
+                if (s.getName() != null && !s.getName().equals("")) {
+                    views.add(breakView);
+                }
             }
-            Classroom.Subject.Time classTime = getTimeForLesson(fclass.getSubjects().get(s).getHour());
-            boolean isCurrent = false;
-            Calendar c = Calendar.getInstance();
-            int minute = c.get(Calendar.MINUTE);
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            if (minuteOfDay(hour, minute) > minuteOfDay(classTime.getStartHour(), classTime.getStartMinute()) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.getFinishHour(), classTime.getFinishMinute())) {
-                isCurrent = true;
-            }
-            String txt = getRealTimeForHourNumber(fclass.getSubjects().get(s).getHour()) + "-" + getRealEndTimeForHourNumber(fclass.getSubjects().get(s).getHour());
-            String tcnm = fclass.getSubjects().get(s).getTeachers().get(0);
-            LessonView subject = new LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), fclass.getSubjects().get(s).getHour(), fclass.getSubjects().get(s).getName().replaceAll(",", "/"), txt, tcnm);
-            if (isCurrent) subject.mark();
-            if (fclass.getSubjects().get(s).getName() != null && !fclass.getSubjects().get(s).getName().equals("")) {
-                lessons.add(subject);
+            LessonView subject = new LessonView(getApplicationContext(), s.getSchoolHour(), s.getName(), s.getTeacherNames());
+            if (s.getName() != null && !s.getName().equals("")) {
+                views.add(subject);
             }
         }
-        return lessons;
+        return views;
     }
 
-    private ArrayList<LessonView> scheduleForTeacher(final Teacher fclass) {
-        ArrayList<LessonView> lessons = new ArrayList<>();
+    private ArrayList<LessonView> scheduleForTeacher(final Teacher teacher) {
+        ArrayList<LessonView> views = new ArrayList<>();
+        ArrayList<Subject> teaching = teacher.getSubjects();
         for (int h = 0; h <= 12; h++) {
-            ArrayList<Teacher.Lesson> currentLesson = new ArrayList<>();
-            StringBuilder currentText = new StringBuilder();
-            boolean isCurrent = false;
-            String lessonName = "";
-            for (int s = 0; s < fclass.teaching.size(); s++) {
-                if (fclass.teaching.get(s).hour == h) {
-                    Classroom.Subject.Time classTime = getTimeForLesson(h);
-                    Calendar ca = Calendar.getInstance();
-                    int minute = ca.get(Calendar.MINUTE);
-                    int hour = ca.get(Calendar.HOUR_OF_DAY);
-                    if (minuteOfDay(hour, minute) >= minuteOfDay(classTime.getStartHour(), classTime.getStartMinute()) && minuteOfDay(hour, minute) <= minuteOfDay(classTime.getFinishHour(), classTime.getFinishMinute())) {
-                        isCurrent = true;
-                    }
-                    if (currentText.toString().equals("")) {
-                        currentText.append(fclass.teaching.get(s).className);
-                    } else {
-                        currentText.append(", ").append(fclass.teaching.get(s).className);
-                    }
-                    lessonName = fclass.teaching.get(s).lessonName;
-                    currentLesson.add(fclass.teaching.get(s));
+            String grades;
+            ArrayList<Classroom> classrooms = new ArrayList<>();
+            for (int s = 0; s < teaching.size(); s++) {
+                if (teaching.get(s).getSchoolHour() == h) {
+                    classrooms.add(teaching.get(s).getClassroom());
                 }
             }
-            if (currentLesson.size() > 1) {
-                if (getGrade(currentLesson) != -1) {
-                    currentText = new StringBuilder(getGrade(getGrade(currentLesson)));
-                }
-            }
-            if (currentLesson.size() >= 1) {
-                if (getBreak(h - 1) != -1) {
-                    final LessonView breakt = new LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), -1, "הפסקה", getBreak(h - 1) + " דקות", "");
-                    lessons.add(breakt);
-                    if (!breakTime) {
-                        breakt.setVisibility(View.GONE);
+            grades = AppCore.getGrades(classrooms);
+            if (!classrooms.isEmpty()) {
+                if (AppCore.getBreak(h - 1, h) > 0) {
+                    final LessonView breakView = new LessonView(getApplicationContext(), h, "הפסקה", null);
+                    if (showBreaks.getLast()) {
+                        breakView.setVisibility(View.VISIBLE);
                     } else {
-                        breakt.setVisibility(View.VISIBLE);
+                        breakView.setVisibility(View.GONE);
                     }
-                    TowerHub.breakTimeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Boolean>() {
+                    showBreaks.addPeer(new Peer<Boolean>(new Peer.OnPeer<Boolean>() {
                         @Override
                         public boolean onPeer(Boolean aBoolean) {
-                            if (!aBoolean) {
-                                breakt.setVisibility(View.GONE);
+                            if (aBoolean) {
+                                breakView.setVisibility(View.VISIBLE);
                             } else {
-                                breakt.setVisibility(View.VISIBLE);
+                                breakView.setVisibility(View.GONE);
                             }
-                            return true;
+                            return false;
                         }
                     }));
+                    views.add(breakView);
                 }
-                String txt = getRealTimeForHourNumber(h) + "-" + getRealEndTimeForHourNumber(h);
-                LessonView lesson = new LessonView(getApplicationContext(), generateCoaster(Values.classCoasterColor), generateCoaster(Values.classCoasterMarkColor), h, currentText.toString(), txt, lessonName);
-                if (isCurrent) lesson.mark();
-                lessons.add(lesson);
+                LessonView subject = new LessonView(getApplicationContext(), h, grades, new ArrayList<>(Collections.singletonList(classrooms.get(h).getName())));
+                views.add(subject);
             }
         }
-        return lessons;
+        return views;
     }
 }
