@@ -153,16 +153,20 @@ public class HomeActivity extends Activity {
     }
 
     private int generateCombinedColor() {
-        int redA = Color.red(color.getLast().getColorTop());
-        int greenA = Color.green(color.getLast().getColorTop());
-        int blueA = Color.blue(color.getLast().getColorTop());
-        int redB = Color.red(color.getLast().getColorTop());
-        int greenB = Color.green(color.getLast().getColorTop());
-        int blueB = Color.blue(color.getLast().getColorTop());
-        int alphaA = Color.alpha(color.getLast().getColorTop());
-        int alphaB = Color.alpha(color.getLast().getColorTop());
-        int combineRed = redA - (redA - redB) / 2, combineGreen = greenA - (greenA - greenB) / 2, combineBlue = blueA - (blueA - blueB) / 2;
-        return Color.rgb(combineRed, combineGreen, combineBlue);
+        if(color.getLast()!=null) {
+            int redA = Color.red(color.getLast().getColorTop());
+            int greenA = Color.green(color.getLast().getColorTop());
+            int blueA = Color.blue(color.getLast().getColorTop());
+            int redB = Color.red(color.getLast().getColorBottom());
+            int greenB = Color.green(color.getLast().getColorBottom());
+            int blueB = Color.blue(color.getLast().getColorBottom());
+            int alphaA = Color.alpha(color.getLast().getColorTop());
+            int alphaB = Color.alpha(color.getLast().getColorBottom());
+            int combineRed = redA - (redA - redB) / 2, combineGreen = greenA - (greenA - greenB) / 2, combineBlue = blueA - (blueA - blueB) / 2;
+            return Color.rgb(combineRed, combineGreen, combineBlue);
+        }else{
+            return 0;
+        }
     }
 
     private void initStageB() {
