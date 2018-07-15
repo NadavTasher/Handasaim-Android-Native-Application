@@ -22,7 +22,7 @@ public class LessonView extends LinearLayout{
     static final String rtlMark = "\u200F";
     private String topText;
     private ArrayList<String> bottomText;
-    private int schoolHour;
+    private int schoolHour, hour1,hour2;
     private TextView top, time;
     private LinearLayout topLayout, bottomLayout, bottomTextLayout;
     private Tower<Integer> textColor=new Tower<>(),textSize=new Tower<>();
@@ -39,6 +39,16 @@ public class LessonView extends LinearLayout{
             this.bottomText = rtl(bottomText);
         }
         this.schoolHour = schoolHour;
+        init();
+    }
+
+    public LessonView(Context context, int hour1,int hour2, String topText) {
+        super(context);
+        this.topText = rtlMark + topText;
+        this.schoolHour=-1;
+        this.hour1=hour1;
+        this.hour2=hour2;
+        this.time=getText(AppCore.convertMinuteToTime(AppCore.getStartMinute(hour2))+" - "+AppCore.convertMinuteToTime(AppCore.getEndMinute(hour1)),0.8);
         init();
     }
 
@@ -67,26 +77,37 @@ public class LessonView extends LinearLayout{
         int minute = c.get(Calendar.MINUTE);
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minuteOfDay=(hour*60)+minute;
-        if(minuteOfDay>=AppCore.getStartMinute(schoolHour)&&minuteOfDay<AppCore.getEndMinute(schoolHour)){
-            setBackground(Center.getCoaster(Values.classCoasterMarkColor, 32));
-        }else {
-            setBackground(Center.getCoaster(Values.classCoasterColor, 32));
+        if(schoolHour<0){
+            if(minuteOfDay>=AppCore.getEndMinute(hour1)&&minuteOfDay<AppCore.getStartMinute(hour2)){
+                setBackground(Center.getCoaster(Values.classCoasterMarkColor, 32));
+            }else {
+                setBackground(Center.getCoaster(Values.classCoasterColor, 32));
+            }
+        }else{
+            if(minuteOfDay>=AppCore.getStartMinute(schoolHour)&&minuteOfDay<AppCore.getEndMinute(schoolHour)){
+                setBackground(Center.getCoaster(Values.classCoasterMarkColor, 32));
+            }else {
+                setBackground(Center.getCoaster(Values.classCoasterColor, 32));
+            }
         }
+
     }
 
     private void init() {
+        initBackground();
         setOrientation(VERTICAL);
         setLayoutDirection(LAYOUT_DIRECTION_RTL);
         setGravity(Gravity.CENTER);
-        setPadding(20, 10, 20, 10);
-        setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
-        initBackground();
+        setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 8));
+        setPadding(25, 10, 25, 10);
+
         if (schoolHour < 0) {
             top = getText(topText, 1);
         } else {
             top = getText(schoolHour + ". " + topText, 1);
         }
-        time = getText(AppCore.convertMinuteToTime(AppCore.getStartMinute(schoolHour)) + " - " + AppCore.convertMinuteToTime(AppCore.getEndMinute(schoolHour)), 0.8);
+        if(time==null)
+        time = getText(AppCore.convertMinuteToTime(AppCore.getEndMinute(schoolHour)) + " - " + AppCore.convertMinuteToTime(AppCore.getStartMinute(schoolHour)), 0.8);
         bottomTextLayout = new LinearLayout(getContext());
         topLayout = new LinearLayout(getContext());
         bottomLayout = new LinearLayout(getContext());
@@ -130,6 +151,8 @@ public class LessonView extends LinearLayout{
             }
         }
 
+//        topLayout.setLayoutParams(getLayoutParams());
+
         addView(topLayout);
         addView(bottomLayout);
         //        Log.i("LessonView",""+Device.screenY(getContext()) / 7);
@@ -137,9 +160,11 @@ public class LessonView extends LinearLayout{
 
     private TextView getText(String text, final double textSizeRatio) {
         final TextView tv = new TextView(getContext());
+        tv.setText(text);
         tv.setTextSize((int) ((double) Center.getFontSize(getContext()) * textSizeRatio));
         tv.setTypeface(Center.getTypeface(getContext()));
         tv.setTextColor(Center.getTextColor(getContext()));
+        tv.setTextDirection(TEXT_DIRECTION_RTL);
         tv.setSingleLine(true);
         // TODO register in towers
         textSize.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {

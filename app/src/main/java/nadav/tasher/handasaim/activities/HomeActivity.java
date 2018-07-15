@@ -1068,7 +1068,7 @@ public class HomeActivity extends Activity {
         ArrayList<LessonView> views = new ArrayList<>();
         for (Subject s : classroom.getSubjects()) {
             if (AppCore.getBreak(s.getSchoolHour() - 1, s.getSchoolHour()) > 0) {
-                final LessonView breakView = new LessonView(getApplicationContext(), s.getSchoolHour(), "הפסקה", null);
+                final LessonView breakView = new LessonView(getApplicationContext(), s.getSchoolHour()-1,s.getSchoolHour(), "הפסקה");
                 if (showBreaks.getLast()) {
                     breakView.setVisibility(View.VISIBLE);
                 } else {
@@ -1111,7 +1111,7 @@ public class HomeActivity extends Activity {
             grades = AppCore.getGrades(classrooms);
             if (!classrooms.isEmpty()) {
                 if (AppCore.getBreak(h - 1, h) > 0) {
-                    final LessonView breakView = new LessonView(getApplicationContext(), h, "הפסקה", null);
+                    final LessonView breakView = new LessonView(getApplicationContext(), h-1,h, "הפסקה");
                     if (showBreaks.getLast()) {
                         breakView.setVisibility(View.VISIBLE);
                     } else {
