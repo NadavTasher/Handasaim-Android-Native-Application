@@ -14,7 +14,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,18 +57,21 @@ public class HomeActivity extends Activity {
     private Tower<Boolean> showBreaks = new Tower<>();
     private Tower<Boolean> showMessages = new Tower<>();
     private Tower<AppView.Gradient> color = new Tower<>();
-    private int combinedColor = generateCombinedColor();
     private Tower<Integer> textSize = new Tower<>();
     private Tower<Integer> textColor = new Tower<>();
+    private int combinedColor = generateCombinedColor();
+
     private Classroom currentClass;
     private Teacher currentTeacher;
     private Corner icon, info;
     private MessageBar messageBar;
-    private CornerView cornerView;
-    private LinearLayout scheduleLayout, lessonViewHolder;
+    private LinearLayout lessonViewHolder;
+    private LinearLayout shareDrawer;
+    private FrameLayout newsDrawer;
     private AppView mAppView;
     private Schedule schedule;
     private HorizontalScrollView menuDrawer;
+    private ScrollView settingsDrawer,classDrawer;
     private SharedPreferences sp;
     private KeyManager keyManager;
 
@@ -170,7 +172,7 @@ public class HomeActivity extends Activity {
         mAppView = new AppView(getApplicationContext(), Values.navColor);
         mAppView.setColorChangeNavigation(false);
         mAppView.setWindow(getWindow());
-        cornerView = new CornerView(getApplicationContext());
+        CornerView cornerView = new CornerView(getApplicationContext());
         mAppView.setNavigationView(cornerView);
         icon = new Corner(getApplicationContext(), Device.screenX(getApplicationContext()) / 5, Color.TRANSPARENT);
         icon.setDrawable(getDrawable(R.drawable.ic_icon), 0.85);
@@ -208,14 +210,14 @@ public class HomeActivity extends Activity {
             public void onBoth(boolean b) {
             }
         });
-        color.addPeer(new Peer<AppView.Gradient>(new Peer.OnPeer<AppView.Gradient>() {
+        color.addPeer(new Peer<>(new Peer.OnPeer<AppView.Gradient>() {
             @Override
             public boolean onPeer(AppView.Gradient integer) {
                 setCornerColors(mAppView.getScrolly());
                 return false;
             }
         }));
-        color.addPeer(new Peer<AppView.Gradient>(new Peer.OnPeer<AppView.Gradient>() {
+        color.addPeer(new Peer<>(new Peer.OnPeer<AppView.Gradient>() {
             @Override
             public boolean onPeer(AppView.Gradient integer) {
                 setCornerColors(mAppView.getScrolly());
@@ -234,13 +236,13 @@ public class HomeActivity extends Activity {
                 setCornerColors(mAppView.getScrolly());
             }
         });
-        scheduleLayout = new LinearLayout(getApplicationContext());
+        LinearLayout scheduleLayout = new LinearLayout(getApplicationContext());
         scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         scheduleLayout.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.setPadding(10, 10, 10, 10);
         messageBar = new MessageBar(this, schedule.getMessages(), mAppView.getDrawer());
         messageBar.start();
-        showMessages.addPeer(new Peer<Boolean>(new Peer.OnPeer<Boolean>() {
+        showMessages.addPeer(new Peer<>(new Peer.OnPeer<Boolean>() {
             @Override
             public boolean onPeer(Boolean aBoolean) {
                 if (aBoolean && schedule.getMessages().size() != 0) {
@@ -260,13 +262,32 @@ public class HomeActivity extends Activity {
         setContentView(mAppView);
         refreshTheme();
         assembleDrawers();
-        Log.i("Teacher Amount",schedule.getTeachers().size()+"");
         if (getFavoriteClass() != null) setStudentMode(getFavoriteClass());
-
+        refreshTheme();
     }
 
     private void assembleDrawers() {
         assembleMenuDrawer();
+        assembleSettingsDrawer();
+//        assembleShareDrawer();
+//        assembleNewsDrawer();
+//        assembleClassDrawer();
+    }
+
+    private void assembleSettingsDrawer(){
+        settingsDrawer=getSettings();
+    }
+
+    private void assembleShareDrawer(){
+        shareDrawer=getShare();
+    }
+
+    private void assembleNewsDrawer(){
+        newsDrawer=getNews();
+    }
+
+    private void assembleClassDrawer(){
+        classDrawer=getSwitcher();
     }
 
     private void assembleMenuDrawer() {
@@ -284,6 +305,13 @@ public class HomeActivity extends Activity {
         news = generateImageView(R.drawable.ic_news, size);
         refresh = generateImageView(R.drawable.ic_reload, size);
         settings = generateImageView(R.drawable.ic_gear, size);
+        settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mAppView.getDrawer().setContent(settingsDrawer);
+                mAppView.getDrawer().open(false,0.8);
+            }
+        });
         menu.addView(share);
         menu.addView(classroom);
         menu.addView(news);
@@ -301,17 +329,14 @@ public class HomeActivity extends Activity {
         fl.setForegroundGravity(Gravity.CENTER);
         fl.setLayoutParams(new LinearLayout.LayoutParams(size, size));
         final ImageView iv = new ImageView(getApplicationContext());
-
-        color.addPeer(new Peer<AppView.Gradient>(new Peer.OnPeer<AppView.Gradient>() {
+        color.addPeer(new Peer<>(new Peer.OnPeer<AppView.Gradient>() {
             @Override
             public boolean onPeer(AppView.Gradient gradient) {
                 iv.setColorFilter(gradient.getColorBottom());
                 return false;
             }
         }));
-
         iv.setImageDrawable(getDrawable(drawable));
-        iv.setColorFilter(color.getLast().getColorBottom());
         iv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         fl.addView(iv);
         return fl;
@@ -624,21 +649,11 @@ public class HomeActivity extends Activity {
         newScheduleSwitch.setChecked(sp.getBoolean(Values.scheduleService, Values.scheduleDefault));
         breakTimeSwitch.setChecked(sp.getBoolean(Values.breakTime, Values.breakTimeDefault));
         devSwitch.setChecked(sp.getBoolean(Values.devMode, Values.devModeDefault));
-        pushSwitch.setTextSize((float) (getFontSize() / 1.5));
-        messageSwitch.setTextSize((float) (getFontSize() / 1.5));
-        breakTimeSwitch.setTextSize((float) (getFontSize() / 1.5));
-        newScheduleSwitch.setTextSize((float) (getFontSize() / 1.5));
-        devSwitch.setTextSize((float) (getFontSize() / 1.5));
         pushSwitch.setTypeface(getTypeface());
         newScheduleSwitch.setTypeface(getTypeface());
         breakTimeSwitch.setTypeface(getTypeface());
         devSwitch.setTypeface(getTypeface());
         messageSwitch.setTypeface(getTypeface());
-        newScheduleSwitch.setTextColor(textColor.getLast());
-        messageSwitch.setTextColor(textColor.getLast());
-        pushSwitch.setTextColor(textColor.getLast());
-        breakTimeSwitch.setTextColor(textColor.getLast());
-        devSwitch.setTextColor(textColor.getLast());
         breakTimeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -681,26 +696,18 @@ public class HomeActivity extends Activity {
         final TextView explainTextSize = new TextView(getApplicationContext());
         explainTextSize.setText(R.string.choose_text_size);
         explainTextSize.setTypeface(getTypeface());
-        explainTextSize.setTextSize((float) (getFontSize() / 1.5));
-        explainTextSize.setTextColor(textColor.getLast());
         explainTextSize.setGravity(Gravity.CENTER);
         final TextView explainTextColor = new TextView(getApplicationContext());
         explainTextColor.setText(R.string.choose_text_color);
         explainTextColor.setTypeface(getTypeface());
-        explainTextColor.setTextSize((float) (getFontSize() / 1.5));
-        explainTextColor.setTextColor(textColor.getLast());
         explainTextColor.setGravity(Gravity.CENTER);
         final TextView explainColorA = new TextView(getApplicationContext());
         explainColorA.setText(R.string.choose_first_color);
         explainColorA.setTypeface(getTypeface());
-        explainColorA.setTextSize((float) (getFontSize() / 1.5));
-        explainColorA.setTextColor(textColor.getLast());
         explainColorA.setGravity(Gravity.CENTER);
         final TextView explainColorB = new TextView(getApplicationContext());
         explainColorB.setText(R.string.choose_second_color);
         explainColorB.setTypeface(getTypeface());
-        explainColorB.setTextSize((float) (getFontSize() / 1.5));
-        explainColorB.setTextColor(textColor.getLast());
         explainColorB.setGravity(Gravity.CENTER);
         SeekBar fontSizeSeekBar = new SeekBar(getApplicationContext());
         fontSizeSeekBar.setMax(70);
@@ -1044,6 +1051,9 @@ public class HomeActivity extends Activity {
     private void displayLessonViews(ArrayList<LessonView> lessonViews) {
         lessonViewHolder.removeAllViews();
         for (int l = 0; l < lessonViews.size(); l++) {
+            textColor.addPeer(lessonViews.get(l).getTextColor());
+            textSize.addPeer(lessonViews.get(l).getTextSize());
+            color.addPeer(lessonViews.get(l).getColor());
             lessonViewHolder.addView(lessonViews.get(l));
         }
     }
@@ -1077,7 +1087,7 @@ public class HomeActivity extends Activity {
         ArrayList<LessonView> views = new ArrayList<>();
         for (Subject s : classroom.getSubjects()) {
             if (AppCore.getBreak(s.getSchoolHour() - 1, s.getSchoolHour()) > 0) {
-                final LessonView breakView = new LessonView(getApplicationContext(), s.getSchoolHour()-1,s.getSchoolHour(), "הפסקה");
+                final LessonView breakView = new LessonView(getApplicationContext(), s.getSchoolHour() - 1, s.getSchoolHour(), "הפסקה");
                 if (showBreaks.getLast()) {
                     breakView.setVisibility(View.VISIBLE);
                 } else {
@@ -1120,7 +1130,7 @@ public class HomeActivity extends Activity {
             grades = AppCore.getGrades(classrooms);
             if (!classrooms.isEmpty()) {
                 if (AppCore.getBreak(h - 1, h) > 0) {
-                    final LessonView breakView = new LessonView(getApplicationContext(), h-1,h, "הפסקה");
+                    final LessonView breakView = new LessonView(getApplicationContext(), h - 1, h, "הפסקה");
                     if (showBreaks.getLast()) {
                         breakView.setVisibility(View.VISIBLE);
                     } else {

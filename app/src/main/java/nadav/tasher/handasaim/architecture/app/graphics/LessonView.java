@@ -56,16 +56,33 @@ public class LessonView extends LinearLayout {
         init();
     }
 
-    public Tower<AppView.Gradient> getColor() {
-        return color;
+    public Peer<AppView.Gradient> getColor(){
+        return new Peer<>(new Peer.OnPeer<AppView.Gradient>() {
+            @Override
+            public boolean onPeer(AppView.Gradient integer) {
+                color.tell(integer);
+                return false;
+            }
+        });
+    }
+    public Peer<Integer> getTextSize(){
+        return new Peer<>(new Peer.OnPeer<Integer>() {
+            @Override
+            public boolean onPeer(Integer integer) {
+                textSize.tell(integer);
+                return false;
+            }
+        });
     }
 
-    public Tower<Integer> getTextSize() {
-        return textSize;
-    }
-
-    public Tower<Integer> getTextColor() {
-        return textColor;
+    public Peer<Integer> getTextColor(){
+        return new Peer<>(new Peer.OnPeer<Integer>() {
+            @Override
+            public boolean onPeer(Integer integer) {
+                textColor.tell(integer);
+                return false;
+            }
+        });
     }
 
     private ArrayList<String> rtl(ArrayList<String> input) {
@@ -142,10 +159,11 @@ public class LessonView extends LinearLayout {
                     bottomTextView.setEllipsize(TextUtils.TruncateAt.END);
                     bottomTextView.setBackground(Center.getCoaster(Center.alpha(128, Center.getColorA(getContext())), 16));
                     bottomTextView.setPadding(30, 0, 30, 0);
-                    color.addPeer(new Peer<AppView.Gradient>(new Peer.OnPeer<AppView.Gradient>() {
+                    color.addPeer(new Peer<>(new Peer.OnPeer<AppView.Gradient>() {
                         @Override
                         public boolean onPeer(AppView.Gradient gradient) {
                             bottomTextView.setBackground(Center.getCoaster(Center.alpha(128, Center.getColorA(getContext())), 16));
+                            bottomTextView.setPadding(30, 0, 30, 0);
                             return false;
                         }
                     }));
