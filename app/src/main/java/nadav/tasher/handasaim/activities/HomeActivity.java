@@ -278,17 +278,15 @@ public class HomeActivity extends Activity {
         menu.setGravity(Gravity.CENTER);
         menuDrawer.setFillViewport(true);
         final int size = Device.screenY(getApplicationContext()) / 13;
-        FrameLayout share, classroom, news, predict, refresh, settings;
+        FrameLayout share, classroom, news, refresh, settings;
         share = generateImageView(R.drawable.ic_share, size);
         classroom = generateImageView(R.drawable.ic_class, size);
         news = generateImageView(R.drawable.ic_news, size);
-        predict = generateImageView(R.drawable.ic_notification, size);
         refresh = generateImageView(R.drawable.ic_reload, size);
         settings = generateImageView(R.drawable.ic_gear, size);
         menu.addView(share);
         menu.addView(classroom);
         menu.addView(news);
-        menu.addView(predict);
         menu.addView(refresh);
         menu.addView(settings);
         menu.setPadding(10, 10, 10, 10);
@@ -302,8 +300,18 @@ public class HomeActivity extends Activity {
         fl.setPadding(20, 0, 20, 0);
         fl.setForegroundGravity(Gravity.CENTER);
         fl.setLayoutParams(new LinearLayout.LayoutParams(size, size));
-        ImageView iv = new ImageView(getApplicationContext());
+        final ImageView iv = new ImageView(getApplicationContext());
+
+        color.addPeer(new Peer<AppView.Gradient>(new Peer.OnPeer<AppView.Gradient>() {
+            @Override
+            public boolean onPeer(AppView.Gradient gradient) {
+                iv.setColorFilter(gradient.getColorBottom());
+                return false;
+            }
+        }));
+
         iv.setImageDrawable(getDrawable(drawable));
+        iv.setColorFilter(color.getLast().getColorBottom());
         iv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         fl.addView(iv);
         return fl;

@@ -77,7 +77,7 @@ public class RefreshService extends JobService {
     private void showNotification() {
         Notification.Builder mBuilder =
                 new Notification.Builder(this)
-                        .setSmallIcon(R.drawable.ic_notification)
+                        .setSmallIcon(R.drawable.ic_class)
                         .setContentTitle("New Schedule")
                         .setContentText("A New Schedule Has Been Uploaded. Click To Open App.")
                         .setDefaults(Notification.DEFAULT_ALL);

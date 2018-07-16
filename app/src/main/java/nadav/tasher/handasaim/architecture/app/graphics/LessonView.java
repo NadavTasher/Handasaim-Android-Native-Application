@@ -225,14 +225,14 @@ public class LessonView extends LinearLayout {
         tv.setTextDirection(TEXT_DIRECTION_RTL);
         tv.setSingleLine(true);
         // TODO register in towers
-        textSize.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
+        textSize.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
             @Override
             public boolean onPeer(Integer integer) {
                 tv.setTextSize((int) ((double) integer * textSizeRatio));
                 return false;
             }
         }));
-        textColor.addPeer(new Peer<Integer>(new Peer.OnPeer<Integer>() {
+        textColor.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
             @Override
             public boolean onPeer(Integer integer) {
                 tv.setTextColor(integer);

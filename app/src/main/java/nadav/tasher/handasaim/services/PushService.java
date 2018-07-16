@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,14 +37,14 @@ public class PushService extends JobService {
 
     @Override
     public boolean onStartJob(final JobParameters params) {
-        Log.i("PushService", "Refreshing...");
+//        Log.i("PushService", "Refreshing...");
         sp = getSharedPreferences(Values.prefName, Context.MODE_PRIVATE);
         if (sp.getBoolean(Values.pushService, Values.pushDefault)) {
             new Ping(Values.puzProvider, 5000, new Ping.OnEnd() {
                 @Override
                 public void onPing(boolean b) {
                     if (b) {
-                        Log.i("Push","Fetching");
+//                        Log.i("Push","Fetching");
                         checkForPushes(sp, params);
                     } else {
                         jobFinished(params, true);
@@ -115,7 +114,7 @@ public class PushService extends JobService {
     private void showNotification(PushItem pi) {
         Notification.Builder mBuilder =
                 new Notification.Builder(this)
-                        .setSmallIcon(R.drawable.ic_notification)
+                        .setSmallIcon(R.drawable.ic_class)
                         .setContentTitle(pi.text)
                         .setContentText(pi.subtext)
                         .setDefaults(Notification.DEFAULT_ALL);
