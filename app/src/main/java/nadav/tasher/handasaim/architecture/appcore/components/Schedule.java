@@ -112,7 +112,7 @@ public class Schedule {
                 Classroom currentClassroom=classrooms.get(a);
                 for (int b=0;b< currentClassroom.getSubjects().size();b++) {
                     Subject currentSubject = currentClassroom.getSubjects().get(b);
-                    for (String currentTeacher : currentSubject.getTeacherNames()) {
+                    for (String currentTeacher : currentSubject.getTeacherStrings()) {
                         if (!currentSubject.getDescription().isEmpty() && !currentSubject.getName().isEmpty() && !currentTeacher.isEmpty()) {
                             // Look For The Same Teacher In The Existing List
                             boolean foundTeacher = false;

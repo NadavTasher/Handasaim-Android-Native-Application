@@ -132,17 +132,19 @@ public class AppCore {
     }
 
     private static String readCell(Cell cell) {
-        try {
-            switch (cell.getCellType()) {
-                case Cell.CELL_TYPE_STRING:
-                    return cell.getStringCellValue();
-                case Cell.CELL_TYPE_NUMERIC:
-                    return String.valueOf((int) cell.getNumericCellValue());
-                case Cell.CELL_TYPE_BOOLEAN:
-                    return String.valueOf(cell.getBooleanCellValue());
+        if(cell != null) {
+            try {
+                switch (cell.getCellType()) {
+                    case Cell.CELL_TYPE_STRING:
+                        return cell.getStringCellValue();
+                    case Cell.CELL_TYPE_NUMERIC:
+                        return String.valueOf((int) cell.getNumericCellValue());
+                    case Cell.CELL_TYPE_BOOLEAN:
+                        return String.valueOf(cell.getBooleanCellValue());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return "";
     }

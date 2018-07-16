@@ -67,6 +67,10 @@ public class Center {
         return coasterP;
     }
 
+    public static int alpha(int alpha, int color){
+        return Color.argb(alpha,Color.red(color),Color.green(color),Color.blue(color));
+    }
+
     public static Typeface getTypeface(Context c) {
         return Typeface.createFromAsset(c.getAssets(), Values.fontName);
     }
