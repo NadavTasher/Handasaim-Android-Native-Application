@@ -1,12 +1,11 @@
 package nadav.tasher.handasaim.architecture.app.graphics;
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -16,21 +15,24 @@ import java.util.Calendar;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.appcore.AppCore;
 import nadav.tasher.handasaim.values.Values;
+import nadav.tasher.lightool.graphics.views.ExpandingView;
+import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.graphics.views.appview.AppView;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
 import nadav.tasher.lightool.parts.Tower;
 
-public class LessonView extends LinearLayout {
+public class LessonView extends FrameLayout {
     static final String rtlMark = "\u200F";
     private String topText;
     private ArrayList<String> bottomText;
     private int schoolHour, hour1, hour2;
     private TextView top, time;
-    private LinearLayout topLayout, bottomLayout, bottomTextLayout;
+    private LinearLayout topLayout, bottomTextLayout, bottomLayout;
     private Tower<Integer> textColor = new Tower<>(), textSize = new Tower<>();
     private Tower<AppView.Gradient> color = new Tower<>();
-    private boolean isOpened = false, isAnimating = false;
+
+    private ExpandingView expandingView;
 
     public LessonView(Context c) {
         super(c);
@@ -56,7 +58,7 @@ public class LessonView extends LinearLayout {
         init();
     }
 
-    public Peer<AppView.Gradient> getColor(){
+    public Peer<AppView.Gradient> getColor() {
         return new Peer<>(new Peer.OnPeer<AppView.Gradient>() {
             @Override
             public boolean onPeer(AppView.Gradient integer) {
@@ -65,7 +67,8 @@ public class LessonView extends LinearLayout {
             }
         });
     }
-    public Peer<Integer> getTextSize(){
+
+    public Peer<Integer> getTextSize() {
         return new Peer<>(new Peer.OnPeer<Integer>() {
             @Override
             public boolean onPeer(Integer integer) {
@@ -75,7 +78,7 @@ public class LessonView extends LinearLayout {
         });
     }
 
-    public Peer<Integer> getTextColor(){
+    public Peer<Integer> getTextColor() {
         return new Peer<>(new Peer.OnPeer<Integer>() {
             @Override
             public boolean onPeer(Integer integer) {
@@ -93,32 +96,28 @@ public class LessonView extends LinearLayout {
         return output;
     }
 
-    private void initBackground() {
+    private Drawable initBackground() {
         Calendar c = Calendar.getInstance();
         int minute = c.get(Calendar.MINUTE);
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minuteOfDay = (hour * 60) + minute;
         if (schoolHour < 0) {
             if (minuteOfDay >= AppCore.getEndMinute(hour1) && minuteOfDay < AppCore.getStartMinute(hour2)) {
-                setBackground(Center.getCoaster(Values.classCoasterMarkColor, 32));
+                return Utils.getCoaster(Values.classCoasterMarkColor, 32, 5);
             } else {
-                setBackground(Center.getCoaster(Values.classCoasterColor, 32));
+                return Utils.getCoaster(Values.classCoasterColor, 32, 5);
             }
         } else {
             if (minuteOfDay >= AppCore.getStartMinute(schoolHour) && minuteOfDay < AppCore.getEndMinute(schoolHour)) {
-                setBackground(Center.getCoaster(Values.classCoasterMarkColor, 32));
+                return Utils.getCoaster(Values.classCoasterMarkColor, 32, 5);
             } else {
-                setBackground(Center.getCoaster(Values.classCoasterColor, 32));
+                return Utils.getCoaster(Values.classCoasterColor, 32, 5);
             }
         }
     }
 
     private void init() {
-        initBackground();
-        setOrientation(VERTICAL);
         setLayoutDirection(LAYOUT_DIRECTION_RTL);
-        setGravity(Gravity.START);
-        setPadding(30, 20, 30, 20);
         if (schoolHour < 0) {
             top = getText(topText, 1);
         } else {
@@ -130,6 +129,7 @@ public class LessonView extends LinearLayout {
         topLayout = new LinearLayout(getContext());
         bottomLayout = new LinearLayout(getContext());
         topLayout.setGravity(Gravity.CENTER);
+        bottomTextLayout.setGravity(Gravity.CENTER);
         bottomLayout.setGravity(Gravity.CENTER);
         topLayout.setOrientation(LinearLayout.HORIZONTAL);
         bottomLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -139,11 +139,11 @@ public class LessonView extends LinearLayout {
         bottomTextLayout.setLayoutDirection(LAYOUT_DIRECTION_RTL);
         time.setGravity(Gravity.CENTER);
         top.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-        topLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
         top.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        time.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getContext()) / 2 - getPaddingLeft(), ViewGroup.LayoutParams.MATCH_PARENT));
-        bottomTextLayout.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getContext()) / 2 - getPaddingRight(), ViewGroup.LayoutParams.MATCH_PARENT));
         topLayout.addView(top);
+        bottomLayout.setPadding(0, 10, 0, 10);
+        bottomTextLayout.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        time.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         bottomLayout.addView(bottomTextLayout);
         bottomLayout.addView(time);
         if (bottomText != null) {
@@ -157,13 +157,13 @@ public class LessonView extends LinearLayout {
                     final TextView bottomTextView = getText((i + 1) + ". " + bottomText.get(i), 0.6);
                     bottomTextView.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
                     bottomTextView.setEllipsize(TextUtils.TruncateAt.END);
-                    bottomTextView.setBackground(Center.getCoaster(Center.alpha(128, Center.getColorA(getContext())), 16));
-                    bottomTextView.setPadding(30, 0, 30, 0);
+                    bottomTextView.setBackground(Utils.getCoaster(Center.alpha(128, Center.getColorA(getContext())), 16, 10));
+                    bottomTextView.setPadding(40, 0, 30, 0);
                     color.addPeer(new Peer<>(new Peer.OnPeer<AppView.Gradient>() {
                         @Override
                         public boolean onPeer(AppView.Gradient gradient) {
                             bottomTextView.setBackground(Center.getCoaster(Center.alpha(128, Center.getColorA(getContext())), 16));
-                            bottomTextView.setPadding(30, 0, 30, 0);
+                            bottomTextView.setPadding(40, 0, 30, 0);
                             return false;
                         }
                     }));
@@ -172,66 +172,11 @@ public class LessonView extends LinearLayout {
                 }
             }
         }
-        setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!isAnimating) {
-                    if (!isOpened) {
-                        animate(true, 700);
-                    } else {
-                        animate(false, 700);
-                    }
-                    isOpened = !isOpened;
-                }
-            }
-        });
-        setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, topLayout.getLayoutParams().height + getPaddingTop() + getPaddingBottom()));
-        addView(topLayout);
-        addView(bottomLayout);
-    }
-
-    private void animate(final boolean open, int duration) {
-        bottomLayout.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        int first, second;
-        if (open) {
-            first = topLayout.getHeight() + getPaddingTop() + getPaddingBottom();
-            second = topLayout.getHeight() + bottomLayout.getMeasuredHeight() + getPaddingBottom() + getPaddingTop();
-        } else {
-            first = topLayout.getHeight() + bottomLayout.getMeasuredHeight() + getPaddingBottom() + getPaddingTop();
-            second = topLayout.getHeight() + getPaddingTop() + getPaddingBottom();
-        }
-        ValueAnimator animator = ValueAnimator.ofInt(first, second);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int val = (Integer) animation.getAnimatedValue();
-                ViewGroup.LayoutParams layoutParams = getLayoutParams();
-                layoutParams.height = val;
-                setLayoutParams(layoutParams);
-            }
-        });
-        animator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-                isAnimating = true;
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                isAnimating = false;
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-            }
-        });
-        animator.setDuration(duration);
-        animator.start();
+        bottomLayout.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        if (bottomLayout.getMeasuredHeight() < Device.screenY(getContext()) / 10)
+            bottomLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
+        expandingView = new ExpandingView(getContext(), initBackground(), 500, Device.screenY(getContext()) / 10, topLayout, bottomLayout);
+        addView(expandingView);
     }
 
     private TextView getText(String text, final double textSizeRatio) {
