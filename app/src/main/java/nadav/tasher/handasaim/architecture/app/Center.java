@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.InsetDrawable;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.values.Values;
@@ -59,14 +58,6 @@ public class Center {
         return Color.rgb(combineRed, combineGreen, combineBlue);
     }
 
-    public static Drawable getCoaster(int color, int radii){
-        GradientDrawable coaster=new GradientDrawable();
-        coaster.setColor(color);
-        coaster.setCornerRadius(radii);
-        InsetDrawable coasterP=new InsetDrawable(coaster,10,10,10,10);
-        return coasterP;
-    }
-
     public static int alpha(int alpha, int color){
         return Color.argb(alpha,Color.red(color),Color.green(color),Color.blue(color));
     }
@@ -95,14 +86,6 @@ public class Center {
             c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
             c.finish();
         }
-    }
-
-    public static Drawable generateCoaster(Context c, int color) {
-        GradientDrawable gd = (GradientDrawable) c.getDrawable(R.drawable.rounded_rect);
-        if (gd != null) {
-            gd.setColor(color);
-        }
-        return gd;
     }
 
     public static void writeDefaults(Context c) {

@@ -5,12 +5,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -157,7 +155,6 @@ public class SplashActivity extends Activity {
                     if (!sp.getString(Values.latestFileDate, "").equals(date)) {
                         sp.edit().putString(Values.latestFileDate, date).apply();
                         sp.edit().putString(Values.latestFileDateRefresher, date).apply();
-                        Log.i("App Status","Downloading");
                         new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
                             @Override
                             public void onFinish(final File file, final boolean be) {
@@ -201,10 +198,7 @@ public class SplashActivity extends Activity {
             }
         } else {
             //TODO Update To Lunch New Activity
-            startActivity(new Intent(this,HomeActivity.class));
-//            Center.enter(this,HomeActivity.class);
-//            Welcome welcome = new Welcome(a, sp, keyManager);
-//            welcome.start();
+            Center.enter(this,HomeActivity.class);
         }
     }
 

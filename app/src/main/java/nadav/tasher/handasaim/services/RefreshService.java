@@ -57,7 +57,7 @@ public class RefreshService extends JobService {
                 if (link != null) {
                     String date = link.split("/")[link.split("/").length - 1].split("\\.")[0];
                     if (!sp.getString(Values.latestFileDateRefresher, "").equals(date)) {
-                        sp.edit().putString(Values.latestFileDateRefresher, date).commit();
+                        sp.edit().putString(Values.latestFileDateRefresher, date).apply();
                         showNotification();
                     }
                     Starter.startRefresh(getApplicationContext());

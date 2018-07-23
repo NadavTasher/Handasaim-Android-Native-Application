@@ -71,7 +71,7 @@ public class HomeActivity extends Activity {
     private AppView mAppView;
     private Schedule schedule;
     private HorizontalScrollView menuDrawer;
-    private ScrollView settingsDrawer,classDrawer;
+    private ScrollView settingsDrawer, classDrawer;
     private SharedPreferences sp;
     private KeyManager keyManager;
 
@@ -269,25 +269,25 @@ public class HomeActivity extends Activity {
     private void assembleDrawers() {
         assembleMenuDrawer();
         assembleSettingsDrawer();
-//        assembleShareDrawer();
-//        assembleNewsDrawer();
-//        assembleClassDrawer();
+        //        assembleShareDrawer();
+        //        assembleNewsDrawer();
+        assembleClassDrawer();
     }
 
-    private void assembleSettingsDrawer(){
-        settingsDrawer=getSettings();
+    private void assembleSettingsDrawer() {
+        settingsDrawer = getSettings();
     }
 
-    private void assembleShareDrawer(){
-        shareDrawer=getShare();
+    private void assembleShareDrawer() {
+        shareDrawer = getShare();
     }
 
-    private void assembleNewsDrawer(){
-        newsDrawer=getNews();
+    private void assembleNewsDrawer() {
+        newsDrawer = getNews();
     }
 
-    private void assembleClassDrawer(){
-        classDrawer=getSwitcher();
+    private void assembleClassDrawer() {
+        classDrawer = getSwitcher();
     }
 
     private void assembleMenuDrawer() {
@@ -309,7 +309,14 @@ public class HomeActivity extends Activity {
             @Override
             public void onClick(View view) {
                 mAppView.getDrawer().setContent(settingsDrawer);
-                mAppView.getDrawer().open(false,0.8);
+                mAppView.getDrawer().open(false, 0.8);
+            }
+        });
+        classroom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mAppView.getDrawer().setContent(classDrawer);
+                mAppView.getDrawer().open(false, 0.8);
             }
         });
         menu.addView(share);
@@ -861,7 +868,10 @@ public class HomeActivity extends Activity {
         }
         ArrayList<LinearLayout> groups = new ArrayList<>();
         for (int cs = 0; cs < schedule.getClassrooms().size(); cs++) {
-            int grade = schedule.getClassrooms().get(cs).getGrade();
+            int grade = schedule.getClassrooms().get(cs).getGrade() - Classroom.NINTH_GRADE;
+            if (grade < 0) {
+                grade = 0;
+            }
             Button cls = new Button(getApplicationContext());
             cls.setTextSize((float) getFontSize());
             cls.setGravity(Gravity.CENTER);
@@ -1038,6 +1048,7 @@ public class HomeActivity extends Activity {
         //        info.setText(textColor, getFontSize(), c.getName(), day);
         info.setText(0.9, new Corner.TextPiece(c.getName(), 0.9, textColor.getLast()), new Corner.TextPiece(schedule.getDay(), 0.65, textColor.getLast()));
         displayLessonViews(scheduleForClass(c));
+        refreshTheme();
     }
 
     private void setTeacherMode(Teacher t) {
@@ -1046,6 +1057,7 @@ public class HomeActivity extends Activity {
         //        info.setText(textColor, getFontSize(), t.mainName.split(" ")[0], day);
         info.setText(0.9, new Corner.TextPiece(t.getName().split(" ")[0], 0.9, textColor.getLast()), new Corner.TextPiece(schedule.getDay(), 0.65, textColor.getLast()));
         displayLessonViews(scheduleForTeacher(t));
+        refreshTheme();
     }
 
     private void displayLessonViews(ArrayList<LessonView> lessonViews) {

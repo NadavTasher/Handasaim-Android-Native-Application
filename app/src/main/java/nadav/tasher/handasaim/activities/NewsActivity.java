@@ -28,6 +28,7 @@ import nadav.tasher.handasaim.tools.online.PictureLoader;
 import nadav.tasher.handasaim.tools.specific.GetNews;
 import nadav.tasher.handasaim.values.Egg;
 import nadav.tasher.handasaim.values.Values;
+import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.info.Device;
 
 public class NewsActivity extends Activity {
@@ -118,7 +119,7 @@ public class NewsActivity extends Activity {
                         Button newtopic = new Button(getApplicationContext());
                         nt.addView(newtopic);
                         nt.setPadding(10, 10, 10, 10);
-                        nt.setBackground(Center.generateCoaster(getApplicationContext(), Values.classCoasterColor));
+                        nt.setBackground(Utils.getCoaster( Values.classCoasterColor,32,10));
                         newtopic.setText(link.get(n).name);
                         newtopic.setEllipsize(TextUtils.TruncateAt.END);
                         newtopic.setTextColor(Center.getTextColor(getApplicationContext()));

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.values.Values;
+import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.graphics.views.appview.navigation.drawer.Drawer;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
@@ -30,7 +31,7 @@ public class MessageBar extends LinearLayout {
     private Drawer dn;
     private Thread animate;
     private Activity a;
-    private Tower<Integer> textColor=new Tower<>();
+    private Tower<Integer> textColor = new Tower<>();
 
     public MessageBar(Activity context, ArrayList<String> messages, Drawer drag) {
         super(context.getApplicationContext());
@@ -41,7 +42,7 @@ public class MessageBar extends LinearLayout {
         init();
     }
 
-    public Peer<Integer> getTextColorPeer(){
+    public Peer<Integer> getTextColorPeer() {
         return new Peer<>(new Peer.OnPeer<Integer>() {
             @Override
             public boolean onPeer(Integer integer) {
@@ -54,7 +55,7 @@ public class MessageBar extends LinearLayout {
     private void init() {
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER);
-        setBackground(Center.generateCoaster(getContext(), Values.messageColor));
+        setBackground(Utils.getCoaster(Values.messageColor, 32, 10));
         setPadding(20, 10, 20, 10);
         setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
         //        Log.i("MessageBar",""+Device.screenY(getContext())/10);
@@ -69,7 +70,7 @@ public class MessageBar extends LinearLayout {
                         sv.addView(getTextView(messages.get(finalA), Center.getTextColor(getContext()), false));
                         sv.setFillViewport(true);
                         dn.setContent(sv);
-                        dn.open(false,0.9);
+                        dn.open(false, 0.9);
                     }
                 });
             }
@@ -204,7 +205,6 @@ public class MessageBar extends LinearLayout {
                 return true;
             }
         }));
-
         return v;
     }
 }

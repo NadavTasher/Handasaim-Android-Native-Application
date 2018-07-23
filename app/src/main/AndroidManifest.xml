@@ -44,8 +44,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activities.DeveloperActivity">
-        </activity>
         <activity android:name=".activities.HomeActivity">
         </activity>
         <activity android:name=".activities.NewsActivity">

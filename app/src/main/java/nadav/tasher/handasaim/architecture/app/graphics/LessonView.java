@@ -162,7 +162,7 @@ public class LessonView extends FrameLayout {
                     color.addPeer(new Peer<>(new Peer.OnPeer<AppView.Gradient>() {
                         @Override
                         public boolean onPeer(AppView.Gradient gradient) {
-                            bottomTextView.setBackground(Center.getCoaster(Center.alpha(128, Center.getColorA(getContext())), 16));
+                            bottomTextView.setBackground(Utils.getCoaster(Center.alpha(128, Center.getColorA(getContext())), 16,10));
                             bottomTextView.setPadding(40, 0, 30, 0);
                             return false;
                         }
