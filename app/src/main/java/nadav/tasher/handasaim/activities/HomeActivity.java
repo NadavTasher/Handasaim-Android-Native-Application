@@ -8,12 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputFilter;
-import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,12 +34,12 @@ import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.KeyManager;
 import nadav.tasher.handasaim.architecture.app.graphics.LessonView;
 import nadav.tasher.handasaim.architecture.app.graphics.MessageBar;
+import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
 import nadav.tasher.handasaim.architecture.appcore.AppCore;
 import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
 import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
 import nadav.tasher.handasaim.architecture.appcore.components.Subject;
 import nadav.tasher.handasaim.architecture.appcore.components.Teacher;
-import nadav.tasher.handasaim.tools.specific.GetNews;
 import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.graphics.views.ColorPicker;
@@ -59,15 +55,13 @@ public class HomeActivity extends Activity {
 
     private Classroom currentClass;
     private Teacher currentTeacher;
-    private Corner icon, info;
+    private Corner info;
     private MessageBar messageBar;
     private LinearLayout lessonViewHolder;
-    private LinearLayout shareDrawer;
-    private FrameLayout newsDrawer;
     private AppView mAppView;
     private Schedule schedule;
     private HorizontalScrollView menuDrawer;
-    private ScrollView settingsDrawer, classDrawer;
+    private ScrollView settings, switcher, share, code, about;
 
     private int drawerPadding = 10;
 
@@ -165,27 +159,10 @@ public class HomeActivity extends Activity {
     }
 
     private void initStageB() {
+        refreshTheme();
         mAppView = new AppView(this);
         mAppView.setDrawNavigation(false);
         mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(Center.alpha(255, Values.classCoasterColor), 30, 10));
-        icon = new Corner(getApplicationContext(), Device.screenX(getApplicationContext()) / 5, Color.TRANSPARENT);
-        ImageView iconImageView = new ImageView(getApplicationContext());
-        iconImageView.setImageDrawable(getDrawable(R.drawable.ic_icon));
-        icon.setView(iconImageView, 0.8);
-        icon.addOnState(new Corner.OnState() {
-            @Override
-            public void onOpen() {
-            }
-
-            @Override
-            public void onClose() {
-            }
-
-            @Override
-            public void onBoth(boolean b) {
-                aboutPopup();
-            }
-        });
         info = new Corner(getApplicationContext(), Device.screenX(getApplicationContext()) / 5, Color.TRANSPARENT);
         info.addOnState(new Corner.OnState() {
             @Override
@@ -209,21 +186,43 @@ public class HomeActivity extends Activity {
                 }
             }
         });
-        mAppView.getCornerView().setBottomLeft(icon);
         mAppView.getCornerView().setBottomRight(info);
         mAppView.getScrolly().setOnScroll(new AppView.Scrolly.OnScroll() {
             @Override
             public void onScroll(int i, int i1, int i2, int i3) {
-                setCornerColors(mAppView.getScrolly());
+                setCornerColor(mAppView.getScrolly());
             }
         });
-        LinearLayout scheduleLayout = new LinearLayout(getApplicationContext());
+        final LinearLayout scheduleLayout = new LinearLayout(getApplicationContext());
         scheduleLayout.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         scheduleLayout.setOrientation(LinearLayout.VERTICAL);
         scheduleLayout.setPadding(10, 10, 10, 10);
-        messageBar = new MessageBar(this, schedule.getMessages(), mAppView.getDrawer());
+        messageBar = new MessageBar(this);
+        messageBar.setMessages(schedule.getMessages());
+        messageBar.setOnMessage(new MessageBar.OnMessage() {
+            @Override
+            public void onMessage(String message, int index) {
+                ScrollView scrollView = new ScrollView(getApplicationContext());
+                scrollView.setFillViewport(true);
+                scrollView.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
+                scrollView.setVerticalScrollBarEnabled(false);
+                RatioView messageView = new RatioView(getApplicationContext(), 0.8);
+                messageView.setPadding(20, 20, 20, 20);
+                messageView.setTypeface(getTypeface());
+                messageView.setTextSize(theme.getLast().textSize);
+                messageView.setTextColor(theme.getLast().textColor);
+                messageView.setGravity(Gravity.CENTER);
+                messageView.setText(message);
+                messageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                scrollView.addView(messageView);
+                messageView.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                double percent = ((double) (messageView.getMeasuredHeight() + (2 * drawerPadding))) / ((double) Device.screenY(getApplicationContext()));
+                //                Log.i("Precent",String.valueOf(percent));
+                mAppView.getDrawer().setContent(scrollView);
+                mAppView.getDrawer().open(((percent) > 0.7) ? 0.7 : percent);
+            }
+        });
         messageBar.start();
-        //       TODO textColor.addPeer(messageBar.getTextColorPeer());
         scheduleLayout.addView(messageBar);
         lessonViewHolder = new LinearLayout(getApplicationContext());
         lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
@@ -236,7 +235,9 @@ public class HomeActivity extends Activity {
                 if (mAppView != null)
                     mAppView.setBackgroundColor(new AppView.Gradient(theme.colorTop, theme.colorBottom));
                 getWindow().setNavigationBarColor(theme.colorMix);
-                setCornerColors(mAppView.getScrolly());
+                setCornerColor(mAppView.getScrolly());
+                messageBar.setTextColor(theme.textColor);
+                messageBar.setTextSize(theme.textSize);
                 if (theme.showMessages && schedule.getMessages().size() != 0) {
                     messageBar.setVisibility(View.VISIBLE);
                 } else {
@@ -254,26 +255,9 @@ public class HomeActivity extends Activity {
 
     private void assembleDrawers() {
         assembleMenuDrawer();
-        assembleSettingsDrawer();
-        //        assembleShareDrawer();
-        //        assembleNewsDrawer();
-        assembleClassDrawer();
-    }
-
-    private void assembleSettingsDrawer() {
-        settingsDrawer = getSettings();
-    }
-
-    private void assembleShareDrawer() {
-        shareDrawer = getShare();
-    }
-
-    private void assembleNewsDrawer() {
-        newsDrawer = getNews();
-    }
-
-    private void assembleClassDrawer() {
-        classDrawer = getSwitcher();
+        settings = getSettings();
+        share=getShare();
+        switcher=getSwitcher();
     }
 
     private void assembleMenuDrawer() {
@@ -285,31 +269,47 @@ public class HomeActivity extends Activity {
         menu.setGravity(Gravity.CENTER);
         menuDrawer.setFillViewport(true);
         final int size = Device.screenY(getApplicationContext()) / 13;
-        FrameLayout share, classroom, news, refresh, settings;
-        share = generateImageView(R.drawable.ic_share, size);
-        classroom = generateImageView(R.drawable.ic_class, size);
-        news = generateImageView(R.drawable.ic_news, size);
-        refresh = generateImageView(R.drawable.ic_reload, size);
-        settings = generateImageView(R.drawable.ic_gear, size);
-        settings.setOnClickListener(new View.OnClickListener() {
+        final FrameLayout shareIcon, classroomIcon, icon, refreshIcon, settingsIcon;
+        shareIcon = generateImageView(R.drawable.ic_share, size);
+        classroomIcon = generateImageView(R.drawable.ic_class, size);
+        icon = generateImageView(R.drawable.ic_icon_white, size);
+        refreshIcon = generateImageView(R.drawable.ic_reload, size);
+        settingsIcon = generateImageView(R.drawable.ic_gear, size);
+        settingsIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mAppView.getDrawer().setContent(settingsDrawer);
-                mAppView.getDrawer().open(0.8);
+                openDrawer(settings);
             }
         });
-        classroom.setOnClickListener(new View.OnClickListener() {
+        classroomIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mAppView.getDrawer().setContent(classDrawer);
-                mAppView.getDrawer().open(0.8);
+                openDrawer(switcher);
             }
         });
-        menu.addView(share);
-        menu.addView(classroom);
-        menu.addView(news);
-        menu.addView(refresh);
-        menu.addView(settings);
+        refreshIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Center.exit(HomeActivity.this, SplashActivity.class);
+            }
+        });
+        shareIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openDrawer(share);
+            }
+        });
+        icon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                aboutPopup();
+            }
+        });
+        menu.addView(shareIcon);
+        menu.addView(classroomIcon);
+        menu.addView(icon);
+        menu.addView(refreshIcon);
+        menu.addView(settingsIcon);
         menu.setPadding(10, 10, 10, 10);
         menu.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, size + menu.getPaddingBottom() + menu.getPaddingTop()));
         menuDrawer.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getApplicationContext()), size + menu.getPaddingBottom() + menu.getPaddingTop()));
@@ -328,18 +328,27 @@ public class HomeActivity extends Activity {
         return fl;
     }
 
-    private void setCornerColors(AppView.Scrolly s) {
-        if (s.getChildAt(s.getChildCount() - 1).getBottom() - (s.getHeight() + s.getScrollY()) == 0) {
-            icon.setColorAlpha(128);
-            info.setColorAlpha(128);
-            icon.setColor(theme.getLast().colorTop);
-            info.setColor(theme.getLast().colorTop);
+    private void setCornerColor(AppView.Scrolly s) {
+        //        Log.i("Scroll",String.valueOf(s.getScrollY()));
+        if (s.getScrollY() != 0) {
+            if (s.getChildAt(s.getChildCount() - 1).getBottom() - (s.getHeight() + s.getScrollY()) == 0) {
+                info.setColorAlpha(128);
+                info.setColor(theme.getLast().colorTop);
+            } else {
+                info.setColorAlpha(255);
+                info.setColor(theme.getLast().colorMix);
+            }
         } else {
             info.setColorAlpha(255);
-            icon.setColorAlpha(255);
-            icon.setColor(theme.getLast().colorMix);
             info.setColor(theme.getLast().colorMix);
         }
+    }
+
+    private void openDrawer(View v){
+        mAppView.getDrawer().setContent(v);
+        v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        double percent = ((double) (v.getMeasuredHeight() + (2 * drawerPadding))) / ((double) Device.screenY(getApplicationContext()));
+        mAppView.getDrawer().open(((percent) > 0.7) ? 0.7 : percent);
     }
 
     private Classroom getFavoriteClass() {
@@ -377,236 +386,80 @@ public class HomeActivity extends Activity {
             return schedule.getTeachers().get(selectedTeacher);
         }
     }
-    //    private ArrayList<Squircle> getSquircles(int size) {
-    //        ArrayList<Squircle> squircles = new ArrayList<>();
-    //        final Squircle reload = new Squircle(getApplicationContext(), size, colorA);
-    //        reload.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_reload));
-    //        reload.addOnState(new Squircle.OnState() {
-    //
-    //            @Override
-    //            public void onOpen() {
-    //            }
-    //
-    //            @Override
-    //            public void onClose() {
-    //            }
-    //
-    //            @Override
-    //            public void onBoth(boolean isOpened) {
-    //                Center.exit(HomeActivity.this,SplashActivity.class);
-    //                // TODO RETURNTO splash
-    //            }
-    //        });
-    //        squircles.add(reload);
-    //        final Squircle news = new Squircle(getApplicationContext(), size, colorA);
-    //        news.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_news));
-    //        final FrameLayout newsContent = getNews();
-    //        news.addOnState(new Squircle.OnState() {
-    //            @Override
-    //            public void onOpen() {
-    //                mAppView.getDrag().emptyContent();
-    //                mAppView.getDrag().open(false);
-    //                mAppView.getDrag().setContent(newsContent);
-    //            }
-    //
-    //            @Override
-    //            public void onClose() {
-    //                if (mAppView.getDrag().isOpen()) {
-    //                    if (mAppView.getDrag().getContent() == newsContent) {
-    //                        mAppView.getDrag().close(true);
-    //                    } else {
-    //                        news.setState(true);
-    //                        this.onOpen();
-    //                    }
-    //                } else {
-    //                    news.setState(true);
-    //                    this.onOpen();
-    //                }
-    //            }
-    //
-    //            @Override
-    //            public void onBoth(boolean isOpened) {
-    //            }
-    //        });
-    //        squircles.add(news);
-    //        final Squircle choose = new Squircle(getApplicationContext(), size, colorA);
-    //        choose.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_class));
-    //        final ScrollView chooseContent = getSwitcher();
-    //        choose.addOnState(new Squircle.OnState() {
-    //            @Override
-    //            public void onOpen() {
-    //                mAppView.getDrag().emptyContent();
-    //                mAppView.getDrag().open(false);
-    //                mAppView.getDrag().setContent(chooseContent);
-    //            }
-    //
-    //            @Override
-    //            public void onClose() {
-    //                if (mAppView.getDrag().isOpen()) {
-    //                    if (mAppView.getDrag().getContent() == chooseContent) {
-    //                        mAppView.getDrag().close(true);
-    //                    } else {
-    //                        choose.setState(true);
-    //                        this.onOpen();
-    //                    }
-    //                } else {
-    //                    choose.setState(true);
-    //                    this.onOpen();
-    //                }
-    //            }
-    //
-    //            @Override
-    //            public void onBoth(boolean isOpened) {
-    //            }
-    //        });
-    //        squircles.add(choose);
-    //        final Squircle share = new Squircle(getApplicationContext(), size, colorA);
-    //        share.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_share));
-    //        share.addOnState(new Squircle.OnState() {
-    //
-    //            private LinearLayout shareContent;
-    //
-    //            @Override
-    //            public void onOpen() {
-    //                shareContent = getShare();
-    //                mAppView.getDrag().emptyContent();
-    //                mAppView.getDrag().open(false);
-    //                mAppView.getDrag().setContent(shareContent);
-    //            }
-    //
-    //            @Override
-    //            public void onClose() {
-    //                if (mAppView.getDrag().isOpen()) {
-    //                    if (mAppView.getDrag().getContent() == shareContent) {
-    //                        mAppView.getDrag().close(true);
-    //                    } else {
-    //                        share.setState(true);
-    //                        this.onOpen();
-    //                    }
-    //                } else {
-    //                    share.setState(true);
-    //                    this.onOpen();
-    //                }
-    //            }
-    //
-    //            @Override
-    //            public void onBoth(boolean isOpened) {
-    //            }
-    //        });
-    //        squircles.add(share);
-    //        final Squircle settings = new Squircle(getApplicationContext(), size, colorA);
-    //        settings.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_gear));
-    //        final ScrollView settingsContent = getSettings();
-    //        settings.addOnState(new Squircle.OnState() {
-    //
-    //            @Override
-    //            public void onOpen() {
-    //                mAppView.getDrag().emptyContent();
-    //                mAppView.getDrag().open(false);
-    //                mAppView.getDrag().setContent(settingsContent);
-    //            }
-    //
-    //            @Override
-    //            public void onClose() {
-    //                if (mAppView.getDrag().isOpen()) {
-    //                    if (mAppView.getDrag().getContent() == settingsContent) {
-    //                        mAppView.getDrag().close(true);
-    //                    } else {
-    //                        settings.setState(true);
-    //                        this.onOpen();
-    //                    }
-    //                } else {
-    //                    settings.setState(true);
-    //                    this.onOpen();
-    //                }
-    //            }
-    //
-    //            @Override
-    //            public void onBoth(boolean isOpened) {
-    //            }
-    //        });
-    //        squircles.add(settings);
-    //        final Squircle devPanel = new Squircle(getApplicationContext(), size, colorA);
-    //        devPanel.setDrawable(getApplicationContext().getDrawable(R.drawable.ic_developer));
-    //        devPanel.addOnState(new Squircle.OnState() {
-    //
-    //            @Override
-    //            public void onOpen() {
-    //            }
-    //
-    //            @Override
-    //            public void onClose() {
-    //            }
-    //
-    //            @Override
-    //            public void onBoth(boolean isOpened) {
-    //                if (keyManager.isKeyLoaded(KeyManager.TYPE_BETA)) {
-    //                    // TODO GOTO developer
-    //                } else {
-    //                    Toast.makeText(getApplicationContext(), "Beta Key Not Installed.\nFor Now, A Beta Key Must Be Installed To Enter The Developer Console.", Toast.LENGTH_LONG).show();
-    //                }
-    //            }
-    //        });
-    //        if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
-    //            squircles.add(devPanel);
-    //        }
-    //        TowerHub.colorAChangeTunnle.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
-    //            @Override
-    //            public boolean onPeer(Integer integer) {
-    //                news.setColor(integer);
-    //                choose.setColor(integer);
-    //                share.setColor(integer);
-    //                settings.setColor(integer);
-    //                devPanel.setColor(integer);
-    //                return true;
-    //            }
-    //        }));
-    //        return squircles;
-    //    }
 
-    private LinearLayout getShare() {
+    private ScrollView getShare() {
+        ScrollView sv=new ScrollView(getApplicationContext());
+        sv.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
+        sv.setFillViewport(true);
         LinearLayout shareView = new LinearLayout(getApplicationContext());
         shareView.setGravity(Gravity.CENTER);
         shareView.setOrientation(LinearLayout.VERTICAL);
-        TextView shareTitle = new TextView(getApplicationContext());
-        shareTitle.setTextSize(getFontSize());
-        shareTitle.setTypeface(getTypeface());
-        shareTitle.setTextColor(theme.getLast().textColor);
-        shareTitle.setText(R.string.share_menu);
-        shareTitle.setGravity(Gravity.CENTER);
+        shareView.setPadding(20, 20, 20, 20);
         final Switch shareMessageSwitch = new Switch(getApplicationContext());
         shareMessageSwitch.setPadding(10, 0, 10, 0);
         shareMessageSwitch.setText(R.string.messages_switch);
         shareMessageSwitch.setTypeface(getTypeface());
-        shareMessageSwitch.setTextSize(getFontSize() - 4);
+        shareMessageSwitch.setTextSize((int)(double)(theme.getLast().textSize *0.8));
         shareMessageSwitch.setTextColor(theme.getLast().textColor);
         shareMessageSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         shareMessageSwitch.setEnabled(!schedule.getMessages().isEmpty());
-        Button shareB = new Button(getApplicationContext());
-        String shareText = getApplicationContext().getString(R.string.share) + " " + currentClass.getName();
-        shareB.setText(shareText);
+        final Switch shareGradeSwitch = new Switch(getApplicationContext());
+        shareGradeSwitch.setPadding(10, 0, 10, 0);
+        shareGradeSwitch.setText(R.string.grade_switch);
+        shareGradeSwitch.setTypeface(getTypeface());
+        shareGradeSwitch.setTextSize((int)(double)(theme.getLast().textSize *0.8));
+        shareGradeSwitch.setTextColor(theme.getLast().textColor);
+        shareGradeSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        final Button shareB = new Button(getApplicationContext());
+        shareB.setText(R.string.share);
         shareB.setBackground(Utils.getCoaster(theme.getLast().colorMix, 16, 10));
         shareB.setTextColor(theme.getLast().textColor);
-        shareB.setTextSize(getFontSize() - 7);
+        shareB.setTextSize((int)(double)(theme.getLast().textSize *0.7));
         shareB.setTypeface(getTypeface());
         shareB.setAllCaps(false);
         shareB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 StringBuilder message = new StringBuilder();
+                if (shareGradeSwitch.isChecked()) {
+                    message.append("יום").append(" ").append(schedule.getDay()).append(":").append("\n").append("\n");
+                    int grade = currentClass.getGrade();
+                    for (Classroom classroom : schedule.getClassrooms()) {
+                        if (classroom.getGrade() == grade) {
+                            message.append(classroom.getName()).append(":").append("\n");
+                            message.append(scheduleForClassString(classroom)).append("\n");
+                        }
+                    }
+                } else {
+                    message.append(currentClass.getName()).append(" (").append(schedule.getDay()).append(")").append("\n");
+                    message.append(scheduleForClassString(currentClass)).append("\n");
+                }
                 if (shareMessageSwitch.isChecked()) {
-                    message = new StringBuilder("Messages:\n");
+                    message.append("הודעות:\n");
                     for (int i = 0; i < schedule.getMessages().size(); i++) {
                         message.append(i + 1).append(". ").append(schedule.getMessages().get(i)).append("\n");
                     }
                 }
-                share(currentClass.getName() + " (" + schedule.getDay() + ")" + "\n" + scheduleForClassString(currentClass) + message);
+                share(message.toString());
             }
         });
-        shareView.addView(shareTitle);
         shareView.addView(shareMessageSwitch);
+        shareView.addView(shareGradeSwitch);
         shareView.addView(shareB);
-        return shareView;
+        theme.addPeer(new Peer<Theme>(new Peer.OnPeer<Theme>() {
+            @Override
+            public boolean onPeer(Theme theme) {
+                shareB.setTextSize((int)((double)(theme.textSize*0.7)));
+                shareB.setTextColor(theme.textColor);
+                shareGradeSwitch.setTextSize((int)((double)(theme.textSize*0.8)));
+                shareGradeSwitch.setTextColor(theme.textColor);
+                shareMessageSwitch.setTextSize((int)((double)(theme.textSize*0.8)));
+                shareMessageSwitch.setTextColor(theme.textColor);
+                return false;
+            }
+        }));
+        sv.addView(shareView);
+        return sv;
     }
 
     private ScrollView getSettings() {
@@ -616,6 +469,7 @@ public class HomeActivity extends Activity {
         settings.setOrientation(LinearLayout.VERTICAL);
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        settings.setPadding(20, 20, 20, 20);
         final Switch devSwitch = new Switch(getApplicationContext()), messageSwitch = new Switch(getApplicationContext()), newScheduleSwitch = new Switch(getApplicationContext()), breakTimeSwitch = new Switch(getApplicationContext()), pushSwitch = new Switch(getApplicationContext());
         pushSwitch.setText(R.string.live_messages);
         messageSwitch.setText(R.string.schedule_messages);
@@ -730,9 +584,9 @@ public class HomeActivity extends Activity {
                 refreshTheme();
             }
         });
-        textColorPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 12));
-        colorTopPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 12));
-        colorBottomPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 12));
+        textColorPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 15));
+        colorTopPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 15));
+        colorBottomPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 15));
         theme.addPeer(new Peer<Theme>(new Peer.OnPeer<Theme>() {
             @Override
             public boolean onPeer(Theme theme) {
@@ -775,31 +629,11 @@ public class HomeActivity extends Activity {
         return sv;
     }
 
-    private void devModeConfirm(final Switch s) {
-        AlertDialog.Builder pop = new AlertDialog.Builder(this);
-        pop.setCancelable(false);
-        pop.setTitle("Be Cautious!");
-        pop.setMessage("I'm not responsible for anything that happens because of a script you ran.");
-        pop.setPositiveButton("I Agree", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                sp.edit().putBoolean(Values.devMode, true).apply();
-                // TODO RETURNTO splash
-            }
-        });
-        pop.setNegativeButton("I Do Not Agree", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                s.setChecked(false);
-            }
-        });
-        pop.show();
-    }
-
     private ScrollView getSwitcher() {
         LinearLayout all = new LinearLayout(getApplicationContext());
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.CENTER);
+        all.setPadding(20, 20, 20, 20);
         LinearLayout students = new LinearLayout(getApplicationContext());
         students.setPadding(10, 10, 10, 10);
         students.setOrientation(LinearLayout.VERTICAL);
@@ -808,19 +642,6 @@ public class HomeActivity extends Activity {
         teachersv.setPadding(10, 10, 10, 10);
         teachersv.setOrientation(LinearLayout.VERTICAL);
         teachersv.setGravity(Gravity.CENTER);
-        TextView studentsTitle = new TextView(getApplicationContext());
-        studentsTitle.setText(R.string.students_text);
-        studentsTitle.setTypeface(getTypeface());
-        studentsTitle.setTextSize(getFontSize() - 5);
-        studentsTitle.setTextColor(theme.getLast().textColor);
-        studentsTitle.setGravity(Gravity.CENTER);
-        TextView teachersTitle = new TextView(getApplicationContext());
-        teachersTitle.setText(R.string.teachers_text);
-        teachersTitle.setTypeface(getTypeface());
-        teachersTitle.setTextSize(getFontSize() - 5);
-        teachersTitle.setTextColor(theme.getLast().textColor);
-        teachersTitle.setGravity(Gravity.CENTER);
-        all.addView(studentsTitle);
         students.setPadding(10, 10, 10, 10);
         teachersv.setPadding(10, 10, 10, 10);
         if (!keyManager.isKeyLoaded(KeyManager.TYPE_TEACHER_MODE)) {
@@ -865,7 +686,6 @@ public class HomeActivity extends Activity {
         }
         all.addView(students);
         if (keyManager.isKeyLoaded(KeyManager.TYPE_TEACHER_MODE)) {
-            all.addView(teachersTitle);
             for (int cs = 0; cs < schedule.getTeachers().size(); cs++) {
                 Button cls = new Button(getApplicationContext());
                 cls.setTextSize((float) getFontSize());
@@ -895,101 +715,6 @@ public class HomeActivity extends Activity {
         return sv;
     }
 
-    private Drawable generateCoaster(int color) {
-        GradientDrawable gd = (GradientDrawable) getApplicationContext().getDrawable(R.drawable.rounded_rect);
-        if (gd != null) {
-            gd.setColor(color);
-        }
-        return gd;
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mAppView.getDrawer().isOpen()) {
-            mAppView.getDrawer().close();
-        } else {
-            finish();
-        }
-    }
-
-    private FrameLayout getNews() {
-        final FrameLayout masterLayout = new FrameLayout(getApplicationContext());
-        masterLayout.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        TextView load = new TextView(getApplicationContext());
-        load.setTextSize(getFontSize());
-        load.setTypeface(getTypeface());
-        load.setTextColor(theme.getLast().textColor);
-        load.setText(R.string.loading_text);
-        load.setGravity(Gravity.CENTER);
-        load.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        masterLayout.removeAllViews();
-        masterLayout.addView(load);
-        final int fontSize = getFontSize();
-        final ScrollView masterScroll = new ScrollView(getApplicationContext());
-        masterScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        masterScroll.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        final LinearLayout news = new LinearLayout(getApplicationContext());
-        masterScroll.addView(news);
-        news.setOrientation(LinearLayout.VERTICAL);
-        news.setGravity(Gravity.CENTER);
-        TextView newsTitle;
-        newsTitle = new TextView(getApplicationContext());
-        newsTitle.setText(R.string.news);
-        news.addView(newsTitle);
-        newsTitle.setTextColor(theme.getLast().textColor);
-        newsTitle.setTextSize(fontSize);
-        newsTitle.setGravity(Gravity.CENTER);
-        newsTitle.setTypeface(getTypeface());
-        if (Device.isOnline(getApplicationContext())) {
-            new GetNews(Values.serviceProvider, new GetNews.GotNews() {
-                @Override
-                public void onNewsGet(final ArrayList<GetNews.Link> link) {
-                    for (int i = 0; i < link.size(); i++) {
-                        Button cls = new Button(getApplicationContext());
-                        cls.setPadding(10, 10, 10, 10);
-                        cls.setTextSize((float) fontSize - 10);
-                        cls.setGravity(Gravity.CENTER);
-                        cls.setText(link.get(i).name);
-                        cls.setTextColor(theme.getLast().textColor);
-                        cls.setEllipsize(TextUtils.TruncateAt.END);
-                        cls.setLines(2);
-                        //                            cls.setBackgroundColor(Color.TRANSPARENT);
-                        cls.setBackground(Utils.getCoaster(theme.getLast().colorMix, 16, 10));
-                        cls.setTypeface(getTypeface());
-                        cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 8)));
-                        news.addView(cls);
-                        if (!link.get(i).url.equals("")) {
-                            final int finalI = i;
-                            cls.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    String url = link.get(finalI).url;
-                                    Intent i = new Intent(Intent.ACTION_VIEW);
-                                    i.setData(Uri.parse(url));
-                                    getApplicationContext().startActivity(i);
-                                }
-                            });
-                        }
-                    }
-                    masterLayout.removeAllViews();
-                    masterLayout.addView(masterScroll);
-                }
-
-                @Override
-                public void onFail(ArrayList<GetNews.Link> e) {
-                    TextView fail = new TextView(getApplicationContext());
-                    fail.setTextSize(getFontSize());
-                    fail.setTypeface(getTypeface());
-                    fail.setTextColor(theme.getLast().textColor);
-                    fail.setText(R.string.news_load_failed);
-                    fail.setGravity(Gravity.CENTER);
-                    //                    mAppView.getDrag().setContent(fail);
-                }
-            }).execute("");
-        }
-        return masterLayout;
-    }
-
     private void parseAndLoad(File f) {
         schedule = AppCore.getSchedule(f);
         initStageB();
@@ -1005,18 +730,70 @@ public class HomeActivity extends Activity {
 
     private void setStudentMode(Classroom c) {
         currentClass = c;
-        // TODO
-        //        info.setText(textColor, getFontSize(), c.getName(), day);
-        //        info.setText(0.9, new Corner.TextPiece(c.getName(), 0.9, textColor.getLast()), new Corner.TextPiece(schedule.getDay(), 0.65, textColor.getLast()));
+        LinearLayout infoText = new LinearLayout(getApplicationContext());
+        infoText.setOrientation(LinearLayout.VERTICAL);
+        infoText.setGravity(Gravity.CENTER);
+        final RatioView name, day;
+        name = new RatioView(getApplicationContext(), 0.9);
+        day = new RatioView(getApplicationContext(), 0.7);
+        name.setText(c.getName());
+        name.setTextColor(theme.getLast().textColor);
+        name.setTextSize(theme.getLast().textSize);
+        name.setTypeface(getTypeface());
+        name.setGravity(Gravity.CENTER);
+        day.setText(schedule.getDay());
+        day.setTextColor(theme.getLast().textColor);
+        day.setTextSize(theme.getLast().textSize);
+        day.setTypeface(getTypeface());
+        day.setGravity(Gravity.CENTER);
+        infoText.addView(name);
+        infoText.addView(day);
+        info.setView(infoText, 0.8);
+        theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
+            @Override
+            public boolean onPeer(Theme theme) {
+                name.setTextSize(theme.textSize);
+                name.setTextColor(theme.textColor);
+                day.setTextSize(theme.textSize);
+                day.setTextColor(theme.textColor);
+                return false;
+            }
+        }));
         displayLessonViews(scheduleForClass(c));
         refreshTheme();
     }
 
     private void setTeacherMode(Teacher t) {
         currentTeacher = t;
-        // TODO
-        //        info.setText(textColor, getFontSize(), t.mainName.split(" ")[0], day);
-        //        info.setText(0.9, new Corner.TextPiece(t.getName().split(" ")[0], 0.9, textColor.getLast()), new Corner.TextPiece(schedule.getDay(), 0.65, textColor.getLast()));
+        LinearLayout infoText = new LinearLayout(getApplicationContext());
+        infoText.setOrientation(LinearLayout.VERTICAL);
+        infoText.setGravity(Gravity.CENTER);
+        final RatioView name, day;
+        name = new RatioView(getApplicationContext(), 0.9);
+        day = new RatioView(getApplicationContext(), 0.7);
+        name.setText(t.getName());
+        name.setTextColor(theme.getLast().textColor);
+        name.setTextSize(theme.getLast().textSize);
+        name.setTypeface(getTypeface());
+        name.setGravity(Gravity.CENTER);
+        day.setText(schedule.getDay());
+        day.setTextColor(theme.getLast().textColor);
+        day.setTextSize(theme.getLast().textSize);
+        day.setTypeface(getTypeface());
+        day.setGravity(Gravity.CENTER);
+        infoText.addView(name);
+        infoText.addView(day);
+        info.setView(infoText, 0.8);
+        theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
+            @Override
+            public boolean onPeer(Theme theme) {
+                name.setTextSize(theme.textSize);
+                name.setTextColor(theme.textColor);
+                day.setTextSize(theme.textSize);
+                day.setTextColor(theme.textColor);
+                return false;
+            }
+        }));
         displayLessonViews(scheduleForTeacher(t));
         refreshTheme();
     }
@@ -1130,6 +907,15 @@ public class HomeActivity extends Activity {
             }
         }
         return views;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mAppView.getDrawer().isOpen()) {
+            mAppView.getDrawer().close();
+        } else {
+            finish();
+        }
     }
 
     private class Theme {

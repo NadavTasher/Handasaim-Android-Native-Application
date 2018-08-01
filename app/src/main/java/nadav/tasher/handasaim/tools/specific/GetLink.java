@@ -25,7 +25,7 @@ public class GetLink extends AsyncTask<String, String, String> {
             Elements doc = docu.select("a");
             String file = null;
             // TODO Remove This Line After Summer Vaccation
-            file = "http://p.nockio.com/handasaim/schedulearchives/15-5.xls";
+            file = "http://nockio.com/handasaim/schedulearchives/15-5.xls";
             // TODO Remove This ^
             for (int i = 0; (i < doc.size() && file == null); i++) {
                 if (doc.get(i).attr("href").endsWith(".xls") || doc.get(i).attr("href").endsWith(".xlsx")) {

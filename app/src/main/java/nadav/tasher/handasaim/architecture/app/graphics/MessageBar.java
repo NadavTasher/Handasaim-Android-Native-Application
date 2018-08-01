@@ -11,9 +11,9 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
+import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.graphics.views.Utils;
-import nadav.tasher.lightool.graphics.views.appview.navigation.drawer.Drawer;
 import nadav.tasher.lightool.info.Device;
 
 public class MessageBar extends LinearLayout {
@@ -21,33 +21,32 @@ public class MessageBar extends LinearLayout {
     private ArrayList<String> messages;
     private RatioView message;
     private int currentIndex = 0;
-    private boolean alive = true;
     private Thread animate;
     private OnMessage onMessage;
     private Activity a;
 
-    public MessageBar(Activity context, ArrayList<String> messages, Drawer drag) {
+    public MessageBar(Activity context) {
         super(context.getApplicationContext());
         this.a = context;
-        this.messages = messages;
         init();
     }
 
     private void init() {
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER);
-        setBackground(Utils.getCoaster(Values.messageColor, 32, 5));
+        setBackground(Utils.getCoaster(Values.classCoasterColor, 32, 5));
         setPadding(20, 10, 20, 10);
         setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
         message = new RatioView(getContext(), 0.65);
         message.setSingleLine();
+        message.setTypeface(Center.getTypeface(getContext()));
         message.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(onMessage!=null){
-                    String text=null;
-                    if(messages!=null&&messages.size()>0)text=messages.get(currentIndex);
-                    onMessage.onMessage(text,currentIndex);
+                if (onMessage != null) {
+                    String text = null;
+                    if (messages != null && messages.size() > 0) text = messages.get(currentIndex);
+                    onMessage.onMessage(text, currentIndex);
                 }
             }
         });
@@ -55,8 +54,21 @@ public class MessageBar extends LinearLayout {
         make();
     }
 
+    public void setMessages(ArrayList<String> messages) {
+        this.messages = messages;
+        currentIndex = 0;
+    }
+
     public void setOnMessage(OnMessage onMessage) {
         this.onMessage = onMessage;
+    }
+
+    public void setTextColor(int color) {
+        message.setTextColor(color);
+    }
+
+    public void setTextSize(int size) {
+        message.setTextSize(size);
     }
 
     private void make() {
@@ -87,6 +99,9 @@ public class MessageBar extends LinearLayout {
             }
 
             void go() {
+                if(messages.size()>currentIndex) {
+                    message.setText(messages.get(currentIndex));
+                }
                 appear();
             }
 
@@ -96,12 +111,6 @@ public class MessageBar extends LinearLayout {
                 } else {
                     currentIndex = 0;
                 }
-                a.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        message.setText(messages.get(currentIndex));
-                    }
-                });
                 go();
             }
 
@@ -115,7 +124,14 @@ public class MessageBar extends LinearLayout {
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        pause();
+                        if (messages.size() > 1) {
+                            Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                public void run() {
+                                    disappear();
+                                }
+                            }, 1000);
+                        }
                     }
 
                     @Override
@@ -127,15 +143,6 @@ public class MessageBar extends LinearLayout {
                     }
                 });
                 appear.start();
-            }
-
-            void pause() {
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        disappear();
-                    }
-                }, 1000);
             }
 
             @Override
@@ -156,10 +163,10 @@ public class MessageBar extends LinearLayout {
     }
 
     public void stop() {
-        alive = false;
+        animate.interrupt();
     }
 
-    public interface OnMessage{
-        void onMessage(String message,int index);
+    public interface OnMessage {
+        void onMessage(String message, int index);
     }
 }
