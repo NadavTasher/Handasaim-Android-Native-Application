@@ -17,20 +17,16 @@ import nadav.tasher.handasaim.architecture.appcore.AppCore;
 import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.graphics.views.ExpandingView;
 import nadav.tasher.lightool.graphics.views.Utils;
-import nadav.tasher.lightool.graphics.views.appview.AppView;
 import nadav.tasher.lightool.info.Device;
-import nadav.tasher.lightool.parts.Peer;
-import nadav.tasher.lightool.parts.Tower;
 
 public class LessonView extends FrameLayout {
     static final String rtlMark = "\u200F";
     private String topText;
     private ArrayList<String> bottomText;
     private int schoolHour, hour1, hour2;
-    private TextView top, time;
+    private RatioView top, time;
+    private ArrayList<RatioView> bottomTextViews=new ArrayList<>();
     private LinearLayout topLayout, bottomTextLayout, bottomLayout;
-    private Tower<Integer> textColor = new Tower<>(), textSize = new Tower<>();
-    private Tower<AppView.Gradient> color = new Tower<>();
 
     private ExpandingView expandingView;
 
@@ -56,36 +52,6 @@ public class LessonView extends FrameLayout {
         this.hour2 = hour2;
         this.time = getText(AppCore.convertMinuteToTime(AppCore.getStartMinute(hour2)) + " - " + AppCore.convertMinuteToTime(AppCore.getEndMinute(hour1)), 0.8);
         init();
-    }
-
-    public Peer<AppView.Gradient> getColor() {
-        return new Peer<>(new Peer.OnPeer<AppView.Gradient>() {
-            @Override
-            public boolean onPeer(AppView.Gradient integer) {
-                color.tell(integer);
-                return false;
-            }
-        });
-    }
-
-    public Peer<Integer> getTextSize() {
-        return new Peer<>(new Peer.OnPeer<Integer>() {
-            @Override
-            public boolean onPeer(Integer integer) {
-                textSize.tell(integer);
-                return false;
-            }
-        });
-    }
-
-    public Peer<Integer> getTextColor() {
-        return new Peer<>(new Peer.OnPeer<Integer>() {
-            @Override
-            public boolean onPeer(Integer integer) {
-                textColor.tell(integer);
-                return false;
-            }
-        });
     }
 
     private ArrayList<String> rtl(ArrayList<String> input) {
@@ -148,26 +114,20 @@ public class LessonView extends FrameLayout {
         bottomLayout.addView(time);
         if (bottomText != null) {
             if (bottomText.size() == 1) {
-                TextView bottomTextView = getText(bottomText.get(0), 0.8);
+                RatioView bottomTextView = getText(bottomText.get(0), 0.8);
                 bottomTextView.setGravity(Gravity.CENTER);
                 bottomTextView.setEllipsize(TextUtils.TruncateAt.END);
+                bottomTextViews.add(bottomTextView);
                 bottomTextLayout.addView(bottomTextView);
             } else {
                 for (int i = 0; i < bottomText.size(); i++) {
-                    final TextView bottomTextView = getText((i + 1) + ". " + bottomText.get(i), 0.6);
+                    RatioView bottomTextView = getText((i + 1) + ". " + bottomText.get(i), 0.6);
                     bottomTextView.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
                     bottomTextView.setEllipsize(TextUtils.TruncateAt.END);
                     bottomTextView.setBackground(Utils.getCoaster(Center.alpha(128, Center.getColorA(getContext())), 16, 10));
                     bottomTextView.setPadding(40, 0, 30, 0);
-                    color.addPeer(new Peer<>(new Peer.OnPeer<AppView.Gradient>() {
-                        @Override
-                        public boolean onPeer(AppView.Gradient gradient) {
-                            bottomTextView.setBackground(Utils.getCoaster(Center.alpha(128, Center.getColorA(getContext())), 16,10));
-                            bottomTextView.setPadding(40, 0, 30, 0);
-                            return false;
-                        }
-                    }));
                     bottomTextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 16));
+                    bottomTextViews.add(bottomTextView);
                     bottomTextLayout.addView(bottomTextView);
                 }
             }
@@ -179,29 +139,54 @@ public class LessonView extends FrameLayout {
         addView(expandingView);
     }
 
-    private TextView getText(String text, final double textSizeRatio) {
-        final TextView tv = new TextView(getContext());
+    public void setButtonColor(int color){
+        if(bottomTextViews.size()>1) {
+            for (int t = 0; t < bottomTextViews.size(); t++) {
+                RatioView current = bottomTextViews.get(t);
+                current.setBackground(Utils.getCoaster(Center.alpha(128, color), 16, 10));
+                current.setPadding(40, 0, 30, 0);
+            }
+        }
+    }
+
+    public void setTextColor(int color){
+        top.setTextColor(color);
+        time.setTextColor(color);
+        for(int t=0;t<bottomTextViews.size();t++){
+            RatioView current=bottomTextViews.get(t);
+            current.setTextColor(color);
+        }
+    }
+
+    public void setTextSize(int size){
+        top.setTextSize(size);
+        time.setTextSize(size);
+        for(int t=0;t<bottomTextViews.size();t++){
+            RatioView current=bottomTextViews.get(t);
+            current.setTextSize(size);
+        }
+    }
+
+    private RatioView getText(String text, final double textSizeRatio) {
+        RatioView tv = new RatioView(getContext(),textSizeRatio);
         tv.setText(text);
-        tv.setTextSize((int) ((double) Center.getFontSize(getContext()) * textSizeRatio));
+        tv.setTextSize(Center.getFontSize(getContext()));
         tv.setTypeface(Center.getTypeface(getContext()));
         tv.setTextColor(Center.getTextColor(getContext()));
         tv.setTextDirection(TEXT_DIRECTION_RTL);
         tv.setSingleLine(true);
-        // TODO register in towers
-        textSize.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
-            @Override
-            public boolean onPeer(Integer integer) {
-                tv.setTextSize((int) ((double) integer * textSizeRatio));
-                return false;
-            }
-        }));
-        textColor.addPeer(new Peer<>(new Peer.OnPeer<Integer>() {
-            @Override
-            public boolean onPeer(Integer integer) {
-                tv.setTextColor(integer);
-                return false;
-            }
-        }));
         return tv;
+    }
+    private class RatioView extends TextView{
+        private double ratio=1;
+        public RatioView(Context context,double ratio) {
+            super(context);
+            this.ratio=ratio;
+        }
+
+        @Override
+        public void setTextSize(float size){
+            super.setTextSize((int)((double)size*ratio));
+        }
     }
 }
