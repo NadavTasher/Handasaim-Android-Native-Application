@@ -3,7 +3,6 @@ package nadav.tasher.handasaim.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -23,6 +22,7 @@ import java.util.ArrayList;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
+import nadav.tasher.handasaim.architecture.app.PreferenceManager;
 import nadav.tasher.handasaim.tools.online.PictureLoader;
 import nadav.tasher.handasaim.tools.specific.GetNews;
 import nadav.tasher.handasaim.values.Egg;
@@ -34,8 +34,7 @@ public class NewsActivity extends Activity {
     private boolean started = false;
     private static final int waitTime = 10;
 
-    private SharedPreferences sp;
-    private KeyManager keyManager;
+    private PreferenceManager pm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +49,7 @@ public class NewsActivity extends Activity {
     }
 
     private void initVars(){
-        sp=getSharedPreferences(Values.prefName,MODE_PRIVATE);
-        keyManager=new KeyManager(getApplicationContext());
+        pm=new PreferenceManager(getApplicationContext());
     }
 
 
@@ -106,7 +104,7 @@ public class NewsActivity extends Activity {
             full.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             news.setVisibility(View.GONE);
             setContentView(full);
-            new GetNews(Values.serviceProvider, new GetNews.GotNews() {
+            new GetNews(getString(R.string.provider_internal_news), new GetNews.GotNews() {
                 @Override
                 public void onNewsGet(final ArrayList<GetNews.Link> link) {
                     loadingTView.setVisibility(View.GONE);
@@ -118,7 +116,7 @@ public class NewsActivity extends Activity {
                         Button newtopic = new Button(getApplicationContext());
                         nt.addView(newtopic);
                         nt.setPadding(10, 10, 10, 10);
-                        nt.setBackground(Utils.getCoaster( Values.classCoasterColor,32,10));
+                        nt.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright),32,10));
                         newtopic.setText(link.get(n).name);
                         newtopic.setEllipsize(TextUtils.TruncateAt.END);
                         newtopic.setTextColor(Center.getTextColor(getApplicationContext()));
@@ -175,7 +173,7 @@ public class NewsActivity extends Activity {
                     }
                 }
             }).execute();
-            new CountDownTimer((Values.waitTime + 1) * 1000, 1000) {
+            new CountDownTimer((waitTime + 1) * 1000, 1000) {
 
                 @Override
                 public void onTick(long millisUntilFinished) {

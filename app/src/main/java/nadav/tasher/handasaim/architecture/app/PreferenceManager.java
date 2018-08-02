@@ -22,14 +22,33 @@ public class PreferenceManager {
     private KeyManager keyManager;
     private CoreManager coreManager;
     private ServicesManager servicesManager;
-    private Manager.PublicManager userManager;
+    private UserManager userManager;
 
     public PreferenceManager(Context context) {
         this.context = context;
         this.keyManager=new KeyManager(context,context.getSharedPreferences(context.getResources().getString(R.string.preferences_keys),Context.MODE_PRIVATE));
+        this.coreManager=new CoreManager(context,context.getSharedPreferences(context.getResources().getString(R.string.preferences_core),Context.MODE_PRIVATE));
+        this.servicesManager=new ServicesManager(context,context.getSharedPreferences(context.getResources().getString(R.string.preferences_services),Context.MODE_PRIVATE));
+        this.userManager=new UserManager(context,context.getSharedPreferences(context.getResources().getString(R.string.preferences_user),Context.MODE_PRIVATE));
     }
 
-    public class Manager {
+    public CoreManager getCoreManager() {
+        return coreManager;
+    }
+
+    public UserManager getUserManager() {
+        return userManager;
+    }
+
+    public ServicesManager getServicesManager() {
+        return servicesManager;
+    }
+
+    public KeyManager getKeyManager() {
+        return keyManager;
+    }
+
+    public static class Manager {
         private SharedPreferences preferences;
         private Context context;
 
@@ -74,7 +93,7 @@ public class PreferenceManager {
             preferences.edit().putFloat(fromResource(res), value).apply();
         }
 
-        public class PublicManager extends Manager {
+        public static class PublicManager extends Manager {
 
             public PublicManager(Context context, SharedPreferences preferences) {
                 super(context, preferences);
@@ -199,6 +218,18 @@ public class PreferenceManager {
         public void setMode(int modeRes){
             super.set(R.string.preferences_core_mode,super.fromResource(modeRes));
         }
+
+        public String getMode(){
+            return super.get(R.string.preferences_core_mode,super.fromResource(R.string.core_mode_student));
+        }
+
+        public String getDate(){
+            return super.get(R.string.preferences_core_file_date,"");
+        }
+
+        public String getFile(){
+            return super.get(R.string.preferences_core_file_name,"");
+        }
     }
 
     public class ServicesManager extends Manager{
@@ -248,6 +279,13 @@ public class PreferenceManager {
             if(!getScheduleNotifiedAlready(date)){
                 super.set(R.string.preferences_services_refresh_file_date,date);
             }
+        }
+    }
+
+    public class UserManager extends Manager.PublicManager{
+
+        public UserManager(Context context, SharedPreferences preferences) {
+            super(context, preferences);
         }
     }
 }

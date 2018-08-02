@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -23,6 +22,7 @@ import java.io.File;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
+import nadav.tasher.handasaim.architecture.app.PreferenceManager;
 import nadav.tasher.handasaim.architecture.app.graphics.CurvedTextView;
 import nadav.tasher.handasaim.tools.online.FileDownloader;
 import nadav.tasher.handasaim.tools.specific.GetLink;
@@ -32,10 +32,8 @@ import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.tools.Animations;
 
 public class SplashActivity extends Activity {
-    private CurvedTextView ctv;
 
-    private SharedPreferences sp;
-    private KeyManager keyManager;
+    PreferenceManager pm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +43,12 @@ public class SplashActivity extends Activity {
     }
 
     @Override
-    public Context getApplicationContext(){
+    public Context getApplicationContext() {
         return this;
     }
 
-    private void initVars(){
-        sp=getSharedPreferences(Values.prefName,MODE_PRIVATE);
-        keyManager=new KeyManager(getApplicationContext());
+    private void initVars() {
+        pm = new PreferenceManager(getApplicationContext());
     }
 
     private void go() {
@@ -67,10 +64,10 @@ public class SplashActivity extends Activity {
         int is = (int) (Device.screenX(getApplicationContext()) * 0.8);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
         String curved = getString(R.string.app_name);
-        if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
+        if (pm.getUserManager().get(R.string.preferences_user_mode_developer, getResources().getBoolean(R.bool.default_mode_developer))) {
             curved = "Developer Mode";
         }
-        ctv = new CurvedTextView(getApplicationContext(), curved, Center.getFontSize(getApplicationContext()) * 2, getResources().getColor(R.color.icon_foreground), Device.screenX(getApplicationContext()), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
+        CurvedTextView ctv = new CurvedTextView(getApplicationContext(), curved, Center.getFontSize(getApplicationContext()) * 2, getResources().getColor(R.color.icon_foreground), Device.screenX(getApplicationContext()), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.3)));
         ll.addView(icon);
         ll.addView(ctv);
@@ -84,7 +81,6 @@ public class SplashActivity extends Activity {
         ObjectAnimator oa = ObjectAnimator.ofFloat(ctv, View.ALPHA, Animations.INVISIBLE_TO_VISIBLE);
         oa.setDuration(1000);
         oa.start();
-        
         setContentView(ll);
         ColorFadeAnimation cfa = new ColorFadeAnimation(Center.getColorB(getApplicationContext()), Center.getColorA(getApplicationContext()), new ColorFadeAnimation.ColorState() {
             @Override
@@ -123,7 +119,7 @@ public class SplashActivity extends Activity {
 
     private void initStageC() {
         if (Device.isOnline(getApplicationContext())) {
-            new Ping(Values.serviceProvider, 5000, new Ping.OnEnd() {
+            new Ping(getString(R.string.provider_internal), 5000, new Ping.OnEnd() {
                 @Override
                 public void onPing(boolean b) {
                     if (b) {
@@ -139,7 +135,7 @@ public class SplashActivity extends Activity {
     }
 
     private void initStageD() {
-        new GetLink(Values.scheduleProvider, new GetLink.GotLink() {
+        new GetLink(getString(R.string.provider_internal_schedule), new GetLink.GotLink() {
 
             @Override
             public void onLinkGet(String link) {
@@ -150,14 +146,15 @@ public class SplashActivity extends Activity {
                         fileName = "hs.xlsx";
                     }
                     String date = link.split("/")[link.split("/").length - 1].split("\\.")[0];
-                    if (!sp.getString(Values.latestFileDate, "").equals(date)) {
-                        sp.edit().putString(Values.latestFileDate, date).apply();
-                        sp.edit().putString(Values.latestFileDateRefresher, date).apply();
+                    if (!pm.getCoreManager().getDate().equals(date)) {
+                        pm.getCoreManager().setDate(date);
+                        if (!pm.getServicesManager().getScheduleNotifiedAlready(date))
+                            pm.getServicesManager().setScheduleNotifiedAlready(date);
                         new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
                             @Override
                             public void onFinish(final File file, final boolean be) {
-                                sp.edit().putString(Values.scheduleFile, file.toString()).apply();
-                                initStageE();
+                                pm.getCoreManager().setFile(file.toString());
+                                initStageE(true);
                             }
 
                             @Override
@@ -165,7 +162,7 @@ public class SplashActivity extends Activity {
                             }
                         }).execute();
                     } else {
-                        initStageE();
+                        initStageE(false);
                     }
                 } else {
                     initStageD();
@@ -174,29 +171,24 @@ public class SplashActivity extends Activity {
 
             @Override
             public void onFail(String e) {
-                //                popup("Failed");
                 initStageD();
             }
         }).execute();
     }
 
-    private void initStageE() {
-        if (!sp.getBoolean(Values.firstLaunch, true)) {
-            //            News news = new News(a, sp, keyManager);
-            //            news.start();
-            // TODO Remove On Next Versions: Go Directly To Schedule
-//            Main main=new Main(a,sp,keyManager);
-//            main.start();
-            if(keyManager.isKeyLoaded(KeyManager.TYPE_MESSAGE_BOARD)){
-                //TODO Launch Home
-                Center.enter(this,HomeActivity.class);
-            }else{
-                //TODO Launch News
-                Center.enter(this,NewsActivity.class);
+    private void initStageE(boolean newSchedule) {
+        if (!pm.getUserManager().get(R.string.preferences_user_launch_first, true)) {
+            if (newSchedule) {
+                if (pm.getKeyManager().isKeyLoaded(R.string.preferences_keys_type_news)) {
+                    Center.enter(this, HomeActivity.class);
+                } else {
+                    Center.enter(this, NewsActivity.class);
+                }
+            } else {
+                Center.enter(this, HomeActivity.class);
             }
         } else {
-            //TODO Update To Lunch New Activity
-            Center.enter(this,HomeActivity.class);
+            Center.enter(this, TutorialActivity.class);
         }
     }
 
