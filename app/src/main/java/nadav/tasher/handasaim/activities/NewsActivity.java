@@ -23,17 +23,16 @@ import java.util.ArrayList;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
-import nadav.tasher.handasaim.architecture.app.KeyManager;
 import nadav.tasher.handasaim.tools.online.PictureLoader;
 import nadav.tasher.handasaim.tools.specific.GetNews;
 import nadav.tasher.handasaim.values.Egg;
-import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.info.Device;
 
 public class NewsActivity extends Activity {
 
     private boolean started = false;
+    private static final int waitTime = 10;
 
     private SharedPreferences sp;
     private KeyManager keyManager;

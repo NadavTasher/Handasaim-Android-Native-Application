@@ -23,11 +23,9 @@ import java.io.File;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
-import nadav.tasher.handasaim.architecture.app.KeyManager;
 import nadav.tasher.handasaim.architecture.app.graphics.CurvedTextView;
 import nadav.tasher.handasaim.tools.online.FileDownloader;
 import nadav.tasher.handasaim.tools.specific.GetLink;
-import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.communication.network.Ping;
 import nadav.tasher.lightool.graphics.ColorFadeAnimation;
 import nadav.tasher.lightool.info.Device;
@@ -72,7 +70,7 @@ public class SplashActivity extends Activity {
         if (sp.getBoolean(Values.devMode, Values.devModeDefault)) {
             curved = "Developer Mode";
         }
-        ctv = new CurvedTextView(getApplicationContext(), curved, Center.getFontSize(getApplicationContext()) * 2, Values.bakedIconColor, Device.screenX(getApplicationContext()), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
+        ctv = new CurvedTextView(getApplicationContext(), curved, Center.getFontSize(getApplicationContext()) * 2, getResources().getColor(R.color.icon_foreground), Device.screenX(getApplicationContext()), (int) (Device.screenY(getApplicationContext()) * 0.3), (int) (Device.screenY(getApplicationContext()) * 0.15) / 2);
         ctv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.3)));
         ll.addView(icon);
         ll.addView(ctv);

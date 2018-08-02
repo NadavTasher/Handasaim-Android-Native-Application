@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 import java.util.ArrayList;
 
 import nadav.tasher.handasaim.architecture.app.Center;
-import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.info.Device;
 

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="default_display_messages">true</bool>
+    <bool name="default_display_breaks">true</bool>
+    <bool name="default_mode_developer">false</bool>
+    <bool name="default_service_refresh">false</bool>
+    <bool name="default_service_push">true</bool>
+</resources>

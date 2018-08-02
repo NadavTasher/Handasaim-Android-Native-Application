@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +32,6 @@ import java.util.Collections;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
-import nadav.tasher.handasaim.architecture.app.KeyManager;
 import nadav.tasher.handasaim.architecture.app.graphics.LessonView;
 import nadav.tasher.handasaim.architecture.app.graphics.MessageBar;
 import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
@@ -41,7 +41,6 @@ import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
 import nadav.tasher.handasaim.architecture.appcore.components.Subject;
 import nadav.tasher.handasaim.architecture.appcore.components.Teacher;
 import nadav.tasher.handasaim.values.Filters;
-import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.graphics.views.ColorPicker;
 import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.graphics.views.appview.AppView;
@@ -95,6 +94,8 @@ public class HomeActivity extends Activity {
         currentTheme.colorBottom = sp.getInt(Values.colorB, Values.defaultColorB);
         currentTheme.colorMix = generateCombinedColor(currentTheme.colorTop, currentTheme.colorBottom);
         theme.tell(currentTheme);
+        Log.i("COlorA",String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
+        Log.i("COlorA",String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
     }
 
     public void go() {
@@ -272,7 +273,7 @@ public class HomeActivity extends Activity {
         final FrameLayout shareIcon, classroomIcon, icon, refreshIcon, settingsIcon;
         shareIcon = generateImageView(R.drawable.ic_share, size);
         classroomIcon = generateImageView(R.drawable.ic_class, size);
-        icon = generateImageView(R.drawable.ic_icon_white, size);
+        icon = generateImageView(R.drawable.ic_icon, size);
         refreshIcon = generateImageView(R.drawable.ic_reload, size);
         settingsIcon = generateImageView(R.drawable.ic_gear, size);
         settingsIcon.setOnClickListener(new View.OnClickListener() {
@@ -318,11 +319,12 @@ public class HomeActivity extends Activity {
 
     private FrameLayout generateImageView(int drawable, int size) {
         FrameLayout fl = new FrameLayout(getApplicationContext());
-        fl.setPadding(20, 0, 20, 0);
+        fl.setPadding(20, 20, 20, 20);
         fl.setForegroundGravity(Gravity.CENTER);
         fl.setLayoutParams(new LinearLayout.LayoutParams(size, size));
         final ImageView iv = new ImageView(getApplicationContext());
         iv.setImageDrawable(getDrawable(drawable));
+        iv.setScaleType(ImageView.ScaleType.FIT_XY);
         iv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         fl.addView(iv);
         return fl;

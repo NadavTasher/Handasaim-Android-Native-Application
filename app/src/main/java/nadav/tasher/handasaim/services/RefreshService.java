@@ -16,7 +16,6 @@ import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.activities.SplashActivity;
 import nadav.tasher.handasaim.architecture.app.Starter;
 import nadav.tasher.handasaim.tools.specific.GetLink;
-import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.communication.network.Ping;
 
 public class RefreshService extends JobService {

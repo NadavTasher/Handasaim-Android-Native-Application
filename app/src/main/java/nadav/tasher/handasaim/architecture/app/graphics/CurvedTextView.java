@@ -8,8 +8,6 @@ import android.graphics.Path;
 import android.graphics.Typeface;
 import android.view.View;
 
-import nadav.tasher.handasaim.values.Values;
-
 public class CurvedTextView extends View {
     private Path circle;
     private Paint tPaint;

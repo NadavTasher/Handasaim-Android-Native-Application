@@ -10,7 +10,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.values.Values;
 
 import static nadav.tasher.handasaim.values.Values.fontColor;
 import static nadav.tasher.handasaim.values.Values.fontColorDefault;

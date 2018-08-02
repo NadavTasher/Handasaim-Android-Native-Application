@@ -9,7 +9,6 @@ import android.util.Log;
 
 import nadav.tasher.handasaim.services.PushService;
 import nadav.tasher.handasaim.services.RefreshService;
-import nadav.tasher.handasaim.values.Values;
 
 public class Starter {
 

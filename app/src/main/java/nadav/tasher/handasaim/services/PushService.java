@@ -22,7 +22,6 @@ import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.activities.HomeActivity;
 import nadav.tasher.handasaim.architecture.app.Starter;
 import nadav.tasher.handasaim.tools.online.FileReader;
-import nadav.tasher.handasaim.values.Values;
 import nadav.tasher.lightool.communication.network.Ping;
 
 public class PushService extends JobService {
