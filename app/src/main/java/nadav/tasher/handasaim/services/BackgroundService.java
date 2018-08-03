@@ -17,6 +17,7 @@ import java.util.Random;
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.activities.SplashActivity;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
+import nadav.tasher.handasaim.tools.specific.GetLink;
 import nadav.tasher.lightool.communication.OnFinish;
 import nadav.tasher.lightool.communication.SessionStatus;
 import nadav.tasher.lightool.communication.network.Ping;
@@ -75,11 +76,11 @@ public class BackgroundService extends JobService {
                                                             // Display Notification
                                                             String titleBuilder =
                                                                     "(" +
-                                                                    push.getString(getResources().getString(R.string.push_response_parameter_push_sender)) +
-                                                                    ')' +
-                                                                    ' ' +
-                                                                    push.getString(getResources().getString(R.string.push_response_parameter_push_title)) +
-                                                                    ':';
+                                                                            push.getString(getResources().getString(R.string.push_response_parameter_push_sender)) +
+                                                                            ')' +
+                                                                            ' ' +
+                                                                            push.getString(getResources().getString(R.string.push_response_parameter_push_title)) +
+                                                                            ':';
                                                             inform(titleBuilder, push.getString(getResources().getString(R.string.push_response_parameter_push_message)));
                                                         }
                                                     }
@@ -103,7 +104,37 @@ public class BackgroundService extends JobService {
         }).execute();
     }
 
-    private void checkForNewSchedule(JobParameters jobParameters) {
+    private void checkForNewSchedule(final JobParameters jobParameters) {
+        new Ping(getResources().getString(R.string.provider_internal), getResources().getInteger(R.integer.ping_timeout), new Ping.OnEnd() {
+            @Override
+            public void onPing(boolean b) {
+                if (b) {
+                    new GetLink(getResources().getString(R.string.provider_internal_schedule), new GetLink.GotLink() {
+                        @Override
+                        public void onLinkGet(String link) {
+                            if (link != null) {
+                                String date = link.split("/")[link.split("/").length - 1].split("\\.")[0];
+                                if (!pm.getServicesManager().getScheduleNotifiedAlready(date)) {
+                                    pm.getServicesManager().setScheduleNotifiedAlready(date);
+                                    inform("", "");
+                                }
+                                refreshFinished = true;
+                                done(jobParameters);
+                            }
+                        }
+
+                        @Override
+                        public void onFail(String e) {
+                            refreshFinished = true;
+                            done(jobParameters);
+                        }
+                    }).execute();
+                } else {
+                    refreshFinished = true;
+                    done(jobParameters);
+                }
+            }
+        }).execute();
     }
 
     private void done(JobParameters parameters) {
