@@ -224,11 +224,11 @@ public class PreferenceManager {
         }
 
         public String getDate(){
-            return super.get(R.string.preferences_core_file_date,"");
+            return super.get(R.string.preferences_core_file_date,null);
         }
 
         public String getFile(){
-            return super.get(R.string.preferences_core_file_name,"");
+            return super.get(R.string.preferences_core_file_name,null);
         }
     }
 

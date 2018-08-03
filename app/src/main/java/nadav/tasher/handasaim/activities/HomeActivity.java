@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -32,6 +31,7 @@ import java.util.Collections;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
+import nadav.tasher.handasaim.architecture.app.PreferenceManager;
 import nadav.tasher.handasaim.architecture.app.graphics.LessonView;
 import nadav.tasher.handasaim.architecture.app.graphics.MessageBar;
 import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
@@ -64,8 +64,7 @@ public class HomeActivity extends Activity {
 
     private int drawerPadding = 10;
 
-    private SharedPreferences sp;
-    private KeyManager keyManager;
+    private PreferenceManager pm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,28 +79,29 @@ public class HomeActivity extends Activity {
     }
 
     private void initVars() {
-        sp = getSharedPreferences(Values.prefName, MODE_PRIVATE);
-        keyManager = new KeyManager(getApplicationContext());
+        pm = new PreferenceManager(getApplicationContext());
     }
 
     private void refreshTheme() {
         Theme currentTheme = new Theme();
-        currentTheme.textColor = sp.getInt(Values.fontColor, Values.fontColorDefault);
-        currentTheme.textSize = sp.getInt(Values.fontSizeNumber, Values.fontSizeDefault);
-        currentTheme.showMessages = sp.getBoolean(Values.messages, Values.messagesDefault);
-        currentTheme.showBreaks = sp.getBoolean(Values.breakTime, Values.breakTimeDefault);
-        currentTheme.colorTop = sp.getInt(Values.colorA, Values.defaultColorA);
-        currentTheme.colorBottom = sp.getInt(Values.colorB, Values.defaultColorB);
+        currentTheme.textColor = pm.getUserManager().get(R.string.preferences_user_color_text, getResources().getColor(R.color.default_text));
+        currentTheme.textSize = pm.getUserManager().get(R.string.preferences_user_size_text, getResources().getInteger(R.integer.default_font));
+        currentTheme.showMessages = pm.getUserManager().get(R.string.preferences_user_display_messages, getResources().getBoolean(R.bool.default_display_messages));
+        currentTheme.showBreaks = pm.getUserManager().get(R.string.preferences_user_display_breaks, getResources().getBoolean(R.bool.default_display_breaks));
+        currentTheme.colorTop = pm.getUserManager().get(R.string.preferences_user_color_top, getResources().getColor(R.color.default_top));
+        currentTheme.colorBottom = pm.getUserManager().get(R.string.preferences_user_color_bottom, getResources().getColor(R.color.default_bottom));
         currentTheme.colorMix = generateCombinedColor(currentTheme.colorTop, currentTheme.colorBottom);
         theme.tell(currentTheme);
-        Log.i("COlorA",String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
-        Log.i("COlorA",String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
+        Log.i("COlorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
+        Log.i("COlorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
     }
 
     public void go() {
-        String file = sp.getString(Values.scheduleFile, null);
+        String file = pm.getCoreManager().getFile();
         if (file != null) {
             parseAndLoad(new File(file));
+        } else {
+            Center.exit(this, SplashActivity.class);
         }
     }
 
@@ -125,7 +125,7 @@ public class HomeActivity extends Activity {
         pop.setPositiveButton("Unlock", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                keyManager.loadKey(key.getText().toString().toUpperCase());
+                pm.getKeyManager().loadKey(key.getText().toString().toUpperCase());
             }
         });
         pop.setNegativeButton("Close", null);
@@ -163,7 +163,7 @@ public class HomeActivity extends Activity {
         refreshTheme();
         mAppView = new AppView(this);
         mAppView.setDrawNavigation(false);
-        mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(Center.alpha(255, Values.classCoasterColor), 30, 10));
+        mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(getResources().getColor(R.color.drawer_color), 30, 10));
         info = new Corner(getApplicationContext(), Device.screenX(getApplicationContext()) / 5, Color.TRANSPARENT);
         info.addOnState(new Corner.OnState() {
             @Override
@@ -257,8 +257,8 @@ public class HomeActivity extends Activity {
     private void assembleDrawers() {
         assembleMenuDrawer();
         settings = getSettings();
-        share=getShare();
-        switcher=getSwitcher();
+        share = getShare();
+        switcher = getSwitcher();
     }
 
     private void assembleMenuDrawer() {
@@ -346,7 +346,7 @@ public class HomeActivity extends Activity {
         }
     }
 
-    private void openDrawer(View v){
+    private void openDrawer(View v) {
         mAppView.getDrawer().setContent(v);
         v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         double percent = ((double) (v.getMeasuredHeight() + (2 * drawerPadding))) / ((double) Device.screenY(getApplicationContext()));
@@ -354,27 +354,29 @@ public class HomeActivity extends Activity {
     }
 
     private Classroom getFavoriteClass() {
-        int selectedClass = 0;
-        if (sp.getString(Values.favoriteClass, null) != null) {
-            if (!schedule.getClassrooms().isEmpty()) {
+        if (!schedule.getClassrooms().isEmpty()) {
+            int selectedClass = 0;
+            String favoriteClassroomName = pm.getUserManager().get(R.string.preferences_user_favorite_classroom, null);
+            if (favoriteClassroomName != null) {
                 for (int fc = 0; fc < schedule.getClassrooms().size(); fc++) {
-                    if (sp.getString(Values.favoriteClass, "").equals(schedule.getClassrooms().get(fc).getName())) {
+                    if (favoriteClassroomName.equals(schedule.getClassrooms().get(fc).getName())) {
                         return schedule.getClassrooms().get(fc);
                     }
                 }
                 return schedule.getClassrooms().get(selectedClass);
             } else {
-                return null;
+                return schedule.getClassrooms().get(selectedClass);
             }
         } else {
-            return schedule.getClassrooms().get(selectedClass);
+            // Empty Schedule - Return null
+            return null;
         }
     }
 
     private Teacher getFavoriteTeacher() {
-        int selectedTeacher = 0;
-        if (sp.getString(Values.favoriteTeacher, null) != null) {
-            if (!schedule.getTeachers().isEmpty()) {
+        if (!schedule.getTeachers().isEmpty()) {
+            int selectedTeacher = 0;
+            if (sp.getString(Values.favoriteTeacher, null) != null) {
                 for (int fc = 0; fc < schedule.getTeachers().size(); fc++) {
                     if (sp.getString(Values.favoriteTeacher, "").equals(schedule.getTeachers().get(fc).getName())) {
                         return schedule.getTeachers().get(fc);
@@ -382,15 +384,16 @@ public class HomeActivity extends Activity {
                 }
                 return schedule.getTeachers().get(selectedTeacher);
             } else {
-                return null;
+                return schedule.getTeachers().get(selectedTeacher);
             }
         } else {
-            return schedule.getTeachers().get(selectedTeacher);
+            // Empty Schedule - Return null
+            return null;
         }
     }
 
     private ScrollView getShare() {
-        ScrollView sv=new ScrollView(getApplicationContext());
+        ScrollView sv = new ScrollView(getApplicationContext());
         sv.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
         sv.setFillViewport(true);
         LinearLayout shareView = new LinearLayout(getApplicationContext());
@@ -401,7 +404,7 @@ public class HomeActivity extends Activity {
         shareMessageSwitch.setPadding(10, 0, 10, 0);
         shareMessageSwitch.setText(R.string.messages_switch);
         shareMessageSwitch.setTypeface(getTypeface());
-        shareMessageSwitch.setTextSize((int)(double)(theme.getLast().textSize *0.8));
+        shareMessageSwitch.setTextSize((int) (double) (theme.getLast().textSize * 0.8));
         shareMessageSwitch.setTextColor(theme.getLast().textColor);
         shareMessageSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         shareMessageSwitch.setEnabled(!schedule.getMessages().isEmpty());
@@ -409,14 +412,14 @@ public class HomeActivity extends Activity {
         shareGradeSwitch.setPadding(10, 0, 10, 0);
         shareGradeSwitch.setText(R.string.grade_switch);
         shareGradeSwitch.setTypeface(getTypeface());
-        shareGradeSwitch.setTextSize((int)(double)(theme.getLast().textSize *0.8));
+        shareGradeSwitch.setTextSize((int) (double) (theme.getLast().textSize * 0.8));
         shareGradeSwitch.setTextColor(theme.getLast().textColor);
         shareGradeSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         final Button shareB = new Button(getApplicationContext());
         shareB.setText(R.string.share);
         shareB.setBackground(Utils.getCoaster(theme.getLast().colorMix, 16, 10));
         shareB.setTextColor(theme.getLast().textColor);
-        shareB.setTextSize((int)(double)(theme.getLast().textSize *0.7));
+        shareB.setTextSize((int) (double) (theme.getLast().textSize * 0.7));
         shareB.setTypeface(getTypeface());
         shareB.setAllCaps(false);
         shareB.setOnClickListener(new View.OnClickListener() {
@@ -451,11 +454,11 @@ public class HomeActivity extends Activity {
         theme.addPeer(new Peer<Theme>(new Peer.OnPeer<Theme>() {
             @Override
             public boolean onPeer(Theme theme) {
-                shareB.setTextSize((int)((double)(theme.textSize*0.7)));
+                shareB.setTextSize((int) ((double) (theme.textSize * 0.7)));
                 shareB.setTextColor(theme.textColor);
-                shareGradeSwitch.setTextSize((int)((double)(theme.textSize*0.8)));
+                shareGradeSwitch.setTextSize((int) ((double) (theme.textSize * 0.8)));
                 shareGradeSwitch.setTextColor(theme.textColor);
-                shareMessageSwitch.setTextSize((int)((double)(theme.textSize*0.8)));
+                shareMessageSwitch.setTextSize((int) ((double) (theme.textSize * 0.8)));
                 shareMessageSwitch.setTextColor(theme.textColor);
                 return false;
             }
