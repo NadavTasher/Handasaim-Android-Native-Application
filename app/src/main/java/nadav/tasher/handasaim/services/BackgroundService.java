@@ -4,10 +4,15 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.job.JobInfo;
 import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
 import android.app.job.JobService;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,10 +28,12 @@ import nadav.tasher.lightool.communication.SessionStatus;
 import nadav.tasher.lightool.communication.network.Ping;
 import nadav.tasher.lightool.communication.network.request.Post;
 import nadav.tasher.lightool.communication.network.request.RequestParameter;
+import nadav.tasher.lightool.info.Device;
 
 public class BackgroundService extends JobService {
 
     private PreferenceManager pm;
+    private static final int ID=102;
     private boolean pushFinished = false, refreshFinished = false;
 
     @Override
@@ -116,7 +123,7 @@ public class BackgroundService extends JobService {
                                 String date = link.split("/")[link.split("/").length - 1].split("\\.")[0];
                                 if (!pm.getServicesManager().getScheduleNotifiedAlready(date)) {
                                     pm.getServicesManager().setScheduleNotifiedAlready(date);
-                                    inform("", "");
+                                    inform(getResources().getString(R.string.refresh_text_title), getResources().getString(R.string.refresh_text_message));
                                 }
                                 refreshFinished = true;
                                 done(jobParameters);
@@ -139,6 +146,21 @@ public class BackgroundService extends JobService {
 
     private void done(JobParameters parameters) {
         if (pushFinished && refreshFinished) jobFinished(parameters, false);
+        Log.i("Xcuse Me?","My Eyes Are Up Here!");
+    }
+
+    public static void reschedule(Context context){
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
+            if (!Device.isJobServiceScheduled(context,ID)) {
+                ComponentName serviceComponent = new ComponentName(context, BackgroundService.class);
+                JobInfo.Builder builder = new JobInfo.Builder(ID, serviceComponent);
+                builder.setMinimumLatency(context.getResources().getInteger(R.integer.background_loop_time));
+                JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
+                if (jobScheduler != null) {
+                    jobScheduler.schedule(builder.build());
+                }
+            }
+        }
     }
 
     private void inform(String title, String message) {

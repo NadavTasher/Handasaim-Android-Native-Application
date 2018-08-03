@@ -20,6 +20,8 @@
     <string name="push_response_parameter_push_sender">sender</string>
     <string name="push_response_parameter_push_title">title</string>
     <string name="push_response_parameter_push_message">message</string>
+    <string name="refresh_text_title">New Schedule</string>
+    <string name="refresh_text_message">A New Schedule Has Been Uploaded.</string>
     <!--Core Modes-->
     <string name="core_mode_teacher">teacher</string>
     <string name="core_mode_student">student</string>

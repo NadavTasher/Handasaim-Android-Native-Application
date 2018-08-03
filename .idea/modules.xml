@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Handasaim.iml" filepath="$PROJECT_DIR$/Handasaim.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/jsons-release/jsons-release.iml" filepath="$PROJECT_DIR$/jsons-release/jsons-release.iml" />
       <module fileurl="file://$PROJECT_DIR$/lightool-release/lightool-release.iml" filepath="$PROJECT_DIR$/lightool-release/lightool-release.iml" />
     </modules>
   </component>

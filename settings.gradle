@@ -1,1 +1,1 @@
-include ':app', ':lightool-release', ':jsons-release'
+include ':app', ':lightool-release'
