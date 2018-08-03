@@ -55,8 +55,8 @@ public class NewsActivity extends Activity {
 
     private void go() {
         
-        getWindow().setStatusBarColor(Center.getColorA(getApplicationContext()));
-        getWindow().setNavigationBarColor(Center.getColorB(getApplicationContext()));
+        getWindow().setStatusBarColor(Center.getColorTop(getApplicationContext()));
+        getWindow().setNavigationBarColor(Center.getColorBottom(getApplicationContext()));
 
             final LinearLayout full = new LinearLayout(getApplicationContext());
             full.setGravity(Gravity.CENTER);
@@ -70,7 +70,7 @@ public class NewsActivity extends Activity {
             //            loadingTView.setBackground(getDrawable(R.drawable.rounded_rect));
             final TextView loadingText = new TextView(getApplicationContext()), egg = new TextView(getApplicationContext());
             loadingText.setGravity(Gravity.CENTER);
-            loadingText.setText(R.string.loading_text);
+            loadingText.setText(R.string.interface_loading);
             loadingText.setTextColor(Color.LTGRAY);
             loadingText.setTypeface(Center.getTypeface(getApplicationContext()));
             loadingText.setTextSize(Center.getFontSize(getApplicationContext()) + 4);

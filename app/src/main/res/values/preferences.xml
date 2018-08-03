@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="preferences_user">user_v6</string>
+    <string name="preferences_core">core_v6</string>
+    <string name="preferences_services">services_v6</string>
+    <string name="preferences_keys">keys_v1</string>
+    <string name="preferences_user_launch_first">firstLaunch</string>
+    <string name="preferences_user_color_top">colorTop</string>
+    <string name="preferences_user_color_bottom">colorBottom</string>
+    <string name="preferences_user_color_text">colorText</string>
+    <string name="preferences_user_size_text">sizeText</string>
+    <string name="preferences_user_display_messages">displayMessages</string>
+    <string name="preferences_user_display_breaks">displayBreaks</string>
+    <string name="preferences_user_mode_developer">modeDeveloper</string>
+    <string name="preferences_user_service_refresh">serviceRefresh</string>
+    <string name="preferences_user_service_push">servicePush</string>
+    <string name="preferences_user_favorite_classroom">classroom</string>
+    <string name="preferences_user_favorite_teacher">teacher</string>
+    <string name="preferences_core_file_name">fileName</string>
+    <string name="preferences_core_file_date">fileDate</string>
+    <string name="preferences_core_mode">appMode</string>
+    <string name="preferences_services_refresh_file_date">refreshFileDate</string>
+    <string name="preferences_services_push_received_pushes">pushReceived</string>
+    <string name="preferences_services_push_channel">pushChannel</string>
+    <string name="preferences_keys_type_beta">beta_v1</string>
+    <string name="preferences_keys_type_news">message_board_v1</string>
+    <string name="preferences_keys_type_teachers">teacher_mode_v1</string>
+</resources>

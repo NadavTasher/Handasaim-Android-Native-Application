@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
+import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.info.Device;
@@ -33,7 +34,7 @@ public class MessageBar extends LinearLayout {
     private void init() {
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER);
-        setBackground(Utils.getCoaster(Values.classCoasterColor, 32, 5));
+        setBackground(Utils.getCoaster(getContext().getResources().getColor(R.color.coaster_bright), 32, 5));
         setPadding(20, 10, 20, 10);
         setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
         message = new RatioView(getContext(), 0.65);

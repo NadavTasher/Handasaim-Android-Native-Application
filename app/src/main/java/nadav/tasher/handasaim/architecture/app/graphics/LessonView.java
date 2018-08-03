@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.appcore.AppCore;
 import nadav.tasher.lightool.graphics.views.ExpandingView;
@@ -67,15 +68,15 @@ public class LessonView extends FrameLayout {
         int minuteOfDay = (hour * 60) + minute;
         if (schoolHour < 0) {
             if (minuteOfDay >= AppCore.getEndMinute(hour1) && minuteOfDay < AppCore.getStartMinute(hour2)) {
-                return Utils.getCoaster(Values.classCoasterMarkColor, 32, 5);
+                return Utils.getCoaster(getContext().getResources().getColor(R.color.coaster_dark), 32, 5);
             } else {
-                return Utils.getCoaster(Values.classCoasterColor, 32, 5);
+                return Utils.getCoaster(getContext().getResources().getColor(R.color.coaster_bright), 32, 5);
             }
         } else {
             if (minuteOfDay >= AppCore.getStartMinute(schoolHour) && minuteOfDay < AppCore.getEndMinute(schoolHour)) {
-                return Utils.getCoaster(Values.classCoasterMarkColor, 32, 5);
+                return Utils.getCoaster(getContext().getResources().getColor(R.color.coaster_dark), 32, 5);
             } else {
-                return Utils.getCoaster(Values.classCoasterColor, 32, 5);
+                return Utils.getCoaster(getContext().getResources().getColor(R.color.coaster_bright), 32, 5);
             }
         }
     }
@@ -122,7 +123,7 @@ public class LessonView extends FrameLayout {
                     RatioView bottomTextView = getText((i + 1) + ". " + bottomText.get(i), 0.6);
                     bottomTextView.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
                     bottomTextView.setEllipsize(TextUtils.TruncateAt.END);
-                    bottomTextView.setBackground(Utils.getCoaster(Center.alpha(128, Center.getColorA(getContext())), 16, 10));
+                    bottomTextView.setBackground(Utils.getCoaster(Center.alpha(128, Center.getColorTop(getContext())), 16, 10));
                     bottomTextView.setPadding(40, 0, 30, 0);
                     bottomTextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 16));
                     bottomTextViews.add(bottomTextView);

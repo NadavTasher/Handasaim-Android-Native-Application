@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="provider_external">http://nockio.com</string>
+    <string name="provider_external_keys">http://nockio.com/handasaim/x/keys/</string>
+    <string name="provider_external_push">http://nockio.com/handasaim/x/push/</string>
+    <string name="provider_external_predict">http://nockio.com/handasaim/x/predict/</string>
+    <string name="provider_internal">http://handasaim.co.il</string>
+    <string name="provider_internal_news">http://handasaim.co.il</string>
+    <string name="provider_internal_schedule">http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/</string>
+</resources>

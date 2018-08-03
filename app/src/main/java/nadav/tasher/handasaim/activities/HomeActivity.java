@@ -52,7 +52,6 @@ public class HomeActivity extends Activity {
     private Tower<Theme> theme = new Tower<>();
 
     private Classroom currentClass;
-    private Teacher currentTeacher;
     private Corner info;
     private MessageBar messageBar;
     private LinearLayout lessonViewHolder;
@@ -794,7 +793,6 @@ public class HomeActivity extends Activity {
     }
 
     private void setTeacherMode(Teacher t) {
-        currentTeacher = t;
         // Write to preferences
         pm.getUserManager().set(R.string.preferences_user_favorite_teacher, t.getName());
         pm.getServicesManager().setChannel(Classroom.UNKNOWN_GRADE);

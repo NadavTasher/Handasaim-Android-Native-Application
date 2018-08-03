@@ -5,8 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Typeface;
 import android.view.View;
+
+import nadav.tasher.handasaim.architecture.app.Center;
 
 public class CurvedTextView extends View {
     private Path circle;
@@ -30,7 +31,7 @@ public class CurvedTextView extends View {
         tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         tPaint.setColor(textColor);
         tPaint.setTextSize(textSize);
-        tPaint.setTypeface(Typeface.createFromAsset(c.getAssets(), Values.fontName));
+        tPaint.setTypeface(Center.getTypeface(getContext()));
     }
 
     public CurvedTextView(Context context, String text, float textSize, int textColor, int sizeX, int sizeY, int radius) {
@@ -60,7 +61,7 @@ public class CurvedTextView extends View {
         tPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         tPaint.setColor(textColor);
         tPaint.setTextSize(textSize);
-        tPaint.setTypeface(Typeface.createFromAsset(getContext().getAssets(), Values.fontName));
+        tPaint.setTypeface(Center.getTypeface(getContext()));
     }
 
     @Override

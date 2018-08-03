@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <integer name="default_font">30</integer>
-    <integer name="ping_timeout">5000</integer>
-    <integer name="background_loop_time">1200000</integer>
-</resources>
