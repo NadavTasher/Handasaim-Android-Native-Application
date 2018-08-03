@@ -217,7 +217,6 @@ public class HomeActivity extends Activity {
                 scrollView.addView(messageView);
                 messageView.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
                 double percent = ((double) (messageView.getMeasuredHeight() + (2 * drawerPadding))) / ((double) Device.screenY(getApplicationContext()));
-                //                Log.i("Precent",String.valueOf(percent));
                 mAppView.getDrawer().setContent(scrollView);
                 mAppView.getDrawer().open(((percent) > 0.7) ? 0.7 : percent);
             }
@@ -252,7 +251,7 @@ public class HomeActivity extends Activity {
         refreshTheme();
     }
 
-    private void loadContent(){
+    private void loadContent() {
         if (pm.getCoreManager().getMode() != null) {
             if (pm.getCoreManager().getMode().equals(getResources().getString(R.string.core_mode_teacher))) {
                 if (pm.getKeyManager().isKeyLoaded(R.string.preferences_keys_type_teachers)) {
@@ -260,20 +259,20 @@ public class HomeActivity extends Activity {
                     if (favoriteTeacher != null) {
                         setTeacherMode(favoriteTeacher);
                     } else {
-                        setFavoriteClassroom();
+                        loadFavoriteClassroom();
                     }
-                }else{
-                    setFavoriteClassroom();
+                } else {
+                    loadFavoriteClassroom();
                 }
             } else {
-                setFavoriteClassroom();
+                loadFavoriteClassroom();
             }
         } else {
-            setFavoriteClassroom();
+            loadFavoriteClassroom();
         }
     }
 
-    private void setFavoriteClassroom() {
+    private void loadFavoriteClassroom() {
         Classroom favoriteClassroom = getFavoriteClassroom();
         if (favoriteClassroom != null) {
             setStudentMode(favoriteClassroom);
@@ -697,7 +696,6 @@ public class HomeActivity extends Activity {
             cls.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    pm.getUserManager().set(R.string.preferences_user_favorite_classroom, cr.getName());
                     setStudentMode(cr);
                 }
             });
@@ -730,7 +728,6 @@ public class HomeActivity extends Activity {
                 cls.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        pm.getUserManager().set(R.string.preferences_user_favorite_teacher, tc.getName());
                         setTeacherMode(tc);
                     }
                 });
@@ -759,6 +756,10 @@ public class HomeActivity extends Activity {
 
     private void setStudentMode(Classroom c) {
         currentClass = c;
+        // Write to preferences
+        pm.getUserManager().set(R.string.preferences_user_favorite_classroom, c.getName());
+        pm.getServicesManager().setChannel(c.getGrade());
+        // Display corner info
         LinearLayout infoText = new LinearLayout(getApplicationContext());
         infoText.setOrientation(LinearLayout.VERTICAL);
         infoText.setGravity(Gravity.CENTER);
@@ -794,6 +795,10 @@ public class HomeActivity extends Activity {
 
     private void setTeacherMode(Teacher t) {
         currentTeacher = t;
+        // Write to preferences
+        pm.getUserManager().set(R.string.preferences_user_favorite_teacher, t.getName());
+        pm.getServicesManager().setChannel(Classroom.UNKNOWN_GRADE);
+        // Write info to corner
         LinearLayout infoText = new LinearLayout(getApplicationContext());
         infoText.setOrientation(LinearLayout.VERTICAL);
         infoText.setGravity(Gravity.CENTER);

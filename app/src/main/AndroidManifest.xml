@@ -27,15 +27,9 @@
         </receiver>
 
         <service
-            android:name=".services.RefreshService"
+            android:name=".services.BackgroundService"
             android:label="Refresh Service"
-            android:permission="android.permission.BIND_JOB_SERVICE">
-        </service>
-        <service
-            android:name=".services.PushService"
-            android:label="Push Service"
-            android:permission="android.permission.BIND_JOB_SERVICE">
-        </service>
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
 
         <activity android:name=".activities.SplashActivity">
             <intent-filter>

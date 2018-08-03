@@ -10,6 +10,16 @@
     <string name="provider_internal">http://handasaim.co.il</string>
     <string name="provider_internal_news">http://handasaim.co.il</string>
     <string name="provider_internal_schedule">http://handasaim.co.il/2017/06/13/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D/</string>
+    <!--Service Parameters-->
+    <string name="push_request_parameter_filter">filter</string>
+    <string name="push_response_parameter_mode">mode</string>
+    <string name="push_response_parameter_mode_client">client</string>
+    <string name="push_response_parameter_approved">approved</string>
+    <string name="push_response_parameter_pushes">pushes</string>
+    <string name="push_response_parameter_push_id">id</string>
+    <string name="push_response_parameter_push_sender">sender</string>
+    <string name="push_response_parameter_push_title">title</string>
+    <string name="push_response_parameter_push_message">message</string>
     <!--Core Modes-->
     <string name="core_mode_teacher">teacher</string>
     <string name="core_mode_student">student</string>
@@ -55,6 +65,7 @@
 
     <string name="preferences_services_refresh_file_date">refreshFileDate</string>
     <string name="preferences_services_push_received_pushes">pushReceived</string>
+    <string name="preferences_services_push_channel">pushChannel</string>
 
     <string name="preferences_keys_type_beta">beta_v1</string>
     <string name="preferences_keys_type_news">message_board_v1</string>

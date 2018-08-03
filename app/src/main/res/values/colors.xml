@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="drawer_color">#444444</color>
-    <color name="coaster_bright">#33333</color>
+    <color name="coaster_bright">#333333</color>
     <color name="coaster_dark">#222222</color>
     <color name="default_top">#3AC6C6</color>
     <color name="default_bottom">#FFB54B</color>
