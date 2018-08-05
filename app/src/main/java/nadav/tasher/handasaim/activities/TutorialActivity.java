@@ -196,18 +196,18 @@ public class TutorialActivity extends Activity {
         cornerLocation.setTextColor(getResources().getColor(R.color.default_text));
         cornerLocation.setChecked(pm.getUserManager().get(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_right)).equals(getResources().getString(R.string.corner_location_right)));
         if (cornerLocation.isChecked()) {
-            cornerLocation.setText(getResources().getString(R.string.interface_tutorial_corner_choose_right));
+            cornerLocation.setText(getResources().getString(R.string.interface_corner_choose_right));
         } else {
-            cornerLocation.setText(getResources().getString(R.string.interface_tutorial_corner_choose_left));
+            cornerLocation.setText(getResources().getString(R.string.interface_corner_choose_left));
         }
         cornerLocation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    compoundButton.setText(getResources().getString(R.string.interface_tutorial_corner_choose_right));
+                    compoundButton.setText(getResources().getString(R.string.interface_corner_choose_right));
                     pm.getUserManager().set(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_right));
                 } else {
-                    compoundButton.setText(getResources().getString(R.string.interface_tutorial_corner_choose_left));
+                    compoundButton.setText(getResources().getString(R.string.interface_corner_choose_left));
                     pm.getUserManager().set(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_left));
                 }
             }

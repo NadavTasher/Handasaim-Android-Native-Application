@@ -69,7 +69,7 @@ public class Center {
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setGravity(Gravity.CENTER);
-        layout.setPadding(40,40,40,40);
+        layout.setPadding(40, 40, 40, 40);
         RatioView codeTitle = new RatioView(context, 1);
         codeTitle.setText(R.string.interface_codes_title);
         codeTitle.setTypeface(getTypeface(context));
@@ -107,7 +107,6 @@ public class Center {
         });
         installCode.setBackground(Utils.getCoaster(context.getResources().getColor(R.color.coaster_bright), 20, 10));
         installCode.setPadding(40, 40, 40, 40);
-
         layout.addView(codeTitle);
         layout.addView(codeExplanation);
         layout.addView(keyHolder);

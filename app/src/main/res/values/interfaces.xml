@@ -13,6 +13,8 @@
     <string name="interface_share_messages">Include Messages</string>
     <string name="interface_share_grade">Share Whole Grade</string>
     <string name="interface_share_button">Share</string>
+    <string name="interface_corner_choose_left">Left Corner</string>
+    <string name="interface_corner_choose_right">Right Corner</string>
     <string name="interface_settings_messages">Display Messages</string>
     <string name="interface_settings_choose_color_top">Choose Top Color:</string>
     <string name="interface_settings_choose_color_bottom">Choose Bottom Color:</string>
@@ -31,8 +33,6 @@
     <string name="interface_tutorial_lessonview_example_bottom2">מאיה</string>
     <string name="interface_tutorial_corner_explanation">This is the menu button.\nIt is located in on of the bottom corners of the screen.\nThe button opens and closes the top menu.</string>
     <string name="interface_tutorial_corner_choose_location">Choose your preferred location for the button:</string>
-    <string name="interface_tutorial_corner_choose_left">Left Corner</string>
-    <string name="interface_tutorial_corner_choose_right">Right Corner</string>
     <string name="interface_tutorial_corner_example_top">י2</string>
     <string name="interface_tutorial_corner_example_bottom">שלישי</string>
     <string name="interface_tutorial_title_done">You\'re All Set!</string>

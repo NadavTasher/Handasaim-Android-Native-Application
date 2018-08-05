@@ -12,7 +12,7 @@
     <string name="preferences_user_display_messages">displayMessages</string>
     <string name="preferences_user_display_breaks">displayBreaks</string>
     <string name="preferences_user_mode_developer">modeDeveloper</string>
-    <string name="preferences_user_corner_location">modeDeveloper</string>
+    <string name="preferences_user_corner_location">cornerLocation</string>
     <string name="preferences_user_service_refresh">serviceRefresh</string>
     <string name="preferences_user_service_push">servicePush</string>
     <string name="preferences_user_favorite_classroom">classroom</string>

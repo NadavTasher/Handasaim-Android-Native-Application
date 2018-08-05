@@ -17,6 +17,7 @@ import java.io.File;
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
+import nadav.tasher.handasaim.services.BackgroundService;
 import nadav.tasher.handasaim.tools.online.FileDownloader;
 import nadav.tasher.handasaim.tools.specific.GetLink;
 import nadav.tasher.lightool.communication.network.Ping;
@@ -72,6 +73,7 @@ public class SplashActivity extends Activity {
             }
         });
         cfa.start(3000);
+        initService();
         initStageC();
     }
 
@@ -80,6 +82,10 @@ public class SplashActivity extends Activity {
                 colorA,
                 colorB
         });
+    }
+
+    private void initService(){
+        BackgroundService.reschedule(getApplicationContext());
     }
 
     private void initStageC() {
@@ -176,5 +182,11 @@ public class SplashActivity extends Activity {
             }
         });
         pop.show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initStageC();
     }
 }

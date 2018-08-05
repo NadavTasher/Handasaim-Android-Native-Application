@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,8 +86,18 @@ public class HomeActivity extends Activity {
         currentTheme.colorBottom = pm.getUserManager().get(R.string.preferences_user_color_bottom, getResources().getColor(R.color.default_bottom));
         currentTheme.colorMix = generateCombinedColor(currentTheme.colorTop, currentTheme.colorBottom);
         theme.tell(currentTheme);
-        Log.i("COlorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
-        Log.i("COlorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
+//        Log.i("ColorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
+//        Log.i("ColorB", String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
+    }
+
+    private void refreshCorner() {
+        if (pm.getUserManager().get(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_right)).equals(getResources().getString(R.string.corner_location_right))) {
+            mAppView.getCornerView().setBottomLeft(null);
+            mAppView.getCornerView().setBottomRight(info);
+        } else {
+            mAppView.getCornerView().setBottomRight(null);
+            mAppView.getCornerView().setBottomLeft(info);
+        }
     }
 
     public void go() {
@@ -105,7 +114,7 @@ public class HomeActivity extends Activity {
         sv.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
         sv.setVerticalScrollBarEnabled(false);
         sv.setFillViewport(true);
-        LinearLayout ll=Center.getCodeEntering(getApplicationContext());
+        LinearLayout ll = Center.getCodeEntering(getApplicationContext());
         sv.addView(ll);
         return sv;
     }
@@ -200,7 +209,6 @@ public class HomeActivity extends Activity {
                 }
             }
         });
-        mAppView.getCornerView().setBottomRight(info);
         mAppView.getScrolly().setOnScroll(new AppView.Scrolly.OnScroll() {
             @Override
             public void onScroll(int i, int i1, int i2, int i3) {
@@ -259,6 +267,7 @@ public class HomeActivity extends Activity {
                 return false;
             }
         }));
+        refreshCorner();
         assembleDrawers();
         loadContent();
         setContentView(mAppView);
@@ -392,7 +401,7 @@ public class HomeActivity extends Activity {
     private void openDrawer(View v) {
         mAppView.getDrawer().setContent(v);
         v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        double percent = (((double)v.getMeasuredHeight() + ((double)2 * (double)drawerPadding))) / ((double) Device.screenY(getApplicationContext()));
+        double percent = (((double) v.getMeasuredHeight() + ((double) 2 * (double) drawerPadding))) / ((double) Device.screenY(getApplicationContext()));
         mAppView.getDrawer().open(((percent) > 0.7) ? 0.7 : percent);
     }
 
@@ -511,7 +520,6 @@ public class HomeActivity extends Activity {
         return sv;
     }
 
-    // TODO add corner location
     private ScrollView getSettings() {
         ScrollView sv = new ScrollView(getApplicationContext());
         sv.setPadding(10, 10, 10, 10);
@@ -520,7 +528,7 @@ public class HomeActivity extends Activity {
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         settings.setPadding(20, 20, 20, 20);
-        final Switch devSwitch = new Switch(getApplicationContext()), displayMessagesSwitch = new Switch(getApplicationContext()), refreshSwitch = new Switch(getApplicationContext()), displayBreaksSwitch = new Switch(getApplicationContext()), pushSwitch = new Switch(getApplicationContext());
+        final Switch devSwitch = new Switch(getApplicationContext()), cornerLocation = new Switch(getApplicationContext()), displayMessagesSwitch = new Switch(getApplicationContext()), refreshSwitch = new Switch(getApplicationContext()), displayBreaksSwitch = new Switch(getApplicationContext()), pushSwitch = new Switch(getApplicationContext());
         pushSwitch.setText(R.string.interface_settings_service_push);
         displayMessagesSwitch.setText(R.string.interface_settings_messages);
         refreshSwitch.setText(R.string.interface_settings_service_refresh);
@@ -530,10 +538,12 @@ public class HomeActivity extends Activity {
         refreshSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_service_refresh, getResources().getBoolean(R.bool.default_service_refresh)));
         displayMessagesSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_messages, getResources().getBoolean(R.bool.default_display_messages)));
         displayBreaksSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_messages, getResources().getBoolean(R.bool.default_display_messages)));
+        cornerLocation.setChecked(pm.getUserManager().get(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_right)).equals(getResources().getString(R.string.corner_location_right)));
         devSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_mode_developer, getResources().getBoolean(R.bool.default_mode_developer)));
         pushSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         refreshSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         displayBreaksSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
+        cornerLocation.setTypeface(Center.getTypeface(getApplicationContext()));
         devSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         displayMessagesSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         displayBreaksSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -566,6 +576,24 @@ public class HomeActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 pm.getUserManager().set(R.string.preferences_user_mode_developer, isChecked);
+            }
+        });
+        if (cornerLocation.isChecked()) {
+            cornerLocation.setText(getResources().getString(R.string.interface_corner_choose_right));
+        } else {
+            cornerLocation.setText(getResources().getString(R.string.interface_corner_choose_left));
+        }
+        cornerLocation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    compoundButton.setText(getResources().getString(R.string.interface_corner_choose_right));
+                    pm.getUserManager().set(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_right));
+                } else {
+                    compoundButton.setText(getResources().getString(R.string.interface_corner_choose_left));
+                    pm.getUserManager().set(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_left));
+                }
+                refreshCorner();
             }
         });
         final TextView explainTextSize = new TextView(getApplicationContext());
@@ -641,6 +669,7 @@ public class HomeActivity extends Activity {
                 displayBreaksSwitch.setTextSize((float) (theme.textSize / 1.5));
                 refreshSwitch.setTextSize((float) (theme.textSize / 1.5));
                 displayMessagesSwitch.setTextSize((float) (theme.textSize / 1.5));
+                cornerLocation.setTextSize((float) (theme.textSize / 1.5));
                 devSwitch.setTextSize((float) (theme.textSize / 1.5));
                 explainColorA.setTextSize((float) (theme.textSize / 1.5));
                 explainColorB.setTextSize((float) (theme.textSize / 1.5));
@@ -651,6 +680,7 @@ public class HomeActivity extends Activity {
                 refreshSwitch.setTextColor(theme.textColor);
                 displayMessagesSwitch.setTextColor(theme.textColor);
                 devSwitch.setTextColor(theme.textColor);
+                cornerLocation.setTextColor(theme.textColor);
                 explainColorA.setTextColor(theme.textColor);
                 explainColorB.setTextColor(theme.textColor);
                 explainTextColor.setTextColor(theme.textColor);
@@ -660,6 +690,7 @@ public class HomeActivity extends Activity {
         }));
         settings.addView(displayMessagesSwitch);
         settings.addView(displayBreaksSwitch);
+        settings.addView(cornerLocation);
         settings.addView(pushSwitch);
         settings.addView(refreshSwitch);
         settings.addView(explainTextSize);
@@ -676,7 +707,6 @@ public class HomeActivity extends Activity {
         return sv;
     }
 
-    // TODO register in theme tower
     private ScrollView getSwitcher() {
         LinearLayout all = new LinearLayout(getApplicationContext());
         all.setOrientation(LinearLayout.VERTICAL);
@@ -702,13 +732,13 @@ public class HomeActivity extends Activity {
             if (grade < 0) {
                 grade = 0;
             }
-            Button cls = new Button(getApplicationContext());
-            cls.setTextSize(theme.getLast().textSize);
+            final Button cls = new Button(getApplicationContext());
             cls.setGravity(Gravity.CENTER);
             cls.setText(cr.getName());
+            cls.setTypeface(Center.getTypeface(getApplicationContext()));
             cls.setTextColor(theme.getLast().textColor);
             cls.setBackground(Utils.getCoaster(theme.getLast().colorMix, 20, 5));
-            cls.setTypeface(Center.getTypeface(getApplicationContext()));
+            cls.setTextSize(theme.getLast().textSize);
             cls.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getApplicationContext()) / 5, (Device.screenY(getApplicationContext()) / 12)));
             cls.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -716,6 +746,17 @@ public class HomeActivity extends Activity {
                     setStudentMode(cr);
                 }
             });
+            theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
+                @Override
+                public boolean onPeer(Theme theme) {
+                    cls.setTypeface(Center.getTypeface(getApplicationContext()));
+                    cls.setTextColor(theme.textColor);
+                    cls.setBackground(Utils.getCoaster(theme.colorMix, 20, 5));
+                    cls.setTextSize(theme.textSize);
+                    cls.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getApplicationContext()) / 5, (Device.screenY(getApplicationContext()) / 12)));
+                    return false;
+                }
+            }));
             if (groups.size() > grade && groups.get(grade) != null) {
                 groups.get(grade).addView(cls);
             } else {
@@ -732,7 +773,7 @@ public class HomeActivity extends Activity {
         all.addView(students);
         if (pm.getKeyManager().isKeyLoaded(R.string.preferences_keys_type_teachers)) {
             for (final Teacher tc : schedule.getTeachers()) {
-                Button cls = new Button(getApplicationContext());
+                final Button cls = new Button(getApplicationContext());
                 cls.setTextSize(theme.getLast().textSize);
                 cls.setGravity(Gravity.CENTER);
                 cls.setText(tc.getName());
@@ -748,6 +789,17 @@ public class HomeActivity extends Activity {
                         setTeacherMode(tc);
                     }
                 });
+                theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
+                    @Override
+                    public boolean onPeer(Theme theme) {
+                        cls.setTypeface(Center.getTypeface(getApplicationContext()));
+                        cls.setTextColor(theme.textColor);
+                        cls.setBackground(Utils.getCoaster(theme.colorMix, 20, 5));
+                        cls.setTextSize(theme.textSize);
+                        cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 12)));
+                        return false;
+                    }
+                }));
             }
             all.addView(teachersv);
         }
