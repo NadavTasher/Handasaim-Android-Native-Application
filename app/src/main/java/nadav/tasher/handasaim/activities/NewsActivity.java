@@ -3,6 +3,7 @@ package nadav.tasher.handasaim.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -50,6 +51,7 @@ public class NewsActivity extends Activity {
 
     private void initVars(){
         pm=new PreferenceManager(getApplicationContext());
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
     }
 
 

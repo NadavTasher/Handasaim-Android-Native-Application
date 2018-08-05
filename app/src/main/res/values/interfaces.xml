@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="interface_close">Close</string>
+    <string name="interface_back">Back</string>
+    <string name="interface_next">Next</string>
+    <string name="interface_finish">Finish</string>
     <string name="interface_loading">Loading…</string>
+    <string name="interface_enter_codes">Enter Codes</string>
+    <string name="interface_codes_title">Enter Codes</string>
+    <string name="interface_codes_message">Enter your special code to enable special features.</string>
+    <string name="interface_codes_install">Install Codes</string>
+    <string name="interface_codes_hint">Your Code</string>
     <string name="interface_share_messages">Include Messages</string>
     <string name="interface_share_grade">Share Whole Grade</string>
     <string name="interface_share_button">Share</string>
@@ -16,4 +24,18 @@
     <string name="interface_settings_mode_developer">Developer Mode</string>
     <string name="interface_tutorial_begin">Let\'s Begin</string>
     <string name="interface_tutorial_welcome">Welcome.</string>
+    <string name="interface_tutorial_explanation">This tutorial will brief you through the app.\nIt will show you some features and let you set some settings.\nClick \'Next\' to continue.</string>
+    <string name="interface_tutorial_lessonview_explanation">This how a lesson in the schedule looks like.\nBy default, its collapsed, so the information you are presented with is just the lesson\'s name.\nYou can expand it by touching it, to reveal more information.</string>
+    <string name="interface_tutorial_lessonview_example_top">מתמתיקה</string>
+    <string name="interface_tutorial_lessonview_example_bottom1">דלית</string>
+    <string name="interface_tutorial_lessonview_example_bottom2">מאיה</string>
+    <string name="interface_tutorial_corner_explanation">This is the menu button.\nIt is located in on of the bottom corners of the screen.\nThe button opens and closes the top menu.</string>
+    <string name="interface_tutorial_corner_choose_location">Choose your preferred location for the button:</string>
+    <string name="interface_tutorial_corner_choose_left">Left Corner</string>
+    <string name="interface_tutorial_corner_choose_right">Right Corner</string>
+    <string name="interface_tutorial_corner_example_top">י2</string>
+    <string name="interface_tutorial_corner_example_bottom">שלישי</string>
+    <string name="interface_tutorial_title_done">You\'re All Set!</string>
+    <string name="interface_tutorial_explanation_done">You can change some other setting then just click \'Finish\' to enter the app.</string>
+
 </resources>

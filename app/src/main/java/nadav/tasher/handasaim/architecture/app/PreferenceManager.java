@@ -156,20 +156,32 @@ public class PreferenceManager {
                         new Post(context.getResources().getString(R.string.provider_external_keys), requestParameters, new OnFinish() {
                             @Override
                             public void onFinish(SessionStatus sessionStatus) {
-                                try {
-                                    JSONObject o = new JSONObject(sessionStatus.getExtra());
-                                    if (o.getBoolean("success")) {
-                                        if (o.getString("key").equals(key)) {
-                                            installKey(key, o.getInt("type"));
+                                if (sessionStatus.getStatus() == SessionStatus.FINISHED_SUCCESS) {
+                                    if (sessionStatus.getExtra() != null) {
+                                        if (!sessionStatus.getExtra().isEmpty()) {
+                                            try {
+                                                JSONObject o = new JSONObject(sessionStatus.getExtra());
+                                                if (o.getBoolean("success")) {
+                                                    if (o.getString("key").equals(key)) {
+                                                        installKey(key, o.getInt("type"));
+                                                    } else {
+                                                        Toast.makeText(context, "Key comparison failed.", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                } else {
+                                                    Toast.makeText(context, "Key does not exist, or already used", Toast.LENGTH_SHORT).show();
+                                                }
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                                Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
+                                            }
                                         } else {
-                                            Toast.makeText(context, "Key comparison failed.", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(context, "Key provider reply error.", Toast.LENGTH_SHORT).show();
                                         }
                                     } else {
-                                        Toast.makeText(context, "Key does not exist, or already used", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(context, "Key provider reply error.", Toast.LENGTH_SHORT).show();
                                     }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                    Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(context, "Key provider reply error.", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }

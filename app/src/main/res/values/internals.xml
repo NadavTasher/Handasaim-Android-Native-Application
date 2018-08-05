@@ -14,6 +14,8 @@
     <string name="refresh_text_message">A New Schedule Has Been Uploaded.</string>
     <string name="core_mode_teacher">teacher</string>
     <string name="core_mode_student">student</string>
+    <string name="corner_location_left">left</string>
+    <string name="corner_location_right">right</string>
     <color name="drawer_color">#444444</color>
     <color name="coaster_bright">#333333</color>
     <color name="coaster_dark">#222222</color>

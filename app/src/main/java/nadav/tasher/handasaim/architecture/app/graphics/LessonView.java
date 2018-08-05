@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import nadav.tasher.handasaim.R;
@@ -38,6 +39,16 @@ public class LessonView extends FrameLayout {
         this.topText = rtlMark + topText;
         if (bottomText != null) {
             this.bottomText = rtl(bottomText);
+        }
+        this.schoolHour = schoolHour;
+        init();
+    }
+
+    public LessonView(Context context, int schoolHour, String topText, String[] bottomText) {
+        super(context);
+        this.topText = rtlMark + topText;
+        if (bottomText != null) {
+            this.bottomText = rtl(new ArrayList<>(Arrays.asList(bottomText)));
         }
         this.schoolHour = schoolHour;
         init();

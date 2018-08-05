@@ -1,20 +1,17 @@
 package nadav.tasher.handasaim.activities;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.text.InputFilter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -39,7 +36,6 @@ import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
 import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
 import nadav.tasher.handasaim.architecture.appcore.components.Subject;
 import nadav.tasher.handasaim.architecture.appcore.components.Teacher;
-import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.lightool.graphics.views.ColorPicker;
 import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.graphics.views.appview.AppView;
@@ -78,6 +74,7 @@ public class HomeActivity extends Activity {
 
     private void initVars() {
         pm = new PreferenceManager(getApplicationContext());
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
     }
 
     private void refreshTheme() {
@@ -103,47 +100,65 @@ public class HomeActivity extends Activity {
         }
     }
 
-    // TODO move to drawer
-    private void popupKeyEntering() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(this);
-        pop.setCancelable(true);
-        pop.setTitle("Unlock Features");
-        pop.setMessage("Enter The Unlock Key You Got To Unlock Special Features.");
-        final EditText key = new EditText(getApplicationContext());
-        key.setFilters(new InputFilter[]{
-                Filters.codeFilter,
-                new InputFilter.AllCaps()
-        });
-        FrameLayout f = new FrameLayout(getApplicationContext());
-        f.setPadding(50, 10, 50, 10);
-        f.addView(key);
-        key.setHint("Unlock Key");
-        pop.setView(f);
-        key.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        pop.setPositiveButton("Unlock", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                pm.getKeyManager().loadKey(key.getText().toString().toUpperCase());
-            }
-        });
-        pop.setNegativeButton("Close", null);
-        pop.show();
+    private ScrollView getCode() {
+        ScrollView sv = new ScrollView(getApplicationContext());
+        sv.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
+        sv.setVerticalScrollBarEnabled(false);
+        sv.setFillViewport(true);
+        LinearLayout ll=Center.getCodeEntering(getApplicationContext());
+        sv.addView(ll);
+        return sv;
     }
 
-    // TODO move to drawer
-    private void aboutPopup() {
-        AlertDialog.Builder ab = new AlertDialog.Builder(this);
-        ab.setTitle(R.string.app_name);
-        ab.setMessage("Made By Nadav Tasher.\nVersion: " + Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) + " (" + Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()) + ")\nAppCore v" + AppCore.APPCORE_VERSION);
-        ab.setCancelable(true);
-        ab.setPositiveButton("Close", null);
-        ab.setNegativeButton("Enter Code", new DialogInterface.OnClickListener() {
+    private ScrollView getAbout() {
+        ScrollView sv = new ScrollView(getApplicationContext());
+        sv.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
+        sv.setFillViewport(true);
+        LinearLayout aboutView = new LinearLayout(getApplicationContext());
+        aboutView.setGravity(Gravity.CENTER);
+        aboutView.setOrientation(LinearLayout.VERTICAL);
+        aboutView.setPadding(20, 20, 20, 20);
+        RatioView title = new RatioView(getApplicationContext(), 0.9);
+        RatioView message = new RatioView(getApplicationContext(), 0.7);
+        RatioView enterCodes = new RatioView(getApplicationContext(), 0.7);
+        enterCodes.setText(R.string.interface_enter_codes);
+        title.setText(R.string.app_name);
+        String messageText = "Made By Nadav Tasher.\nVersion: " +
+                Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) +
+                " (" +
+                Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()) +
+                ")" +
+                "\n" +
+                "AppCore v" +
+                AppCore.APPCORE_VERSION;
+        message.setText(messageText);
+        title.setTypeface(Center.getTypeface(getApplicationContext()));
+        title.setTextSize(theme.getLast().textSize);
+        title.setTextColor(theme.getLast().textColor);
+        title.setGravity(Gravity.CENTER);
+        title.setPadding(0, 30, 0, 30);
+        message.setTypeface(Center.getTypeface(getApplicationContext()));
+        message.setTextSize(theme.getLast().textSize);
+        message.setTextColor(theme.getLast().textColor);
+        message.setGravity(Gravity.CENTER);
+        message.setPadding(0, 30, 0, 30);
+        enterCodes.setTypeface(Center.getTypeface(getApplicationContext()));
+        enterCodes.setTextSize(theme.getLast().textSize);
+        enterCodes.setTextColor(theme.getLast().textColor);
+        enterCodes.setGravity(Gravity.CENTER);
+        enterCodes.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 20, 10));
+        enterCodes.setPadding(0, 40, 0, 40);
+        enterCodes.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                popupKeyEntering();
+            public void onClick(View view) {
+                openDrawer(code);
             }
         });
-        ab.show();
+        aboutView.addView(title);
+        aboutView.addView(message);
+        aboutView.addView(enterCodes);
+        sv.addView(aboutView);
+        return sv;
     }
 
     private int generateCombinedColor(int colorTop, int colorBottom) {
@@ -285,6 +300,8 @@ public class HomeActivity extends Activity {
         settings = getSettings();
         share = getShare();
         switcher = getSwitcher();
+        code = getCode();
+        about = getAbout();
     }
 
     private void assembleMenuDrawer() {
@@ -329,7 +346,7 @@ public class HomeActivity extends Activity {
         icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                aboutPopup();
+                openDrawer(about);
             }
         });
         menu.addView(shareIcon);
@@ -375,7 +392,7 @@ public class HomeActivity extends Activity {
     private void openDrawer(View v) {
         mAppView.getDrawer().setContent(v);
         v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        double percent = ((double) (v.getMeasuredHeight() + (2 * drawerPadding))) / ((double) Device.screenY(getApplicationContext()));
+        double percent = (((double)v.getMeasuredHeight() + ((double)2 * (double)drawerPadding))) / ((double) Device.screenY(getApplicationContext()));
         mAppView.getDrawer().open(((percent) > 0.7) ? 0.7 : percent);
     }
 
@@ -494,6 +511,7 @@ public class HomeActivity extends Activity {
         return sv;
     }
 
+    // TODO add corner location
     private ScrollView getSettings() {
         ScrollView sv = new ScrollView(getApplicationContext());
         sv.setPadding(10, 10, 10, 10);
@@ -757,6 +775,7 @@ public class HomeActivity extends Activity {
         currentClass = c;
         // Write to preferences
         pm.getUserManager().set(R.string.preferences_user_favorite_classroom, c.getName());
+        pm.getCoreManager().setMode(R.string.core_mode_student);
         pm.getServicesManager().setChannel(c.getGrade());
         // Display corner info
         LinearLayout infoText = new LinearLayout(getApplicationContext());
@@ -795,6 +814,7 @@ public class HomeActivity extends Activity {
     private void setTeacherMode(Teacher t) {
         // Write to preferences
         pm.getUserManager().set(R.string.preferences_user_favorite_teacher, t.getName());
+        pm.getCoreManager().setMode(R.string.core_mode_teacher);
         pm.getServicesManager().setChannel(Classroom.UNKNOWN_GRADE);
         // Write info to corner
         LinearLayout infoText = new LinearLayout(getApplicationContext());
