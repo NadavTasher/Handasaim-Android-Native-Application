@@ -44,8 +44,10 @@ public class TutorialActivity extends Activity {
 
     private void initVars() {
         pm = new PreferenceManager(getApplicationContext());
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
+
+    // TODO change to Center.
 
     private void go() {
         // Tutorial Screen

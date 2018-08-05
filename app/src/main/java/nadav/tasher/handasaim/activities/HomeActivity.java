@@ -73,7 +73,7 @@ public class HomeActivity extends Activity {
 
     private void initVars() {
         pm = new PreferenceManager(getApplicationContext());
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     private void refreshTheme() {

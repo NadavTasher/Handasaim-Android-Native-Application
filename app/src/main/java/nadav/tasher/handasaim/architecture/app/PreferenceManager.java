@@ -227,12 +227,12 @@ public class PreferenceManager {
             super.set(R.string.preferences_core_mode, super.fromResource(modeRes));
         }
 
-        public String getDate() {
-            return super.get(R.string.preferences_core_file_date, null);
+        public String getLink() {
+            return super.get(R.string.preferences_core_file_link, null);
         }
 
-        public void setDate(String date) {
-            super.set(R.string.preferences_core_file_date, date);
+        public void setLink(String link) {
+            super.set(R.string.preferences_core_file_link, link);
         }
 
         public String getFile() {
@@ -283,13 +283,13 @@ public class PreferenceManager {
             }
         }
 
-        public boolean getScheduleNotifiedAlready(String date) {
-            return super.get(R.string.preferences_services_refresh_file_date, "").equals(date);
+        public boolean getScheduleNotifiedAlready(String link) {
+            return super.get(R.string.preferences_services_refresh_file_link, "").equals(link);
         }
 
-        public void setScheduleNotifiedAlready(String date) {
-            if (!getScheduleNotifiedAlready(date)) {
-                super.set(R.string.preferences_services_refresh_file_date, date);
+        public void setScheduleNotifiedAlready(String link) {
+            if (!getScheduleNotifiedAlready(link)) {
+                super.set(R.string.preferences_services_refresh_file_link, link);
             }
         }
 

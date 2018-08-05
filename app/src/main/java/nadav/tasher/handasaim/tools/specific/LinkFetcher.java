@@ -8,22 +8,21 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 
-public class GetLink extends AsyncTask<String, String, String> {
-    private String ser;
-    private GotLink gotlink;
-    private boolean success;
+public class LinkFetcher extends AsyncTask<String, String, String> {
+    private String url;
+    private OnFinish onFinish;
 
-    public GetLink(String service, GotLink gl) {
-        ser = service;
-        gotlink = gl;
+    public LinkFetcher(String url, OnFinish onFinish) {
+        this.url = url;
+        this.onFinish = onFinish;
     }
 
     @Override
     protected String doInBackground(String... strings) {
+        String file = null;
         try {
-            Document docu = Jsoup.connect(ser).get();
+            Document docu = Jsoup.connect(url).get();
             Elements doc = docu.select("a");
-            String file = null;
             // TODO Remove This Line After Summer Vaccation
             file = "http://nockio.com/handasaim/schedulearchives/15-5.xls";
             // TODO Remove This ^
@@ -32,26 +31,26 @@ public class GetLink extends AsyncTask<String, String, String> {
                     file = doc.get(i).attr("href");
                 }
             }
-            success = true;
-            return file;
         } catch (IOException e) {
-            success = false;
-            return e.getMessage();
+            e.printStackTrace();
         }
+        return file;
     }
 
     @Override
     protected void onPostExecute(String s) {
-        if (success) {
-            gotlink.onLinkGet(s);
-        } else {
-            gotlink.onFail(s);
+        if(onFinish!=null) {
+            if (s != null) {
+                onFinish.onLinkFetch(s);
+            } else {
+                onFinish.onFail();
+            }
         }
     }
 
-    public interface GotLink {
-        void onLinkGet(String link);
+    public interface OnFinish {
+        void onLinkFetch(String link);
 
-        void onFail(String e);
+        void onFail();
     }
 }

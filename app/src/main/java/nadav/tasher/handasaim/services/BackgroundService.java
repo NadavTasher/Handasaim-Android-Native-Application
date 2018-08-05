@@ -12,7 +12,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,7 +21,7 @@ import java.util.Random;
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.activities.SplashActivity;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
-import nadav.tasher.handasaim.tools.specific.GetLink;
+import nadav.tasher.handasaim.tools.specific.LinkFetcher;
 import nadav.tasher.lightool.communication.OnFinish;
 import nadav.tasher.lightool.communication.SessionStatus;
 import nadav.tasher.lightool.communication.network.Ping;
@@ -32,9 +31,23 @@ import nadav.tasher.lightool.info.Device;
 
 public class BackgroundService extends JobService {
 
+    private static final int ID = 102;
     private PreferenceManager pm;
-    private static final int ID=102;
     private boolean pushFinished = false, refreshFinished = false;
+
+    public static void reschedule(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Device.isJobServiceScheduled(context, ID)) {
+                ComponentName serviceComponent = new ComponentName(context, BackgroundService.class);
+                JobInfo.Builder builder = new JobInfo.Builder(ID, serviceComponent);
+                builder.setMinimumLatency(context.getResources().getInteger(R.integer.background_loop_time));
+                JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
+                if (jobScheduler != null) {
+                    jobScheduler.schedule(builder.build());
+                }
+            }
+        }
+    }
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
@@ -116,22 +129,19 @@ public class BackgroundService extends JobService {
             @Override
             public void onPing(boolean b) {
                 if (b) {
-                    new GetLink(getResources().getString(R.string.provider_internal_schedule), new GetLink.GotLink() {
+                    new LinkFetcher(getResources().getString(R.string.provider_internal_schedule), new LinkFetcher.OnFinish() {
                         @Override
-                        public void onLinkGet(String link) {
-                            if (link != null) {
-                                String date = link.split("/")[link.split("/").length - 1].split("\\.")[0];
-                                if (!pm.getServicesManager().getScheduleNotifiedAlready(date)) {
-                                    pm.getServicesManager().setScheduleNotifiedAlready(date);
-                                    inform(getResources().getString(R.string.refresh_text_title), getResources().getString(R.string.refresh_text_message));
-                                }
-                                refreshFinished = true;
-                                done(jobParameters);
+                        public void onLinkFetch(String link) {
+                            if (!pm.getServicesManager().getScheduleNotifiedAlready(link)) {
+                                pm.getServicesManager().setScheduleNotifiedAlready(link);
+                                inform(getResources().getString(R.string.refresh_text_title), getResources().getString(R.string.refresh_text_message));
                             }
+                            refreshFinished = true;
+                            done(jobParameters);
                         }
 
                         @Override
-                        public void onFail(String e) {
+                        public void onFail() {
                             refreshFinished = true;
                             done(jobParameters);
                         }
@@ -146,21 +156,7 @@ public class BackgroundService extends JobService {
 
     private void done(JobParameters parameters) {
         if (pushFinished && refreshFinished) jobFinished(parameters, false);
-        Log.i("Xcuse Me?","My Eyes Are Up Here!");
-    }
-
-    public static void reschedule(Context context){
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
-            if (!Device.isJobServiceScheduled(context,ID)) {
-                ComponentName serviceComponent = new ComponentName(context, BackgroundService.class);
-                JobInfo.Builder builder = new JobInfo.Builder(ID, serviceComponent);
-                builder.setMinimumLatency(context.getResources().getInteger(R.integer.background_loop_time));
-                JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
-                if (jobScheduler != null) {
-                    jobScheduler.schedule(builder.build());
-                }
-            }
-        }
+        reschedule(getApplicationContext());
     }
 
     private void inform(String title, String message) {

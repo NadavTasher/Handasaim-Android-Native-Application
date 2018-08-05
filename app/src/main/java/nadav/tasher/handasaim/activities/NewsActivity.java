@@ -2,19 +2,11 @@ package nadav.tasher.handasaim.activities;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -24,17 +16,17 @@ import java.util.ArrayList;
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
-import nadav.tasher.handasaim.tools.online.PictureLoader;
-import nadav.tasher.handasaim.tools.specific.GetNews;
+import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
+import nadav.tasher.handasaim.tools.specific.NewsFetcher;
 import nadav.tasher.handasaim.values.Egg;
+import nadav.tasher.lightool.graphics.views.ExpandingView;
 import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.info.Device;
 
 public class NewsActivity extends Activity {
 
-    private boolean started = false;
     private static final int waitTime = 10;
-
+    private boolean started = false;
     private PreferenceManager pm;
 
     @Override
@@ -45,151 +37,55 @@ public class NewsActivity extends Activity {
     }
 
     @Override
-    public Context getApplicationContext(){
+    public Context getApplicationContext() {
         return this;
     }
 
-    private void initVars(){
-        pm=new PreferenceManager(getApplicationContext());
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+    private void initVars() {
+        pm = new PreferenceManager(getApplicationContext());
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-
     private void go() {
-        
+        getWindow().setNavigationBarColor(Center.getColorTop(getApplicationContext()));
         getWindow().setStatusBarColor(Center.getColorTop(getApplicationContext()));
-        getWindow().setNavigationBarColor(Center.getColorBottom(getApplicationContext()));
+        // Setup ScrollView
+        ScrollView scrollView = new ScrollView(getApplicationContext());
+        scrollView.setBackgroundColor(Center.getColorTop(getApplicationContext()));
+        // Setup LinearLayout
+        LinearLayout fullScreen = new LinearLayout(getApplicationContext());
+        fullScreen.setOrientation(LinearLayout.VERTICAL);
+        fullScreen.setGravity(Gravity.CENTER);
+        // Setup EasterEgg
+        TextView mEggTop = getText(getResources().getString(R.string.interface_did_you_know), 1);
+        TextView mEggBottom = getText(Egg.dispenseEgg(Egg.TYPE_FACT), 0.9);
+        mEggBottom.setPadding(0, 30, 0, 30);
+        Log.i("Megg","Size: "+mEggBottom.getHeight());
+//        mEggBottom.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1000));
+        ExpandingView mEggView = new ExpandingView(getApplicationContext(), Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10), 500, Device.screenY(getApplicationContext()) / 8, mEggTop, mEggBottom);
+        fullScreen.addView(mEggView);
+        new NewsFetcher(getString(R.string.provider_internal_news), new NewsFetcher.OnFinish() {
+            @Override
+            public void onNewsFetch(ArrayList<NewsFetcher.Article> articles) {
+            }
 
-            final LinearLayout full = new LinearLayout(getApplicationContext());
-            full.setGravity(Gravity.CENTER);
-            full.setOrientation(LinearLayout.VERTICAL);
-            full.setPadding(10, 10, 10, 10);
-            LinearLayout newsAll = new LinearLayout(getApplicationContext());
-            newsAll.setGravity(Gravity.CENTER);
-            final LinearLayout loadingTView = new LinearLayout(getApplicationContext());
-            loadingTView.setGravity(Gravity.CENTER);
-            loadingTView.setOrientation(LinearLayout.VERTICAL);
-            //            loadingTView.setBackground(getDrawable(R.drawable.rounded_rect));
-            final TextView loadingText = new TextView(getApplicationContext()), egg = new TextView(getApplicationContext());
-            loadingText.setGravity(Gravity.CENTER);
-            loadingText.setText(R.string.interface_loading);
-            loadingText.setTextColor(Color.LTGRAY);
-            loadingText.setTypeface(Center.getTypeface(getApplicationContext()));
-            loadingText.setTextSize(Center.getFontSize(getApplicationContext()) + 4);
-            loadingTView.addView(loadingText);
-            loadingTView.setPadding(20, 20, 20, 20);
-            egg.setGravity(Gravity.CENTER);
-            egg.setText(Egg.dispenseEgg(Egg.TYPE_BOTH));
-            egg.setTextColor(Color.LTGRAY);
-            egg.setTypeface(Center.getTypeface(getApplicationContext()));
-            egg.setTextSize(Center.getFontSize(getApplicationContext()) - 8);
-            //            egg.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            loadingTView.addView(egg);
-            loadingTView.setGravity(Gravity.CENTER);
-            //            loadingTView.setBackgroundColor(Color.BLACK);
-            loadingTView.setLayoutParams(new LinearLayout.LayoutParams((int) (Device.screenX(getApplicationContext()) * 0.8), ViewGroup.LayoutParams.MATCH_PARENT));
-            newsAll.setLayoutParams(new ScrollView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            full.addView(loadingTView);
-            //            newsAll.setBackgroundColor(Color.GREEN);
-            final LinearLayout news = new LinearLayout(getApplicationContext());
-            news.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START);
-            newsAll.setOrientation(LinearLayout.VERTICAL);
-            news.setOrientation(LinearLayout.VERTICAL);
-            //        news.setAlpha(0.5f);
-            newsAll.addView(news);
-            final ScrollView newsAllSV = new ScrollView(getApplicationContext());
-            //            full.setBackgroundColor(Center.getColorB(getApplicationContext()));
-            full.setBackground(Center.getGradient(getApplicationContext()));
-            newsAllSV.addView(newsAll);
-            newsAllSV.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            full.addView(newsAllSV);
-            full.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            news.setVisibility(View.GONE);
-            setContentView(full);
-            new GetNews(getString(R.string.provider_internal_news), new GetNews.GotNews() {
-                @Override
-                public void onNewsGet(final ArrayList<GetNews.Link> link) {
-                    loadingTView.setVisibility(View.GONE);
-                    news.setVisibility(View.VISIBLE);
-                    for (int n = 0; n < link.size(); n++) {
-                        final LinearLayout nt = new LinearLayout(getApplicationContext());
-                        nt.setOrientation(LinearLayout.VERTICAL);
-                        nt.setGravity(Gravity.CENTER);
-                        Button newtopic = new Button(getApplicationContext());
-                        nt.addView(newtopic);
-                        nt.setPadding(10, 10, 10, 10);
-                        nt.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright),32,10));
-                        newtopic.setText(link.get(n).name);
-                        newtopic.setEllipsize(TextUtils.TruncateAt.END);
-                        newtopic.setTextColor(Center.getTextColor(getApplicationContext()));
-                        newtopic.setTextSize(Center.getFontSize(getApplicationContext()) - 10);
-                        newtopic.setPadding(20, 10, 20, 10);
-                        newtopic.setEllipsize(TextUtils.TruncateAt.END);
-                        newtopic.setLines(2);
-                        newtopic.setBackground(null);
-                        newtopic.setTypeface(Center.getTypeface(getApplicationContext()));
-                        if (!link.get(n).imgurl.equals("") && link.get(n).imgurl != null) {
-                            final int finalN1 = n;
-                            new PictureLoader(link.get(n).imgurl, new PictureLoader.GotImage() {
+            @Override
+            public void onFail() {
+            }
+        }).execute();
+        scrollView.addView(fullScreen);
+        setContentView(scrollView);
+    }
 
-                                @Override
-                                public void onGet(Bitmap image) {
-                                    ImageView imageView = new ImageView(getApplicationContext());
-                                    imageView.setImageBitmap(image);
-                                    imageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 3));
-                                    imageView.setPadding(20, 20, 20, 40);
-                                    imageView.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            String url = link.get(finalN1).url;
-                                            Intent i = new Intent(Intent.ACTION_VIEW);
-                                            i.setData(Uri.parse(url));
-                                            getApplicationContext().startActivity(i);
-                                        }
-                                    });
-                                    if (image != null) nt.addView(imageView);
-                                }
-                            }).execute();
-                        }
-                        newtopic.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 8));
-                        final int finalN = n;
-                        newtopic.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                String url = link.get(finalN).url;
-                                Intent i = new Intent(Intent.ACTION_VIEW);
-                                i.setData(Uri.parse(url));
-                                getApplicationContext().startActivity(i);
-                            }
-                        });
-                        news.addView(nt);
-                        newsAllSV.setScrollY(0);
-                    }
-                }
-
-                @Override
-                public void onFail(ArrayList<GetNews.Link> e) {
-                    if (!started) {
-                        started = true;
-                        // TODO start main
-                    }
-                }
-            }).execute();
-            new CountDownTimer((waitTime + 1) * 1000, 1000) {
-
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    if (millisUntilFinished <= 2000) {
-                        // TODO Start Main
-                    }
-                }
-
-                @Override
-                public void onFinish() {
-                    //                            waiting.setVisibility(View.GONE);
-                    //                            nextButton.setVisibility(View.VISIBLE);
-                }
-            }.start();
-
+    private RatioView getText(String text, double ratio) {
+        RatioView mRatio = new RatioView(getApplicationContext(), ratio);
+        mRatio.setTypeface(Center.getTypeface(getApplicationContext()));
+        mRatio.setTextColor(Center.getTextColor(getApplicationContext()));
+        mRatio.setTextSize(Center.getFontSize(getApplicationContext()));
+        mRatio.setSingleLine(false);
+        mRatio.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mRatio.setGravity(Gravity.CENTER);
+        mRatio.setText(text);
+        return mRatio;
     }
 }

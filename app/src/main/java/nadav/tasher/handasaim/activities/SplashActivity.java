@@ -18,9 +18,9 @@ import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
 import nadav.tasher.handasaim.services.BackgroundService;
-import nadav.tasher.handasaim.tools.online.FileDownloader;
-import nadav.tasher.handasaim.tools.specific.GetLink;
+import nadav.tasher.handasaim.tools.specific.LinkFetcher;
 import nadav.tasher.lightool.communication.network.Ping;
+import nadav.tasher.lightool.communication.network.file.Downloader;
 import nadav.tasher.lightool.graphics.ColorFadeAnimation;
 import nadav.tasher.lightool.info.Device;
 
@@ -42,7 +42,7 @@ public class SplashActivity extends Activity {
 
     private void initVars() {
         pm = new PreferenceManager(getApplicationContext());
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     private void go() {
@@ -84,7 +84,7 @@ public class SplashActivity extends Activity {
         });
     }
 
-    private void initService(){
+    private void initService() {
         BackgroundService.reschedule(getApplicationContext());
     }
 
@@ -107,49 +107,48 @@ public class SplashActivity extends Activity {
     }
 
     private void initStageD() {
-        //        Log.i("Stage", "D");
-        new GetLink(getString(R.string.provider_internal_schedule), new GetLink.GotLink() {
-
+        new LinkFetcher(getString(R.string.provider_internal_schedule), new LinkFetcher.OnFinish() {
             @Override
-            public void onLinkGet(String link) {
-                if (link != null) {
-                    String fileName = "hs.xls";
-                    if (link.endsWith(".xlsx")) {
-                        fileName = "hs.xlsx";
-                    }
-                    String date = link.split("/")[link.split("/").length - 1].split("\\.")[0];
-                    if (pm.getCoreManager().getDate() == null || !pm.getCoreManager().getDate().equals(date)) {
-                        pm.getCoreManager().setDate(date);
-                        if (!pm.getServicesManager().getScheduleNotifiedAlready(date))
-                            pm.getServicesManager().setScheduleNotifiedAlready(date);
-                        new FileDownloader(link, new File(getApplicationContext().getFilesDir(), fileName), new FileDownloader.OnDownload() {
-                            @Override
-                            public void onFinish(final File file, final boolean be) {
+            public void onLinkFetch(String link) {
+                StringBuilder fileName = new StringBuilder();
+                fileName.append("schedule");
+                fileName.append(".");
+                fileName.append(link.split("\\.")[link.split("\\.").length - 1]);
+                if (pm.getCoreManager().getLink() == null || !pm.getCoreManager().getLink().equals(link)) {
+                    pm.getCoreManager().setLink(link);
+                    if (!pm.getServicesManager().getScheduleNotifiedAlready(link))
+                        pm.getServicesManager().setScheduleNotifiedAlready(link);
+                    new Downloader(link, new File(getApplicationContext().getFilesDir(), fileName.toString()), new Downloader.OnDownload() {
+                        @Override
+                        public void onFinish(final File file, final boolean be) {
+                            if (be) {
                                 pm.getCoreManager().setFile(file.toString());
                                 initStageE(true);
+                            } else {
+                                initStageD();
                             }
+                        }
 
-                            @Override
-                            public void onProgressChanged(File file, int i) {
-                            }
-                        }).execute();
-                    } else {
-                        initStageE(false);
-                    }
+                        @Override
+                        public void onProgressChanged(File file, int progress) {
+                        }
+                    }).execute();
                 } else {
-                    initStageD();
+                    initStageE(false);
                 }
             }
 
             @Override
-            public void onFail(String e) {
+            public void onFail() {
                 initStageD();
             }
         }).execute();
     }
 
     private void initStageE(boolean newSchedule) {
-        //        Log.i("Stage", "E");
+        // Todo Remove this line
+        newSchedule = true;
+        // Todo This ^
         if (!pm.getUserManager().get(R.string.preferences_user_launch_first, true)) {
             if (newSchedule) {
                 if (pm.getKeyManager().isKeyLoaded(R.string.preferences_keys_type_news)) {
