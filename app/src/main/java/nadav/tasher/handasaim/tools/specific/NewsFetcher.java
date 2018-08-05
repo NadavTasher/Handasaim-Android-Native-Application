@@ -7,7 +7,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class NewsFetcher extends AsyncTask<String, String, ArrayList<NewsFetcher.Article>> {
@@ -24,15 +23,28 @@ public class NewsFetcher extends AsyncTask<String, String, ArrayList<NewsFetcher
         try {
             ArrayList<Article> articles = new ArrayList<>();
             Document document = Jsoup.connect(url).get();
-            Elements slides = document.getAllElements().select("div.slick-track").select("div.slick-slide");
-            for (Element currentSlide:slides) {
-                String title,url;
-                url=currentSlide.select("a").first().attr("href");
-                title=currentSlide.select("a").first().select("div.elementor-slide-content").first().select("div.elementor-slide-description").first().text();
-                articles.add(new Article(title,url));
+            Elements slides = document.getAllElements().select("div.slick-slide").select("a");
+            if (slides != null && !slides.isEmpty()) {
+                for (Element currentSlide : slides) {
+                    String title, url;
+                    url = currentSlide.attr("href");
+                    title = currentSlide.select("div.elementor-slide-content").select("div.elementor-slide-heading").text();
+                    if (title != null && !title.isEmpty()) {
+                        boolean contains = false;
+                        for (Article article : articles) {
+                            if (article.getTitle().equals(title)) {
+                                contains = true;
+                                break;
+                            }
+                        }
+                        if (!contains)
+                            articles.add(new Article(title, url));
+                    }
+                }
             }
             return articles;
-        } catch (IOException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -56,11 +68,11 @@ public class NewsFetcher extends AsyncTask<String, String, ArrayList<NewsFetcher
 
     public static class Article {
 
-        private String title,url;
+        private String title, url;
 
-        public Article (String title,String url){
-            this.title=title;
-            this.url=url;
+        public Article(String title, String url) {
+            this.title = title;
+            this.url = url;
         }
 
         public String getTitle() {

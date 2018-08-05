@@ -6,6 +6,7 @@
     <string name="interface_finish">Finish</string>
     <string name="interface_loading">Loading…</string>
     <string name="interface_did_you_know">Did You Know?</string>
+    <string name="interface_open_in_browser">Open Link</string>
     <string name="interface_enter_codes">Enter Codes</string>
     <string name="interface_codes_title">Enter Codes</string>
     <string name="interface_codes_message">Enter your special code to enable special features.</string>
