@@ -84,7 +84,7 @@ public class BackgroundService extends JobService {
                                         try {
                                             JSONObject response = new JSONObject(sessionStatus.getExtra());
                                             if (response.getString(getResources().getString(R.string.push_response_parameter_mode)).equals(getResources().getString(R.string.push_response_parameter_mode_client))) {
-                                                if (response.getBoolean(getResources().getString(R.string.push_response_parameter_approved))) {
+                                                if (response.has(getResources().getString(R.string.push_response_parameter_approved)) && response.getBoolean(getResources().getString(R.string.push_response_parameter_approved))) {
                                                     // Client Mode & Approved -> Scan Pushes
                                                     JSONArray pushes = response.getJSONArray(getResources().getString(R.string.push_response_parameter_pushes));
                                                     for (int p = 0; p < pushes.length(); p++) {
