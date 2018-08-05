@@ -185,7 +185,7 @@ public class HomeActivity extends Activity {
         refreshTheme();
         mAppView = new AppView(this);
         mAppView.setDrawNavigation(false);
-        mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(getResources().getColor(R.color.drawer_color), 30, 10));
+        mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(Center.darken(theme.getLast().colorMix,50), 30, 10));
         info = new Corner(getApplicationContext(), Device.screenX(getApplicationContext()) / 5, Color.TRANSPARENT);
         info.addOnState(new Corner.OnState() {
             @Override
@@ -256,6 +256,7 @@ public class HomeActivity extends Activity {
                 if (mAppView != null)
                     mAppView.setBackgroundColor(new AppView.Gradient(theme.colorTop, theme.colorBottom));
                 getWindow().setNavigationBarColor(theme.colorMix);
+                mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(Center.darken(theme.colorMix,50), 30, 10));
                 setCornerColor(mAppView.getScrolly());
                 messageBar.setTextColor(theme.textColor);
                 messageBar.setTextSize(theme.textSize);

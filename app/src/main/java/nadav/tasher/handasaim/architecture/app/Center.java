@@ -129,4 +129,11 @@ public class Center {
             c.finish();
         }
     }
+
+    public static int darken(int color,int amount){
+        int red=(Color.red(color)>amount)?Color.red(color)-amount:0;
+        int green=(Color.green(color)>amount)?Color.green(color)-amount:0;
+        int blue=(Color.blue(color)>amount)?Color.blue(color)-amount:0;
+        return Color.rgb(red,green,blue);
+    }
 }
