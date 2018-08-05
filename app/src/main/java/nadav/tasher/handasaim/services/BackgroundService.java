@@ -21,7 +21,7 @@ import java.util.Random;
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.activities.SplashActivity;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
-import nadav.tasher.handasaim.tools.specific.LinkFetcher;
+import nadav.tasher.handasaim.architecture.app.LinkFetcher;
 import nadav.tasher.lightool.communication.OnFinish;
 import nadav.tasher.lightool.communication.SessionStatus;
 import nadav.tasher.lightool.communication.network.Ping;

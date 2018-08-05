@@ -47,12 +47,10 @@ public class TutorialActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-    // TODO change to Center.
-
     private void go() {
         // Tutorial Screen
-        getWindow().setNavigationBarColor(getResources().getColor(R.color.default_top));
-        getWindow().setStatusBarColor(getResources().getColor(R.color.default_top));
+        getWindow().setNavigationBarColor(Center.getColorTop(getApplicationContext()));
+        getWindow().setStatusBarColor(Center.getColorTop(getApplicationContext()));
         LinearLayout fullScreen = new LinearLayout(getApplicationContext());
         LinearLayout buttonLayout = new LinearLayout(getApplicationContext());
         content = new FrameLayout(getApplicationContext());
@@ -60,15 +58,15 @@ public class TutorialActivity extends Activity {
         content.setPadding(40, 0, 40, 0);
         fullScreen.setOrientation(LinearLayout.VERTICAL);
         fullScreen.setGravity(Gravity.BOTTOM);
-        fullScreen.setBackgroundColor(getResources().getColor(R.color.default_top));
+        fullScreen.setBackgroundColor(Center.getColorTop(getApplicationContext()));
         buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
         buttonLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 12, 1));
         back = new Button(getApplicationContext());
         next = new Button(getApplicationContext());
         back.setTextSize((float) (Center.getFontSize(getApplicationContext()) / 1.5));
         next.setTextSize((float) (Center.getFontSize(getApplicationContext()) / 1.5));
-        back.setTextColor(getResources().getColor(R.color.default_text));
-        next.setTextColor(getResources().getColor(R.color.default_text));
+        back.setTextColor(Center.getTextColor(getApplicationContext()));
+        next.setTextColor(Center.getTextColor(getApplicationContext()));
         back.setBackground(null);
         next.setBackground(null);
         back.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
@@ -156,7 +154,7 @@ public class TutorialActivity extends Activity {
         explanationCorner.setTypeface(Center.getTypeface(getApplicationContext()));
         explanationCorner.setTextSize((float) (Center.getFontSize(getApplicationContext()) / 1.5));
         explanationCorner.setGravity(Gravity.CENTER);
-        explanationCorner.setTextColor(getResources().getColor(R.color.default_text));
+        explanationCorner.setTextColor(Center.getTextColor(getApplicationContext()));
         explanationCorner.setPadding(0, 40, 0, 40);
         // Corner Setup
         CornerView cornerView = new CornerView(getApplicationContext());
@@ -188,14 +186,14 @@ public class TutorialActivity extends Activity {
         explanationCornerLocation.setTypeface(Center.getTypeface(getApplicationContext()));
         explanationCornerLocation.setTextSize((float) (Center.getFontSize(getApplicationContext()) / 1.5));
         explanationCornerLocation.setGravity(Gravity.CENTER);
-        explanationCornerLocation.setTextColor(getResources().getColor(R.color.default_text));
+        explanationCornerLocation.setTextColor(Center.getTextColor(getApplicationContext()));
         explanationCornerLocation.setPadding(0, 40, 0, 40);
         Switch cornerLocation = new Switch(getApplicationContext());
         cornerLocation.setTypeface(Center.getTypeface(getApplicationContext()));
         cornerLocation.setTextSize((float) (Center.getFontSize(getApplicationContext()) / 1.5));
         //        cornerLocation.setGravity(Gravity.CENTER);
         cornerLocation.setLayoutParams(new LinearLayout.LayoutParams((int) (Device.screenX(getApplicationContext()) / 1.5), ViewGroup.LayoutParams.WRAP_CONTENT));
-        cornerLocation.setTextColor(getResources().getColor(R.color.default_text));
+        cornerLocation.setTextColor(Center.getTextColor(getApplicationContext()));
         cornerLocation.setChecked(pm.getUserManager().get(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_right)).equals(getResources().getString(R.string.corner_location_right)));
         if (cornerLocation.isChecked()) {
             cornerLocation.setText(getResources().getString(R.string.interface_corner_choose_right));

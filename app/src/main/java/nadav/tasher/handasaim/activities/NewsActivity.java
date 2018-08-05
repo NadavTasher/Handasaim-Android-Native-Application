@@ -19,7 +19,7 @@ import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
 import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
-import nadav.tasher.handasaim.tools.specific.NewsFetcher;
+import nadav.tasher.handasaim.architecture.app.NewsFetcher;
 import nadav.tasher.handasaim.values.Egg;
 import nadav.tasher.lightool.graphics.views.ExpandingView;
 import nadav.tasher.lightool.graphics.views.Utils;
@@ -71,8 +71,8 @@ public class NewsActivity extends Activity {
                 for (final NewsFetcher.Article article : articles) {
                     TextView title = getText(article.getTitle(), 1);
                     TextView button = getText(getResources().getString(R.string.interface_open_in_browser), 0.8);
-                    button.setBackground(Utils.getCoaster(getResources().getColor(R.color.default_bottom), 20, 20));
-                    button.setPadding(50,50,50,50);
+                    button.setBackground(Utils.getCoaster(Center.getColorBottom(getApplicationContext()), 20, 20));
+                    button.setPadding(50, 50, 50, 50);
                     button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {

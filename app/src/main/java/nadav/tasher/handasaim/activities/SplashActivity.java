@@ -18,7 +18,7 @@ import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
 import nadav.tasher.handasaim.services.BackgroundService;
-import nadav.tasher.handasaim.tools.specific.LinkFetcher;
+import nadav.tasher.handasaim.architecture.app.LinkFetcher;
 import nadav.tasher.lightool.communication.network.Ping;
 import nadav.tasher.lightool.communication.network.file.Downloader;
 import nadav.tasher.lightool.graphics.ColorFadeAnimation;
