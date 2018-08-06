@@ -102,7 +102,7 @@ public class SplashActivity extends Activity {
                 }
             }).execute();
         } else {
-            popup("No Internet Connection.");
+            popupInternet();
         }
     }
 
@@ -164,10 +164,10 @@ public class SplashActivity extends Activity {
         }
     }
 
-    private void popup(String text) {
+    private void popupInternet() {
         AlertDialog.Builder pop = new AlertDialog.Builder(this);
         pop.setCancelable(true);
-        pop.setMessage(text);
+        pop.setMessage(R.string.interface_no_connection);
         pop.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

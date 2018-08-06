@@ -17,9 +17,8 @@ import java.util.ArrayList;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
-import nadav.tasher.handasaim.architecture.app.PreferenceManager;
-import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
 import nadav.tasher.handasaim.architecture.app.NewsFetcher;
+import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
 import nadav.tasher.handasaim.values.Egg;
 import nadav.tasher.lightool.graphics.views.ExpandingView;
 import nadav.tasher.lightool.graphics.views.Utils;
@@ -29,8 +28,6 @@ public class NewsActivity extends Activity {
 
     private static final int waitTime = 10;
     private boolean started = false;
-    private PreferenceManager pm;
-    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +42,6 @@ public class NewsActivity extends Activity {
     }
 
     private void initVars() {
-        pm = new PreferenceManager(getApplicationContext());
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
@@ -94,7 +90,7 @@ public class NewsActivity extends Activity {
         }).execute();
         scrollView.addView(fullScreen);
         setContentView(scrollView);
-        mHandler = new Handler();
+        Handler mHandler = new Handler();
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {

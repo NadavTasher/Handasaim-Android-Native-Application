@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -401,6 +402,7 @@ public class HomeActivity extends Activity {
 
     private void openDrawer(View v) {
         mAppView.getDrawer().setContent(v);
+//        Utils.measure(v);
         v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         double percent = (((double) v.getMeasuredHeight() + ((double) 2 * (double) drawerPadding))) / ((double) Device.screenY(getApplicationContext()));
         mAppView.getDrawer().open(((percent) > 0.7) ? 0.7 : percent);
@@ -966,6 +968,7 @@ public class HomeActivity extends Activity {
         return views;
     }
 
+    // TODO finish this untill wed 08/08/18
     private ArrayList<LessonView> scheduleForTeacher(final Teacher teacher) {
         ArrayList<LessonView> views = new ArrayList<>();
         ArrayList<Subject> teaching = teacher.getSubjects();
@@ -974,6 +977,7 @@ public class HomeActivity extends Activity {
             ArrayList<Classroom> classrooms = new ArrayList<>();
             for (int s = 0; s < teaching.size(); s++) {
                 if (teaching.get(s).getSchoolHour() == h) {
+                    Log.i("TCMD"+h,teaching.get(s).getClassroom().getName());
                     classrooms.add(teaching.get(s).getClassroom());
                 }
             }
@@ -999,7 +1003,7 @@ public class HomeActivity extends Activity {
                     }));
                     views.add(breakView);
                 }
-                LessonView subject = new LessonView(getApplicationContext(), h, grades, new ArrayList<>(Collections.singletonList(classrooms.get(h).getName())));
+                LessonView subject = new LessonView(getApplicationContext(), h, grades, new ArrayList<>(Collections.singletonList(teaching.get(h).getName())));
                 views.add(subject);
             }
         }

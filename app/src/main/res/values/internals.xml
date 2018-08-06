@@ -10,6 +10,8 @@
     <string name="push_response_parameter_push_sender">sender</string>
     <string name="push_response_parameter_push_title">title</string>
     <string name="push_response_parameter_push_message">message</string>
+    <string name="key_response_parameter_approved">approved</string>
+    <string name="key_response_parameter_type">type</string>
     <string name="refresh_text_title">New Schedule</string>
     <string name="refresh_text_message">A New Schedule Has Been Uploaded.</string>
     <string name="core_mode_teacher">teacher</string>

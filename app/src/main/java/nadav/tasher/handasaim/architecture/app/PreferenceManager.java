@@ -152,7 +152,7 @@ public class PreferenceManager {
                 @Override
                 public void onPing(boolean b) {
                     if (b) {
-                        RequestParameter[] requestParameters = new RequestParameter[]{new RequestParameter("deactivate", key)};
+                        RequestParameter[] requestParameters = new RequestParameter[]{new RequestParameter("exchange", key)};
                         new Post(context.getResources().getString(R.string.provider_external_keys), requestParameters, new OnFinish() {
                             @Override
                             public void onFinish(SessionStatus sessionStatus) {
@@ -161,12 +161,8 @@ public class PreferenceManager {
                                         if (!sessionStatus.getExtra().isEmpty()) {
                                             try {
                                                 JSONObject o = new JSONObject(sessionStatus.getExtra());
-                                                if (o.getBoolean("success")) {
-                                                    if (o.getString("key").equals(key)) {
-                                                        installKey(key, o.getInt("type"));
-                                                    } else {
-                                                        Toast.makeText(context, "Key comparison failed.", Toast.LENGTH_SHORT).show();
-                                                    }
+                                                if (o.getBoolean(context.getString(R.string.key_response_parameter_approved))) {
+                                                    installKey(key, o.getInt(context.getString(R.string.key_response_parameter_type)));
                                                 } else {
                                                     Toast.makeText(context, "Key does not exist, or already used", Toast.LENGTH_SHORT).show();
                                                 }
