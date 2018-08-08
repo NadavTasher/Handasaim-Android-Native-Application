@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,8 +86,8 @@ public class HomeActivity extends Activity {
         currentTheme.colorBottom = pm.getUserManager().get(R.string.preferences_user_color_bottom, getResources().getColor(R.color.default_bottom));
         currentTheme.colorMix = generateCombinedColor(currentTheme.colorTop, currentTheme.colorBottom);
         theme.tell(currentTheme);
-        //        Log.i("ColorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
-        //        Log.i("ColorB", String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
+        //Log.i("ColorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
+        //Log.i("ColorB", String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
     }
 
     private void refreshCorner() {
@@ -239,13 +238,9 @@ public class HomeActivity extends Activity {
                 messageView.setText(message);
                 messageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 scrollView.addView(messageView);
-                messageView.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                double percent = ((double) (messageView.getMeasuredHeight() + (2 * drawerPadding))) / ((double) Device.screenY(getApplicationContext()));
-                mAppView.getDrawer().setContent(scrollView);
-                mAppView.getDrawer().open(((percent) > 0.7) ? 0.7 : percent);
+                openDrawer(scrollView);
             }
         });
-        messageBar.start();
         scheduleLayout.addView(messageBar);
         lessonViewHolder = new LinearLayout(getApplicationContext());
         lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
@@ -969,18 +964,16 @@ public class HomeActivity extends Activity {
         return views;
     }
 
-    // TODO finish this untill wed 08/08/18
     private ArrayList<LessonView> scheduleForTeacher(final Teacher teacher) {
         ArrayList<LessonView> views = new ArrayList<>();
         ArrayList<Subject> teaching = teacher.getSubjects();
         for (int h = 0; h <= 12; h++) {
             String grades;
-            String subjectName="";
+            String subjectName = "";
             ArrayList<Classroom> classrooms = new ArrayList<>();
             for (int s = 0; s < teaching.size(); s++) {
                 if (teaching.get(s).getSchoolHour() == h) {
                     subjectName = teaching.get(s).getName();
-                    Log.i("TCMD" + h, teaching.get(s).getClassroom().getName());
                     classrooms.add(teaching.get(s).getClassroom());
                 }
             }

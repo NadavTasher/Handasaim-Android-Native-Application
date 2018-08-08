@@ -1,6 +1,5 @@
 package nadav.tasher.handasaim.architecture.app.graphics;
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.os.Handler;
@@ -10,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
@@ -21,7 +22,7 @@ public class MessageBar extends LinearLayout {
     private ArrayList<String> messages;
     private RatioView message;
     private int currentIndex = 0;
-    private Thread animate;
+    private Timer timer;
     private OnMessage onMessage;
     private Activity a;
 
@@ -38,6 +39,7 @@ public class MessageBar extends LinearLayout {
         setPadding(20, 10, 20, 10);
         setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
         message = new RatioView(getContext(), 0.65);
+        message.setPadding(20, 0, 20, 0);
         message.setSingleLine();
         message.setTypeface(Center.getTypeface(getContext()));
         message.setOnClickListener(new OnClickListener() {
@@ -72,77 +74,21 @@ public class MessageBar extends LinearLayout {
     }
 
     private void make() {
-        animate = new Thread(new Runnable() {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
 
-            void disappear() {
-                ObjectAnimator disappear = ObjectAnimator.ofFloat(message, View.ALPHA, 1, 0);
-                disappear.setDuration(1000);
-                disappear.addListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                    }
+            private Handler handler;
 
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        next();
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-                    }
-                });
-                disappear.start();
-            }
-
-            void go() {
-                if(messages.size()>currentIndex) {
-                    message.setText(messages.get(currentIndex));
-                }
-                appear();
-            }
-
-            void next() {
-                if (currentIndex < messages.size() - 1) {
-                    currentIndex++;
-                } else {
-                    currentIndex = 0;
-                }
-                go();
-            }
-
-            void appear() {
+            private void appear() {
                 ObjectAnimator appear = ObjectAnimator.ofFloat(message, View.ALPHA, 0, 1);
                 appear.setDuration(1000);
-                appear.addListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        if (messages.size() > 1) {
-                            Handler handler = new Handler();
-                            handler.postDelayed(new Runnable() {
-                                public void run() {
-                                    disappear();
-                                }
-                            }, 1000);
-                        }
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-                    }
-                });
                 appear.start();
+            }
+
+            private void disappear() {
+                ObjectAnimator disappear = ObjectAnimator.ofFloat(message, View.ALPHA, 1, 0);
+                disappear.setDuration(1000);
+                disappear.start();
             }
 
             @Override
@@ -150,20 +96,36 @@ public class MessageBar extends LinearLayout {
                 a.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        go();
+                        if (messages.size() > 1) {
+                            if (messages.size() > currentIndex) {
+                                message.setText(messages.get(currentIndex));
+                            }
+                            appear();
+                            handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                public void run() {
+                                    disappear();
+                                    if (currentIndex < messages.size() - 1) {
+                                        currentIndex++;
+                                    } else {
+                                        currentIndex = 0;
+                                    }
+                                }
+                            }, 3000);
+                        } else if (messages.size() == 1) {
+                            if (messages.size() > currentIndex) {
+                                message.setText(messages.get(currentIndex));
+                            }
+                            appear();
+                        }
                     }
                 });
             }
-        });
-    }
-
-    public void start() {
-        if (animate != null)
-            animate.start();
+        }, 0, 5 * 1000);
     }
 
     public void stop() {
-        animate.interrupt();
+        timer.cancel();
     }
 
     public interface OnMessage {

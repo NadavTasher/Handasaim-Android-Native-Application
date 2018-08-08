@@ -16,9 +16,9 @@ import java.io.File;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
+import nadav.tasher.handasaim.architecture.app.LinkFetcher;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
 import nadav.tasher.handasaim.services.BackgroundService;
-import nadav.tasher.handasaim.architecture.app.LinkFetcher;
 import nadav.tasher.lightool.communication.network.Ping;
 import nadav.tasher.lightool.communication.network.file.Downloader;
 import nadav.tasher.lightool.graphics.ColorFadeAnimation;
@@ -146,9 +146,6 @@ public class SplashActivity extends Activity {
     }
 
     private void initStageE(boolean newSchedule) {
-        // Todo Remove this line
-        newSchedule = true;
-        // Todo This ^
         if (!pm.getUserManager().get(R.string.preferences_user_launch_first, true)) {
             if (newSchedule) {
                 if (pm.getKeyManager().isKeyLoaded(R.string.preferences_keys_type_news)) {

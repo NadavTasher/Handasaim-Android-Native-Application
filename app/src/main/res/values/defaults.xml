@@ -5,7 +5,7 @@
     <bool name="default_mode_developer">false</bool>
     <bool name="default_service_refresh">false</bool>
     <bool name="default_service_push">true</bool>
-    <color name="default_top">#3AC6C6</color>
+    <color name="default_top">#BF4141</color>
     <color name="default_bottom">#FFB54B</color>
     <color name="default_text">#FFFFFF</color>
     <integer name="default_font">30</integer>

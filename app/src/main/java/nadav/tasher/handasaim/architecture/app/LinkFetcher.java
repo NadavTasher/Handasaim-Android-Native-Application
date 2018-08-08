@@ -23,9 +23,6 @@ public class LinkFetcher extends AsyncTask<String, String, String> {
         try {
             Document docu = Jsoup.connect(url).get();
             Elements doc = docu.select("a");
-            // TODO Remove This Line After Summer Vaccation
-            file = "http://nockio.com/handasaim/schedulearchives/15-5.xls";
-            // TODO Remove This ^
             for (int i = 0; (i < doc.size() && file == null); i++) {
                 if (doc.get(i).attr("href").endsWith(".xls") || doc.get(i).attr("href").endsWith(".xlsx")) {
                     file = doc.get(i).attr("href");
