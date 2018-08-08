@@ -4,32 +4,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Subject {
-    private int schoolHour,beginingMinute,endingMinute;
+    private int schoolHour, beginingMinute, endingMinute;
     private String description, subjectName;
-    private boolean isTest=false;
-    private ArrayList<String> teacherStrings=new ArrayList<>();
-    private ArrayList<Teacher> teachers=new ArrayList<>();
+    private boolean isTest = false;
+    private ArrayList<String> teacherStrings = new ArrayList<>();
+    private ArrayList<Teacher> teachers = new ArrayList<>();
     private Classroom classroom;
 
-    public Subject(Classroom classroom,int schoolHour, String description) {
+    public Subject(Classroom classroom, int schoolHour, String description) {
         this.schoolHour = schoolHour;
         this.description = description;
-        this.classroom=classroom;
+        this.classroom = classroom;
         parseDescription();
     }
 
-    private void parseDescription(){
+    private void parseDescription() {
         this.subjectName = description.split("\\r?\\n")[0];
-        this.subjectName = this.subjectName.replaceAll(",","/");
-        this.teacherStrings= new ArrayList<>(Arrays.asList(description.substring(description.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
+        this.subjectName = this.subjectName.replaceAll(",", "/");
+        this.teacherStrings = new ArrayList<>(Arrays.asList(description.substring(description.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(",")));
     }
 
-    public void setTest(boolean isTest){
-        this.isTest=isTest;
-    }
-
-    public boolean isTest(){
+    public boolean isTest() {
         return isTest;
+    }
+
+    public void setTest(boolean isTest) {
+        this.isTest = isTest;
     }
 
     public String getName() {
@@ -48,7 +48,7 @@ public class Subject {
         this.schoolHour = hour;
     }
 
-    public void addTeacher(Teacher teacher){
+    public void addTeacher(Teacher teacher) {
         teachers.add(teacher);
     }
 
@@ -56,9 +56,9 @@ public class Subject {
         return teachers;
     }
 
-    public ArrayList<String> getTeacherNames(){
-        ArrayList<String> names=new ArrayList<>();
-        for(Teacher teacher : teachers){
+    public ArrayList<String> getTeacherNames() {
+        ArrayList<String> names = new ArrayList<>();
+        for (Teacher teacher : teachers) {
             names.add(teacher.getName());
         }
         return names;
