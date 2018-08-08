@@ -56,7 +56,7 @@ public class HomeActivity extends Activity {
     private HorizontalScrollView menuDrawer;
     private ScrollView settings, switcher, share, code, about;
 
-    private int drawerPadding = 10;
+    private int drawerPadding = 30;
 
     private PreferenceManager pm;
 
@@ -87,8 +87,8 @@ public class HomeActivity extends Activity {
         currentTheme.colorBottom = pm.getUserManager().get(R.string.preferences_user_color_bottom, getResources().getColor(R.color.default_bottom));
         currentTheme.colorMix = generateCombinedColor(currentTheme.colorTop, currentTheme.colorBottom);
         theme.tell(currentTheme);
-//        Log.i("ColorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
-//        Log.i("ColorB", String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
+        //        Log.i("ColorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
+        //        Log.i("ColorB", String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
     }
 
     private void refreshCorner() {
@@ -186,7 +186,8 @@ public class HomeActivity extends Activity {
         refreshTheme();
         mAppView = new AppView(this);
         mAppView.setDrawNavigation(false);
-        mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(Center.darken(theme.getLast().colorMix,50), 30, 10));
+        mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(getResources().getColor(R.color.drawer_color), 30, 10));
+        mAppView.getDrawer().getDrawerView().setPadding(0, drawerPadding, 0, drawerPadding);
         info = new Corner(getApplicationContext(), Device.screenX(getApplicationContext()) / 5, Color.TRANSPARENT);
         info.addOnState(new Corner.OnState() {
             @Override
@@ -257,7 +258,6 @@ public class HomeActivity extends Activity {
                 if (mAppView != null)
                     mAppView.setBackgroundColor(new AppView.Gradient(theme.colorTop, theme.colorBottom));
                 getWindow().setNavigationBarColor(theme.colorMix);
-                mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(Center.darken(theme.colorMix,50), 30, 10));
                 setCornerColor(mAppView.getScrolly());
                 messageBar.setTextColor(theme.textColor);
                 messageBar.setTextSize(theme.textSize);
@@ -402,9 +402,10 @@ public class HomeActivity extends Activity {
 
     private void openDrawer(View v) {
         mAppView.getDrawer().setContent(v);
-//        Utils.measure(v);
+        v.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        //        Utils.measure(v);
         v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        double percent = (((double) v.getMeasuredHeight() + ((double) 2 * (double) drawerPadding))) / ((double) Device.screenY(getApplicationContext()));
+        double percent = ((double) v.getMeasuredHeight() + 2 * (double) drawerPadding) / ((double) Device.screenY(getApplicationContext()));
         mAppView.getDrawer().open(((percent) > 0.7) ? 0.7 : percent);
     }
 
@@ -431,7 +432,7 @@ public class HomeActivity extends Activity {
     private Teacher getFavoriteTeacher() {
         if (!schedule.getTeachers().isEmpty()) {
             int selectedTeacher = 0;
-            String favoriteTeacherName = pm.getUserManager().get(R.string.preferences_user_favorite_classroom, null);
+            String favoriteTeacherName = pm.getUserManager().get(R.string.preferences_user_favorite_teacher, null);
             if (favoriteTeacherName != null) {
                 for (int fc = 0; fc < schedule.getTeachers().size(); fc++) {
                     if (favoriteTeacherName.equals(schedule.getTeachers().get(fc).getName())) {
@@ -974,10 +975,12 @@ public class HomeActivity extends Activity {
         ArrayList<Subject> teaching = teacher.getSubjects();
         for (int h = 0; h <= 12; h++) {
             String grades;
+            String subjectName="";
             ArrayList<Classroom> classrooms = new ArrayList<>();
             for (int s = 0; s < teaching.size(); s++) {
                 if (teaching.get(s).getSchoolHour() == h) {
-                    Log.i("TCMD"+h,teaching.get(s).getClassroom().getName());
+                    subjectName = teaching.get(s).getName();
+                    Log.i("TCMD" + h, teaching.get(s).getClassroom().getName());
                     classrooms.add(teaching.get(s).getClassroom());
                 }
             }
@@ -1003,7 +1006,7 @@ public class HomeActivity extends Activity {
                     }));
                     views.add(breakView);
                 }
-                LessonView subject = new LessonView(getApplicationContext(), h, grades, new ArrayList<>(Collections.singletonList(teaching.get(h).getName())));
+                LessonView subject = new LessonView(getApplicationContext(), h, grades, new ArrayList<>(Collections.singletonList(subjectName)));
                 views.add(subject);
             }
         }

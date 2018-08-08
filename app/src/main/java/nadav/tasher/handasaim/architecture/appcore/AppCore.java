@@ -225,31 +225,35 @@ public class AppCore {
     }
 
     public static String getGrades(ArrayList<Classroom> classrooms) {
-        int previeusGrade = Classroom.UNKNOWN_GRADE;
-        for (Classroom currentClassroom : classrooms) {
-            if (currentClassroom.getGrade() == previeusGrade || previeusGrade == Classroom.UNKNOWN_GRADE) {
-                previeusGrade = currentClassroom.getGrade();
-            } else {
-                previeusGrade = Classroom.UNKNOWN_GRADE;
-                break;
+        if(classrooms.size()!=1) {
+            int previousGrade = Classroom.UNKNOWN_GRADE;
+            for (Classroom currentClassroom : classrooms) {
+                if (currentClassroom.getGrade() == previousGrade || previousGrade == Classroom.UNKNOWN_GRADE) {
+                    previousGrade = currentClassroom.getGrade();
+                } else {
+                    previousGrade = Classroom.UNKNOWN_GRADE;
+                    break;
+                }
             }
+            switch (previousGrade) {
+                case Classroom.NINTH_GRADE:
+                    return "ט'";
+                case Classroom.TENTH_GRADE:
+                    return "י'";
+                case Classroom.ELEVENTH_GRADE:
+                    return "יא'";
+                case Classroom.TWELVETH_GRADE:
+                    return "יב'";
+            }
+            StringBuilder allGrades = new StringBuilder();
+            for (Classroom currentClassroom : classrooms) {
+                if (allGrades.length() != 0) allGrades.append(", ");
+                allGrades.append(currentClassroom.getName());
+            }
+            return allGrades.toString();
+        }else{
+            return classrooms.get(0).getName();
         }
-        switch (previeusGrade) {
-            case Classroom.NINTH_GRADE:
-                return "ט'";
-            case Classroom.TENTH_GRADE:
-                return "י'";
-            case Classroom.ELEVENTH_GRADE:
-                return "יא'";
-            case Classroom.TWELVETH_GRADE:
-                return "יב'";
-        }
-        StringBuilder allGrades = new StringBuilder();
-        for (Classroom currentClassroom : classrooms) {
-            if (allGrades.length() != 0) allGrades.append(", ");
-            allGrades.append(currentClassroom.getName());
-        }
-        return allGrades.toString();
     }
     //    public static ArrayList<Teacher> getTeacherSchudleForClasses(ArrayList<Classroom> classes) {
     //        ArrayList<Teacher> teacherList = new ArrayList<>();

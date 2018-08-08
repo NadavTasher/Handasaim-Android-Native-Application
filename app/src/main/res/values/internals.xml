@@ -18,7 +18,7 @@
     <string name="core_mode_student">student</string>
     <string name="corner_location_left">left</string>
     <string name="corner_location_right">right</string>
-    <color name="drawer_color">#444444</color>
+    <color name="drawer_color">#777777</color>
     <color name="coaster_bright">#333333</color>
     <color name="coaster_dark">#222222</color>
     <integer name="ping_timeout">5000</integer>

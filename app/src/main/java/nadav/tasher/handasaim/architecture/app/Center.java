@@ -76,13 +76,6 @@ public class Center {
         codeTitle.setTextSize(getFontSize(context));
         codeTitle.setGravity(Gravity.CENTER);
         codeTitle.setTextColor(getTextColor(context));
-        RatioView codeExplanation = new RatioView(context, 0.66);
-        codeExplanation.setText(R.string.interface_codes_message);
-        codeExplanation.setTypeface(getTypeface(context));
-        codeExplanation.setTextSize(getFontSize(context));
-        codeExplanation.setGravity(Gravity.CENTER);
-        codeExplanation.setTextColor(getTextColor(context));
-        codeExplanation.setPadding(0, 20, 0, 20);
         final EditText key = new EditText(context);
         key.setSingleLine(true);
         key.setHint(R.string.interface_codes_hint);
@@ -103,12 +96,12 @@ public class Center {
             @Override
             public void onClick(View view) {
                 pm.getKeyManager().loadKey(key.getText().toString().toUpperCase());
+                key.setText(null);
             }
         });
         installCode.setBackground(Utils.getCoaster(context.getResources().getColor(R.color.coaster_bright), 20, 10));
         installCode.setPadding(40, 40, 40, 40);
         layout.addView(codeTitle);
-        layout.addView(codeExplanation);
         layout.addView(keyHolder);
         layout.addView(installCode);
         return layout;
