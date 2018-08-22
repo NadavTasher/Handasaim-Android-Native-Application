@@ -20,8 +20,7 @@ public class LinkFetcher extends AsyncTask<String, String, String> {
     @Override
     protected String doInBackground(String... strings) {
         String file = null;
-        // TODO remove before release
-        file = "http://nockio.com/h/schedulearchives/15-5.xls";
+        //        file = "http://nockio.com/h/schedulearchives/15-5.xls";
         try {
             Document document = Jsoup.connect(url).get();
             Elements elements = document.select("a");
@@ -38,7 +37,7 @@ public class LinkFetcher extends AsyncTask<String, String, String> {
 
     @Override
     protected void onPostExecute(String s) {
-        if(onFinish!=null) {
+        if (onFinish != null) {
             if (s != null) {
                 onFinish.onLinkFetch(s);
             } else {
