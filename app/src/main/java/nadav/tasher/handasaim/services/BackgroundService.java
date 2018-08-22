@@ -20,14 +20,13 @@ import java.util.Random;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.activities.SplashActivity;
-import nadav.tasher.handasaim.architecture.app.PreferenceManager;
 import nadav.tasher.handasaim.architecture.app.LinkFetcher;
-import nadav.tasher.lightool.communication.OnFinish;
-import nadav.tasher.lightool.communication.SessionStatus;
-import nadav.tasher.lightool.communication.network.Ping;
-import nadav.tasher.lightool.communication.network.request.Post;
-import nadav.tasher.lightool.communication.network.request.RequestParameter;
+import nadav.tasher.handasaim.architecture.app.PreferenceManager;
+import nadav.tasher.lightool.communication.network.Requester;
 import nadav.tasher.lightool.info.Device;
+import okhttp3.MultipartBody;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class BackgroundService extends JobService {
 
@@ -65,91 +64,69 @@ public class BackgroundService extends JobService {
     }
 
     private void checkForNewPushes(final JobParameters jobParameters) {
-        new Ping(getResources().getString(R.string.provider_external), getResources().getInteger(R.integer.ping_timeout), new Ping.OnEnd() {
+        JSONArray filters = new JSONArray();
+        int channel = pm.getServicesManager().getChannel(0);
+        if (channel != 0) {
+            filters.put(0);
+        }
+        filters.put(channel);
+        new Requester(new Request.Builder().url(getResources().getString(R.string.provider_external_push)).post(new MultipartBody.Builder().addFormDataPart("filter", filters.toString()).build()).build(), new Requester.Callback() {
             @Override
-            public void onPing(boolean b) {
-                if (b) {
-                    JSONArray filters = new JSONArray();
-                    int channel = pm.getServicesManager().getChannel(0);
-                    if (channel != 0) {
-                        filters.put(0);
-                    }
-                    filters.put(channel);
-                    new Post(getResources().getString(R.string.provider_external_push), new RequestParameter[]{new RequestParameter(getResources().getString(R.string.push_request_parameter_filter), filters.toString())}, new OnFinish() {
-                        @Override
-                        public void onFinish(SessionStatus sessionStatus) {
-                            if (sessionStatus.getStatus() == SessionStatus.FINISHED_SUCCESS) {
-                                if (sessionStatus.getExtra() != null) {
-                                    if (!sessionStatus.getExtra().isEmpty()) {
-                                        try {
-                                            JSONObject response = new JSONObject(sessionStatus.getExtra());
-                                            if (response.getString(getResources().getString(R.string.push_response_parameter_mode)).equals(getResources().getString(R.string.push_response_parameter_mode_client))) {
-                                                if (response.has(getResources().getString(R.string.push_response_parameter_approved)) && response.getBoolean(getResources().getString(R.string.push_response_parameter_approved))) {
-                                                    // Client Mode & Approved -> Scan Pushes
-                                                    JSONArray pushes = response.getJSONArray(getResources().getString(R.string.push_response_parameter_pushes));
-                                                    for (int p = 0; p < pushes.length(); p++) {
-                                                        JSONObject push = pushes.getJSONObject(p);
-                                                        String pushId = push.getString(getResources().getString(R.string.push_response_parameter_push_id));
-                                                        if (!pm.getServicesManager().getPushDisplayedAlready(pushId)) {
-                                                            // Push Not Displayed Yet, Write It To Preferences And Display.
-                                                            pm.getServicesManager().setPushDisplayedAlready(pushId);
-                                                            // Display Notification
-                                                            String titleBuilder =
-                                                                    "(" +
-                                                                            push.getString(getResources().getString(R.string.push_response_parameter_push_sender)) +
-                                                                            ')' +
-                                                                            ' ' +
-                                                                            push.getString(getResources().getString(R.string.push_response_parameter_push_title)) +
-                                                                            ':';
-                                                            inform(titleBuilder, push.getString(getResources().getString(R.string.push_response_parameter_push_message)));
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
+            public void onCall(Response serverResponse) {
+                if (serverResponse.isSuccessful()) {
+                    if (serverResponse.body() != null) {
+                        try {
+                            JSONObject response = new JSONObject(serverResponse.body().string());
+                            if (response.getString(getResources().getString(R.string.push_response_parameter_mode)).equals(getResources().getString(R.string.push_response_parameter_mode_client))) {
+                                if (response.has(getResources().getString(R.string.push_response_parameter_approved)) && response.getBoolean(getResources().getString(R.string.push_response_parameter_approved))) {
+                                    // Client Mode & Approved -> Scan Pushes
+                                    JSONArray pushes = response.getJSONArray(getResources().getString(R.string.push_response_parameter_pushes));
+                                    for (int p = 0; p < pushes.length(); p++) {
+                                        JSONObject push = pushes.getJSONObject(p);
+                                        String pushId = push.getString(getResources().getString(R.string.push_response_parameter_push_id));
+                                        if (!pm.getServicesManager().getPushDisplayedAlready(pushId)) {
+                                            // Push Not Displayed Yet, Write It To Preferences And Display.
+                                            pm.getServicesManager().setPushDisplayedAlready(pushId);
+                                            // Display Notification
+                                            String titleBuilder =
+                                                    "(" +
+                                                            push.getString(getResources().getString(R.string.push_response_parameter_push_sender)) +
+                                                            ')' +
+                                                            ' ' +
+                                                            push.getString(getResources().getString(R.string.push_response_parameter_push_title)) +
+                                                            ':';
+                                            inform(titleBuilder, push.getString(getResources().getString(R.string.push_response_parameter_push_message)));
                                         }
                                     }
                                 }
                             }
-                            pushFinished = true;
-                            done(jobParameters);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    }).execute();
-                } else {
-                    pushFinished = true;
-                    done(jobParameters);
+                    }
                 }
+                pushFinished = true;
+                done(jobParameters);
             }
         }).execute();
     }
 
     private void checkForNewSchedule(final JobParameters jobParameters) {
-        new Ping(getResources().getString(R.string.provider_internal), getResources().getInteger(R.integer.ping_timeout), new Ping.OnEnd() {
+        new LinkFetcher(getResources().getString(R.string.provider_internal_schedule), new LinkFetcher.OnFinish() {
             @Override
-            public void onPing(boolean b) {
-                if (b) {
-                    new LinkFetcher(getResources().getString(R.string.provider_internal_schedule), new LinkFetcher.OnFinish() {
-                        @Override
-                        public void onLinkFetch(String link) {
-                            if (!pm.getServicesManager().getScheduleNotifiedAlready(link)) {
-                                pm.getServicesManager().setScheduleNotifiedAlready(link);
-                                inform(getResources().getString(R.string.refresh_text_title), getResources().getString(R.string.refresh_text_message));
-                            }
-                            refreshFinished = true;
-                            done(jobParameters);
-                        }
-
-                        @Override
-                        public void onFail() {
-                            refreshFinished = true;
-                            done(jobParameters);
-                        }
-                    }).execute();
-                } else {
-                    refreshFinished = true;
-                    done(jobParameters);
+            public void onLinkFetch(String link) {
+                if (!pm.getServicesManager().getScheduleNotifiedAlready(link)) {
+                    pm.getServicesManager().setScheduleNotifiedAlready(link);
+                    inform(getResources().getString(R.string.refresh_text_title), getResources().getString(R.string.refresh_text_message));
                 }
+                refreshFinished = true;
+                done(jobParameters);
+            }
+
+            @Override
+            public void onFail() {
+                refreshFinished = true;
+                done(jobParameters);
             }
         }).execute();
     }

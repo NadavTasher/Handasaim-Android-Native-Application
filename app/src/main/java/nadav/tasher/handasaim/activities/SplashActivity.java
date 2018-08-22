@@ -19,8 +19,7 @@ import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.LinkFetcher;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
 import nadav.tasher.handasaim.services.BackgroundService;
-import nadav.tasher.lightool.communication.network.Ping;
-import nadav.tasher.lightool.communication.network.file.Downloader;
+import nadav.tasher.lightool.communication.network.Download;
 import nadav.tasher.lightool.graphics.ColorFadeAnimation;
 import nadav.tasher.lightool.info.Device;
 
@@ -91,16 +90,7 @@ public class SplashActivity extends Activity {
     private void initStageC() {
         //        Log.i("Stage", "C");
         if (Device.isOnline(getApplicationContext())) {
-            new Ping(getString(R.string.provider_internal), 5000, new Ping.OnEnd() {
-                @Override
-                public void onPing(boolean b) {
-                    if (b) {
-                        initStageD();
-                    } else {
-                        initStageC();
-                    }
-                }
-            }).execute();
+            initStageD();
         } else {
             popupInternet();
         }
@@ -118,19 +108,16 @@ public class SplashActivity extends Activity {
                     pm.getCoreManager().setLink(link);
                     if (!pm.getServicesManager().getScheduleNotifiedAlready(link))
                         pm.getServicesManager().setScheduleNotifiedAlready(link);
-                    new Downloader(link, new File(getApplicationContext().getFilesDir(), fileName.toString()), new Downloader.OnDownload() {
+                    new Download(link, new File(getApplicationContext().getFilesDir(), fileName.toString()), new Download.Callback() {
                         @Override
-                        public void onFinish(final File file, final boolean be) {
-                            if (be) {
-                                pm.getCoreManager().setFile(file.toString());
-                                initStageE(true);
-                            } else {
-                                initStageD();
-                            }
+                        public void onSuccess(File file) {
+                            pm.getCoreManager().setFile(file.toString());
+                            initStageE(true);
                         }
 
                         @Override
-                        public void onProgressChanged(File file, int progress) {
+                        public void onFailure(Exception e) {
+                            initStageD();
                         }
                     }).execute();
                 } else {

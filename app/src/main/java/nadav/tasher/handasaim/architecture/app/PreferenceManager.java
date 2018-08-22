@@ -8,12 +8,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 import nadav.tasher.handasaim.R;
-import nadav.tasher.lightool.communication.OnFinish;
-import nadav.tasher.lightool.communication.SessionStatus;
-import nadav.tasher.lightool.communication.network.Ping;
-import nadav.tasher.lightool.communication.network.request.Post;
-import nadav.tasher.lightool.communication.network.request.RequestParameter;
+import nadav.tasher.lightool.communication.network.Requester;
+import okhttp3.MultipartBody;
+import okhttp3.Request;
 
 public class PreferenceManager {
 
@@ -148,42 +148,28 @@ public class PreferenceManager {
         }
 
         public void loadKey(final String key) {
-            new Ping(context.getResources().getString(R.string.provider_external), 10000, new Ping.OnEnd() {
+            new Requester(new Request.Builder().url(context.getResources().getString(R.string.provider_external_keys)).post(new MultipartBody.Builder().addFormDataPart("exchange", key).build()).build(), new Requester.Callback() {
                 @Override
-                public void onPing(boolean b) {
-                    if (b) {
-                        RequestParameter[] requestParameters = new RequestParameter[]{new RequestParameter("exchange", key)};
-                        new Post(context.getResources().getString(R.string.provider_external_keys), requestParameters, new OnFinish() {
-                            @Override
-                            public void onFinish(SessionStatus sessionStatus) {
-                                if (sessionStatus.getStatus() == SessionStatus.FINISHED_SUCCESS) {
-                                    if (sessionStatus.getExtra() != null) {
-                                        if (!sessionStatus.getExtra().isEmpty()) {
-                                            try {
-                                                JSONObject o = new JSONObject(sessionStatus.getExtra());
-                                                if (o.getBoolean(context.getString(R.string.key_response_parameter_approved))) {
-                                                    installKey(key, o.getInt(context.getString(R.string.key_response_parameter_type)));
-                                                } else {
-                                                    Toast.makeText(context, "Key does not exist, or already used", Toast.LENGTH_SHORT).show();
-                                                }
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                                Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
-                                            }
-                                        } else {
-                                            Toast.makeText(context, "Key provider reply error.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    } else {
-                                        Toast.makeText(context, "Key provider reply error.", Toast.LENGTH_SHORT).show();
-                                    }
+                public void onCall(okhttp3.Response response) {
+                    if (response.isSuccessful()) {
+                        if (response.body() != null) {
+                            try {
+                                JSONObject o = new JSONObject(response.body().string());
+                                if (o.getBoolean(context.getString(R.string.key_response_parameter_approved))) {
+                                    installKey(key, o.getInt(context.getString(R.string.key_response_parameter_type)));
                                 } else {
-                                    Toast.makeText(context, "Key provider reply error.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, "Key does not exist, or already used", Toast.LENGTH_SHORT).show();
                                 }
+                            } catch (JSONException | IOException e) {
+                                e.printStackTrace();
+                                Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
                             }
+                        } else {
+                            Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
                         }
-                        ).execute();
                     } else {
-                        Toast.makeText(context, "Key provider unreachable.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
+
                     }
                 }
             }).execute();

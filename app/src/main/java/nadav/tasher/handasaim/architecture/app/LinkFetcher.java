@@ -20,12 +20,14 @@ public class LinkFetcher extends AsyncTask<String, String, String> {
     @Override
     protected String doInBackground(String... strings) {
         String file = null;
+        // TODO remove before release
+        file = "http://nockio.com/h/schedulearchives/15-5.xls";
         try {
-            Document docu = Jsoup.connect(url).get();
-            Elements doc = docu.select("a");
-            for (int i = 0; (i < doc.size() && file == null); i++) {
-                if (doc.get(i).attr("href").endsWith(".xls") || doc.get(i).attr("href").endsWith(".xlsx")) {
-                    file = doc.get(i).attr("href");
+            Document document = Jsoup.connect(url).get();
+            Elements elements = document.select("a");
+            for (int i = 0; (i < elements.size() && file == null); i++) {
+                if (elements.get(i).attr("href").endsWith(".xls") || elements.get(i).attr("href").endsWith(".xlsx")) {
+                    file = elements.get(i).attr("href");
                 }
             }
         } catch (IOException e) {
