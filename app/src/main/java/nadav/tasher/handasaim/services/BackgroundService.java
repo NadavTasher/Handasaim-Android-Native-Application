@@ -70,7 +70,7 @@ public class BackgroundService extends JobService {
             filters.put(0);
         }
         filters.put(channel);
-        new Requester(new Request.Builder().url(getResources().getString(R.string.provider_external_push)).post(new MultipartBody.Builder().addFormDataPart("filter", filters.toString()).build()).build(), new Requester.Callback() {
+        new Requester(new Request.Builder().url(getResources().getString(R.string.provider_external_push)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("filter", filters.toString()).build()).build(), new Requester.Callback() {
             @Override
             public void onCall(Response serverResponse) {
                 if (serverResponse.isSuccessful()) {

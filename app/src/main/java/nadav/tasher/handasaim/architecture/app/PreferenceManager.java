@@ -148,12 +148,14 @@ public class PreferenceManager {
         }
 
         public void loadKey(final String key) {
-            new Requester(new Request.Builder().url(context.getResources().getString(R.string.provider_external_keys)).post(new MultipartBody.Builder().addFormDataPart("exchange", key).build()).build(), new Requester.Callback() {
+            new Requester(new Request.Builder().url(context.getResources().getString(R.string.provider_external_keys)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("exchange", key).build()).build(), new Requester.Callback() {
                 @Override
                 public void onCall(okhttp3.Response response) {
                     if (response.isSuccessful()) {
                         if (response.body() != null) {
                             try {
+                                //                                String responseString=response.body().string();
+                                //                                Log.i("Key",responseString);
                                 JSONObject o = new JSONObject(response.body().string());
                                 if (o.getBoolean(context.getString(R.string.key_response_parameter_approved))) {
                                     installKey(key, o.getInt(context.getString(R.string.key_response_parameter_type)));
@@ -169,7 +171,6 @@ public class PreferenceManager {
                         }
                     } else {
                         Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
-
                     }
                 }
             }).execute();

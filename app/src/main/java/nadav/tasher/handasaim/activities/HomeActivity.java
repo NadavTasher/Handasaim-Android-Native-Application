@@ -318,7 +318,7 @@ public class HomeActivity extends Activity {
         menu.setOrientation(LinearLayout.HORIZONTAL);
         menu.setGravity(Gravity.CENTER);
         menuDrawer.setFillViewport(true);
-        final int size = Device.screenY(getApplicationContext()) / 13;
+        final int size = (int) (Device.screenX(getApplicationContext()) / 6.5);
         final FrameLayout shareIcon, classroomIcon, icon, refreshIcon, settingsIcon;
         shareIcon = generateImageView(R.drawable.ic_share, size);
         classroomIcon = generateImageView(R.drawable.ic_class, size);
