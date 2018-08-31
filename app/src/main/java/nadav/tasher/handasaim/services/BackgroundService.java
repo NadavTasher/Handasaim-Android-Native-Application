@@ -1,21 +1,21 @@
 package nadav.tasher.handasaim.services;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.job.JobInfo;
-import android.app.job.JobParameters;
-import android.app.job.JobScheduler;
-import android.app.job.JobService;
-import android.content.ComponentName;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.IBinder;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.Random;
 
 import nadav.tasher.handasaim.R;
@@ -28,42 +28,60 @@ import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class BackgroundService extends JobService {
+public class BackgroundService extends Service {
 
     private static final int ID = 102;
     private PreferenceManager pm;
     private boolean pushFinished = false, refreshFinished = false;
 
     public static void reschedule(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Device.isJobServiceScheduled(context, ID)) {
-                ComponentName serviceComponent = new ComponentName(context, BackgroundService.class);
-                JobInfo.Builder builder = new JobInfo.Builder(ID, serviceComponent);
-                builder.setMinimumLatency(context.getResources().getInteger(R.integer.background_loop_time));
-                JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
-                if (jobScheduler != null) {
-                    jobScheduler.schedule(builder.build());
-                }
-            }
+        Calendar cal = Calendar.getInstance();
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent serviceIntent = new Intent(context, BackgroundService.class);
+        PendingIntent servicePendingIntent =
+                PendingIntent.getService(context,
+                        ID,
+                        serviceIntent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+        if (am != null) {
+            am.setRepeating(
+                    AlarmManager.RTC_WAKEUP,
+                    cal.getTimeInMillis(),
+                    context.getResources().getInteger(R.integer.background_loop_time),
+                    servicePendingIntent
+            );
         }
     }
 
     @Override
-    public boolean onStartJob(JobParameters jobParameters) {
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("Service", "Loopity Loop");
         // Setup the PreferenceManager.
         pm = new PreferenceManager(getApplicationContext());
-        // Check if Push Service is enabled.
-        if (pm.getUserManager().get(R.string.preferences_user_service_push, getResources().getBoolean(R.bool.default_service_push))) {
-            checkForNewPushes(jobParameters);
+        // Check if device is online
+        if (Device.isOnline(getApplicationContext())) {
+            // Check if Push Service is enabled.
+            if (pm.getUserManager().get(R.string.preferences_user_service_push, getResources().getBoolean(R.bool.default_service_push))) {
+                checkForNewPushes();
+            } else {
+                pushFinished = true;
+            }
+            // Check if Refresh Service is enabled.
+            if (pm.getUserManager().get(R.string.preferences_user_service_refresh, getResources().getBoolean(R.bool.default_service_refresh))) {
+                checkForNewSchedule();
+            } else {
+                refreshFinished = true;
+            }
+            done();
+        } else {
+            pushFinished = true;
+            refreshFinished = true;
+            done();
         }
-        // Check if Refresh Service is enabled.
-        if (pm.getUserManager().get(R.string.preferences_user_service_refresh, getResources().getBoolean(R.bool.default_service_refresh))) {
-            checkForNewSchedule(jobParameters);
-        }
-        return !(pushFinished && refreshFinished);
+        return START_REDELIVER_INTENT;
     }
 
-    private void checkForNewPushes(final JobParameters jobParameters) {
+    private void checkForNewPushes() {
         JSONArray filters = new JSONArray();
         int channel = pm.getServicesManager().getChannel(0);
         if (channel != 0) {
@@ -106,13 +124,13 @@ public class BackgroundService extends JobService {
                     }
                 }
                 pushFinished = true;
-                done(jobParameters);
+                done();
             }
         }).execute();
     }
 
-    private void checkForNewSchedule(final JobParameters jobParameters) {
-        new LinkFetcher(getResources().getString(R.string.provider_internal_schedule), new LinkFetcher.OnFinish() {
+    private void checkForNewSchedule() {
+        new LinkFetcher(getResources().getString(R.string.provider_internal_schedule_page), new LinkFetcher.OnFinish() {
             @Override
             public void onLinkFetch(String link) {
                 if (!pm.getServicesManager().getScheduleNotifiedAlready(link)) {
@@ -120,20 +138,20 @@ public class BackgroundService extends JobService {
                     inform(getResources().getString(R.string.refresh_text_title), getResources().getString(R.string.refresh_text_message));
                 }
                 refreshFinished = true;
-                done(jobParameters);
+                done();
             }
 
             @Override
             public void onFail() {
                 refreshFinished = true;
-                done(jobParameters);
+                done();
             }
         }).execute();
     }
 
-    private void done(JobParameters parameters) {
-        if (pushFinished && refreshFinished) jobFinished(parameters, false);
-        reschedule(getApplicationContext());
+    private void done() {
+        if (pushFinished && refreshFinished) stopSelf();
+        //        reschedule(getApplicationContext());
     }
 
     private void inform(String title, String message) {
@@ -163,7 +181,7 @@ public class BackgroundService extends JobService {
     }
 
     @Override
-    public boolean onStopJob(JobParameters jobParameters) {
-        return !(pushFinished && refreshFinished);
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 }

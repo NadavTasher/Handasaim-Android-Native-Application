@@ -22,5 +22,5 @@
     <color name="coaster_bright">#333333</color>
     <color name="coaster_dark">#222222</color>
     <integer name="ping_timeout">5000</integer>
-    <integer name="background_loop_time">1200000</integer>
+    <integer name="background_loop_time">300000</integer>
 </resources>

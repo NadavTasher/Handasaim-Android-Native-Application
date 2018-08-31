@@ -97,7 +97,7 @@ public class SplashActivity extends Activity {
     }
 
     private void initStageD() {
-        new LinkFetcher(getString(R.string.provider_internal_schedule), new LinkFetcher.OnFinish() {
+        new LinkFetcher(getString(R.string.provider_internal_schedule_page), new LinkFetcher.OnFinish() {
             @Override
             public void onLinkFetch(String link) {
                 StringBuilder fileName = new StringBuilder();
