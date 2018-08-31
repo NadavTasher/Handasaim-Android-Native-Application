@@ -2,7 +2,6 @@
 <resources>
     <bool name="default_display_messages">true</bool>
     <bool name="default_display_breaks">true</bool>
-    <bool name="default_mode_developer">false</bool>
     <bool name="default_service_refresh">false</bool>
     <bool name="default_service_push">true</bool>
     <color name="default_top">#BF4141</color>

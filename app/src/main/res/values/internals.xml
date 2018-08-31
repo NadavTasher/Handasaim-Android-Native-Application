@@ -18,6 +18,7 @@
     <string name="core_mode_student">student</string>
     <string name="corner_location_left">left</string>
     <string name="corner_location_right">right</string>
+    <string name="schedule_file_name">schedule_v1</string>
     <color name="drawer_color">#777777</color>
     <color name="coaster_bright">#333333</color>
     <color name="coaster_dark">#222222</color>

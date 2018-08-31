@@ -26,7 +26,6 @@
     <string name="interface_settings_service_push">Live Notifications</string>
     <string name="interface_settings_service_refresh">New Schedule Notifications</string>
     <string name="interface_settings_breaks">Display Breaks</string>
-    <string name="interface_settings_mode_developer">Developer Mode</string>
     <string name="interface_tutorial_begin">Let\'s Begin</string>
     <string name="interface_tutorial_welcome">Welcome.</string>
     <string name="interface_tutorial_explanation">This tutorial will brief you through the app.\nIt will show you some features and let you set some settings.\nClick \'Next\' to continue.</string>

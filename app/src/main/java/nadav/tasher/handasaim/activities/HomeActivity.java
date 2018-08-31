@@ -187,7 +187,7 @@ public class HomeActivity extends Activity {
         mAppView.setDrawNavigation(false);
         mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(getResources().getColor(R.color.drawer_color), 30, 10));
         mAppView.getDrawer().getDrawerView().setPadding(0, drawerPadding, 0, drawerPadding);
-        info = new Corner(getApplicationContext(), Device.screenX(getApplicationContext()) / 5, Color.TRANSPARENT);
+        info = new Corner(getApplicationContext(), (int) (Device.screenX(getApplicationContext()) / 4.5), Color.TRANSPARENT);
         info.addOnState(new Corner.OnState() {
             @Override
             public void onOpen() {
@@ -370,10 +370,10 @@ public class HomeActivity extends Activity {
         FrameLayout fl = new FrameLayout(getApplicationContext());
         fl.setPadding(20, 20, 20, 20);
         fl.setForegroundGravity(Gravity.CENTER);
-        fl.setLayoutParams(new LinearLayout.LayoutParams(size, size));
+        fl.setLayoutParams(new LinearLayout.LayoutParams(size, size, 1));
         final ImageView iv = new ImageView(getApplicationContext());
         iv.setImageDrawable(getDrawable(drawable));
-        iv.setScaleType(ImageView.ScaleType.FIT_XY);
+        //        iv.setScaleType(ImageView.ScaleType.FIT_XY);
         iv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         fl.addView(iv);
         return fl;
@@ -527,23 +527,20 @@ public class HomeActivity extends Activity {
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         settings.setPadding(20, 20, 20, 20);
-        final Switch devSwitch = new Switch(getApplicationContext()), cornerLocation = new Switch(getApplicationContext()), displayMessagesSwitch = new Switch(getApplicationContext()), refreshSwitch = new Switch(getApplicationContext()), displayBreaksSwitch = new Switch(getApplicationContext()), pushSwitch = new Switch(getApplicationContext());
+        final Switch cornerLocation = new Switch(getApplicationContext()), displayMessagesSwitch = new Switch(getApplicationContext()), refreshSwitch = new Switch(getApplicationContext()), displayBreaksSwitch = new Switch(getApplicationContext()), pushSwitch = new Switch(getApplicationContext());
         pushSwitch.setText(R.string.interface_settings_service_push);
         displayMessagesSwitch.setText(R.string.interface_settings_messages);
         refreshSwitch.setText(R.string.interface_settings_service_refresh);
         displayBreaksSwitch.setText(R.string.interface_settings_breaks);
-        devSwitch.setText(R.string.interface_settings_mode_developer);
         pushSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_service_push, getResources().getBoolean(R.bool.default_service_push)));
         refreshSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_service_refresh, getResources().getBoolean(R.bool.default_service_refresh)));
         displayMessagesSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_messages, getResources().getBoolean(R.bool.default_display_messages)));
         displayBreaksSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_messages, getResources().getBoolean(R.bool.default_display_messages)));
         cornerLocation.setChecked(pm.getUserManager().get(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_right)).equals(getResources().getString(R.string.corner_location_right)));
-        devSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_mode_developer, getResources().getBoolean(R.bool.default_mode_developer)));
         pushSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         refreshSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         displayBreaksSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         cornerLocation.setTypeface(Center.getTypeface(getApplicationContext()));
-        devSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         displayMessagesSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         displayBreaksSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -569,12 +566,6 @@ public class HomeActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 pm.getUserManager().set(R.string.preferences_user_service_refresh, isChecked);
-            }
-        });
-        devSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                pm.getUserManager().set(R.string.preferences_user_mode_developer, isChecked);
             }
         });
         if (cornerLocation.isChecked()) {
@@ -669,7 +660,6 @@ public class HomeActivity extends Activity {
                 refreshSwitch.setTextSize((float) (theme.textSize / 1.5));
                 displayMessagesSwitch.setTextSize((float) (theme.textSize / 1.5));
                 cornerLocation.setTextSize((float) (theme.textSize / 1.5));
-                devSwitch.setTextSize((float) (theme.textSize / 1.5));
                 explainColorA.setTextSize((float) (theme.textSize / 1.5));
                 explainColorB.setTextSize((float) (theme.textSize / 1.5));
                 explainTextColor.setTextSize((float) (theme.textSize / 1.5));
@@ -678,7 +668,6 @@ public class HomeActivity extends Activity {
                 displayBreaksSwitch.setTextColor(theme.textColor);
                 refreshSwitch.setTextColor(theme.textColor);
                 displayMessagesSwitch.setTextColor(theme.textColor);
-                devSwitch.setTextColor(theme.textColor);
                 cornerLocation.setTextColor(theme.textColor);
                 explainColorA.setTextColor(theme.textColor);
                 explainColorB.setTextColor(theme.textColor);
@@ -700,7 +689,6 @@ public class HomeActivity extends Activity {
         settings.addView(colorTopPicker);
         settings.addView(explainColorB);
         settings.addView(colorBottomPicker);
-        settings.addView(devSwitch);
         sv.addView(settings);
         sv.setVerticalScrollBarEnabled(false);
         return sv;

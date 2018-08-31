@@ -130,7 +130,7 @@ public class BackgroundService extends Service {
     }
 
     private void checkForNewSchedule() {
-        new LinkFetcher(getResources().getString(R.string.provider_internal_schedule_page), new LinkFetcher.OnFinish() {
+        new LinkFetcher(getResources().getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), new LinkFetcher.OnFinish() {
             @Override
             public void onLinkFetch(String link) {
                 if (!pm.getServicesManager().getScheduleNotifiedAlready(link)) {

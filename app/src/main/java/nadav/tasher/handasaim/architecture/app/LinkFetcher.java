@@ -7,13 +7,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 public class LinkFetcher extends AsyncTask<String, String, String> {
-    private String url;
+    private String schedulePage, homePage;
     private OnFinish onFinish;
 
-    public LinkFetcher(String url, OnFinish onFinish) {
-        this.url = url;
+    public LinkFetcher(String schedulePage, String homePage, OnFinish onFinish) {
+        this.schedulePage = schedulePage;
+        this.homePage = homePage;
         this.onFinish = onFinish;
     }
 
@@ -22,11 +24,25 @@ public class LinkFetcher extends AsyncTask<String, String, String> {
         String file = null;
         //        file = "http://nockio.com/h/schedulearchives/15-5.xls";
         try {
-            Document document = Jsoup.connect(url).get();
+            // Main Search At Schedule Page
+            Document document = Jsoup.connect(schedulePage).get();
             Elements elements = document.select("a");
             for (int i = 0; (i < elements.size() && file == null); i++) {
-                if (elements.get(i).attr("href").endsWith(".xls") || elements.get(i).attr("href").endsWith(".xlsx")) {
-                    file = elements.get(i).attr("href");
+                String attribute = elements.get(i).attr("href");
+                if (attribute.endsWith(".xls") || attribute.endsWith(".xlsx")) {
+                    file = attribute;
+                }
+            }
+            // Fallback Search At Home Page
+            if (file == null) {
+                Document documentFallback = Jsoup.connect(homePage).get();
+                Elements elementsFallback = documentFallback.select("a");
+                for (int i = 0; (i < elementsFallback.size() && file == null); i++) {
+                    String attribute = elementsFallback.get(i).attr("href");
+                    //                    Log.i("LinkFallback",attribute);
+                    if ((attribute.endsWith(".xls") || attribute.endsWith(".xlsx")) && Pattern.compile("(/[^a-z]-[^a-z]\\..+)$").matcher(attribute).find()) {
+                        file = attribute;
+                    }
                 }
             }
         } catch (IOException e) {
