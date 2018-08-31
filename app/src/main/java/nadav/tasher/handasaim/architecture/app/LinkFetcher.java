@@ -40,7 +40,7 @@ public class LinkFetcher extends AsyncTask<String, String, String> {
                 for (int i = 0; (i < elementsFallback.size() && file == null); i++) {
                     String attribute = elementsFallback.get(i).attr("href");
                     //                    Log.i("LinkFallback",attribute);
-                    if ((attribute.endsWith(".xls") || attribute.endsWith(".xlsx")) && Pattern.compile("(/[^a-z]-[^a-z]\\..+)$").matcher(attribute).find()) {
+                    if ((attribute.endsWith(".xls") || attribute.endsWith(".xlsx")) && Pattern.compile("(/.[^a-z]+\\..+)$").matcher(attribute).find()) {
                         file = attribute;
                     }
                 }
