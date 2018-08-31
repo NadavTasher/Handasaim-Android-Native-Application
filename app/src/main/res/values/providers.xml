@@ -2,7 +2,7 @@
 <resources>
     <string name="provider_external">http://nockio.com</string>
     <string name="provider_external_keys">http://nockio.com/h/x/keys/</string>
-    <string name="provider_external_push">http://nockio.com/h/x/push/test/</string>
+    <string name="provider_external_push">http://nockio.com/h/x/push/</string>
     <string name="provider_external_predict">http://nockio.com/h/x/predict/</string>
     <string name="provider_internal">http://handasaim.co.il/</string>
     <string name="provider_internal_news">http://handasaim.co.il/</string>

@@ -99,18 +99,18 @@ public class SplashActivity extends Activity {
     private void initStageD() {
         new LinkFetcher(getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), new LinkFetcher.OnFinish() {
             @Override
-            public void onLinkFetch(String link) {
+            public void onLinkFetch(final String link) {
                 StringBuilder fileName = new StringBuilder();
                 fileName.append(getResources().getString(R.string.schedule_file_name));
                 fileName.append(".");
                 fileName.append(link.split("\\.")[link.split("\\.").length - 1]);
                 if (pm.getCoreManager().getLink() == null || !pm.getCoreManager().getLink().equals(link)) {
-                    pm.getCoreManager().setLink(link);
                     if (!pm.getServicesManager().getScheduleNotifiedAlready(link))
                         pm.getServicesManager().setScheduleNotifiedAlready(link);
                     new Download(link, new File(getApplicationContext().getFilesDir(), fileName.toString()), new Download.Callback() {
                         @Override
                         public void onSuccess(File file) {
+                            pm.getCoreManager().setLink(link);
                             pm.getCoreManager().setFile(file.toString());
                             initStageE(true);
                         }

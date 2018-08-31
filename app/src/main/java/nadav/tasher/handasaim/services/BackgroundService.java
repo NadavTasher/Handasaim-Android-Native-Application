@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -55,7 +54,6 @@ public class BackgroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("Service", "Loopity Loop");
         // Setup the PreferenceManager.
         pm = new PreferenceManager(getApplicationContext());
         // Check if device is online
