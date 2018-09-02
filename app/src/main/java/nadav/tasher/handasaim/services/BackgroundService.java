@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -41,7 +42,7 @@ public class BackgroundService extends Service {
                 PendingIntent.getService(context,
                         ID,
                         serviceIntent,
-                        PendingIntent.FLAG_CANCEL_CURRENT);
+                        PendingIntent.FLAG_UPDATE_CURRENT);
         if (am != null) {
             am.setRepeating(
                     AlarmManager.RTC_WAKEUP,
@@ -54,6 +55,7 @@ public class BackgroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("Service", "im here");
         // Setup the PreferenceManager.
         pm = new PreferenceManager(getApplicationContext());
         // Check if device is online
@@ -76,7 +78,7 @@ public class BackgroundService extends Service {
             refreshFinished = true;
             done();
         }
-        return START_REDELIVER_INTENT;
+        return START_STICKY;
     }
 
     private void checkForNewPushes() {
@@ -160,7 +162,10 @@ public class BackgroundService extends Service {
     }
 
     private void done() {
-        if (pushFinished && refreshFinished) stopSelf();
+        if (pushFinished && refreshFinished) {
+            stopSelf();
+        }
+
         //        reschedule(getApplicationContext());
     }
 
