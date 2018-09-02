@@ -25,6 +25,7 @@
     <string name="interface_settings_choose_size_text">Choose Text Size:</string>
     <string name="interface_settings_service_push">Live Notifications</string>
     <string name="interface_settings_service_refresh">New Schedule Notifications</string>
+    <string name="interface_settings_mark_prehour">Mark Pre-hours</string>
     <string name="interface_settings_breaks">Display Breaks</string>
     <string name="interface_tutorial_begin">Let\'s Begin</string>
     <string name="interface_tutorial_welcome">Welcome.</string>
@@ -33,7 +34,7 @@
     <string name="interface_tutorial_lessonview_example_top">מתמתיקה</string>
     <string name="interface_tutorial_lessonview_example_bottom1">דלית</string>
     <string name="interface_tutorial_lessonview_example_bottom2">מאיה</string>
-    <string name="interface_tutorial_corner_explanation">This is the menu button.\nIt is located in on of the bottom corners of the screen.\nThe button opens and closes the top menu.</string>
+    <string name="interface_tutorial_corner_explanation">This is the menu button.\nIt is located in one of the bottom corners of the screen.\nThe button opens and closes the top menu.</string>
     <string name="interface_tutorial_corner_choose_location">Choose your preferred location for the button:</string>
     <string name="interface_tutorial_corner_example_top">י2</string>
     <string name="interface_tutorial_corner_example_bottom">שלישי</string>

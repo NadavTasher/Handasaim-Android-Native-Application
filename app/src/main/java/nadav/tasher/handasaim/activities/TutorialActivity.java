@@ -121,7 +121,7 @@ public class TutorialActivity extends Activity {
         explanationLessonView.setGravity(Gravity.CENTER);
         explanationLessonView.setTextColor(Center.getTextColor(getApplicationContext()));
         explanationLessonView.setPadding(0, 40, 0, 40);
-        LessonView mLessonView = new LessonView(getApplicationContext(), 1, getResources().getString(R.string.interface_tutorial_lessonview_example_top), new String[]{
+        LessonView mLessonView = new LessonView(getApplicationContext(), false, 1, getResources().getString(R.string.interface_tutorial_lessonview_example_top), new String[]{
                 getResources().getString(R.string.interface_tutorial_lessonview_example_bottom1),
                 getResources().getString(R.string.interface_tutorial_lessonview_example_bottom2)
         });

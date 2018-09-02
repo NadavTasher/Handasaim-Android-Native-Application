@@ -24,8 +24,9 @@ public class LessonView extends FrameLayout {
     private String topText;
     private ArrayList<String> bottomText;
     private int schoolHour, hour1, hour2;
+    private boolean isMarked = false;
     private RatioView top, time;
-    private ArrayList<RatioView> bottomTextViews=new ArrayList<>();
+    private ArrayList<RatioView> bottomTextViews = new ArrayList<>();
     private LinearLayout topLayout, bottomTextLayout, bottomLayout;
 
     private ExpandingView expandingView;
@@ -34,9 +35,11 @@ public class LessonView extends FrameLayout {
         super(c);
     }
 
-    public LessonView(Context context, int schoolHour, String topText, ArrayList<String> bottomText) {
+    public LessonView(Context context, boolean isMarked, int schoolHour, String topText, ArrayList<String> bottomText) {
         super(context);
         this.topText = rtlMark + topText;
+        this.isMarked = isMarked;
+
         if (bottomText != null) {
             this.bottomText = rtl(bottomText);
         }
@@ -44,9 +47,10 @@ public class LessonView extends FrameLayout {
         init();
     }
 
-    public LessonView(Context context, int schoolHour, String topText, String[] bottomText) {
+    public LessonView(Context context, boolean isMarked, int schoolHour, String topText, String[] bottomText) {
         super(context);
         this.topText = rtlMark + topText;
+        this.isMarked = isMarked;
         if (bottomText != null) {
             this.bottomText = rtl(new ArrayList<>(Arrays.asList(bottomText)));
         }
@@ -54,10 +58,11 @@ public class LessonView extends FrameLayout {
         init();
     }
 
-    public LessonView(Context context, int hour1, int hour2, String topText) {
+    public LessonView(Context context, boolean isMarked, int hour1, int hour2, String topText) {
         super(context);
         this.topText = rtlMark + topText;
         this.schoolHour = -1;
+        this.isMarked = isMarked;
         this.hour1 = hour1;
         this.hour2 = hour2;
         this.time = getText(AppCore.convertMinuteToTime(AppCore.getStartMinute(hour2)) + " - " + AppCore.convertMinuteToTime(AppCore.getEndMinute(hour1)), 0.8);
@@ -77,19 +82,26 @@ public class LessonView extends FrameLayout {
         int minute = c.get(Calendar.MINUTE);
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minuteOfDay = (hour * 60) + minute;
+        int brightID = R.color.coaster_bright;
+        int darkID = R.color.coaster_dark;
+        if (isMarked) {
+            brightID = R.color.coaster_special_bright;
+            darkID = R.color.coaster_special_dark;
+        }
         if (schoolHour < 0) {
             if (minuteOfDay >= AppCore.getEndMinute(hour1) && minuteOfDay < AppCore.getStartMinute(hour2)) {
-                return Utils.getCoaster(getContext().getResources().getColor(R.color.coaster_dark), 32, 5);
+                return Utils.getCoaster(getContext().getResources().getColor(darkID), 32, 5);
             } else {
-                return Utils.getCoaster(getContext().getResources().getColor(R.color.coaster_bright), 32, 5);
+                return Utils.getCoaster(getContext().getResources().getColor(brightID), 32, 5);
             }
         } else {
             if (minuteOfDay >= AppCore.getStartMinute(schoolHour) && minuteOfDay < AppCore.getEndMinute(schoolHour)) {
-                return Utils.getCoaster(getContext().getResources().getColor(R.color.coaster_dark), 32, 5);
+                return Utils.getCoaster(getContext().getResources().getColor(darkID), 32, 5);
             } else {
-                return Utils.getCoaster(getContext().getResources().getColor(R.color.coaster_bright), 32, 5);
+                return Utils.getCoaster(getContext().getResources().getColor(brightID), 32, 5);
             }
         }
+
     }
 
     private void init() {
@@ -149,8 +161,8 @@ public class LessonView extends FrameLayout {
         addView(expandingView);
     }
 
-    public void setButtonColor(int color){
-        if(bottomTextViews.size()>1) {
+    public void setButtonColor(int color) {
+        if (bottomTextViews.size() > 1) {
             for (int t = 0; t < bottomTextViews.size(); t++) {
                 RatioView current = bottomTextViews.get(t);
                 current.setBackground(Utils.getCoaster(Center.alpha(128, color), 16, 10));
@@ -159,26 +171,26 @@ public class LessonView extends FrameLayout {
         }
     }
 
-    public void setTextColor(int color){
+    public void setTextColor(int color) {
         top.setTextColor(color);
         time.setTextColor(color);
-        for(int t=0;t<bottomTextViews.size();t++){
-            RatioView current=bottomTextViews.get(t);
+        for (int t = 0; t < bottomTextViews.size(); t++) {
+            RatioView current = bottomTextViews.get(t);
             current.setTextColor(color);
         }
     }
 
-    public void setTextSize(int size){
+    public void setTextSize(int size) {
         top.setTextSize(size);
         time.setTextSize(size);
-        for(int t=0;t<bottomTextViews.size();t++){
-            RatioView current=bottomTextViews.get(t);
+        for (int t = 0; t < bottomTextViews.size(); t++) {
+            RatioView current = bottomTextViews.get(t);
             current.setTextSize(size);
         }
     }
 
     private RatioView getText(String text, final double textSizeRatio) {
-        RatioView tv = new RatioView(getContext(),textSizeRatio);
+        RatioView tv = new RatioView(getContext(), textSizeRatio);
         tv.setText(text);
         tv.setTextSize(Center.getFontSize(getContext()));
         tv.setTypeface(Center.getTypeface(getContext()));

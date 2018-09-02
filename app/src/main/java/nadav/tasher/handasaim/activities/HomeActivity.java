@@ -527,11 +527,13 @@ public class HomeActivity extends Activity {
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         settings.setPadding(20, 20, 20, 20);
-        final Switch cornerLocation = new Switch(getApplicationContext()), displayMessagesSwitch = new Switch(getApplicationContext()), refreshSwitch = new Switch(getApplicationContext()), displayBreaksSwitch = new Switch(getApplicationContext()), pushSwitch = new Switch(getApplicationContext());
+        final Switch cornerLocation = new Switch(getApplicationContext()), markPrehourSwitch = new Switch(getApplicationContext()), displayMessagesSwitch = new Switch(getApplicationContext()), refreshSwitch = new Switch(getApplicationContext()), displayBreaksSwitch = new Switch(getApplicationContext()), pushSwitch = new Switch(getApplicationContext());
+        markPrehourSwitch.setText(R.string.interface_settings_mark_prehour);
         pushSwitch.setText(R.string.interface_settings_service_push);
         displayMessagesSwitch.setText(R.string.interface_settings_messages);
         refreshSwitch.setText(R.string.interface_settings_service_refresh);
         displayBreaksSwitch.setText(R.string.interface_settings_breaks);
+        markPrehourSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour)));
         pushSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_service_push, getResources().getBoolean(R.bool.default_service_push)));
         refreshSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_service_refresh, getResources().getBoolean(R.bool.default_service_refresh)));
         displayMessagesSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_messages, getResources().getBoolean(R.bool.default_display_messages)));
@@ -542,6 +544,14 @@ public class HomeActivity extends Activity {
         displayBreaksSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         cornerLocation.setTypeface(Center.getTypeface(getApplicationContext()));
         displayMessagesSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
+        markPrehourSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                pm.getUserManager().set(R.string.preferences_user_mark_prehour, isChecked);
+                refreshTheme();
+                loadContent();
+            }
+        });
         displayBreaksSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -664,10 +674,12 @@ public class HomeActivity extends Activity {
                 explainColorB.setTextSize((float) (theme.textSize / 1.5));
                 explainTextColor.setTextSize((float) (theme.textSize / 1.5));
                 explainTextSize.setTextSize((float) (theme.textSize / 1.5));
+                markPrehourSwitch.setTextSize((float) (theme.textSize / 1.5));
                 pushSwitch.setTextColor(theme.textColor);
                 displayBreaksSwitch.setTextColor(theme.textColor);
                 refreshSwitch.setTextColor(theme.textColor);
                 displayMessagesSwitch.setTextColor(theme.textColor);
+                markPrehourSwitch.setTextColor(theme.textColor);
                 cornerLocation.setTextColor(theme.textColor);
                 explainColorA.setTextColor(theme.textColor);
                 explainColorB.setTextColor(theme.textColor);
@@ -678,6 +690,7 @@ public class HomeActivity extends Activity {
         }));
         settings.addView(displayMessagesSwitch);
         settings.addView(displayBreaksSwitch);
+        settings.addView(markPrehourSwitch);
         settings.addView(cornerLocation);
         settings.addView(pushSwitch);
         settings.addView(refreshSwitch);
@@ -923,7 +936,7 @@ public class HomeActivity extends Activity {
         ArrayList<LessonView> views = new ArrayList<>();
         for (Subject s : classroom.getSubjects()) {
             if (AppCore.getBreak(s.getSchoolHour() - 1, s.getSchoolHour()) > 0) {
-                final LessonView breakView = new LessonView(getApplicationContext(), s.getSchoolHour() - 1, s.getSchoolHour(), "הפסקה");
+                final LessonView breakView = new LessonView(getApplicationContext(), false, s.getSchoolHour() - 1, s.getSchoolHour(), "הפסקה");
                 if (theme.getLast().showBreaks) {
                     breakView.setVisibility(View.VISIBLE);
                 } else {
@@ -944,7 +957,8 @@ public class HomeActivity extends Activity {
                     views.add(breakView);
                 }
             }
-            LessonView subject = new LessonView(getApplicationContext(), s.getSchoolHour(), s.getName(), s.getTeacherNames());
+            LessonView subject = new LessonView(getApplicationContext(), (s.getSchoolHour() == 0 && pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour))), s.getSchoolHour(), s.getName(), s.getTeacherNames());
+
             if (s.getName() != null && !s.getName().isEmpty()) {
                 views.add(subject);
             }
@@ -968,7 +982,7 @@ public class HomeActivity extends Activity {
             grades = AppCore.getGrades(classrooms);
             if (!classrooms.isEmpty()) {
                 if (AppCore.getBreak(h - 1, h) > 0) {
-                    final LessonView breakView = new LessonView(getApplicationContext(), h - 1, h, "הפסקה");
+                    final LessonView breakView = new LessonView(getApplicationContext(), false, h - 1, h, "הפסקה");
                     if (theme.getLast().showBreaks) {
                         breakView.setVisibility(View.VISIBLE);
                     } else {
@@ -987,7 +1001,7 @@ public class HomeActivity extends Activity {
                     }));
                     views.add(breakView);
                 }
-                LessonView subject = new LessonView(getApplicationContext(), h, grades, new ArrayList<>(Collections.singletonList(subjectName)));
+                LessonView subject = new LessonView(getApplicationContext(), (h == 0 && pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour))), h, grades, new ArrayList<>(Collections.singletonList(subjectName)));
                 views.add(subject);
             }
         }

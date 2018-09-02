@@ -80,71 +80,83 @@ public class BackgroundService extends Service {
     }
 
     private void checkForNewPushes() {
-        JSONArray filters = new JSONArray();
-        int channel = pm.getServicesManager().getChannel(0);
-        if (channel != 0) {
-            filters.put(0);
-        }
-        filters.put(channel);
-        new Requester(new Request.Builder().url(getResources().getString(R.string.provider_external_push)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("filter", filters.toString()).build()).build(), new Requester.Callback() {
-            @Override
-            public void onCall(Response serverResponse) {
-                if (serverResponse.isSuccessful()) {
-                    if (serverResponse.body() != null) {
-                        try {
-                            JSONObject response = new JSONObject(serverResponse.body().string());
-                            if (response.getString(getResources().getString(R.string.push_response_parameter_mode)).equals(getResources().getString(R.string.push_response_parameter_mode_client))) {
-                                if (response.has(getResources().getString(R.string.push_response_parameter_approved)) && response.getBoolean(getResources().getString(R.string.push_response_parameter_approved))) {
-                                    // Client Mode & Approved -> Scan Pushes
-                                    JSONArray pushes = response.getJSONArray(getResources().getString(R.string.push_response_parameter_pushes));
-                                    for (int p = 0; p < pushes.length(); p++) {
-                                        JSONObject push = pushes.getJSONObject(p);
-                                        String pushId = push.getString(getResources().getString(R.string.push_response_parameter_push_id));
-                                        if (!pm.getServicesManager().getPushDisplayedAlready(pushId)) {
-                                            // Push Not Displayed Yet, Write It To Preferences And Display.
-                                            pm.getServicesManager().setPushDisplayedAlready(pushId);
-                                            // Display Notification
-                                            String titleBuilder =
-                                                    "(" +
-                                                            push.getString(getResources().getString(R.string.push_response_parameter_push_sender)) +
-                                                            ')' +
-                                                            ' ' +
-                                                            push.getString(getResources().getString(R.string.push_response_parameter_push_title)) +
-                                                            ':';
-                                            inform(titleBuilder, push.getString(getResources().getString(R.string.push_response_parameter_push_message)));
+        try {
+            JSONArray filters = new JSONArray();
+            int channel = pm.getServicesManager().getChannel(0);
+            if (channel != 0) {
+                filters.put(0);
+            }
+            filters.put(channel);
+            new Requester(new Request.Builder().url(getResources().getString(R.string.provider_external_push)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("filter", filters.toString()).build()).build(), new Requester.Callback() {
+                @Override
+                public void onCall(Response serverResponse) {
+                    if (serverResponse.isSuccessful()) {
+                        if (serverResponse.body() != null) {
+                            try {
+                                JSONObject response = new JSONObject(serverResponse.body().string());
+                                if (response.getString(getResources().getString(R.string.push_response_parameter_mode)).equals(getResources().getString(R.string.push_response_parameter_mode_client))) {
+                                    if (response.has(getResources().getString(R.string.push_response_parameter_approved)) && response.getBoolean(getResources().getString(R.string.push_response_parameter_approved))) {
+                                        // Client Mode & Approved -> Scan Pushes
+                                        JSONArray pushes = response.getJSONArray(getResources().getString(R.string.push_response_parameter_pushes));
+                                        for (int p = 0; p < pushes.length(); p++) {
+                                            JSONObject push = pushes.getJSONObject(p);
+                                            String pushId = push.getString(getResources().getString(R.string.push_response_parameter_push_id));
+                                            if (!pm.getServicesManager().getPushDisplayedAlready(pushId)) {
+                                                // Push Not Displayed Yet, Write It To Preferences And Display.
+                                                pm.getServicesManager().setPushDisplayedAlready(pushId);
+                                                // Display Notification
+                                                String titleBuilder =
+                                                        "(" +
+                                                                push.getString(getResources().getString(R.string.push_response_parameter_push_sender)) +
+                                                                ')' +
+                                                                ' ' +
+                                                                push.getString(getResources().getString(R.string.push_response_parameter_push_title)) +
+                                                                ':';
+                                                inform(titleBuilder, push.getString(getResources().getString(R.string.push_response_parameter_push_message)));
+                                            }
                                         }
                                     }
                                 }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
                     }
+                    pushFinished = true;
+                    done();
                 }
-                pushFinished = true;
-                done();
-            }
-        }).execute();
+            }).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+            pushFinished = true;
+            done();
+        }
     }
 
     private void checkForNewSchedule() {
-        new LinkFetcher(getResources().getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), new LinkFetcher.OnFinish() {
-            @Override
-            public void onLinkFetch(String link) {
-                if (!pm.getServicesManager().getScheduleNotifiedAlready(link)) {
-                    pm.getServicesManager().setScheduleNotifiedAlready(link);
-                    inform(getResources().getString(R.string.refresh_text_title), getResources().getString(R.string.refresh_text_message));
+        try {
+            new LinkFetcher(getResources().getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), new LinkFetcher.OnFinish() {
+                @Override
+                public void onLinkFetch(String link) {
+                    if (!pm.getServicesManager().getScheduleNotifiedAlready(link)) {
+                        pm.getServicesManager().setScheduleNotifiedAlready(link);
+                        inform(getResources().getString(R.string.refresh_text_title), getResources().getString(R.string.refresh_text_message));
+                    }
+                    refreshFinished = true;
+                    done();
                 }
-                refreshFinished = true;
-                done();
-            }
 
-            @Override
-            public void onFail() {
-                refreshFinished = true;
-                done();
-            }
-        }).execute();
+                @Override
+                public void onFail() {
+                    refreshFinished = true;
+                    done();
+                }
+            }).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+            refreshFinished = true;
+            done();
+        }
     }
 
     private void done() {
