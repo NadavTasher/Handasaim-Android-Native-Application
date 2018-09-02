@@ -18,7 +18,7 @@ import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.LinkFetcher;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
-import nadav.tasher.handasaim.services.BackgroundService;
+import nadav.tasher.handasaim.receivers.Refresh;
 import nadav.tasher.lightool.communication.network.Download;
 import nadav.tasher.lightool.graphics.ColorFadeAnimation;
 import nadav.tasher.lightool.info.Device;
@@ -84,7 +84,7 @@ public class SplashActivity extends Activity {
     }
 
     private void initService() {
-        BackgroundService.reschedule(getApplicationContext());
+        Refresh.reschedule(getApplicationContext());
     }
 
     private void initStageC() {

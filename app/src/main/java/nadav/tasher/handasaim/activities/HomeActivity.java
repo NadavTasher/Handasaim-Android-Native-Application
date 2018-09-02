@@ -539,7 +539,7 @@ public class HomeActivity extends Activity {
         pushSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_service_push, getResources().getBoolean(R.bool.default_service_push)));
         refreshSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_service_refresh, getResources().getBoolean(R.bool.default_service_refresh)));
         displayMessagesSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_messages, getResources().getBoolean(R.bool.default_display_messages)));
-        displayBreaksSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_messages, getResources().getBoolean(R.bool.default_display_messages)));
+        displayBreaksSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_breaks, getResources().getBoolean(R.bool.default_display_messages)));
         cornerLocation.setChecked(pm.getUserManager().get(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_right)).equals(getResources().getString(R.string.corner_location_right)));
         pushSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         refreshSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
