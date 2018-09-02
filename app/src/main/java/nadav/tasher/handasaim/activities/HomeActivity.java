@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,12 +83,14 @@ public class HomeActivity extends Activity {
         currentTheme.textSize = pm.getUserManager().get(R.string.preferences_user_size_text, getResources().getInteger(R.integer.default_font));
         currentTheme.showMessages = pm.getUserManager().get(R.string.preferences_user_display_messages, getResources().getBoolean(R.bool.default_display_messages));
         currentTheme.showBreaks = pm.getUserManager().get(R.string.preferences_user_display_breaks, getResources().getBoolean(R.bool.default_display_breaks));
+        currentTheme.menuColor = pm.getUserManager().get(R.string.preferences_user_color_menu, getResources().getColor(R.color.default_menu));
         currentTheme.colorTop = pm.getUserManager().get(R.string.preferences_user_color_top, getResources().getColor(R.color.default_top));
         currentTheme.colorBottom = pm.getUserManager().get(R.string.preferences_user_color_bottom, getResources().getColor(R.color.default_bottom));
         currentTheme.colorMix = generateCombinedColor(currentTheme.colorTop, currentTheme.colorBottom);
         theme.tell(currentTheme);
         //Log.i("ColorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
         //Log.i("ColorB", String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
+        Log.i("ColorMenu", String.format("#%06X", (0xFFFFFF & currentTheme.menuColor)));
     }
 
     private void refreshCorner() {
@@ -185,8 +188,6 @@ public class HomeActivity extends Activity {
         refreshTheme();
         mAppView = new AppView(this);
         mAppView.setDrawNavigation(false);
-        mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(getResources().getColor(R.color.drawer_color), 30, 10));
-        mAppView.getDrawer().getDrawerView().setPadding(0, drawerPadding, 0, drawerPadding);
         info = new Corner(getApplicationContext(), (int) (Device.screenX(getApplicationContext()) / 4.5), Color.TRANSPARENT);
         info.addOnState(new Corner.OnState() {
             @Override
@@ -256,6 +257,8 @@ public class HomeActivity extends Activity {
                 setCornerColor(mAppView.getScrolly());
                 messageBar.setTextColor(theme.textColor);
                 messageBar.setTextSize(theme.textSize);
+                mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(theme.menuColor, 30, 10));
+                mAppView.getDrawer().getDrawerView().setPadding(0, drawerPadding, 0, drawerPadding);
                 if (theme.showMessages && schedule.getMessages().size() != 0) {
                     messageBar.setVisibility(View.VISIBLE);
                 } else {
@@ -612,6 +615,10 @@ public class HomeActivity extends Activity {
         explainColorB.setText(R.string.interface_settings_choose_color_bottom);
         explainColorB.setTypeface(Center.getTypeface(getApplicationContext()));
         explainColorB.setGravity(Gravity.CENTER);
+        final TextView explainColorMenu = new TextView(getApplicationContext());
+        explainColorMenu.setText(R.string.interface_settings_choose_color_menu);
+        explainColorMenu.setTypeface(Center.getTypeface(getApplicationContext()));
+        explainColorMenu.setGravity(Gravity.CENTER);
         SeekBar fontSizeSeekBar = new SeekBar(getApplicationContext());
         fontSizeSeekBar.setMax(70);
         fontSizeSeekBar.setProgress(pm.getUserManager().get(R.string.preferences_user_size_text, getResources().getInteger(R.integer.default_font)));
@@ -659,9 +666,19 @@ public class HomeActivity extends Activity {
                 refreshTheme();
             }
         });
+        ColorPicker menuColorPicker = new ColorPicker(getApplicationContext());
+        menuColorPicker.setColor(theme.getLast().menuColor);
+        menuColorPicker.setOnColor(new ColorPicker.OnColorChanged() {
+            @Override
+            public void onColorChange(int color) {
+                pm.getUserManager().set(R.string.preferences_user_color_menu, color);
+                refreshTheme();
+            }
+        });
         textColorPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 15));
         colorTopPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 15));
         colorBottomPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 15));
+        menuColorPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 15));
         theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
             @Override
             public boolean onPeer(Theme theme) {
@@ -674,6 +691,7 @@ public class HomeActivity extends Activity {
                 explainColorB.setTextSize((float) (theme.textSize / 1.5));
                 explainTextColor.setTextSize((float) (theme.textSize / 1.5));
                 explainTextSize.setTextSize((float) (theme.textSize / 1.5));
+                explainColorMenu.setTextSize((float) (theme.textSize / 1.5));
                 markPrehourSwitch.setTextSize((float) (theme.textSize / 1.5));
                 pushSwitch.setTextColor(theme.textColor);
                 displayBreaksSwitch.setTextColor(theme.textColor);
@@ -685,6 +703,7 @@ public class HomeActivity extends Activity {
                 explainColorB.setTextColor(theme.textColor);
                 explainTextColor.setTextColor(theme.textColor);
                 explainTextSize.setTextColor(theme.textColor);
+                explainColorMenu.setTextColor(theme.textColor);
                 return false;
             }
         }));
@@ -702,6 +721,8 @@ public class HomeActivity extends Activity {
         settings.addView(colorTopPicker);
         settings.addView(explainColorB);
         settings.addView(colorBottomPicker);
+        settings.addView(explainColorMenu);
+        settings.addView(menuColorPicker);
         sv.addView(settings);
         sv.setVerticalScrollBarEnabled(false);
         return sv;
@@ -1020,6 +1041,7 @@ public class HomeActivity extends Activity {
     private class Theme {
         private int textSize, textColor;
         private int colorTop, colorBottom, colorMix;
+        private int menuColor;
         private boolean showBreaks, showMessages;
     }
 }

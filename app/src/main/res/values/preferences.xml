@@ -8,6 +8,7 @@
     <string name="preferences_user_color_top">colorTop</string>
     <string name="preferences_user_color_bottom">colorBottom</string>
     <string name="preferences_user_color_text">colorText</string>
+    <string name="preferences_user_color_menu">menuColor</string>
     <string name="preferences_user_size_text">sizeText</string>
     <string name="preferences_user_display_messages">displayMessages</string>
     <string name="preferences_user_display_breaks">displayBreaks</string>

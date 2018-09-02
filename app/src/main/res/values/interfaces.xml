@@ -22,6 +22,7 @@
     <string name="interface_settings_choose_color_top">Choose Top Color:</string>
     <string name="interface_settings_choose_color_bottom">Choose Bottom Color:</string>
     <string name="interface_settings_choose_color_text">Choose Text Color:</string>
+    <string name="interface_settings_choose_color_menu">Choose Menu Color:</string>
     <string name="interface_settings_choose_size_text">Choose Text Size:</string>
     <string name="interface_settings_service_push">Live Notifications</string>
     <string name="interface_settings_service_refresh">New Schedule Notifications</string>
