@@ -68,37 +68,43 @@ public class Refresh extends BroadcastReceiver {
             new Requester(new Request.Builder().url(context.getResources().getString(R.string.provider_external_push)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("filter", filters.toString()).build()).build(), new Requester.Callback() {
                 @Override
                 public void onCall(Response serverResponse) {
-                    if (serverResponse.isSuccessful()) {
-                        if (serverResponse.body() != null) {
-                            try {
-                                JSONObject response = new JSONObject(serverResponse.body().string());
-                                if (response.getString(context.getResources().getString(R.string.push_response_parameter_mode)).equals(context.getResources().getString(R.string.push_response_parameter_mode_client))) {
-                                    if (response.has(context.getResources().getString(R.string.push_response_parameter_approved)) && response.getBoolean(context.getResources().getString(R.string.push_response_parameter_approved))) {
-                                        // Client Mode & Approved -> Scan Pushes
-                                        JSONArray pushes = response.getJSONArray(context.getResources().getString(R.string.push_response_parameter_pushes));
-                                        for (int p = 0; p < pushes.length(); p++) {
-                                            JSONObject push = pushes.getJSONObject(p);
-                                            String pushId = push.getString(context.getResources().getString(R.string.push_response_parameter_push_id));
-                                            if (!pm.getServicesManager().getPushDisplayedAlready(pushId)) {
-                                                // Push Not Displayed Yet, Write It To Preferences And Display.
-                                                pm.getServicesManager().setPushDisplayedAlready(pushId);
-                                                // Display Notification
-                                                String titleBuilder =
-                                                        "(" +
-                                                                push.getString(context.getResources().getString(R.string.push_response_parameter_push_sender)) +
-                                                                ')' +
-                                                                ' ' +
-                                                                push.getString(context.getResources().getString(R.string.push_response_parameter_push_title)) +
-                                                                ':';
-                                                inform(context, titleBuilder, push.getString(context.getResources().getString(R.string.push_response_parameter_push_message)));
+                    try {
+                        if (serverResponse != null) {
+                            if (serverResponse.isSuccessful()) {
+                                if (serverResponse.body() != null) {
+                                    try {
+                                        JSONObject response = new JSONObject(serverResponse.body().string());
+                                        if (response.getString(context.getResources().getString(R.string.push_response_parameter_mode)).equals(context.getResources().getString(R.string.push_response_parameter_mode_client))) {
+                                            if (response.has(context.getResources().getString(R.string.push_response_parameter_approved)) && response.getBoolean(context.getResources().getString(R.string.push_response_parameter_approved))) {
+                                                // Client Mode & Approved -> Scan Pushes
+                                                JSONArray pushes = response.getJSONArray(context.getResources().getString(R.string.push_response_parameter_pushes));
+                                                for (int p = 0; p < pushes.length(); p++) {
+                                                    JSONObject push = pushes.getJSONObject(p);
+                                                    String pushId = push.getString(context.getResources().getString(R.string.push_response_parameter_push_id));
+                                                    if (!pm.getServicesManager().getPushDisplayedAlready(pushId)) {
+                                                        // Push Not Displayed Yet, Write It To Preferences And Display.
+                                                        pm.getServicesManager().setPushDisplayedAlready(pushId);
+                                                        // Display Notification
+                                                        String titleBuilder =
+                                                                "(" +
+                                                                        push.getString(context.getResources().getString(R.string.push_response_parameter_push_sender)) +
+                                                                        ')' +
+                                                                        ' ' +
+                                                                        push.getString(context.getResources().getString(R.string.push_response_parameter_push_title)) +
+                                                                        ':';
+                                                        inform(context, titleBuilder, push.getString(context.getResources().getString(R.string.push_response_parameter_push_message)));
+                                                    }
+                                                }
                                             }
                                         }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
                                     }
                                 }
-                            } catch (Exception e) {
-                                e.printStackTrace();
                             }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }).execute();
