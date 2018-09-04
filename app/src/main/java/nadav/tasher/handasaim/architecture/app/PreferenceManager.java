@@ -151,25 +151,30 @@ public class PreferenceManager {
             new Requester(new Request.Builder().url(context.getResources().getString(R.string.provider_external_keys)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("exchange", key).build()).build(), new Requester.Callback() {
                 @Override
                 public void onCall(okhttp3.Response response) {
-                    if (response.isSuccessful()) {
-                        if (response.body() != null) {
-                            try {
-                                //                                String responseString=response.body().string();
-                                //                                Log.i("Key",responseString);
-                                JSONObject o = new JSONObject(response.body().string());
-                                if (o.getBoolean(context.getString(R.string.key_response_parameter_approved))) {
-                                    installKey(key, o.getInt(context.getString(R.string.key_response_parameter_type)));
-                                } else {
-                                    Toast.makeText(context, "Key does not exist, or already used", Toast.LENGTH_SHORT).show();
+                    try {
+                        if (response.isSuccessful()) {
+                            if (response.body() != null) {
+                                try {
+                                    //                                String responseString=response.body().string();
+                                    //                                Log.i("Key",responseString);
+                                    JSONObject o = new JSONObject(response.body().string());
+                                    if (o.getBoolean(context.getString(R.string.key_response_parameter_approved))) {
+                                        installKey(key, o.getInt(context.getString(R.string.key_response_parameter_type)));
+                                    } else {
+                                        Toast.makeText(context, "Key does not exist, or already used", Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (JSONException | IOException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
                                 }
-                            } catch (JSONException | IOException e) {
-                                e.printStackTrace();
+                            } else {
                                 Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
                             }
                         } else {
                             Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
                         }
-                    } else {
+                    } catch (Exception e) {
+                        e.printStackTrace();
                         Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
                     }
                 }
