@@ -9,8 +9,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import nadav.tasher.handasaim.R;
+import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
 import nadav.tasher.lightool.communication.network.Requester;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
@@ -148,7 +150,7 @@ public class PreferenceManager {
         }
 
         public void loadKey(final String key) {
-            new Requester(new Request.Builder().url(context.getResources().getString(R.string.provider_external_keys)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("exchange", key).build()).build(), new Requester.Callback() {
+            new Requester(new Request.Builder().url(context.getResources().getString(R.string.provider_external_keys)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("exchange", key).build()), new Requester.Callback() {
                 @Override
                 public void onCall(okhttp3.Response response) {
                     try {
@@ -223,21 +225,35 @@ public class PreferenceManager {
             super.set(R.string.preferences_core_file_link, link);
         }
 
-        public JSONObject getSchedule(int index) {
+        public Schedule getSchedule(int index) {
             try {
                 JSONArray schedules = new JSONArray(super.get(R.string.preferences_core_json_array, new JSONArray().toString()));
-                return (index < schedules.length()) ? schedules.getJSONObject(index) : new JSONObject();
+                return (index < schedules.length()) ? Schedule.Builder.fromJSON(schedules.getJSONObject(index)).build() : null;
             } catch (Exception e) {
                 e.printStackTrace();
-                return new JSONObject();
+                return null;
             }
         }
 
-        public void addSchedule(JSONObject schedule) {
+        public ArrayList<Schedule> getSchedules() {
+            try {
+                ArrayList<Schedule> schedules = new ArrayList<>();
+                JSONArray schedulesJSON = new JSONArray(super.get(R.string.preferences_core_json_array, new JSONArray().toString()));
+                for (int i = 0; i < schedulesJSON.length(); i++) {
+                    schedules.add(Schedule.Builder.fromJSON(schedulesJSON.getJSONObject(i)).build());
+                }
+                return schedules;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ArrayList<>();
+            }
+        }
+
+        public void addSchedule(Schedule schedule) {
             try {
                 JSONArray schedules = new JSONArray(super.get(R.string.preferences_core_json_array, new JSONArray().toString()));
                 JSONArray newSchedules = new JSONArray();
-                newSchedules.put(schedule);
+                newSchedules.put(schedule.toJSON());
                 for (int i = 0; i < schedules.length(); i++) {
                     newSchedules.put(schedules.get(i));
                 }

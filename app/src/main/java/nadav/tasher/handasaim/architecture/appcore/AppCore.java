@@ -131,6 +131,14 @@ public class AppCore {
         return mBuilder.build();
     }
 
+    public static Schedule getSchedule(File excel, String name, String date, String origin) {
+        Schedule.Builder builder = Schedule.Builder.fromSchedule(getSchedule(excel));
+        builder.setName(name);
+        builder.setOrigin(origin);
+        builder.setDate(date);
+        return builder.build();
+    }
+
     private static String readCell(Cell cell) {
         if(cell != null) {
             try {

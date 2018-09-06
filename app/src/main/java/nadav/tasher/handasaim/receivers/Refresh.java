@@ -65,7 +65,7 @@ public class Refresh extends BroadcastReceiver {
                 filters.put(0);
             }
             filters.put(channel);
-            new Requester(new Request.Builder().url(context.getResources().getString(R.string.provider_external_push)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("filter", filters.toString()).build()).build(), new Requester.Callback() {
+            new Requester(new Request.Builder().url(context.getResources().getString(R.string.provider_external_push)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("filter", filters.toString()).build()), new Requester.Callback() {
                 @Override
                 public void onCall(Response serverResponse) {
                     try {

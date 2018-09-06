@@ -112,7 +112,7 @@ public class SplashActivity extends Activity {
                         @Override
                         public void onSuccess(File file) {
                             pm.getCoreManager().setLink(link);
-                            pm.getCoreManager().addSchedule(AppCore.getSchedule(file).toJSON());
+                            pm.getCoreManager().addSchedule(AppCore.getSchedule(file, "Daily", "Unknown", link));
                             initStageE(true);
                         }
 

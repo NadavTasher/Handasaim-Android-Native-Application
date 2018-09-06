@@ -42,6 +42,8 @@
                 <action android:name="nadav.tasher.handasaim.REFRESH" />
             </intent-filter>
         </receiver>
+
+        <activity android:name=".activities.TimeTravelActivity"></activity>
     </application>
 
 </manifest>

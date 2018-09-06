@@ -53,7 +53,7 @@ public class HomeActivity extends Activity {
     private Schedule schedule;
     private HorizontalScrollView menuDrawer;
     private ScrollView settings, switcher, share, code, about;
-
+    private int scheduleIndex = 0;
     private int drawerPadding = 30;
 
     private PreferenceManager pm;
@@ -62,7 +62,7 @@ public class HomeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initVars();
-        go();
+        loadSchedule();
     }
 
     @Override
@@ -73,6 +73,9 @@ public class HomeActivity extends Activity {
     private void initVars() {
         pm = new PreferenceManager(getApplicationContext());
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("scheduleIndex")) {
+            scheduleIndex = getIntent().getExtras().getInt("scheduleIndex", 0);
+        }
     }
 
     private void refreshTheme() {
@@ -101,17 +104,13 @@ public class HomeActivity extends Activity {
         }
     }
 
-    public void go() {
+    private void loadSchedule() {
         try {
-            loadSchedule();
+            schedule = Schedule.Builder.fromJSON(pm.getCoreManager().getSchedule(scheduleIndex)).build();
+            initStageB();
         } catch (Exception e) {
             Center.exit(this, SplashActivity.class);
         }
-    }
-
-    private void loadSchedule() {
-        schedule = Schedule.Builder.fromJSON(pm.getCoreManager().getSchedule(0)).build();
-        initStageB();
     }
 
     private ScrollView getCode() {
@@ -324,11 +323,11 @@ public class HomeActivity extends Activity {
         menu.setGravity(Gravity.CENTER);
         menuDrawer.setFillViewport(true);
         final int size = (int) (Device.screenX(getApplicationContext()) / 6.5);
-        final FrameLayout shareIcon, classroomIcon, icon, refreshIcon, settingsIcon;
+        final FrameLayout shareIcon, classroomIcon, icon, timetraverIcon, settingsIcon;
         shareIcon = generateImageView(R.drawable.ic_share, size);
         classroomIcon = generateImageView(R.drawable.ic_class, size);
         icon = generateImageView(R.drawable.ic_icon, size);
-        refreshIcon = generateImageView(R.drawable.ic_reload, size);
+        timetraverIcon = generateImageView(R.drawable.ic_timetravel, size);
         settingsIcon = generateImageView(R.drawable.ic_gear, size);
         settingsIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -342,10 +341,10 @@ public class HomeActivity extends Activity {
                 openDrawer(switcher);
             }
         });
-        refreshIcon.setOnClickListener(new View.OnClickListener() {
+        timetraverIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Center.exit(HomeActivity.this, SplashActivity.class);
+                Center.exit(HomeActivity.this, TimeTravelActivity.class);
             }
         });
         shareIcon.setOnClickListener(new View.OnClickListener() {
@@ -363,7 +362,7 @@ public class HomeActivity extends Activity {
         menu.addView(shareIcon);
         menu.addView(classroomIcon);
         menu.addView(icon);
-        menu.addView(refreshIcon);
+        menu.addView(timetraverIcon);
         menu.addView(settingsIcon);
         menu.setPadding(10, 10, 10, 10);
         menu.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, size + menu.getPaddingBottom() + menu.getPaddingTop()));
