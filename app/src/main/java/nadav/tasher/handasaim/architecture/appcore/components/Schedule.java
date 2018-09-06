@@ -90,6 +90,7 @@ public class Schedule {
                     subjectJSON.put(PARAMETER_DESCRIPTION, s.getDescription());
                     subjectsJSON.put(subjectJSON);
                 }
+                classroomJSON.put(PARAMETER_SUBJECTS, subjectsJSON);
                 classroomsJSON.put(classroomJSON);
             }
             scheduleJSON.put(PARAMETER_CLASSROOMS, classroomsJSON);
