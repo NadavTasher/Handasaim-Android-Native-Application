@@ -154,10 +154,14 @@ public class LessonView extends FrameLayout {
                 }
             }
         }
+        topLayout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
         bottomLayout.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         if (bottomLayout.getMeasuredHeight() < Device.screenY(getContext()) / 10)
             bottomLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
-        expandingView = new ExpandingView(getContext(), initBackground(), 500, Device.screenY(getContext()) / 10, topLayout, bottomLayout);
+        expandingView = new ExpandingView(getContext());
+        expandingView.setBackground(initBackground());
+        expandingView.setTop(topLayout);
+        expandingView.setBottom(bottomLayout);
         addView(expandingView);
     }
 

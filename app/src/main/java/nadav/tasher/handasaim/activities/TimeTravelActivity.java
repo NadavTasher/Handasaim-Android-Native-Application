@@ -8,6 +8,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -81,6 +83,7 @@ public class TimeTravelActivity extends Activity {
 
     private ExpandingView getTimeTraver(Schedule schedule, final int index) {
         TextView title = getText(((index == 0) ? "Latest" : schedule.getName()) + " (" + schedule.getDay() + ")", 1);
+        title.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 10));
         TextView button = getText(getResources().getString(R.string.interface_time_travel_button), 0.8);
         button.setBackground(Utils.getCoaster(Center.getColorBottom(getApplicationContext()), 20, 20));
         button.setPadding(50, 50, 50, 50);
@@ -92,7 +95,11 @@ public class TimeTravelActivity extends Activity {
                 Center.enter(TimeTravelActivity.this, intent);
             }
         });
-        return new ExpandingView(getApplicationContext(), Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10), 500, Device.screenY(getApplicationContext()) / 10, title, button);
+        ExpandingView expandingView = new ExpandingView(getApplicationContext());
+        expandingView.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10));
+        expandingView.setTop(title);
+        expandingView.setBottom(button);
+        return expandingView;
     }
 
     private Drawable generateGradient(int colorA, int colorB) {
