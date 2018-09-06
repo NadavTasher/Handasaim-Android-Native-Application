@@ -1,5 +1,8 @@
 package nadav.tasher.handasaim.architecture.appcore.components;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -7,6 +10,16 @@ public class Schedule {
 
     public static final int TYPE_REGULAR = 0;
     public static final int TYPE_PREDICTED = 1;
+    public static final String PARAMETER_NAME = "name";
+    public static final String PARAMETER_DAY = "day";
+    public static final String PARAMETER_DATE = "date";
+    public static final String PARAMETER_ORIGIN = "origin";
+    public static final String PARAMETER_TYPE = "type";
+    public static final String PARAMETER_MESSAGES = "messages";
+    public static final String PARAMETER_CLASSROOMS = "classrooms";
+    public static final String PARAMETER_SUBJECTS = "subjects";
+    public static final String PARAMETER_DESCRIPTION = "description";
+    public static final String PARAMETER_HOUR = "hour";
 
     private ArrayList<Classroom> classrooms;
     private ArrayList<Teacher> teachers;
@@ -33,7 +46,7 @@ public class Schedule {
         return date;
     }
 
-    public String getDay(){
+    public String getDay() {
         return day;
     }
 
@@ -53,6 +66,41 @@ public class Schedule {
         return messages;
     }
 
+    public JSONObject toJSON() {
+        JSONObject scheduleJSON = new JSONObject();
+        try {
+            scheduleJSON.put(PARAMETER_DAY, day);
+            scheduleJSON.put(PARAMETER_NAME, name);
+            scheduleJSON.put(PARAMETER_DATE, date);
+            scheduleJSON.put(PARAMETER_ORIGIN, origin);
+
+            JSONArray messagesJSON = new JSONArray();
+            for (String m : messages) {
+                messagesJSON.put(m);
+            }
+
+            JSONArray classroomsJSON = new JSONArray();
+            for (Classroom c : classrooms) {
+                JSONObject classroomJSON = new JSONObject();
+                classroomJSON.put(PARAMETER_NAME, c.getName());
+                JSONArray subjectsJSON = new JSONArray();
+                for (Subject s : c.getSubjects()) {
+                    JSONObject subjectJSON = new JSONObject();
+                    subjectJSON.put(PARAMETER_HOUR, s.getSchoolHour());
+                    subjectJSON.put(PARAMETER_DESCRIPTION, s.getDescription());
+                    subjectsJSON.put(subjectJSON);
+                }
+                classroomsJSON.put(classroomJSON);
+            }
+            scheduleJSON.put(PARAMETER_CLASSROOMS, classroomsJSON);
+            scheduleJSON.put(PARAMETER_MESSAGES, messagesJSON);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return scheduleJSON;
+    }
+
     public static class Builder {
         // Schedule Assembler
 
@@ -64,12 +112,58 @@ public class Schedule {
         private ArrayList<Classroom> classrooms = new ArrayList<>();
         private ArrayList<Teacher> teachers = new ArrayList<>();
         private ArrayList<String> messages = new ArrayList<>();
-        private String name = "Generic Schedule", date = "Unknown Date", origin = "Unknown Origin", signature = "Unsigned" ,day ="?";
+        private String name = "Generic Schedule", date = "Unknown Date", origin = "Unknown Origin", signature = "Unsigned", day = "?";
 
         private int type = TYPE_REGULAR;
 
         public Builder(int type) {
             this.type = type;
+        }
+
+        public static Builder fromSchedule(Schedule schedule) {
+            Builder builder = new Builder(schedule.type);
+            builder.classrooms = schedule.classrooms;
+            builder.messages = schedule.messages;
+            builder.day = schedule.day;
+            builder.date = schedule.date;
+            builder.name = schedule.name;
+            builder.origin = schedule.origin;
+            return builder;
+        }
+
+        public static Builder fromJSON(JSONObject object) {
+            Builder builder;
+            try {
+                int type = object.getInt(PARAMETER_TYPE);
+                String day = object.getString(PARAMETER_DAY);
+                String origin = object.getString(PARAMETER_ORIGIN);
+                String date = object.getString(PARAMETER_DATE);
+                String name = object.getString(PARAMETER_NAME);
+                JSONArray messages = object.getJSONArray(PARAMETER_MESSAGES);
+                JSONArray classrooms = object.getJSONArray(PARAMETER_CLASSROOMS);
+                builder = new Builder(type);
+                for (int m = 0; m < messages.length(); m++) {
+                    builder.addMessage(messages.getString(m));
+                }
+                for (int c = 0; c < classrooms.length(); c++) {
+                    JSONObject classroomJSON = classrooms.getJSONObject(c);
+                    Classroom classroom = new Classroom(classroomJSON.getString(PARAMETER_NAME));
+                    JSONArray subjectsJSON = classroomJSON.getJSONArray(PARAMETER_SUBJECTS);
+                    for (int s = 0; s < subjectsJSON.length(); s++) {
+                        JSONObject subjectJSON = subjectsJSON.getJSONObject(s);
+                        classroom.addSubject(new Subject(classroom, subjectJSON.getInt(PARAMETER_HOUR), subjectJSON.getString(PARAMETER_DESCRIPTION)));
+                    }
+                    builder.addClassroom(classroom);
+                }
+                builder.setDate(date);
+                builder.setOrigin(origin);
+                builder.setDay(day);
+                builder.setName(name);
+            } catch (Exception e) {
+                e.printStackTrace();
+                builder = new Builder(TYPE_REGULAR);
+            }
+            return builder;
         }
 
         public void addMessage(String message) {
@@ -108,9 +202,9 @@ public class Schedule {
 
         private void assembleTeachers() {
             // Changed Back To Regular For To Add The Teachers To The Subjects
-            for (int a=0;a<classrooms.size();a++) {
-                Classroom currentClassroom=classrooms.get(a);
-                for (int b=0;b< currentClassroom.getSubjects().size();b++) {
+            for (int a = 0; a < classrooms.size(); a++) {
+                Classroom currentClassroom = classrooms.get(a);
+                for (int b = 0; b < currentClassroom.getSubjects().size(); b++) {
                     Subject currentSubject = currentClassroom.getSubjects().get(b);
                     for (String currentTeacher : currentSubject.getTeacherStrings()) {
                         if (!currentSubject.getDescription().isEmpty() && !currentSubject.getName().isEmpty() && !currentTeacher.isEmpty()) {
@@ -180,17 +274,6 @@ public class Schedule {
             signatureBuilder.append(":");
             signatureBuilder.append(calendar.get(Calendar.MINUTE));
             signature = signatureBuilder.toString();
-        }
-
-        public static Builder fromSchedule(Schedule schedule){
-            Builder builder=new Builder(schedule.type);
-            builder.classrooms=schedule.classrooms;
-            builder.messages=schedule.messages;
-            builder.day=schedule.day;
-            builder.date=schedule.date;
-            builder.name=schedule.name;
-            builder.origin=schedule.origin;
-            return builder;
         }
 
         private Schedule generate() {
