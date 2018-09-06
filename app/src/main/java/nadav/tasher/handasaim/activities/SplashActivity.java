@@ -100,6 +100,7 @@ public class SplashActivity extends Activity {
         new LinkFetcher(getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), new LinkFetcher.OnFinish() {
             @Override
             public void onLinkFetch(final String link) {
+                String jsonFileName = getResources().getString(R.string.schedule_json_file_name);
                 StringBuilder fileName = new StringBuilder();
                 fileName.append(getResources().getString(R.string.schedule_file_name));
                 fileName.append(".");
