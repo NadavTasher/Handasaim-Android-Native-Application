@@ -23,9 +23,10 @@
     <color name="drawer_color">#777777</color>
     <color name="coaster_bright">#333333</color>
     <color name="coaster_dark">#222222</color>
-    <color name="coaster_special_bright">#bc5a5a</color>
-    <color name="coaster_special_dark">#8a3838</color>
+    <color name="coaster_special_bright">#6b81a5</color>
+    <color name="coaster_special_dark">#3e4b60</color>
     <integer name="ping_timeout">5000</integer>
     <integer name="background_loop_time">30000</integer>
+    <integer name="max_storage_schedule">5</integer>
     <!--<integer name="background_loop_time">300000</integer>-->
 </resources>

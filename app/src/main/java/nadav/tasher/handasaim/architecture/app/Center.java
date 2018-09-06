@@ -14,8 +14,11 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import java.util.ArrayList;
+
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
+import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
 import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.lightool.graphics.views.Utils;
 
@@ -137,6 +140,19 @@ public class Center {
             c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
             c.finish();
         }
+    }
+
+    public static boolean hasLink(Context context, String link) {
+        PreferenceManager pm = new PreferenceManager(context);
+        boolean hasLink = false;
+        ArrayList<Schedule> schedules = pm.getCoreManager().getSchedules();
+        for (int s = 0; s < schedules.size() && !hasLink; s++) {
+            if (schedules.get(s).getOrigin().equals(link)) {
+                pm.getCoreManager().renewSchedule(s);
+                hasLink = true;
+            }
+        }
+        return hasLink;
     }
 
     public static int darken(int color,int amount){

@@ -107,7 +107,7 @@ public class HomeActivity extends Activity {
     private void loadSchedule() {
         try {
             schedule = pm.getCoreManager().getSchedule(scheduleIndex);
-            initStageB();
+            loadUI();
         } catch (Exception e) {
             Center.exit(this, SplashActivity.class);
         }
@@ -185,7 +185,7 @@ public class HomeActivity extends Activity {
         return Color.rgb(combineRed, combineGreen, combineBlue);
     }
 
-    private void initStageB() {
+    private void loadUI() {
         refreshTheme();
         mAppView = new AppView(this);
         mAppView.setDrawNavigation(false);
@@ -258,7 +258,7 @@ public class HomeActivity extends Activity {
                 setCornerColor(mAppView.getScrolly());
                 messageBar.setTextColor(theme.textColor);
                 messageBar.setTextSize(theme.textSize);
-                mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(theme.menuColor, 30, 10));
+                mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(theme.menuColor, 48, 10));
                 mAppView.getDrawer().getDrawerView().setPadding(0, drawerPadding, 0, drawerPadding);
                 if (theme.showMessages && schedule.getMessages().size() != 0) {
                     messageBar.setVisibility(View.VISIBLE);

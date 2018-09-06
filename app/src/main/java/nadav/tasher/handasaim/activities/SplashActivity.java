@@ -8,6 +8,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -24,10 +25,12 @@ import nadav.tasher.lightool.communication.network.Download;
 import nadav.tasher.lightool.graphics.ColorFadeAnimation;
 import nadav.tasher.lightool.info.Device;
 
+import static nadav.tasher.handasaim.architecture.app.Center.hasLink;
+
 public class SplashActivity extends Activity {
 
     private PreferenceManager pm;
-    private boolean stageD = false;
+    private LinkFetcher linkFetcher = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,53 +95,52 @@ public class SplashActivity extends Activity {
     private void initStageC() {
         //        Log.i("Stage", "C");
         if (Device.isOnline(getApplicationContext())) {
-            if (!stageD) {
                 initStageD();
-            } else {
-                initStageE(false);
-            }
         } else {
             popupInternet();
         }
     }
 
     private void initStageD() {
-        stageD = true;
-        new LinkFetcher(getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), new LinkFetcher.OnFinish() {
-            @Override
-            public void onLinkFetch(final String link) {
-                StringBuilder fileName = new StringBuilder();
-                fileName.append(getResources().getString(R.string.schedule_file_name));
-                fileName.append(".");
-                fileName.append(link.split("\\.")[link.split("\\.").length - 1]);
-                if (pm.getCoreManager().getLink() == null
-                        || !pm.getCoreManager().getLink().equals(link)) {
-                    if (!pm.getServicesManager().getScheduleNotifiedAlready(link)) {
-                        pm.getServicesManager().setScheduleNotifiedAlready(link);
+        Log.i("Window Focus", String.valueOf(hasWindowFocus()));
+        if (linkFetcher == null && hasWindowFocus()) {
+            Log.i("StageD", "Here");
+            linkFetcher = new LinkFetcher(getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), new LinkFetcher.OnFinish() {
+                @Override
+                public void onLinkFetch(final String link) {
+                    StringBuilder fileName = new StringBuilder();
+                    fileName.append(getResources().getString(R.string.schedule_file_name));
+                    fileName.append(".");
+                    fileName.append(link.split("\\.")[link.split("\\.").length - 1]);
+
+                    if (!hasLink(getApplicationContext(), link)) {
+                        if (!pm.getServicesManager().getScheduleNotifiedAlready(link)) {
+                            pm.getServicesManager().setScheduleNotifiedAlready(link);
+                        }
+                        new Download(link, new File(getApplicationContext().getCacheDir(), fileName.toString()), new Download.Callback() {
+                            @Override
+                            public void onSuccess(File file) {
+                                pm.getCoreManager().addSchedule(AppCore.getSchedule(file, "Daily", "Unknown", link));
+                                initStageE(true);
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                initStageC();
+                            }
+                        }).execute();
+                    } else {
+                        initStageE(false);
                     }
-                    new Download(link, new File(getApplicationContext().getFilesDir(), fileName.toString()), new Download.Callback() {
-                        @Override
-                        public void onSuccess(File file) {
-                            pm.getCoreManager().setLink(link);
-                            pm.getCoreManager().addSchedule(AppCore.getSchedule(file, "Daily", "Unknown", link));
-                            initStageE(true);
-                        }
-
-                        @Override
-                        public void onFailure(Exception e) {
-                            initStageD();
-                        }
-                    }).execute();
-                } else {
-                    initStageE(false);
                 }
-            }
 
-            @Override
-            public void onFail() {
-                initStageD();
-            }
-        }).execute();
+                @Override
+                public void onFail() {
+                    initStageC();
+                }
+            });
+            linkFetcher.execute();
+        }
     }
 
     private void initStageE(boolean newSchedule) {
@@ -177,8 +179,8 @@ public class SplashActivity extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        initStageC();
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) initStageC();
     }
 }

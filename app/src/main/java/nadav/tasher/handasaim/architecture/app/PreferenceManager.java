@@ -28,10 +28,10 @@ public class PreferenceManager {
 
     public PreferenceManager(Context context) {
         this.context = context;
-        this.keyManager = new KeyManager(context, context.getSharedPreferences(context.getResources().getString(R.string.preferences_keys), Context.MODE_PRIVATE));
-        this.coreManager = new CoreManager(context, context.getSharedPreferences(context.getResources().getString(R.string.preferences_core), Context.MODE_PRIVATE));
-        this.servicesManager = new ServicesManager(context, context.getSharedPreferences(context.getResources().getString(R.string.preferences_services), Context.MODE_PRIVATE));
-        this.userManager = new UserManager(context, context.getSharedPreferences(context.getResources().getString(R.string.preferences_user), Context.MODE_PRIVATE));
+        this.keyManager = new KeyManager(context, context.getSharedPreferences(context.getResources().getString(R.string.preferences_keys), Context.MODE_MULTI_PROCESS));
+        this.coreManager = new CoreManager(context, context.getSharedPreferences(context.getResources().getString(R.string.preferences_core), Context.MODE_MULTI_PROCESS));
+        this.servicesManager = new ServicesManager(context, context.getSharedPreferences(context.getResources().getString(R.string.preferences_services), Context.MODE_MULTI_PROCESS));
+        this.userManager = new UserManager(context, context.getSharedPreferences(context.getResources().getString(R.string.preferences_user), Context.MODE_MULTI_PROCESS));
     }
 
     public CoreManager getCoreManager() {
@@ -217,12 +217,20 @@ public class PreferenceManager {
             super.set(R.string.preferences_core_mode, super.fromResource(modeRes));
         }
 
-        public String getLink() {
-            return super.get(R.string.preferences_core_file_link, null);
-        }
-
-        public void setLink(String link) {
-            super.set(R.string.preferences_core_file_link, link);
+        public void renewSchedule(int currentIndex) {
+            try {
+                JSONArray schedules = new JSONArray(super.get(R.string.preferences_core_json_array, new JSONArray().toString()));
+                JSONObject toMove = schedules.getJSONObject(currentIndex);
+                JSONArray newSchedules = new JSONArray();
+                newSchedules.put(toMove);
+                schedules.remove(currentIndex);
+                for (int i = 0; i < schedules.length(); i++) {
+                    newSchedules.put(schedules.getJSONObject(i));
+                }
+                super.set(R.string.preferences_core_json_array, newSchedules.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         public Schedule getSchedule(int index) {
@@ -256,6 +264,10 @@ public class PreferenceManager {
                 newSchedules.put(schedule.toJSON());
                 for (int i = 0; i < schedules.length(); i++) {
                     newSchedules.put(schedules.get(i));
+                }
+                // Cleanup
+                for (int i = context.getResources().getInteger(R.integer.max_storage_schedule); i < newSchedules.length(); i++) {
+                    newSchedules.remove(i);
                 }
                 super.set(R.string.preferences_core_json_array, newSchedules.toString());
             } catch (Exception e) {

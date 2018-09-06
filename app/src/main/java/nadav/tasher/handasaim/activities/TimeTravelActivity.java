@@ -48,8 +48,17 @@ public class TimeTravelActivity extends Activity {
         schedulesLayout.setGravity(Gravity.CENTER);
         full.setOrientation(LinearLayout.VERTICAL);
         schedulesLayout.setOrientation(LinearLayout.VERTICAL);
+        TextView clearButton = getText("Clear Time-Travel", 0.8);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pm.getCoreManager().clearSchedules();
+                Center.exit(TimeTravelActivity.this, SplashActivity.class);
+            }
+        });
         full.setBackground(generateGradient(Center.getColorTop(getApplicationContext()), Center.getColorBottom(getApplicationContext())));
-        full.addView(getText(getResources().getString(R.string.interface_time_travel_title), 1.3));
+        full.addView(getText(getResources().getString(R.string.interface_time_travel_title), 1.1));
+        full.addView(clearButton);
         ArrayList<Schedule> schedules = pm.getCoreManager().getSchedules();
         for (int i = 0; i < schedules.size(); i++) {
             schedulesLayout.addView(getTimeTraver(schedules.get(i), i));
@@ -91,5 +100,11 @@ public class TimeTravelActivity extends Activity {
                 colorA,
                 colorB
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        Center.exit(this, HomeActivity.class);
+        super.onBackPressed();
     }
 }
