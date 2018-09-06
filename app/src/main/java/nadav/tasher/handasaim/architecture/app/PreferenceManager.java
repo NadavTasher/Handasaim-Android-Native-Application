@@ -223,12 +223,41 @@ public class PreferenceManager {
             super.set(R.string.preferences_core_file_link, link);
         }
 
-        public String getFile() {
-            return super.get(R.string.preferences_core_file_name, null);
+        public JSONObject getSchedule(int index) {
+            try {
+                JSONArray schedules = new JSONArray(super.get(R.string.preferences_core_json_array, new JSONArray().toString()));
+                return (index < schedules.length()) ? schedules.getJSONObject(index) : new JSONObject();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new JSONObject();
+            }
         }
 
-        public void setFile(String name) {
-            super.set(R.string.preferences_core_file_name, name);
+        public void addSchedule(JSONObject schedule) {
+            try {
+                JSONArray schedules = new JSONArray(super.get(R.string.preferences_core_json_array, new JSONArray().toString()));
+                JSONArray newSchedules = new JSONArray();
+                newSchedules.put(schedule);
+                for (int i = 0; i < schedules.length(); i++) {
+                    newSchedules.put(schedules.get(i));
+                }
+                super.set(R.string.preferences_core_json_array, newSchedules.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void clearSchedules() {
+            try {
+                JSONArray schedules = new JSONArray(super.get(R.string.preferences_core_json_array, new JSONArray().toString()));
+                // Keep the first schedule
+                for (int i = 1; i < schedules.length(); i++) {
+                    schedules.remove(i);
+                }
+                super.set(R.string.preferences_core_json_array, schedules.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

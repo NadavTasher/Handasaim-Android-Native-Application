@@ -20,7 +20,6 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -103,12 +102,16 @@ public class HomeActivity extends Activity {
     }
 
     public void go() {
-        String file = pm.getCoreManager().getFile();
-        if (file != null) {
-            parseAndLoad(new File(file));
-        } else {
+        try {
+            loadSchedule();
+        } catch (Exception e) {
             Center.exit(this, SplashActivity.class);
         }
+    }
+
+    private void loadSchedule() {
+        schedule = Schedule.Builder.fromJSON(pm.getCoreManager().getSchedule(0)).build();
+        initStageB();
     }
 
     private ScrollView getCode() {
@@ -828,11 +831,6 @@ public class HomeActivity extends Activity {
         sv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         sv.setFillViewport(true);
         return sv;
-    }
-
-    private void parseAndLoad(File f) {
-        schedule = AppCore.getSchedule(f);
-        initStageB();
     }
 
     private void share(String st) {

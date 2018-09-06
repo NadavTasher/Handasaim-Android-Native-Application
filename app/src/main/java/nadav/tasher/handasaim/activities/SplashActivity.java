@@ -18,6 +18,7 @@ import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.LinkFetcher;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
+import nadav.tasher.handasaim.architecture.appcore.AppCore;
 import nadav.tasher.handasaim.receivers.Refresh;
 import nadav.tasher.lightool.communication.network.Download;
 import nadav.tasher.lightool.graphics.ColorFadeAnimation;
@@ -100,7 +101,6 @@ public class SplashActivity extends Activity {
         new LinkFetcher(getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), new LinkFetcher.OnFinish() {
             @Override
             public void onLinkFetch(final String link) {
-                String jsonFileName = getResources().getString(R.string.schedule_json_file_name);
                 StringBuilder fileName = new StringBuilder();
                 fileName.append(getResources().getString(R.string.schedule_file_name));
                 fileName.append(".");
@@ -112,7 +112,7 @@ public class SplashActivity extends Activity {
                         @Override
                         public void onSuccess(File file) {
                             pm.getCoreManager().setLink(link);
-                            pm.getCoreManager().setFile(file.toString());
+                            pm.getCoreManager().addSchedule(AppCore.getSchedule(file).toJSON());
                             initStageE(true);
                         }
 

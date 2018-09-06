@@ -19,6 +19,7 @@
     <string name="preferences_user_favorite_teacher">teacher</string>
     <string name="preferences_user_mark_prehour">markPrehour</string>
     <string name="preferences_core_file_name">fileName</string>
+    <string name="preferences_core_json_array">scheduleArray</string>
     <string name="preferences_core_file_link">fileLink</string>
     <string name="preferences_core_mode">appMode</string>
     <string name="preferences_services_refresh_file_link">refreshFileLink</string>

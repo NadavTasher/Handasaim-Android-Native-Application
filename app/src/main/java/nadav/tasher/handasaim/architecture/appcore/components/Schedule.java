@@ -69,6 +69,7 @@ public class Schedule {
     public JSONObject toJSON() {
         JSONObject scheduleJSON = new JSONObject();
         try {
+            scheduleJSON.put(PARAMETER_TYPE, type);
             scheduleJSON.put(PARAMETER_DAY, day);
             scheduleJSON.put(PARAMETER_NAME, name);
             scheduleJSON.put(PARAMETER_DATE, date);
