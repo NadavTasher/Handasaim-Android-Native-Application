@@ -26,7 +26,8 @@ import nadav.tasher.lightool.info.Device;
 
 public class SplashActivity extends Activity {
 
-    PreferenceManager pm;
+    private PreferenceManager pm;
+    private boolean stageD = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,13 +92,18 @@ public class SplashActivity extends Activity {
     private void initStageC() {
         //        Log.i("Stage", "C");
         if (Device.isOnline(getApplicationContext())) {
-            initStageD();
+            if (!stageD) {
+                initStageD();
+            } else {
+                initStageE(false);
+            }
         } else {
             popupInternet();
         }
     }
 
     private void initStageD() {
+        stageD = true;
         new LinkFetcher(getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), new LinkFetcher.OnFinish() {
             @Override
             public void onLinkFetch(final String link) {
@@ -105,9 +111,11 @@ public class SplashActivity extends Activity {
                 fileName.append(getResources().getString(R.string.schedule_file_name));
                 fileName.append(".");
                 fileName.append(link.split("\\.")[link.split("\\.").length - 1]);
-                if (pm.getCoreManager().getLink() == null || !pm.getCoreManager().getLink().equals(link)) {
-                    if (!pm.getServicesManager().getScheduleNotifiedAlready(link))
+                if (pm.getCoreManager().getLink() == null
+                        || !pm.getCoreManager().getLink().equals(link)) {
+                    if (!pm.getServicesManager().getScheduleNotifiedAlready(link)) {
                         pm.getServicesManager().setScheduleNotifiedAlready(link);
+                    }
                     new Download(link, new File(getApplicationContext().getFilesDir(), fileName.toString()), new Download.Callback() {
                         @Override
                         public void onSuccess(File file) {

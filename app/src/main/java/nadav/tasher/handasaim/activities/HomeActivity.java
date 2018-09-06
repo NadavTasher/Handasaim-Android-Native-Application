@@ -73,8 +73,8 @@ public class HomeActivity extends Activity {
     private void initVars() {
         pm = new PreferenceManager(getApplicationContext());
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("scheduleIndex")) {
-            scheduleIndex = getIntent().getExtras().getInt("scheduleIndex", 0);
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(getResources().getString(R.string.schedule_index))) {
+            scheduleIndex = getIntent().getExtras().getInt(getResources().getString(R.string.schedule_index), 0);
         }
     }
 
@@ -106,7 +106,7 @@ public class HomeActivity extends Activity {
 
     private void loadSchedule() {
         try {
-            schedule = Schedule.Builder.fromJSON(pm.getCoreManager().getSchedule(scheduleIndex)).build();
+            schedule = pm.getCoreManager().getSchedule(scheduleIndex);
             initStageB();
         } catch (Exception e) {
             Center.exit(this, SplashActivity.class);

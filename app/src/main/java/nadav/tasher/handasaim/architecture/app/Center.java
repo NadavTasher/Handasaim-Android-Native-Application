@@ -115,6 +115,22 @@ public class Center {
         }
     }
 
+    public static void enter(Activity c, Intent intent) {
+        if (c.hasWindowFocus()) {
+            c.startActivity(intent);
+            c.overridePendingTransition(R.anim.out, R.anim.in);
+            c.finish();
+        }
+    }
+
+    public static void exit(Activity c, Intent intent) {
+        if (c.hasWindowFocus()) {
+            c.startActivity(intent);
+            c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
+            c.finish();
+        }
+    }
+
     public static void exit(Activity c, Class a) {
         if (c.hasWindowFocus()) {
             c.startActivity(new Intent(c, a));
