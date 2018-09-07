@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,7 +48,6 @@ import static nadav.tasher.handasaim.architecture.app.Center.generateTime;
 
 public class HomeActivity extends Activity {
     private Tower<Theme> theme = new Tower<>();
-
     private Classroom currentClass;
     private Corner info;
     private MessageBar messageBar;
@@ -92,9 +92,9 @@ public class HomeActivity extends Activity {
         currentTheme.colorBottom = pm.getUserManager().get(R.string.preferences_user_color_bottom, getResources().getColor(R.color.default_bottom));
         currentTheme.colorMix = generateCombinedColor(currentTheme.colorTop, currentTheme.colorBottom);
         theme.tell(currentTheme);
-        //Log.i("ColorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
-        //Log.i("ColorB", String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
-        //Log.i("ColorMenu", String.format("#%06X", (0xFFFFFF & currentTheme.menuColor)));
+        Log.i("ColorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
+        Log.i("ColorB", String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
+        Log.i("ColorMenu", String.format("#%06X", (0xFFFFFF & currentTheme.menuColor)));
     }
 
     private void refreshCorner() {

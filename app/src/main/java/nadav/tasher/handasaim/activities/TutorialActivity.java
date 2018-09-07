@@ -54,8 +54,8 @@ public class TutorialActivity extends Activity {
 
     private void go() {
         // Tutorial Screen
-        getWindow().setNavigationBarColor(Center.getColorTop(getApplicationContext()));
-        getWindow().setStatusBarColor(Center.getColorTop(getApplicationContext()));
+        getWindow().setNavigationBarColor(Center.getColorBottom(getApplicationContext()));
+        getWindow().setStatusBarColor(Center.getColorBottom(getApplicationContext()));
         LinearLayout fullScreen = new LinearLayout(getApplicationContext());
         LinearLayout buttonLayout = new LinearLayout(getApplicationContext());
         content = new FrameLayout(getApplicationContext());
@@ -63,7 +63,7 @@ public class TutorialActivity extends Activity {
         content.setPadding(40, 0, 40, 0);
         fullScreen.setOrientation(LinearLayout.VERTICAL);
         fullScreen.setGravity(Gravity.BOTTOM);
-        fullScreen.setBackgroundColor(Center.getColorTop(getApplicationContext()));
+        fullScreen.setBackgroundColor(Center.getColorBottom(getApplicationContext()));
         buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
         buttonLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 12, 1));
         back = new Button(getApplicationContext());
