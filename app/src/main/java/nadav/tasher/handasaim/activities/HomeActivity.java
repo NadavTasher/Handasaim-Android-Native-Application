@@ -21,7 +21,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Calendar;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
@@ -41,6 +41,9 @@ import nadav.tasher.lightool.graphics.views.appview.navigation.corner.Corner;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
 import nadav.tasher.lightool.parts.Tower;
+
+import static nadav.tasher.handasaim.architecture.app.Center.generateBreakTime;
+import static nadav.tasher.handasaim.architecture.app.Center.generateTime;
 
 public class HomeActivity extends Activity {
     private Tower<Theme> theme = new Tower<>();
@@ -733,7 +736,7 @@ public class HomeActivity extends Activity {
         LinearLayout all = new LinearLayout(getApplicationContext());
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.CENTER);
-        all.setPadding(20, 20, 20, 20);
+        all.setPadding(20, 0, 20, 0);
         LinearLayout students = new LinearLayout(getApplicationContext());
         students.setPadding(10, 10, 10, 10);
         students.setOrientation(LinearLayout.VERTICAL);
@@ -892,7 +895,7 @@ public class HomeActivity extends Activity {
         final RatioView name, day;
         name = new RatioView(getApplicationContext(), 0.9);
         day = new RatioView(getApplicationContext(), 0.7);
-        name.setText(t.getName());
+        name.setText(trimName(t.getName().split("\\s")[0]));
         name.setTextColor(theme.getLast().textColor);
         name.setTextSize(theme.getLast().textSize);
         name.setTypeface(Center.getTypeface(getApplicationContext()));
@@ -928,13 +931,20 @@ public class HomeActivity extends Activity {
                     LessonView lessonView = lessonViews.get(l);
                     lessonView.setTextColor(theme.textColor);
                     lessonView.setTextSize(theme.textSize);
-                    lessonView.setButtonColor(theme.colorTop);
                 }
                 return false;
             }
         }));
         for (int l = 0; l < lessonViews.size(); l++) {
             lessonViewHolder.addView(lessonViews.get(l));
+        }
+    }
+
+    private String trimName(String name) {
+        if (name.length() > 4) {
+            return name.substring(0, 4);
+        } else {
+            return name;
         }
     }
 
@@ -952,31 +962,32 @@ public class HomeActivity extends Activity {
     private ArrayList<LessonView> scheduleForClass(final Classroom classroom) {
         ArrayList<LessonView> views = new ArrayList<>();
         for (Subject s : classroom.getSubjects()) {
-            if (AppCore.getBreak(s.getSchoolHour() - 1, s.getSchoolHour()) > 0) {
-                final LessonView breakView = new LessonView(getApplicationContext(), false, s.getSchoolHour() - 1, s.getSchoolHour(), "הפסקה");
-                if (theme.getLast().showBreaks) {
-                    breakView.setVisibility(View.VISIBLE);
-                } else {
-                    breakView.setVisibility(View.GONE);
-                }
-                theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
-                    @Override
-                    public boolean onPeer(Theme theme) {
-                        if (theme.showBreaks) {
-                            breakView.setVisibility(View.VISIBLE);
-                        } else {
-                            breakView.setVisibility(View.GONE);
-                        }
-                        return false;
+            if (s.getName() != null && !s.getName().isEmpty()) {
+                if (AppCore.getBreak(s.getSchoolHour() - 1, s.getSchoolHour()) > 0) {
+                    final LessonView breakView = new LessonView(getApplicationContext(), LessonView.MARK_TYPE_NORMAL, "הפסקה", generateBreakTime(s.getSchoolHour() - 1, s.getSchoolHour()), new ArrayList<String>());
+                    if (theme.getLast().showBreaks) {
+                        breakView.setVisibility(View.VISIBLE);
+                    } else {
+                        breakView.setVisibility(View.GONE);
                     }
-                }));
-                if (s.getName() != null && !s.getName().isEmpty()) {
+                    theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
+                        @Override
+                        public boolean onPeer(Theme theme) {
+                            if (theme.showBreaks) {
+                                breakView.setVisibility(View.VISIBLE);
+                            } else {
+                                breakView.setVisibility(View.GONE);
+                            }
+                            return false;
+                        }
+                    }));
                     views.add(breakView);
                 }
-            }
-            LessonView subject = new LessonView(getApplicationContext(), (s.getSchoolHour() == 0 && pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour))), s.getSchoolHour(), s.getName(), s.getTeacherNames());
-
-            if (s.getName() != null && !s.getName().isEmpty()) {
+                boolean prehourMarkEnabled = (s.getSchoolHour() == 0 && pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour)));
+                int currentMinute = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) * 60 + Calendar.getInstance().get(Calendar.MINUTE);
+                boolean currentHour = (currentMinute >= AppCore.getStartMinute(s.getSchoolHour()) && currentMinute < AppCore.getEndMinute(s.getSchoolHour()));
+                int markType = (currentHour) ? (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_PRESSED : LessonView.MARK_TYPE_PRESSED : (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_NORMAL : LessonView.MARK_TYPE_NORMAL;
+                LessonView subject = new LessonView(getApplicationContext(), markType, s.getSchoolHour() + ". " + s.getName(), generateTime(s.getSchoolHour()), s.getTeacherNames());
                 views.add(subject);
             }
         }
@@ -997,9 +1008,13 @@ public class HomeActivity extends Activity {
                 }
             }
             grades = AppCore.getGrades(classrooms);
+            ArrayList<String> classroomNames = new ArrayList<>();
+            for (Classroom c : classrooms) {
+                classroomNames.add(c.getName());
+            }
             if (!classrooms.isEmpty()) {
                 if (AppCore.getBreak(h - 1, h) > 0) {
-                    final LessonView breakView = new LessonView(getApplicationContext(), false, h - 1, h, "הפסקה");
+                    final LessonView breakView = new LessonView(getApplicationContext(), LessonView.MARK_TYPE_NORMAL, "הפסקה", generateBreakTime(h - 1, h), new ArrayList<String>());
                     if (theme.getLast().showBreaks) {
                         breakView.setVisibility(View.VISIBLE);
                     } else {
@@ -1018,7 +1033,11 @@ public class HomeActivity extends Activity {
                     }));
                     views.add(breakView);
                 }
-                LessonView subject = new LessonView(getApplicationContext(), (h == 0 && pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour))), h, grades, new ArrayList<>(Collections.singletonList(subjectName)));
+                boolean prehourMarkEnabled = (h == 0 && pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour)));
+                int currentMinute = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) * 60 + Calendar.getInstance().get(Calendar.MINUTE);
+                boolean currentHour = (currentMinute >= AppCore.getStartMinute(h) && currentMinute < AppCore.getEndMinute(h));
+                int markType = (currentHour) ? (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_PRESSED : LessonView.MARK_TYPE_PRESSED : (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_NORMAL : LessonView.MARK_TYPE_NORMAL;
+                LessonView subject = new LessonView(getApplicationContext(), markType, h + ". " + subjectName + " (" + grades + ")", generateTime(h), classroomNames);
                 views.add(subject);
             }
         }

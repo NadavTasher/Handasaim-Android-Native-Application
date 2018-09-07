@@ -1,71 +1,40 @@
 package nadav.tasher.handasaim.architecture.app.graphics;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
-import nadav.tasher.handasaim.architecture.appcore.AppCore;
 import nadav.tasher.lightool.graphics.views.ExpandingView;
 import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.info.Device;
 
 public class LessonView extends FrameLayout {
+    public static final int MARK_TYPE_NORMAL = 0;
+    public static final int MARK_TYPE_PRESSED = 1;
+    public static final int MARK_TYPE_SPECIAL_NORMAL = 2;
+    public static final int MARK_TYPE_SPECIAL_PRESSED = 3;
     static final String rtlMark = "\u200F";
-    private String topText;
-    private ArrayList<String> bottomText;
-    private int schoolHour, hour1, hour2;
-    private boolean isMarked = false;
-    private RatioView top, time;
-    private ArrayList<RatioView> bottomTextViews = new ArrayList<>();
-    private LinearLayout topLayout, bottomTextLayout, bottomLayout;
+    private String topText, timeText;
+    private int markType = MARK_TYPE_NORMAL;
+    private ArrayList<String> bottomTexts = new ArrayList<>();
+    private ArrayList<RatioView> texts = new ArrayList<>();
 
-    private ExpandingView expandingView;
-
-    public LessonView(Context c) {
-        super(c);
-    }
-
-    public LessonView(Context context, boolean isMarked, int schoolHour, String topText, ArrayList<String> bottomText) {
+    public LessonView(Context context, int markType, String topText, String timeText, ArrayList<String> bottomTexts) {
         super(context);
-        this.topText = rtlMark + topText;
-        this.isMarked = isMarked;
-
-        if (bottomText != null) {
-            this.bottomText = rtl(bottomText);
-        }
-        this.schoolHour = schoolHour;
-        init();
-    }
-
-    public LessonView(Context context, boolean isMarked, int schoolHour, String topText, String[] bottomText) {
-        super(context);
-        this.topText = rtlMark + topText;
-        this.isMarked = isMarked;
-        if (bottomText != null) {
-            this.bottomText = rtl(new ArrayList<>(Arrays.asList(bottomText)));
-        }
-        this.schoolHour = schoolHour;
-        init();
-    }
-
-    public LessonView(Context context, boolean isMarked, int hour1, int hour2, String topText) {
-        super(context);
-        this.topText = rtlMark + topText;
-        this.schoolHour = -1;
-        this.isMarked = isMarked;
-        this.hour1 = hour1;
-        this.hour2 = hour2;
-        this.time = getText(AppCore.convertMinuteToTime(AppCore.getStartMinute(hour2)) + " - " + AppCore.convertMinuteToTime(AppCore.getEndMinute(hour1)), 0.8);
+        this.markType = markType;
+        this.topText = topText;
+        this.timeText = timeText;
+        this.bottomTexts = bottomTexts;
         init();
     }
 
@@ -78,119 +47,82 @@ public class LessonView extends FrameLayout {
     }
 
     private Drawable initBackground() {
-        Calendar c = Calendar.getInstance();
-        int minute = c.get(Calendar.MINUTE);
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int minuteOfDay = (hour * 60) + minute;
-        int brightID = R.color.coaster_bright;
-        int darkID = R.color.coaster_dark;
-        if (isMarked) {
-            brightID = R.color.coaster_special_bright;
-            darkID = R.color.coaster_special_dark;
+        int markID = R.color.coaster_bright;
+        switch (markType) {
+            case MARK_TYPE_NORMAL:
+                markID = R.color.coaster_bright;
+                break;
+            case MARK_TYPE_PRESSED:
+                markID = R.color.coaster_bright;
+                break;
+            case MARK_TYPE_SPECIAL_NORMAL:
+                markID = R.color.coaster_special_bright;
+                break;
+            case MARK_TYPE_SPECIAL_PRESSED:
+                markID = R.color.coaster_special_dark;
+                break;
         }
-        if (schoolHour < 0) {
-            if (minuteOfDay >= AppCore.getEndMinute(hour1) && minuteOfDay < AppCore.getStartMinute(hour2)) {
-                return Utils.getCoaster(getContext().getResources().getColor(darkID), 32, 5);
-            } else {
-                return Utils.getCoaster(getContext().getResources().getColor(brightID), 32, 5);
-            }
-        } else {
-            if (minuteOfDay >= AppCore.getStartMinute(schoolHour) && minuteOfDay < AppCore.getEndMinute(schoolHour)) {
-                return Utils.getCoaster(getContext().getResources().getColor(darkID), 32, 5);
-            } else {
-                return Utils.getCoaster(getContext().getResources().getColor(brightID), 32, 5);
-            }
-        }
-
+        return Utils.getCoaster(getContext().getResources().getColor(markID), 32, 5);
     }
 
     private void init() {
         setLayoutDirection(LAYOUT_DIRECTION_RTL);
-        if (schoolHour < 0) {
-            top = getText(topText, 1);
-        } else {
-            top = getText(schoolHour + ". " + topText, 1);
-        }
-        if (time == null)
-            time = getText(AppCore.convertMinuteToTime(AppCore.getEndMinute(schoolHour)) + " - " + AppCore.convertMinuteToTime(AppCore.getStartMinute(schoolHour)), 0.8);
-        bottomTextLayout = new LinearLayout(getContext());
-        topLayout = new LinearLayout(getContext());
-        bottomLayout = new LinearLayout(getContext());
-        topLayout.setGravity(Gravity.CENTER);
-        bottomTextLayout.setGravity(Gravity.CENTER);
+        // Setup text view
+        RatioView topView = getText(topText, 1);
+        RatioView timeView = getText(timeText, 0.8);
+        topView.setPadding(20, 0, 20, 0);
+        timeView.setTextDirection(TEXT_DIRECTION_LTR);
+        texts.add(topView);
+        texts.add(timeView);
+        // Continue setup
+        topView.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+        timeView.setGravity(Gravity.CENTER);
+        topView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
+        timeView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 11, 1));
+        // Bottom setup
+        LinearLayout bottomLayout = new LinearLayout(getContext());
         bottomLayout.setGravity(Gravity.CENTER);
-        topLayout.setOrientation(LinearLayout.HORIZONTAL);
         bottomLayout.setOrientation(LinearLayout.HORIZONTAL);
-        bottomTextLayout.setOrientation(LinearLayout.VERTICAL);
-        topLayout.setLayoutDirection(LAYOUT_DIRECTION_RTL);
         bottomLayout.setLayoutDirection(LAYOUT_DIRECTION_RTL);
-        bottomTextLayout.setLayoutDirection(LAYOUT_DIRECTION_RTL);
-        time.setGravity(Gravity.CENTER);
-        top.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-        top.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        topLayout.addView(top);
-        bottomLayout.setPadding(0, 10, 0, 10);
-        bottomTextLayout.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
-        time.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
-        bottomLayout.addView(bottomTextLayout);
-        bottomLayout.addView(time);
-        if (bottomText != null) {
-            if (bottomText.size() == 1) {
-                RatioView bottomTextView = getText(bottomText.get(0), 0.8);
-                bottomTextView.setGravity(Gravity.CENTER);
-                bottomTextView.setEllipsize(TextUtils.TruncateAt.END);
-                bottomTextViews.add(bottomTextView);
-                bottomTextLayout.addView(bottomTextView);
-            } else {
-                for (int i = 0; i < bottomText.size(); i++) {
-                    RatioView bottomTextView = getText((i + 1) + ". " + bottomText.get(i), 0.6);
-                    bottomTextView.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-                    bottomTextView.setEllipsize(TextUtils.TruncateAt.END);
-                    bottomTextView.setBackground(Utils.getCoaster(Center.alpha(128, Center.getColorTop(getContext())), 16, 10));
-                    bottomTextView.setPadding(40, 0, 30, 0);
-                    bottomTextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 16));
-                    bottomTextViews.add(bottomTextView);
-                    bottomTextLayout.addView(bottomTextView);
-                }
-            }
-        }
-        topLayout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
-        bottomLayout.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        if (bottomLayout.getMeasuredHeight() < Device.screenY(getContext()) / 10)
-            bottomLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
-        expandingView = new ExpandingView(getContext());
-        expandingView.setBackground(initBackground());
-        expandingView.setTop(topLayout);
-        expandingView.setBottom(bottomLayout);
-        addView(expandingView);
-    }
-
-    public void setButtonColor(int color) {
-        if (bottomTextViews.size() > 1) {
-            for (int t = 0; t < bottomTextViews.size(); t++) {
-                RatioView current = bottomTextViews.get(t);
-                current.setBackground(Utils.getCoaster(Center.alpha(128, color), 16, 10));
-                current.setPadding(40, 0, 30, 0);
-            }
-        }
+        bottomLayout.addView(getTexts(bottomTexts));
+        bottomLayout.addView(timeView);
+        ExpandingView ev = new ExpandingView(getContext());
+        ev.setBackground(initBackground());
+        ev.setPadding(20, 25);
+        ev.setTop(topView);
+        ev.setBottom(bottomLayout);
+        addView(ev);
     }
 
     public void setTextColor(int color) {
-        top.setTextColor(color);
-        time.setTextColor(color);
-        for (int t = 0; t < bottomTextViews.size(); t++) {
-            RatioView current = bottomTextViews.get(t);
+        for (int t = 0; t < texts.size(); t++) {
+            RatioView current = texts.get(t);
             current.setTextColor(color);
         }
     }
 
     public void setTextSize(int size) {
-        top.setTextSize(size);
-        time.setTextSize(size);
-        for (int t = 0; t < bottomTextViews.size(); t++) {
-            RatioView current = bottomTextViews.get(t);
+        for (int t = 0; t < texts.size(); t++) {
+            RatioView current = texts.get(t);
             current.setTextSize(size);
         }
+    }
+
+    private View getTexts(ArrayList<String> strings) {
+        LinearLayout textsLayout = new LinearLayout(getContext());
+        textsLayout.setGravity(Gravity.CENTER);
+        textsLayout.setOrientation(LinearLayout.VERTICAL);
+        textsLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        for (String teacher : strings) {
+            RatioView text = getText(teacher, 0.8);
+            text.setGravity(Gravity.CENTER);
+            text.setEllipsize(TextUtils.TruncateAt.END);
+            text.setTypeface(Center.getTypeface(getContext()), Typeface.ITALIC);
+            text.setPadding(30, 0, 30, 0);
+            texts.add(text);
+            textsLayout.addView(text);
+        }
+        return textsLayout;
     }
 
     private RatioView getText(String text, final double textSizeRatio) {

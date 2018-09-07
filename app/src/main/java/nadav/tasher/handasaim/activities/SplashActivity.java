@@ -8,7 +8,6 @@ import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -102,9 +101,9 @@ public class SplashActivity extends Activity {
     }
 
     private void initStageD() {
-        Log.i("Window Focus", String.valueOf(hasWindowFocus()));
+//        Log.i("Window Focus", String.valueOf(hasWindowFocus()));
         if (linkFetcher == null && hasWindowFocus()) {
-            Log.i("StageD", "Here");
+//            Log.i("StageD", "Here");
             linkFetcher = new LinkFetcher(getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), new LinkFetcher.OnFinish() {
                 @Override
                 public void onLinkFetch(final String link) {

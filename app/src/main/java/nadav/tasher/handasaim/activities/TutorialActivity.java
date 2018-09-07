@@ -14,6 +14,9 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
@@ -23,6 +26,8 @@ import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.graphics.views.appview.navigation.corner.Corner;
 import nadav.tasher.lightool.graphics.views.appview.navigation.corner.CornerView;
 import nadav.tasher.lightool.info.Device;
+
+import static nadav.tasher.handasaim.architecture.app.Center.generateTime;
 
 public class TutorialActivity extends Activity {
 
@@ -121,10 +126,7 @@ public class TutorialActivity extends Activity {
         explanationLessonView.setGravity(Gravity.CENTER);
         explanationLessonView.setTextColor(Center.getTextColor(getApplicationContext()));
         explanationLessonView.setPadding(0, 40, 0, 40);
-        LessonView mLessonView = new LessonView(getApplicationContext(), false, 1, getResources().getString(R.string.interface_tutorial_lessonview_example_top), new String[]{
-                getResources().getString(R.string.interface_tutorial_lessonview_example_bottom1),
-                getResources().getString(R.string.interface_tutorial_lessonview_example_bottom2)
-        });
+        LessonView mLessonView = new LessonView(getApplicationContext(), LessonView.MARK_TYPE_NORMAL, getResources().getString(R.string.interface_tutorial_lessonview_example_top), generateTime(1), new ArrayList<String>(Arrays.asList(getResources().getString(R.string.interface_tutorial_lessonview_example_bottom1), getResources().getString(R.string.interface_tutorial_lessonview_example_bottom2))));
         LinearLayout screen2 = new LinearLayout(getApplicationContext());
         screen2.setOrientation(LinearLayout.VERTICAL);
         screen2.setGravity(Gravity.CENTER);

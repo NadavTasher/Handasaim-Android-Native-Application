@@ -18,6 +18,7 @@ import java.util.ArrayList;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
+import nadav.tasher.handasaim.architecture.appcore.AppCore;
 import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
 import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.lightool.graphics.views.Utils;
@@ -140,6 +141,14 @@ public class Center {
             c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
             c.finish();
         }
+    }
+
+    public static String generateBreakTime(int hour1, int hour2) {
+        return AppCore.convertMinuteToTime(AppCore.getEndMinute(hour1)) + " - " + AppCore.convertMinuteToTime(AppCore.getStartMinute(hour2));
+    }
+
+    public static String generateTime(int hour) {
+        return AppCore.convertMinuteToTime(AppCore.getStartMinute(hour)) + " - " + AppCore.convertMinuteToTime(AppCore.getEndMinute(hour));
     }
 
     public static boolean hasLink(Context context, String link) {

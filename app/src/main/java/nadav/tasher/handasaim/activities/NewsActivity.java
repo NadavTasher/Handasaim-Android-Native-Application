@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -57,15 +59,23 @@ public class NewsActivity extends Activity {
         fullScreen.setGravity(Gravity.CENTER);
         // Setup EasterEgg
         TextView mEggTop = getText(getResources().getString(R.string.interface_did_you_know), 1);
+        mEggTop.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 8));
         final TextView mEggBottom = getText(Egg.dispenseEgg(Egg.TYPE_FACT), 0.9);
+
         mEggBottom.setPadding(0, 30, 0, 30);
-        final ExpandingView mEggView = new ExpandingView(getApplicationContext(), Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10), 500, Device.screenY(getApplicationContext()) / 8, mEggTop, mEggBottom);
+        final ExpandingView mEggView = new ExpandingView(getApplicationContext());
+        mEggView.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10));
+        mEggView.setTop(mEggTop);
+        mEggView.setBottom(mEggBottom);
+        //, Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10), 500, Device.screenY(getApplicationContext()) / 8, mEggTop, mEggBottom);
+
         fullScreen.addView(mEggView);
         new NewsFetcher(getString(R.string.provider_internal_news), new NewsFetcher.OnFinish() {
             @Override
             public void onNewsFetch(ArrayList<NewsFetcher.Article> articles) {
                 for (final NewsFetcher.Article article : articles) {
                     TextView title = getText(article.getTitle(), 1);
+                    title.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 8));
                     TextView button = getText(getResources().getString(R.string.interface_open_in_browser), 0.8);
                     button.setBackground(Utils.getCoaster(Center.getColorBottom(getApplicationContext()), 20, 20));
                     button.setPadding(50, 50, 50, 50);
@@ -75,7 +85,10 @@ public class NewsActivity extends Activity {
                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(article.getUrl())));
                         }
                     });
-                    ExpandingView mArticleView = new ExpandingView(getApplicationContext(), Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10), 500, Device.screenY(getApplicationContext()) / 8, title, button);
+                    ExpandingView mArticleView = new ExpandingView(getApplicationContext());
+                    mArticleView.setTop(title);
+                    mArticleView.setBottom(button);
+                    //, Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10), 500, Device.screenY(getApplicationContext()) / 8, title, button);
                     fullScreen.addView(mArticleView);
                 }
             }
