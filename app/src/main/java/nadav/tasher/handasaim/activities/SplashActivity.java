@@ -94,7 +94,7 @@ public class SplashActivity extends Activity {
     private void initStageC() {
         //        Log.i("Stage", "C");
         if (Device.isOnline(getApplicationContext())) {
-                initStageD();
+            initStageD();
         } else {
             popupInternet();
         }
