@@ -41,6 +41,8 @@ public class TimeTravelActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
+    // TODO add a refresh button
+
     private void loadUI() {
         getWindow().setStatusBarColor(Center.getColorTop(getApplicationContext()));
         getWindow().setNavigationBarColor(Center.getColorBottom(getApplicationContext()));

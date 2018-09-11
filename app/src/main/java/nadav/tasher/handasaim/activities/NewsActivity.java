@@ -86,6 +86,7 @@ public class NewsActivity extends Activity {
                         }
                     });
                     ExpandingView mArticleView = new ExpandingView(getApplicationContext());
+                    mArticleView.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10));
                     mArticleView.setTop(title);
                     mArticleView.setBottom(button);
                     //, Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10), 500, Device.screenY(getApplicationContext()) / 8, title, button);
