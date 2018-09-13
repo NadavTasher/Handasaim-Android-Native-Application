@@ -1,19 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="font_name">varela.ttf</string>
-    <string name="push_request_parameter_filter">filter</string>
-    <string name="push_response_parameter_mode">mode</string>
-    <string name="push_response_parameter_mode_client">client</string>
-    <string name="push_response_parameter_approved">approved</string>
-    <string name="push_response_parameter_pushes">pushes</string>
-    <string name="push_response_parameter_push_id">id</string>
-    <string name="push_response_parameter_push_sender">sender</string>
-    <string name="push_response_parameter_push_title">title</string>
-    <string name="push_response_parameter_push_message">message</string>
     <string name="key_response_parameter_approved">approved</string>
     <string name="key_response_parameter_type">type</string>
-    <string name="refresh_text_title">New Schedule</string>
-    <string name="refresh_text_message">A New Schedule Has Been Uploaded.</string>
     <string name="core_mode_teacher">teacher</string>
     <string name="core_mode_student">student</string>
     <string name="corner_location_left">left</string>
@@ -26,7 +15,5 @@
     <color name="coaster_special_bright">#B74949</color>
     <color name="coaster_special_dark">#803232</color>
     <integer name="ping_timeout">5000</integer>
-    <integer name="background_loop_time">30000</integer>
     <integer name="max_storage_schedule">5</integer>
-    <!--<integer name="background_loop_time">300000</integer>-->
 </resources>

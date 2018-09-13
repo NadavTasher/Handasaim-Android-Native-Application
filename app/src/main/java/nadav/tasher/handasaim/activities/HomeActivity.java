@@ -349,6 +349,13 @@ public class HomeActivity extends Activity {
                 Center.exit(HomeActivity.this, TimeTravelActivity.class);
             }
         });
+        timetraverIcon.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Center.exit(HomeActivity.this, SplashActivity.class);
+                return false;
+            }
+        });
         shareIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -533,20 +540,14 @@ public class HomeActivity extends Activity {
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         settings.setPadding(20, 20, 20, 20);
-        final Switch cornerLocation = new Switch(getApplicationContext()), markPrehourSwitch = new Switch(getApplicationContext()), displayMessagesSwitch = new Switch(getApplicationContext()), refreshSwitch = new Switch(getApplicationContext()), displayBreaksSwitch = new Switch(getApplicationContext()), pushSwitch = new Switch(getApplicationContext());
+        final Switch cornerLocation = new Switch(getApplicationContext()), markPrehourSwitch = new Switch(getApplicationContext()), displayMessagesSwitch = new Switch(getApplicationContext()), displayBreaksSwitch = new Switch(getApplicationContext());
         markPrehourSwitch.setText(R.string.interface_settings_mark_prehour);
-        pushSwitch.setText(R.string.interface_settings_service_push);
         displayMessagesSwitch.setText(R.string.interface_settings_messages);
-        refreshSwitch.setText(R.string.interface_settings_service_refresh);
         displayBreaksSwitch.setText(R.string.interface_settings_breaks);
         markPrehourSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour)));
-        pushSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_service_push, getResources().getBoolean(R.bool.default_service_push)));
-        refreshSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_service_refresh, getResources().getBoolean(R.bool.default_service_refresh)));
         displayMessagesSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_messages, getResources().getBoolean(R.bool.default_display_messages)));
         displayBreaksSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_breaks, getResources().getBoolean(R.bool.default_display_messages)));
         cornerLocation.setChecked(pm.getUserManager().get(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_right)).equals(getResources().getString(R.string.corner_location_right)));
-        pushSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
-        refreshSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         displayBreaksSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         cornerLocation.setTypeface(Center.getTypeface(getApplicationContext()));
         displayMessagesSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
@@ -570,18 +571,6 @@ public class HomeActivity extends Activity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 pm.getUserManager().set(R.string.preferences_user_display_messages, isChecked);
                 refreshTheme();
-            }
-        });
-        pushSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                pm.getUserManager().set(R.string.preferences_user_service_push, isChecked);
-            }
-        });
-        refreshSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                pm.getUserManager().set(R.string.preferences_user_service_refresh, isChecked);
             }
         });
         if (cornerLocation.isChecked()) {
@@ -685,9 +674,7 @@ public class HomeActivity extends Activity {
         theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
             @Override
             public boolean onPeer(Theme theme) {
-                pushSwitch.setTextSize((float) (theme.textSize / 1.5));
                 displayBreaksSwitch.setTextSize((float) (theme.textSize / 1.5));
-                refreshSwitch.setTextSize((float) (theme.textSize / 1.5));
                 displayMessagesSwitch.setTextSize((float) (theme.textSize / 1.5));
                 cornerLocation.setTextSize((float) (theme.textSize / 1.5));
                 explainColorA.setTextSize((float) (theme.textSize / 1.5));
@@ -696,9 +683,7 @@ public class HomeActivity extends Activity {
                 explainTextSize.setTextSize((float) (theme.textSize / 1.5));
                 explainColorMenu.setTextSize((float) (theme.textSize / 1.5));
                 markPrehourSwitch.setTextSize((float) (theme.textSize / 1.5));
-                pushSwitch.setTextColor(theme.textColor);
                 displayBreaksSwitch.setTextColor(theme.textColor);
-                refreshSwitch.setTextColor(theme.textColor);
                 displayMessagesSwitch.setTextColor(theme.textColor);
                 markPrehourSwitch.setTextColor(theme.textColor);
                 cornerLocation.setTextColor(theme.textColor);
@@ -714,8 +699,6 @@ public class HomeActivity extends Activity {
         settings.addView(displayBreaksSwitch);
         settings.addView(markPrehourSwitch);
         settings.addView(cornerLocation);
-        settings.addView(pushSwitch);
-        settings.addView(refreshSwitch);
         settings.addView(explainTextSize);
         settings.addView(fontSizeSeekBar);
         settings.addView(explainTextColor);
@@ -847,7 +830,6 @@ public class HomeActivity extends Activity {
         // Write to preferences
         pm.getUserManager().set(R.string.preferences_user_favorite_classroom, c.getName());
         pm.getCoreManager().setMode(R.string.core_mode_student);
-        pm.getServicesManager().setChannel(c.getGrade());
         // Display corner info
         LinearLayout infoText = new LinearLayout(getApplicationContext());
         infoText.setOrientation(LinearLayout.VERTICAL);
@@ -886,7 +868,6 @@ public class HomeActivity extends Activity {
         // Write to preferences
         pm.getUserManager().set(R.string.preferences_user_favorite_teacher, t.getName());
         pm.getCoreManager().setMode(R.string.core_mode_teacher);
-        pm.getServicesManager().setChannel(Classroom.UNKNOWN_GRADE);
         // Write info to corner
         LinearLayout infoText = new LinearLayout(getApplicationContext());
         infoText.setOrientation(LinearLayout.VERTICAL);

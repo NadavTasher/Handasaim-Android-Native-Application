@@ -2,8 +2,6 @@
 <resources>
     <bool name="default_display_messages">true</bool>
     <bool name="default_display_breaks">true</bool>
-    <bool name="default_service_refresh">false</bool>
-    <bool name="default_service_push">true</bool>
     <bool name="default_mark_prehour">true</bool>
     <color name="default_menu">#808080</color>
     <color name="default_top">#00BA46</color>

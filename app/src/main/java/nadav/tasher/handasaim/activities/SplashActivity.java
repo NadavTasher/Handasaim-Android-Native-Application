@@ -19,7 +19,6 @@ import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.LinkFetcher;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
 import nadav.tasher.handasaim.architecture.appcore.AppCore;
-import nadav.tasher.handasaim.receivers.Refresh;
 import nadav.tasher.lightool.communication.network.Download;
 import nadav.tasher.lightool.graphics.ColorFadeAnimation;
 import nadav.tasher.lightool.info.Device;
@@ -76,7 +75,6 @@ public class SplashActivity extends Activity {
             }
         });
         cfa.start(3000);
-        initService();
         initStageC();
     }
 
@@ -85,10 +83,6 @@ public class SplashActivity extends Activity {
                 colorA,
                 colorB
         });
-    }
-
-    private void initService() {
-        Refresh.reschedule(getApplicationContext());
     }
 
     private void initStageC() {
@@ -113,9 +107,6 @@ public class SplashActivity extends Activity {
                     fileName.append(link.split("\\.")[link.split("\\.").length - 1]);
 
                     if (!hasLink(getApplicationContext(), link)) {
-                        if (!pm.getServicesManager().getScheduleNotifiedAlready(link)) {
-                            pm.getServicesManager().setScheduleNotifiedAlready(link);
-                        }
                         new Download(link, new File(getApplicationContext().getCacheDir(), fileName.toString()), new Download.Callback() {
                             @Override
                             public void onSuccess(File file) {

@@ -27,8 +27,6 @@
     <string name="interface_settings_choose_color_text">Choose Text Color:</string>
     <string name="interface_settings_choose_color_menu">Choose Menu Color:</string>
     <string name="interface_settings_choose_size_text">Choose Text Size:</string>
-    <string name="interface_settings_service_push">Live Notifications</string>
-    <string name="interface_settings_service_refresh">New Schedule Notifications</string>
     <string name="interface_settings_mark_prehour">Mark Pre-hours</string>
     <string name="interface_settings_breaks">Display Breaks</string>
     <string name="interface_tutorial_begin">Let\'s Begin</string>

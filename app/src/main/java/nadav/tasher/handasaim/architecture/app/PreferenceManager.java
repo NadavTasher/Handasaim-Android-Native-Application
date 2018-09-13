@@ -23,14 +23,12 @@ public class PreferenceManager {
 
     private KeyManager keyManager;
     private CoreManager coreManager;
-    private ServicesManager servicesManager;
     private UserManager userManager;
 
     public PreferenceManager(Context context) {
         this.context = context;
         this.keyManager = new KeyManager(context, context.getSharedPreferences(context.getResources().getString(R.string.preferences_keys), Context.MODE_MULTI_PROCESS));
         this.coreManager = new CoreManager(context, context.getSharedPreferences(context.getResources().getString(R.string.preferences_core), Context.MODE_MULTI_PROCESS));
-        this.servicesManager = new ServicesManager(context, context.getSharedPreferences(context.getResources().getString(R.string.preferences_services), Context.MODE_MULTI_PROCESS));
         this.userManager = new UserManager(context, context.getSharedPreferences(context.getResources().getString(R.string.preferences_user), Context.MODE_MULTI_PROCESS));
     }
 
@@ -40,10 +38,6 @@ public class PreferenceManager {
 
     public UserManager getUserManager() {
         return userManager;
-    }
-
-    public ServicesManager getServicesManager() {
-        return servicesManager;
     }
 
     public KeyManager getKeyManager() {
@@ -286,64 +280,6 @@ public class PreferenceManager {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    public class ServicesManager extends Manager {
-
-        public ServicesManager(Context context, SharedPreferences preferences) {
-            super(context, preferences);
-        }
-
-        public boolean getPushDisplayedAlready(String id) {
-            // Check If The Push Was Displayed Already.
-            String jsonString = super.get(R.string.preferences_services_push_received_pushes, new JSONArray().toString());
-            try {
-                JSONArray jsonArray = new JSONArray(jsonString);
-                boolean displayed = false;
-                for (int i = 0; (i < jsonArray.length()) && !displayed; i++) {
-                    if (jsonArray.getString(i).equals(id)) displayed = true;
-                }
-                return displayed;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                // If There's An Error, Don't Tell The App To Display The Push - This Will Annoy The User.
-                return true;
-            }
-        }
-
-        public void setPushDisplayedAlready(String id) {
-            if (!getPushDisplayedAlready(id)) {
-                String jsonString = super.get(R.string.preferences_services_push_received_pushes, new JSONArray().toString());
-                JSONArray jsonArray;
-                try {
-                    jsonArray = new JSONArray(jsonString);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    // If There's An Error, Rewrite The Database.
-                    jsonArray = new JSONArray();
-                }
-                jsonArray.put(id);
-                super.set(R.string.preferences_services_push_received_pushes, jsonArray.toString());
-            }
-        }
-
-        public boolean getScheduleNotifiedAlready(String link) {
-            return super.get(R.string.preferences_services_refresh_file_link, "").equals(link);
-        }
-
-        public void setScheduleNotifiedAlready(String link) {
-            if (!getScheduleNotifiedAlready(link)) {
-                super.set(R.string.preferences_services_refresh_file_link, link);
-            }
-        }
-
-        public void setChannel(int channel) {
-            super.set(R.string.preferences_services_push_channel, channel);
-        }
-
-        public int getChannel(int defaultValue) {
-            return super.get(R.string.preferences_services_push_channel, defaultValue);
         }
     }
 
