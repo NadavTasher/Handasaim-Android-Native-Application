@@ -24,6 +24,47 @@ import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.lightool.graphics.views.Utils;
 
 public class Center {
+
+    public static void share(Context context, String st) {
+        Intent s = new Intent(Intent.ACTION_SEND);
+        s.putExtra(Intent.EXTRA_TEXT, st);
+        s.setType("text/plain");
+        s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(Intent.createChooser(s, "Share With"));
+    }
+
+    public static void enter(Activity c, Class a) {
+        if (c.hasWindowFocus()) {
+            c.startActivity(new Intent(c, a));
+            c.overridePendingTransition(R.anim.out, R.anim.in);
+            c.finish();
+        }
+    }
+
+    public static void enter(Activity c, Intent intent) {
+        if (c.hasWindowFocus()) {
+            c.startActivity(intent);
+            c.overridePendingTransition(R.anim.out, R.anim.in);
+            c.finish();
+        }
+    }
+
+    public static void exit(Activity c, Intent intent) {
+        if (c.hasWindowFocus()) {
+            c.startActivity(intent);
+            c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
+            c.finish();
+        }
+    }
+
+    public static void exit(Activity c, Class a) {
+        if (c.hasWindowFocus()) {
+            c.startActivity(new Intent(c, a));
+            c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
+            c.finish();
+        }
+    }
+
     public static int getFontSize(Context c) {
         return new PreferenceManager(c).getUserManager().get(R.string.preferences_user_size_text, c.getResources().getInteger(R.integer.default_font));
     }
@@ -53,16 +94,23 @@ public class Center {
         return Color.rgb(combineRed, combineGreen, combineBlue);
     }
 
-    public static Typeface getTypeface(Context c) {
-        return Typeface.createFromAsset(c.getAssets(), c.getResources().getString(R.string.font_name));
+    public static String minuteToTime(int minute) {
+        int hours = minute / 60;
+        int minutes = minute % 60;
+        StringBuilder timeBuilder = new StringBuilder();
+        timeBuilder.append(hours);
+        timeBuilder.append(":");
+        if (minutes < 10) timeBuilder.append(0);
+        timeBuilder.append(minutes);
+        return timeBuilder.toString();
     }
 
-    public static void share(Context context, String st) {
-        Intent s = new Intent(Intent.ACTION_SEND);
-        s.putExtra(Intent.EXTRA_TEXT, st);
-        s.setType("text/plain");
-        s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(Intent.createChooser(s, "Share With"));
+    public static String generateBreakTime(int hour1, int hour2) {
+        return minuteToTime(AppCore.getSchool().getEndingMinute(hour1)) + " - " + minuteToTime(AppCore.getSchool().getStartingMinute(hour2));
+    }
+
+    public static String generateTime(int hour) {
+        return minuteToTime(AppCore.getSchool().getStartingMinute(hour)) + " - " + minuteToTime(AppCore.getSchool().getEndingMinute(hour));
     }
 
     public static String trimName(String name) {
@@ -71,6 +119,10 @@ public class Center {
         } else {
             return name;
         }
+    }
+
+    public static Typeface getTypeface(Context c) {
+        return Typeface.createFromAsset(c.getAssets(), c.getResources().getString(R.string.font_name));
     }
 
     public static LinearLayout getCodeEntering(Context context) {
@@ -121,46 +173,6 @@ public class Center {
                 getColorTop(c),
                 getColorBottom(c)
         });
-    }
-
-    public static void enter(Activity c, Class a) {
-        if (c.hasWindowFocus()) {
-            c.startActivity(new Intent(c, a));
-            c.overridePendingTransition(R.anim.out, R.anim.in);
-            c.finish();
-        }
-    }
-
-    public static void enter(Activity c, Intent intent) {
-        if (c.hasWindowFocus()) {
-            c.startActivity(intent);
-            c.overridePendingTransition(R.anim.out, R.anim.in);
-            c.finish();
-        }
-    }
-
-    public static void exit(Activity c, Intent intent) {
-        if (c.hasWindowFocus()) {
-            c.startActivity(intent);
-            c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
-            c.finish();
-        }
-    }
-
-    public static void exit(Activity c, Class a) {
-        if (c.hasWindowFocus()) {
-            c.startActivity(new Intent(c, a));
-            c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
-            c.finish();
-        }
-    }
-
-    public static String generateBreakTime(int hour1, int hour2) {
-        return AppCore.convertMinuteToTime(AppCore.getEndMinute(hour1)) + " - " + AppCore.convertMinuteToTime(AppCore.getStartMinute(hour2));
-    }
-
-    public static String generateTime(int hour) {
-        return AppCore.convertMinuteToTime(AppCore.getStartMinute(hour)) + " - " + AppCore.convertMinuteToTime(AppCore.getEndMinute(hour));
     }
 
     public static boolean hasLink(Context context, String link) {

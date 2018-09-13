@@ -24,16 +24,19 @@ import java.util.List;
 
 import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
 import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
+import nadav.tasher.handasaim.architecture.appcore.components.School;
 import nadav.tasher.handasaim.architecture.appcore.components.Subject;
 
 public class AppCore {
 
-    public static double APPCORE_VERSION = 1.7;
+    public static double APPCORE_VERSION = 1.8;
 
     /*
         Note That XSSF Resemmbles XLSX,
         While HSSF Resembles XLS.
         XSSF Is The Newer Format.
+
+        Since 1.8, AppCore is ONLY for essentials (e.g. reading excel, returning a school)
      */
 
     private static int startReadingRow(Sheet s) {
@@ -120,27 +123,8 @@ public class AppCore {
         }
     }
 
-    public static Schedule getSchedule(File excel) {
-        Schedule.Builder mBuilder = new Schedule.Builder(Schedule.TYPE_REGULAR);
-        Sheet sheet = getSheet(excel);
-        if (sheet != null) {
-            parseClassrooms(mBuilder, sheet);
-            parseMessages(mBuilder, sheet);
-            mBuilder.setDay(getDay(sheet));
-        }
-        return mBuilder.build();
-    }
-
-    public static Schedule getSchedule(File excel, String name, String date, String origin) {
-        Schedule.Builder builder = Schedule.Builder.fromSchedule(getSchedule(excel));
-        builder.setName(name);
-        builder.setOrigin(origin);
-        builder.setDate(date);
-        return builder.build();
-    }
-
     private static String readCell(Cell cell) {
-        if(cell != null) {
+        if (cell != null) {
             try {
                 switch (cell.getCellType()) {
                     case Cell.CELL_TYPE_STRING:
@@ -168,10 +152,9 @@ public class AppCore {
                 int readStart = startReadingRow + 1;
                 for (int r = readStart; r < rows; r++) {
                     Row row = sheet.getRow(r);
-                    Subject subject = new Subject(classroom, r - readStart, readCell(row.getCell(c)));
-                    subject.setBeginningMinute(getStartMinute(subject.getSchoolHour()));
-                    subject.setEndingMinute(getEndMinute(subject.getSchoolHour()));
-                    classroom.addSubject(subject);
+                    String description = readCell(row.getCell(c));
+                    if (!description.isEmpty())
+                        classroom.addSubject(new Subject(classroom, r - readStart, description));
                 }
                 builder.addClassroom(classroom);
             }
@@ -180,63 +163,36 @@ public class AppCore {
         }
     }
 
-    public static int getBreak(int hour1, int hour2) {
-        return getStartMinute(hour2) - getEndMinute(hour1);
-    }
-
-    public static int getStartMinute(int schoolHour) {
-        switch (schoolHour) {
-            case 0:
-                return 465;
-            case 1:
-                return 510;
-            case 2:
-                return 555;
-            case 3:
-                return 615;
-            case 4:
-                return 660;
-            case 5:
-                return 730;
-            case 6:
-                return 775;
-            case 7:
-                return 830;
-            case 8:
-                return 875;
-            case 9:
-                return 930;
-            case 10:
-                return 975;
-            case 11:
-                return 1020;
-            case 12:
-                return 1065;
-        }
-        return getStartMinute(0);
-    }
-
-    public static int getEndMinute(int schoolHour) {
-        return getStartMinute(schoolHour) + 45;
-    }
-
-    public static String convertMinuteToTime(int minute) {
-        int hours = minute / 60;
-        int minutes = minute % 60;
-        StringBuilder timeBuilder = new StringBuilder();
-        timeBuilder.append(hours);
-        timeBuilder.append(":");
-        if (minutes < 10) timeBuilder.append(0);
-        timeBuilder.append(minutes);
-        return timeBuilder.toString();
-    }
-
     private static String getDay(Sheet s) {
         return readCell(s.getRow(0).getCell(0));
     }
 
+    public static Schedule getSchedule(File excel) {
+        Schedule.Builder mBuilder = new Schedule.Builder(Schedule.TYPE_REGULAR);
+        Sheet sheet = getSheet(excel);
+        if (sheet != null) {
+            parseClassrooms(mBuilder, sheet);
+            parseMessages(mBuilder, sheet);
+            mBuilder.setDay(getDay(sheet));
+        }
+        return mBuilder.build();
+    }
+
+    public static Schedule getSchedule(File excel, String name, String date, String origin) {
+        Schedule.Builder builder = Schedule.Builder.fromSchedule(getSchedule(excel));
+        builder.setName(name);
+        builder.setOrigin(origin);
+        builder.setDate(date);
+        return builder.build();
+    }
+
+    public static School getSchool() {
+        return new School(new int[]{465, 510, 555, 615, 660, 730, 775, 830, 875, 930, 975, 1020, 1065});
+    }
+
+    // Not ESSENTIAL, todo be moved to Center?
     public static String getGrades(ArrayList<Classroom> classrooms) {
-        if(classrooms.size()!=1) {
+        if (classrooms.size() != 1) {
             int previousGrade = Classroom.UNKNOWN_GRADE;
             for (Classroom currentClassroom : classrooms) {
                 if (currentClassroom.getGrade() == previousGrade || previousGrade == Classroom.UNKNOWN_GRADE) {
@@ -262,61 +218,8 @@ public class AppCore {
                 allGrades.append(currentClassroom.getName());
             }
             return allGrades.toString();
-        }else{
+        } else {
             return classrooms.get(0).getName();
         }
     }
-    //    public static ArrayList<Teacher> getTeacherSchudleForClasses(ArrayList<Classroom> classes) {
-    //        ArrayList<Teacher> teacherList = new ArrayList<>();
-    //        for (int currentClass = 0; currentClass < classes.size(); currentClass++) {
-    //            Classroom cClass = classes.get(currentClass);
-    //            for (int currentSubject = 0; currentSubject < cClass.getSubjects().size(); currentSubject++) {
-    //                Classroom.Subject cSubject = cClass.getSubjects().get(currentSubject);
-    //                Teacher.Lesson cLesson = new Teacher.Lesson(cClass.getName(), cSubject.getName(), cSubject.getHour());
-    //                for (int currentTeacherOfSubject = 0; currentTeacherOfSubject < cSubject.getTeachers().size(); currentTeacherOfSubject++) {
-    //                    String nameOfTeacher =  cSubject.getTeachers().get(currentTeacherOfSubject);
-    //                    boolean foundTeacher = false;
-    //                    if (!cSubject.getName().equals("")) {
-    //                        for (int currentTeacher = 0; currentTeacher < teacherList.size(); currentTeacher++) {
-    //                            Teacher cTeacher = teacherList.get(currentTeacher);
-    //                            if (isTheSameTeacher(cTeacher.mainName, nameOfTeacher) == 1) {
-    //                                if (!cTeacher.mainName.equals(nameOfTeacher)) {
-    //                                    if (cTeacher.teaches(cSubject.getName())) {
-    //                                        cTeacher.teaching.add(cLesson);
-    //                                        foundTeacher = true;
-    //                                        break;
-    //                                    }
-    //                                } else {
-    //                                    if (!cTeacher.teaches(cSubject.getName())) {
-    //                                        cTeacher.subjects.add(cSubject.getName());
-    //                                    }
-    //                                    cTeacher.teaching.add(cLesson);
-    //                                    foundTeacher = true;
-    //                                    break;
-    //                                }
-    //                            } else if (isTheSameTeacher(cTeacher.mainName, nameOfTeacher) == 2) {
-    //                                if (!cTeacher.teaches(cSubject.getName())) {
-    //                                    cTeacher.subjects.add(cSubject.getName());
-    //                                }
-    //                                cTeacher.teaching.add(cLesson);
-    //                                foundTeacher = true;
-    //                                break;
-    //                            }
-    //                        }
-    //                        if (!foundTeacher) {
-    //                            Teacher teacher = new Teacher();
-    //                            teacher.mainName = nameOfTeacher;
-    //                            teacher.subjects = new ArrayList<>();
-    //                            teacher.subjects.add(cSubject.getName());
-    //                            teacher.teaching = new ArrayList<>();
-    //                            teacher.teaching.add(cLesson);
-    //                            if (!nameOfTeacher.equals(""))
-    //                                teacherList.add(teacher);
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //        }
-    //        return teacherList;
-    //    }
 }

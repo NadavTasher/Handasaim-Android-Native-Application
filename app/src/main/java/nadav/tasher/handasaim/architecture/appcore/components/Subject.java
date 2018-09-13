@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Subject {
-    private int schoolHour, beginningMinute, endingMinute;
+    private int schoolHour;
     private String description, subjectName;
     private boolean isTest = false;
     private ArrayList<String> teacherStrings = new ArrayList<>();
@@ -48,14 +48,6 @@ public class Subject {
         this.schoolHour = hour;
     }
 
-    public void setEndingMinute(int endingMinute) {
-        this.endingMinute = endingMinute;
-    }
-
-    public int getBeginningMinute() {
-        return beginningMinute;
-    }
-
     public void addTeacher(Teacher teacher) {
         teachers.add(teacher);
     }
@@ -82,13 +74,5 @@ public class Subject {
 
     public ArrayList<String> getTeacherStrings() {
         return teacherStrings;
-    }
-
-    public void setBeginningMinute(int beginningMinute) {
-        this.beginningMinute = beginningMinute;
-    }
-
-    public int getEndingMinute() {
-        return endingMinute;
     }
 }

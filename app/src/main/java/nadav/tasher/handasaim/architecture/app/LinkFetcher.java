@@ -22,7 +22,7 @@ public class LinkFetcher extends AsyncTask<String, String, String> {
     @Override
     protected String doInBackground(String... strings) {
         String file = null;
-//        file = "http://handasaim.co.il/wp-content/uploads/2018/08/5-9.xls";
+//        file = "http://nockio.com/other/archives/handasaim/schedulearchives/mod.xls";
         try {
             // Main Search At Schedule Page
             Document document = Jsoup.connect(schedulePage).get();
