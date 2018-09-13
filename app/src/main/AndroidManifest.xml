@@ -20,12 +20,6 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.NoActionBar"
         android:usesCleartextTraffic="true">
-        <receiver android:name=".receivers.BootReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
         <activity android:name=".activities.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,14 +30,7 @@
         <activity android:name=".activities.HomeActivity" />
         <activity android:name=".activities.NewsActivity" />
         <activity android:name=".activities.TutorialActivity" />
-
-        <receiver android:name=".receivers.Refresh">
-            <intent-filter>
-                <action android:name="nadav.tasher.handasaim.REFRESH" />
-            </intent-filter>
-        </receiver>
-
-        <activity android:name=".activities.TimeTravelActivity"></activity>
+        <activity android:name=".activities.TimeTravelActivity" />
     </application>
 
 </manifest>
