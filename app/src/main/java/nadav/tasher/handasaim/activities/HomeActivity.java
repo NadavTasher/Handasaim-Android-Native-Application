@@ -968,7 +968,7 @@ public class HomeActivity extends Activity {
                     classrooms.add(teaching.get(s).getClassroom());
                 }
             }
-            grades = AppCore.getGrades(classrooms);
+            grades = Center.getGrades(classrooms);
             ArrayList<String> classroomNames = new ArrayList<>();
             for (Classroom c : classrooms) {
                 classroomNames.add(c.getName());

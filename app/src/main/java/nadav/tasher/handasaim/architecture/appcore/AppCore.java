@@ -19,7 +19,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
@@ -188,38 +187,5 @@ public class AppCore {
 
     public static School getSchool() {
         return new School(new int[]{465, 510, 555, 615, 660, 730, 775, 830, 875, 930, 975, 1020, 1065});
-    }
-
-    // Not ESSENTIAL, todo be moved to Center?
-    public static String getGrades(ArrayList<Classroom> classrooms) {
-        if (classrooms.size() != 1) {
-            int previousGrade = Classroom.UNKNOWN_GRADE;
-            for (Classroom currentClassroom : classrooms) {
-                if (currentClassroom.getGrade() == previousGrade || previousGrade == Classroom.UNKNOWN_GRADE) {
-                    previousGrade = currentClassroom.getGrade();
-                } else {
-                    previousGrade = Classroom.UNKNOWN_GRADE;
-                    break;
-                }
-            }
-            switch (previousGrade) {
-                case Classroom.NINTH_GRADE:
-                    return "ט'";
-                case Classroom.TENTH_GRADE:
-                    return "י'";
-                case Classroom.ELEVENTH_GRADE:
-                    return "יא'";
-                case Classroom.TWELVETH_GRADE:
-                    return "יב'";
-            }
-            StringBuilder allGrades = new StringBuilder();
-            for (Classroom currentClassroom : classrooms) {
-                if (allGrades.length() != 0) allGrades.append(", ");
-                allGrades.append(currentClassroom.getName());
-            }
-            return allGrades.toString();
-        } else {
-            return classrooms.get(0).getName();
-        }
     }
 }

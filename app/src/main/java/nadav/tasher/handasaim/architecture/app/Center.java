@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
 import nadav.tasher.handasaim.architecture.appcore.AppCore;
+import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
 import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
 import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.lightool.graphics.views.Utils;
@@ -118,6 +119,38 @@ public class Center {
             return name.substring(0, 4);
         } else {
             return name;
+        }
+    }
+
+    public static String getGrades(ArrayList<Classroom> classrooms) {
+        if (classrooms.size() != 1) {
+            int previousGrade = Classroom.UNKNOWN_GRADE;
+            for (Classroom currentClassroom : classrooms) {
+                if (currentClassroom.getGrade() == previousGrade || previousGrade == Classroom.UNKNOWN_GRADE) {
+                    previousGrade = currentClassroom.getGrade();
+                } else {
+                    previousGrade = Classroom.UNKNOWN_GRADE;
+                    break;
+                }
+            }
+            switch (previousGrade) {
+                case Classroom.NINTH_GRADE:
+                    return "ט'";
+                case Classroom.TENTH_GRADE:
+                    return "י'";
+                case Classroom.ELEVENTH_GRADE:
+                    return "יא'";
+                case Classroom.TWELVETH_GRADE:
+                    return "יב'";
+            }
+            StringBuilder allGrades = new StringBuilder();
+            for (Classroom currentClassroom : classrooms) {
+                if (allGrades.length() != 0) allGrades.append(", ");
+                allGrades.append(currentClassroom.getName());
+            }
+            return allGrades.toString();
+        } else {
+            return classrooms.get(0).getName();
         }
     }
 
