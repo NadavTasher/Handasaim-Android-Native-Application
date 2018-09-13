@@ -67,7 +67,6 @@ public class NewsActivity extends Activity {
         mEggView.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10));
         mEggView.setTop(mEggTop);
         mEggView.setBottom(mEggBottom);
-        //, Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10), 500, Device.screenY(getApplicationContext()) / 8, mEggTop, mEggBottom);
 
         fullScreen.addView(mEggView);
         new NewsFetcher(getString(R.string.provider_internal_news), new NewsFetcher.OnFinish() {
@@ -89,7 +88,6 @@ public class NewsActivity extends Activity {
                     mArticleView.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10));
                     mArticleView.setTop(title);
                     mArticleView.setBottom(button);
-                    //, Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10), 500, Device.screenY(getApplicationContext()) / 8, title, button);
                     fullScreen.addView(mArticleView);
                 }
             }

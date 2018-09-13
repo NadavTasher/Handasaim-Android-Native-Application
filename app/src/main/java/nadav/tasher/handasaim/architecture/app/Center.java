@@ -40,13 +40,6 @@ public class Center {
         return new PreferenceManager(c).getUserManager().get(R.string.preferences_user_color_text, c.getResources().getColor(R.color.default_text));
     }
 
-    public static Drawable getGradient(Context c) {
-        return new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{
-                getColorTop(c),
-                getColorBottom(c)
-        });
-    }
-
     public static int getCombinedColor(Context c) {
         int colorA = getColorTop(c);
         int colorB = getColorBottom(c);
@@ -58,10 +51,6 @@ public class Center {
         int blueB = Color.blue(colorB);
         int combineRed = redA - (redA - redB) / 2, combineGreen = greenA - (greenA - greenB) / 2, combineBlue = blueA - (blueA - blueB) / 2;
         return Color.rgb(combineRed, combineGreen, combineBlue);
-    }
-
-    public static int alpha(int alpha, int color) {
-        return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
     }
 
     public static Typeface getTypeface(Context c) {
@@ -127,6 +116,13 @@ public class Center {
         return layout;
     }
 
+    public static Drawable getGradient(Context c) {
+        return new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{
+                getColorTop(c),
+                getColorBottom(c)
+        });
+    }
+
     public static void enter(Activity c, Class a) {
         if (c.hasWindowFocus()) {
             c.startActivity(new Intent(c, a));
@@ -178,12 +174,5 @@ public class Center {
             }
         }
         return hasLink;
-    }
-
-    public static int darken(int color, int amount) {
-        int red = (Color.red(color) > amount) ? Color.red(color) - amount : 0;
-        int green = (Color.green(color) > amount) ? Color.green(color) - amount : 0;
-        int blue = (Color.blue(color) > amount) ? Color.blue(color) - amount : 0;
-        return Color.rgb(red, green, blue);
     }
 }

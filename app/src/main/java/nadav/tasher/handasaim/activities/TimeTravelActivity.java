@@ -3,8 +3,6 @@ package nadav.tasher.handasaim.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -41,8 +39,6 @@ public class TimeTravelActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-    // TODO add a refresh button
-
     private void loadUI() {
         getWindow().setStatusBarColor(Center.getColorTop(getApplicationContext()));
         getWindow().setNavigationBarColor(Center.getColorBottom(getApplicationContext()));
@@ -60,7 +56,7 @@ public class TimeTravelActivity extends Activity {
                 Center.exit(TimeTravelActivity.this, SplashActivity.class);
             }
         });
-        full.setBackground(generateGradient(Center.getColorTop(getApplicationContext()), Center.getColorBottom(getApplicationContext())));
+        full.setBackground(Center.getGradient(getApplicationContext()));
         full.addView(getText(getResources().getString(R.string.interface_time_travel_title), 1.1));
         full.addView(clearButton);
         ArrayList<Schedule> schedules = pm.getCoreManager().getSchedules();
@@ -102,13 +98,6 @@ public class TimeTravelActivity extends Activity {
         expandingView.setTop(title);
         expandingView.setBottom(button);
         return expandingView;
-    }
-
-    private Drawable generateGradient(int colorA, int colorB) {
-        return new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{
-                colorA,
-                colorB
-        });
     }
 
     @Override

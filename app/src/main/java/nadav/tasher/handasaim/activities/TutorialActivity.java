@@ -126,7 +126,7 @@ public class TutorialActivity extends Activity {
         explanationLessonView.setGravity(Gravity.CENTER);
         explanationLessonView.setTextColor(Center.getTextColor(getApplicationContext()));
         explanationLessonView.setPadding(0, 40, 0, 40);
-        LessonView mLessonView = new LessonView(getApplicationContext(), LessonView.MARK_TYPE_NORMAL, getResources().getString(R.string.interface_tutorial_lessonview_example_top), generateTime(1), new ArrayList<String>(Arrays.asList(getResources().getString(R.string.interface_tutorial_lessonview_example_bottom1), getResources().getString(R.string.interface_tutorial_lessonview_example_bottom2))));
+        LessonView mLessonView = new LessonView(getApplicationContext(), LessonView.MARK_TYPE_NORMAL, getResources().getString(R.string.interface_tutorial_lessonview_example_top), generateTime(1), new ArrayList<>(Arrays.asList(getResources().getString(R.string.interface_tutorial_lessonview_example_bottom1), getResources().getString(R.string.interface_tutorial_lessonview_example_bottom2))));
         LinearLayout screen2 = new LinearLayout(getApplicationContext());
         screen2.setOrientation(LinearLayout.VERTICAL);
         screen2.setGravity(Gravity.CENTER);
