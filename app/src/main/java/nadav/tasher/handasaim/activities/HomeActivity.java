@@ -2,7 +2,6 @@ package nadav.tasher.handasaim.activities;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -53,7 +52,7 @@ public class HomeActivity extends Activity {
     private LinearLayout lessonViewHolder;
     private AppView mAppView;
     private Schedule schedule;
-    private HorizontalScrollView menuDrawer;
+    private HorizontalScrollView menu;
     private ScrollView settings, switcher, share, code, about;
     private int scheduleIndex = 0;
     private int drawerPadding = 30;
@@ -115,78 +114,6 @@ public class HomeActivity extends Activity {
         }
     }
 
-    private ScrollView getCode() {
-        ScrollView sv = new ScrollView(getApplicationContext());
-        sv.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
-        sv.setVerticalScrollBarEnabled(false);
-        sv.setFillViewport(true);
-        LinearLayout ll = Center.getCodeEntering(getApplicationContext());
-        sv.addView(ll);
-        return sv;
-    }
-
-    private ScrollView getAbout() {
-        ScrollView sv = new ScrollView(getApplicationContext());
-        sv.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
-        sv.setFillViewport(true);
-        LinearLayout aboutView = new LinearLayout(getApplicationContext());
-        aboutView.setGravity(Gravity.CENTER);
-        aboutView.setOrientation(LinearLayout.VERTICAL);
-        aboutView.setPadding(20, 20, 20, 20);
-        RatioView title = new RatioView(getApplicationContext(), 0.9);
-        RatioView message = new RatioView(getApplicationContext(), 0.7);
-        RatioView enterCodes = new RatioView(getApplicationContext(), 0.7);
-        enterCodes.setText(R.string.interface_enter_codes);
-        title.setText(R.string.app_name);
-        String messageText = "Made By Nadav Tasher.\nVersion: " +
-                Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) +
-                " (" +
-                Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()) +
-                ")" +
-                "\n" +
-                "AppCore v" +
-                AppCore.APPCORE_VERSION;
-        message.setText(messageText);
-        title.setTypeface(Center.getTypeface(getApplicationContext()));
-        title.setTextSize(theme.getLast().textSize);
-        title.setTextColor(theme.getLast().textColor);
-        title.setGravity(Gravity.CENTER);
-        title.setPadding(0, 30, 0, 30);
-        message.setTypeface(Center.getTypeface(getApplicationContext()));
-        message.setTextSize(theme.getLast().textSize);
-        message.setTextColor(theme.getLast().textColor);
-        message.setGravity(Gravity.CENTER);
-        message.setPadding(0, 30, 0, 30);
-        enterCodes.setTypeface(Center.getTypeface(getApplicationContext()));
-        enterCodes.setTextSize(theme.getLast().textSize);
-        enterCodes.setTextColor(theme.getLast().textColor);
-        enterCodes.setGravity(Gravity.CENTER);
-        enterCodes.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 20, 10));
-        enterCodes.setPadding(0, 40, 0, 40);
-        enterCodes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openDrawer(code);
-            }
-        });
-        aboutView.addView(title);
-        aboutView.addView(message);
-        aboutView.addView(enterCodes);
-        sv.addView(aboutView);
-        return sv;
-    }
-
-    private int generateCombinedColor(int colorTop, int colorBottom) {
-        int redA = Color.red(colorTop);
-        int greenA = Color.green(colorTop);
-        int blueA = Color.blue(colorTop);
-        int redB = Color.red(colorBottom);
-        int greenB = Color.green(colorBottom);
-        int blueB = Color.blue(colorBottom);
-        int combineRed = redA - (redA - redB) / 2, combineGreen = greenA - (greenA - greenB) / 2, combineBlue = blueA - (blueA - blueB) / 2;
-        return Color.rgb(combineRed, combineGreen, combineBlue);
-    }
-
     private void loadUI() {
         refreshTheme();
         mAppView = new AppView(this);
@@ -207,10 +134,7 @@ public class HomeActivity extends Activity {
                     mAppView.getDrawer().close();
                 } else {
                     mAppView.getDrawer().emptyContent();
-                    if (menuDrawer != null) {
-                        mAppView.getDrawer().setContent(menuDrawer);
-                        mAppView.getDrawer().open(((double) (menuDrawer.getLayoutParams().height + 2 * drawerPadding) / (double) Device.screenY(getApplicationContext())));
-                    }
+                    openDrawer(menu);
                 }
             }
         });
@@ -271,7 +195,7 @@ public class HomeActivity extends Activity {
             }
         }));
         refreshCorner();
-        assembleDrawers();
+        loadDrawers();
         loadContent();
         setContentView(mAppView);
         refreshTheme();
@@ -307,89 +231,108 @@ public class HomeActivity extends Activity {
         }
     }
 
-    private void assembleDrawers() {
-        assembleMenuDrawer();
-        settings = getSettings();
-        share = getShare();
-        switcher = getSwitcher();
-        code = getCode();
-        about = getAbout();
+    private void loadDrawers() {
+        menu = assembleMenuDrawer();
+        settings = assembleSettings();
+        share = assembleShare();
+        switcher = assembleSwitcher();
+        code = assembleCode();
+        about = assembleAbout();
     }
 
-    private void assembleMenuDrawer() {
-        menuDrawer = new HorizontalScrollView(getApplicationContext());
-        menuDrawer.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
-        menuDrawer.setHorizontalScrollBarEnabled(false);
-        LinearLayout menu = new LinearLayout(getApplicationContext());
-        menu.setOrientation(LinearLayout.HORIZONTAL);
-        menu.setGravity(Gravity.CENTER);
-        menuDrawer.setFillViewport(true);
-        final int size = (int) (Device.screenX(getApplicationContext()) / 6.5);
-        final FrameLayout shareIcon, classroomIcon, icon, timetraverIcon, settingsIcon;
-        shareIcon = generateImageView(R.drawable.ic_share, size);
-        classroomIcon = generateImageView(R.drawable.ic_class, size);
-        icon = generateImageView(R.drawable.ic_icon, size);
-        timetraverIcon = generateImageView(R.drawable.ic_timetravel, size);
-        settingsIcon = generateImageView(R.drawable.ic_gear, size);
-        settingsIcon.setOnClickListener(new View.OnClickListener() {
+    private void setStudentMode(Classroom c) {
+        currentClass = c;
+        // Write to preferences
+        pm.getUserManager().set(R.string.preferences_user_favorite_classroom, c.getName());
+        pm.getCoreManager().setMode(R.string.core_mode_student);
+        // Display corner info
+        LinearLayout infoText = new LinearLayout(getApplicationContext());
+        infoText.setOrientation(LinearLayout.VERTICAL);
+        infoText.setGravity(Gravity.CENTER);
+        final RatioView name, day;
+        name = new RatioView(getApplicationContext(), 0.9);
+        day = new RatioView(getApplicationContext(), 0.7);
+        name.setText(c.getName());
+        name.setTextColor(theme.getLast().textColor);
+        name.setTextSize(theme.getLast().textSize);
+        name.setTypeface(Center.getTypeface(getApplicationContext()));
+        name.setGravity(Gravity.CENTER);
+        day.setText(schedule.getDay());
+        day.setTextColor(theme.getLast().textColor);
+        day.setTextSize(theme.getLast().textSize);
+        day.setTypeface(Center.getTypeface(getApplicationContext()));
+        day.setGravity(Gravity.CENTER);
+        infoText.addView(name);
+        infoText.addView(day);
+        info.setView(infoText, 0.8);
+        theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
             @Override
-            public void onClick(View view) {
-                openDrawer(settings);
-            }
-        });
-        classroomIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openDrawer(switcher);
-            }
-        });
-        timetraverIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Center.exit(HomeActivity.this, TimeTravelActivity.class);
-            }
-        });
-        timetraverIcon.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                Center.exit(HomeActivity.this, SplashActivity.class);
+            public boolean onPeer(Theme theme) {
+                name.setTextSize(theme.textSize);
+                name.setTextColor(theme.textColor);
+                day.setTextSize(theme.textSize);
+                day.setTextColor(theme.textColor);
                 return false;
             }
-        });
-        shareIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openDrawer(share);
-            }
-        });
-        icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openDrawer(about);
-            }
-        });
-        menu.addView(shareIcon);
-        menu.addView(classroomIcon);
-        menu.addView(icon);
-        menu.addView(timetraverIcon);
-        menu.addView(settingsIcon);
-        menu.setPadding(10, 10, 10, 10);
-        menu.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, size + menu.getPaddingBottom() + menu.getPaddingTop()));
-        menuDrawer.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getApplicationContext()), size + menu.getPaddingBottom() + menu.getPaddingTop()));
-        menuDrawer.addView(menu);
+        }));
+        displayLessonViews(scheduleForClass(c));
+        refreshTheme();
     }
 
-    private FrameLayout generateImageView(int drawable, int size) {
-        FrameLayout fl = new FrameLayout(getApplicationContext());
-        fl.setPadding(20, 20, 20, 20);
-        fl.setForegroundGravity(Gravity.CENTER);
-        fl.setLayoutParams(new LinearLayout.LayoutParams(size, size, 1));
-        final ImageView iv = new ImageView(getApplicationContext());
-        iv.setImageDrawable(getDrawable(drawable));
-        //        iv.setScaleType(ImageView.ScaleType.FIT_XY);
-        iv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        fl.addView(iv);
-        return fl;
+    private void setTeacherMode(Teacher t) {
+        // Write to preferences
+        pm.getUserManager().set(R.string.preferences_user_favorite_teacher, t.getName());
+        pm.getCoreManager().setMode(R.string.core_mode_teacher);
+        // Write info to corner
+        LinearLayout infoText = new LinearLayout(getApplicationContext());
+        infoText.setOrientation(LinearLayout.VERTICAL);
+        infoText.setGravity(Gravity.CENTER);
+        final RatioView name, day;
+        name = new RatioView(getApplicationContext(), 0.9);
+        day = new RatioView(getApplicationContext(), 0.7);
+        name.setText(Center.trimName(t.getName().split("\\s")[0]));
+        name.setTextColor(theme.getLast().textColor);
+        name.setTextSize(theme.getLast().textSize);
+        name.setTypeface(Center.getTypeface(getApplicationContext()));
+        name.setGravity(Gravity.CENTER);
+        day.setText(schedule.getDay());
+        day.setTextColor(theme.getLast().textColor);
+        day.setTextSize(theme.getLast().textSize);
+        day.setTypeface(Center.getTypeface(getApplicationContext()));
+        day.setGravity(Gravity.CENTER);
+        infoText.addView(name);
+        infoText.addView(day);
+        info.setView(infoText, 0.8);
+        theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
+            @Override
+            public boolean onPeer(Theme theme) {
+                name.setTextSize(theme.textSize);
+                name.setTextColor(theme.textColor);
+                day.setTextSize(theme.textSize);
+                day.setTextColor(theme.textColor);
+                return false;
+            }
+        }));
+        displayLessonViews(scheduleForTeacher(t));
+        refreshTheme();
+    }
+
+    private void displayLessonViews(final ArrayList<LessonView> lessonViews) {
+        lessonViewHolder.removeAllViews();
+        theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
+            @Override
+            public boolean onPeer(Theme theme) {
+                for (int l = 0; l < lessonViews.size(); l++) {
+                    LessonView lessonView = lessonViews.get(l);
+                    lessonView.setTextColor(theme.textColor);
+                    lessonView.setTextSize(theme.textSize);
+                }
+                return false;
+            }
+        }));
+        for (int l = 0; l < lessonViews.size(); l++) {
+            lessonViewHolder.addView(lessonViews.get(l));
+        }
     }
 
     private void setCornerColor(AppView.Scrolly s) {
@@ -415,6 +358,17 @@ public class HomeActivity extends Activity {
         v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         double percent = ((double) v.getMeasuredHeight() + 2 * (double) drawerPadding) / ((double) Device.screenY(getApplicationContext()));
         mAppView.getDrawer().open(((percent) > 0.7) ? 0.7 : percent);
+    }
+
+    private int generateCombinedColor(int colorTop, int colorBottom) {
+        int redA = Color.red(colorTop);
+        int greenA = Color.green(colorTop);
+        int blueA = Color.blue(colorTop);
+        int redB = Color.red(colorBottom);
+        int greenB = Color.green(colorBottom);
+        int blueB = Color.blue(colorBottom);
+        int combineRed = redA - (redA - redB) / 2, combineGreen = greenA - (greenA - greenB) / 2, combineBlue = blueA - (blueA - blueB) / 2;
+        return Color.rgb(combineRed, combineGreen, combineBlue);
     }
 
     private Classroom getFavoriteClassroom() {
@@ -457,7 +411,7 @@ public class HomeActivity extends Activity {
         }
     }
 
-    private ScrollView getShare() {
+    private ScrollView assembleShare() {
         ScrollView sv = new ScrollView(getApplicationContext());
         sv.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
         sv.setFillViewport(true);
@@ -497,12 +451,12 @@ public class HomeActivity extends Activity {
                     for (Classroom classroom : schedule.getClassrooms()) {
                         if (classroom.getGrade() == grade) {
                             message.append(classroom.getName()).append(":").append("\n");
-                            message.append(scheduleForClassString(classroom)).append("\n");
+                            message.append(classroomToString(classroom)).append("\n");
                         }
                     }
                 } else {
                     message.append(currentClass.getName()).append(" (").append(schedule.getDay()).append(")").append("\n");
-                    message.append(scheduleForClassString(currentClass)).append("\n");
+                    message.append(classroomToString(currentClass)).append("\n");
                 }
                 if (shareMessageSwitch.isChecked()) {
                     message.append("הודעות:\n");
@@ -510,7 +464,7 @@ public class HomeActivity extends Activity {
                         message.append(i + 1).append(". ").append(schedule.getMessages().get(i)).append("\n");
                     }
                 }
-                share(message.toString());
+                Center.share(getApplicationContext(), message.toString());
             }
         });
         shareView.addView(shareMessageSwitch);
@@ -532,7 +486,7 @@ public class HomeActivity extends Activity {
         return sv;
     }
 
-    private ScrollView getSettings() {
+    private ScrollView assembleSettings() {
         ScrollView sv = new ScrollView(getApplicationContext());
         sv.setPadding(10, 10, 10, 10);
         LinearLayout settings = new LinearLayout(getApplicationContext());
@@ -714,7 +668,7 @@ public class HomeActivity extends Activity {
         return sv;
     }
 
-    private ScrollView getSwitcher() {
+    private ScrollView assembleSwitcher() {
         LinearLayout all = new LinearLayout(getApplicationContext());
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.CENTER);
@@ -817,118 +771,145 @@ public class HomeActivity extends Activity {
         return sv;
     }
 
-    private void share(String st) {
-        Intent s = new Intent(Intent.ACTION_SEND);
-        s.putExtra(Intent.EXTRA_TEXT, st);
-        s.setType("text/plain");
-        s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        getApplicationContext().startActivity(Intent.createChooser(s, "Share With"));
+    private ScrollView assembleCode() {
+        ScrollView sv = new ScrollView(getApplicationContext());
+        sv.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
+        sv.setVerticalScrollBarEnabled(false);
+        sv.setFillViewport(true);
+        LinearLayout ll = Center.getCodeEntering(getApplicationContext());
+        sv.addView(ll);
+        return sv;
     }
 
-    private void setStudentMode(Classroom c) {
-        currentClass = c;
-        // Write to preferences
-        pm.getUserManager().set(R.string.preferences_user_favorite_classroom, c.getName());
-        pm.getCoreManager().setMode(R.string.core_mode_student);
-        // Display corner info
-        LinearLayout infoText = new LinearLayout(getApplicationContext());
-        infoText.setOrientation(LinearLayout.VERTICAL);
-        infoText.setGravity(Gravity.CENTER);
-        final RatioView name, day;
-        name = new RatioView(getApplicationContext(), 0.9);
-        day = new RatioView(getApplicationContext(), 0.7);
-        name.setText(c.getName());
-        name.setTextColor(theme.getLast().textColor);
-        name.setTextSize(theme.getLast().textSize);
-        name.setTypeface(Center.getTypeface(getApplicationContext()));
-        name.setGravity(Gravity.CENTER);
-        day.setText(schedule.getDay());
-        day.setTextColor(theme.getLast().textColor);
-        day.setTextSize(theme.getLast().textSize);
-        day.setTypeface(Center.getTypeface(getApplicationContext()));
-        day.setGravity(Gravity.CENTER);
-        infoText.addView(name);
-        infoText.addView(day);
-        info.setView(infoText, 0.8);
-        theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
+    private ScrollView assembleAbout() {
+        ScrollView sv = new ScrollView(getApplicationContext());
+        sv.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
+        sv.setFillViewport(true);
+        LinearLayout aboutView = new LinearLayout(getApplicationContext());
+        aboutView.setGravity(Gravity.CENTER);
+        aboutView.setOrientation(LinearLayout.VERTICAL);
+        aboutView.setPadding(20, 20, 20, 20);
+        RatioView title = new RatioView(getApplicationContext(), 0.9);
+        RatioView message = new RatioView(getApplicationContext(), 0.7);
+        RatioView enterCodes = new RatioView(getApplicationContext(), 0.7);
+        enterCodes.setText(R.string.interface_enter_codes);
+        title.setText(R.string.app_name);
+        String messageText = "Made By Nadav Tasher.\nVersion: " +
+                Device.getVersionName(getApplicationContext(), getApplicationContext().getPackageName()) +
+                " (" +
+                Device.getVersionCode(getApplicationContext(), getApplicationContext().getPackageName()) +
+                ")" +
+                "\n" +
+                "AppCore v" +
+                AppCore.APPCORE_VERSION;
+        message.setText(messageText);
+        title.setTypeface(Center.getTypeface(getApplicationContext()));
+        title.setTextSize(theme.getLast().textSize);
+        title.setTextColor(theme.getLast().textColor);
+        title.setGravity(Gravity.CENTER);
+        title.setPadding(0, 30, 0, 30);
+        message.setTypeface(Center.getTypeface(getApplicationContext()));
+        message.setTextSize(theme.getLast().textSize);
+        message.setTextColor(theme.getLast().textColor);
+        message.setGravity(Gravity.CENTER);
+        message.setPadding(0, 30, 0, 30);
+        enterCodes.setTypeface(Center.getTypeface(getApplicationContext()));
+        enterCodes.setTextSize(theme.getLast().textSize);
+        enterCodes.setTextColor(theme.getLast().textColor);
+        enterCodes.setGravity(Gravity.CENTER);
+        enterCodes.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 20, 10));
+        enterCodes.setPadding(0, 40, 0, 40);
+        enterCodes.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onPeer(Theme theme) {
-                name.setTextSize(theme.textSize);
-                name.setTextColor(theme.textColor);
-                day.setTextSize(theme.textSize);
-                day.setTextColor(theme.textColor);
+            public void onClick(View view) {
+                openDrawer(code);
+            }
+        });
+        aboutView.addView(title);
+        aboutView.addView(message);
+        aboutView.addView(enterCodes);
+        sv.addView(aboutView);
+        return sv;
+    }
+
+    private HorizontalScrollView assembleMenuDrawer() {
+        HorizontalScrollView menuDrawer = new HorizontalScrollView(getApplicationContext());
+        menuDrawer.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
+        menuDrawer.setHorizontalScrollBarEnabled(false);
+        LinearLayout menu = new LinearLayout(getApplicationContext());
+        menu.setOrientation(LinearLayout.HORIZONTAL);
+        menu.setGravity(Gravity.CENTER);
+        menuDrawer.setFillViewport(true);
+        final int size = (int) (Device.screenX(getApplicationContext()) / 6.5);
+        final FrameLayout shareIcon, classroomIcon, icon, timetraverIcon, settingsIcon;
+        shareIcon = generateImageView(R.drawable.ic_share, size);
+        classroomIcon = generateImageView(R.drawable.ic_class, size);
+        icon = generateImageView(R.drawable.ic_icon, size);
+        timetraverIcon = generateImageView(R.drawable.ic_timetravel, size);
+        settingsIcon = generateImageView(R.drawable.ic_gear, size);
+        settingsIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openDrawer(settings);
+            }
+        });
+        classroomIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openDrawer(switcher);
+            }
+        });
+        timetraverIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Center.exit(HomeActivity.this, TimeTravelActivity.class);
+            }
+        });
+        timetraverIcon.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Center.exit(HomeActivity.this, SplashActivity.class);
                 return false;
             }
-        }));
-        displayLessonViews(scheduleForClass(c));
-        refreshTheme();
-    }
-
-    private void setTeacherMode(Teacher t) {
-        // Write to preferences
-        pm.getUserManager().set(R.string.preferences_user_favorite_teacher, t.getName());
-        pm.getCoreManager().setMode(R.string.core_mode_teacher);
-        // Write info to corner
-        LinearLayout infoText = new LinearLayout(getApplicationContext());
-        infoText.setOrientation(LinearLayout.VERTICAL);
-        infoText.setGravity(Gravity.CENTER);
-        final RatioView name, day;
-        name = new RatioView(getApplicationContext(), 0.9);
-        day = new RatioView(getApplicationContext(), 0.7);
-        name.setText(trimName(t.getName().split("\\s")[0]));
-        name.setTextColor(theme.getLast().textColor);
-        name.setTextSize(theme.getLast().textSize);
-        name.setTypeface(Center.getTypeface(getApplicationContext()));
-        name.setGravity(Gravity.CENTER);
-        day.setText(schedule.getDay());
-        day.setTextColor(theme.getLast().textColor);
-        day.setTextSize(theme.getLast().textSize);
-        day.setTypeface(Center.getTypeface(getApplicationContext()));
-        day.setGravity(Gravity.CENTER);
-        infoText.addView(name);
-        infoText.addView(day);
-        info.setView(infoText, 0.8);
-        theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
+        });
+        shareIcon.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onPeer(Theme theme) {
-                name.setTextSize(theme.textSize);
-                name.setTextColor(theme.textColor);
-                day.setTextSize(theme.textSize);
-                day.setTextColor(theme.textColor);
-                return false;
+            public void onClick(View view) {
+                openDrawer(share);
             }
-        }));
-        displayLessonViews(scheduleForTeacher(t));
-        refreshTheme();
-    }
-
-    private void displayLessonViews(final ArrayList<LessonView> lessonViews) {
-        lessonViewHolder.removeAllViews();
-        theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
+        });
+        icon.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onPeer(Theme theme) {
-                for (int l = 0; l < lessonViews.size(); l++) {
-                    LessonView lessonView = lessonViews.get(l);
-                    lessonView.setTextColor(theme.textColor);
-                    lessonView.setTextSize(theme.textSize);
-                }
-                return false;
+            public void onClick(View view) {
+                openDrawer(about);
             }
-        }));
-        for (int l = 0; l < lessonViews.size(); l++) {
-            lessonViewHolder.addView(lessonViews.get(l));
-        }
+        });
+        menu.addView(shareIcon);
+        menu.addView(classroomIcon);
+        menu.addView(icon);
+        menu.addView(timetraverIcon);
+        menu.addView(settingsIcon);
+        menu.setPadding(10, 10, 10, 10);
+        menu.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, size + menu.getPaddingBottom() + menu.getPaddingTop()));
+        menuDrawer.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getApplicationContext()), size + menu.getPaddingBottom() + menu.getPaddingTop()));
+        menuDrawer.addView(menu);
+        return menuDrawer;
     }
 
-    private String trimName(String name) {
-        if (name.length() > 4) {
-            return name.substring(0, 4);
-        } else {
-            return name;
-        }
+    private FrameLayout generateImageView(int drawable, int size) {
+        FrameLayout fl = new FrameLayout(getApplicationContext());
+        fl.setPadding(20, 20, 20, 20);
+        fl.setForegroundGravity(Gravity.CENTER);
+        fl.setLayoutParams(new LinearLayout.LayoutParams(size, size, 1));
+        final ImageView iv = new ImageView(getApplicationContext());
+        iv.setImageDrawable(getDrawable(drawable));
+        //        iv.setScaleType(ImageView.ScaleType.FIT_XY);
+        iv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        fl.addView(iv);
+        return fl;
     }
 
-    private String scheduleForClassString(Classroom classroom) {
+    private String classroomToString(Classroom classroom) {
         StringBuilder export = new StringBuilder();
         for (Subject subject : classroom.getSubjects()) {
             String text = subject.getSchoolHour() + ". " + subject.getName();

@@ -68,6 +68,22 @@ public class Center {
         return Typeface.createFromAsset(c.getAssets(), c.getResources().getString(R.string.font_name));
     }
 
+    public static void share(Context context, String st) {
+        Intent s = new Intent(Intent.ACTION_SEND);
+        s.putExtra(Intent.EXTRA_TEXT, st);
+        s.setType("text/plain");
+        s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(Intent.createChooser(s, "Share With"));
+    }
+
+    public static String trimName(String name) {
+        if (name.length() > 4) {
+            return name.substring(0, 4);
+        } else {
+            return name;
+        }
+    }
+
     public static LinearLayout getCodeEntering(Context context) {
         final PreferenceManager pm = new PreferenceManager(context);
         LinearLayout layout = new LinearLayout(context);
