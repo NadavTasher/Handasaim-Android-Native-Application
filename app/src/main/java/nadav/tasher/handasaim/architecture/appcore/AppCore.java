@@ -164,13 +164,16 @@ public class AppCore {
             int cols = sheet.getRow(startReadingRow).getLastCellNum();
             for (int c = 1; c < cols; c++) {
                 String name = readCell(sheet.getRow(startReadingRow).getCell(c)).split(" ")[0];
-                Classroom cClassroom = new Classroom(name);
+                Classroom classroom = new Classroom(name);
                 int readStart = startReadingRow + 1;
                 for (int r = readStart; r < rows; r++) {
                     Row row = sheet.getRow(r);
-                    cClassroom.addSubject(new Subject(cClassroom, r - readStart, readCell(row.getCell(c))));
+                    Subject subject = new Subject(classroom, r - readStart, readCell(row.getCell(c)));
+                    subject.setBeginningMinute(getStartMinute(subject.getSchoolHour()));
+                    subject.setEndingMinute(getEndMinute(subject.getSchoolHour()));
+                    classroom.addSubject(subject);
                 }
-                builder.addClassroom(cClassroom);
+                builder.addClassroom(classroom);
             }
         } catch (Exception e) {
             e.printStackTrace();
