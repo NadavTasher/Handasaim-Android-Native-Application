@@ -20,8 +20,7 @@ public class School {
     }
 
     public int getStartingMinute(int hour) {
-        return (hour < startTimes.length && hour >= 0) ? startTimes[hour] : 0;
-
+        return (hour < startTimes.length && hour >= 0) ? startTimes[hour] : (startTimes.length > 0) ? startTimes[0] : 0;
     }
 
     public int getEndingMinute(Subject subject) {

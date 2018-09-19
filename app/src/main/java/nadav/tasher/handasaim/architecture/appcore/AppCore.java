@@ -28,7 +28,7 @@ import nadav.tasher.handasaim.architecture.appcore.components.Subject;
 
 public class AppCore {
 
-    public static double APPCORE_VERSION = 1.8;
+    public static double APPCORE_VERSION = 1.81;
 
     /*
         Note That XSSF Resemmbles XLSX,
