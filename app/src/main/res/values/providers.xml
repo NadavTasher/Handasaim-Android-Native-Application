@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="provider_external">http://nockio.com</string>
-    <string name="provider_external_keys">http://nockio.com/h/keys/</string>
+    <string name="provider_external">https://nockio.com</string>
+    <string name="provider_external_keys">https://nockio.com/h/keys/</string>
     <string name="provider_internal">http://handasaim.co.il/</string>
     <string name="provider_internal_news">http://handasaim.co.il/</string>
     <string name="provider_internal_schedule_page">http://handasaim.co.il/2018/08/31/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA-%D7%95%D7%A9%D7%99%D7%A0%D7%95%D7%99%D7%99%D7%9D-2/</string>

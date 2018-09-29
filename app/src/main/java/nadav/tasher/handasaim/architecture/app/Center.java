@@ -15,6 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
@@ -23,6 +24,10 @@ import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
 import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
 import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.lightool.graphics.views.Utils;
+import okhttp3.Callback;
+import okhttp3.ConnectionSpec;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 public class Center {
 
@@ -64,6 +69,11 @@ public class Center {
             c.overridePendingTransition(R.anim.back_out, R.anim.back_in);
             c.finish();
         }
+    }
+
+    public static void request(Request request, Callback callback) {
+        OkHttpClient client = new OkHttpClient.Builder().connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS)).build();
+        client.newCall(request).enqueue(callback);
     }
 
     public static int getFontSize(Context c) {

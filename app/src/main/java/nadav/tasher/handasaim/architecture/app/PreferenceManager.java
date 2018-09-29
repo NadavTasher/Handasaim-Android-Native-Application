@@ -13,9 +13,13 @@ import java.util.ArrayList;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
-import nadav.tasher.lightool.communication.network.Requester;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
+import okhttp3.Response;
+
+import static nadav.tasher.handasaim.architecture.app.Center.request;
 
 public class PreferenceManager {
 
@@ -144,15 +148,17 @@ public class PreferenceManager {
         }
 
         public void loadKey(final String key) {
-            new Requester(new Request.Builder().url(context.getResources().getString(R.string.provider_external_keys)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("exchange", key).build()), new Requester.Callback() {
+            request(new Request.Builder().url(context.getResources().getString(R.string.provider_external_keys)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("exchange", key).build()).build(), new Callback() {
                 @Override
-                public void onCall(okhttp3.Response response) {
+                public void onFailure(Call call, IOException e) {
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) {
                     try {
                         if (response.isSuccessful()) {
                             if (response.body() != null) {
                                 try {
-                                    //                                String responseString=response.body().string();
-                                    //                                Log.i("Key",responseString);
                                     JSONObject o = new JSONObject(response.body().string());
                                     if (o.getBoolean(context.getString(R.string.key_response_parameter_approved))) {
                                         installKey(key, o.getInt(context.getString(R.string.key_response_parameter_type)));
@@ -174,7 +180,7 @@ public class PreferenceManager {
                         Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
                     }
                 }
-            }).execute();
+            });
         }
 
         private void installKey(String key, int type) {
