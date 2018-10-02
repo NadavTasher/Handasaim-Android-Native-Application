@@ -7,8 +7,8 @@ android {
         applicationId "nadav.tasher.handasaim"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 68
-        versionName '6.8'
+        versionCode 69
+        versionName '6.9'
         multiDexEnabled true
     }
     buildTypes {
