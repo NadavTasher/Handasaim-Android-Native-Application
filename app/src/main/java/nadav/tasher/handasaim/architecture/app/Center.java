@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +25,7 @@ import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
 import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
 import nadav.tasher.handasaim.values.Filters;
 import nadav.tasher.lightool.graphics.views.Utils;
+import nadav.tasher.lightool.parts.Peer;
 import okhttp3.Callback;
 import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
@@ -168,7 +170,7 @@ public class Center {
         return Typeface.createFromAsset(c.getAssets(), c.getResources().getString(R.string.font_name));
     }
 
-    public static LinearLayout getCodeEntering(Context context) {
+    public static LinearLayout getCodeEntering(final Activity context) {
         final PreferenceManager pm = new PreferenceManager(context);
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -199,7 +201,19 @@ public class Center {
         installCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pm.getKeyManager().loadKey(key.getText().toString().toUpperCase());
+                Peer<String> log = pm.getKeyManager().loadKey(key.getText().toString().toUpperCase());
+                log.setOnPeer(new Peer.OnPeer<String>() {
+                    @Override
+                    public boolean onPeer(final String s) {
+                        context.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        return false;
+                    }
+                });
                 key.setText(null);
             }
         });

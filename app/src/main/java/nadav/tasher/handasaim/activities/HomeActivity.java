@@ -776,7 +776,7 @@ public class HomeActivity extends Activity {
         sv.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
         sv.setVerticalScrollBarEnabled(false);
         sv.setFillViewport(true);
-        LinearLayout ll = Center.getCodeEntering(getApplicationContext());
+        LinearLayout ll = Center.getCodeEntering(this);
         sv.addView(ll);
         return sv;
     }

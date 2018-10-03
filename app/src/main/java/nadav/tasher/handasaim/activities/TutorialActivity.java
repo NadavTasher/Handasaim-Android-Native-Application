@@ -300,7 +300,7 @@ public class TutorialActivity extends Activity {
         LinearLayout screen4 = new LinearLayout(getApplicationContext());
         screen4.setOrientation(LinearLayout.VERTICAL);
         screen4.setGravity(Gravity.CENTER);
-        screen4.addView(Center.getCodeEntering(getApplicationContext()));
+        screen4.addView(Center.getCodeEntering(this));
         content.removeAllViews();
         content.addView(screen4);
         back.setOnClickListener(new View.OnClickListener() {

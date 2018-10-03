@@ -2,7 +2,6 @@ package nadav.tasher.handasaim.architecture.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,6 +12,7 @@ import java.util.ArrayList;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
+import nadav.tasher.lightool.parts.Peer;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MultipartBody;
@@ -147,7 +147,8 @@ public class PreferenceManager {
             return super.get(unlockType, null) != null;
         }
 
-        public void loadKey(final String key) {
+        public Peer<String> loadKey(final String key) {
+            final Peer<String> log = new Peer<>();
             request(new Request.Builder().url(context.getResources().getString(R.string.provider_external_keys)).post(new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("exchange", key).build()).build(), new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -161,45 +162,44 @@ public class PreferenceManager {
                                 try {
                                     JSONObject o = new JSONObject(response.body().string());
                                     if (o.getBoolean(context.getString(R.string.key_response_parameter_approved))) {
-                                        installKey(key, o.getInt(context.getString(R.string.key_response_parameter_type)));
+                                        log.tell(installKey(key, o.getInt(context.getString(R.string.key_response_parameter_type))));
                                     } else {
-                                        Toast.makeText(context, "Key does not exist, or already used", Toast.LENGTH_SHORT).show();
+                                        log.tell("Key does not exist, or already used");
                                     }
                                 } catch (JSONException | IOException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
+                                    log.tell("Key verification failed.");
                                 }
                             } else {
-                                Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
+                                log.tell("Key verification failed.");
                             }
                         } else {
-                            Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
+                            log.tell("Key verification failed.");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Toast.makeText(context, "Key verification failed.", Toast.LENGTH_SHORT).show();
+                        log.tell("Key verification failed.");
                     }
                 }
             });
+            return log;
         }
 
-        private void installKey(String key, int type) {
+        private String installKey(String key, int type) {
             switch (type) {
                 case -1:
                     super.set(R.string.preferences_keys_type_beta, key);
-                    Toast.makeText(context, "Beta Mode Enabled.", Toast.LENGTH_SHORT).show();
-                    break;
+                    return "Beta Mode Enabled.";
                 case 1:
                     super.set(R.string.preferences_keys_type_news, key);
-                    Toast.makeText(context, "News Splash Disabled.", Toast.LENGTH_SHORT).show();
-                    break;
+                    return "News Splash Disabled.";
                 case 2:
                     super.set(R.string.preferences_keys_type_teachers, key);
-                    Toast.makeText(context, "Teacher Mode Enabled.", Toast.LENGTH_SHORT).show();
-                    break;
+                    return "Teacher Mode Enabled";
                 default:
                     break;
             }
+            return "Unknown Thing?";
         }
     }
 
