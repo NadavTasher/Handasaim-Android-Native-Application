@@ -1,9 +1,7 @@
 package nadav.tasher.handasaim.activities;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -11,6 +9,7 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -90,7 +89,8 @@ public class SplashActivity extends Activity {
         if (Device.isOnline(getApplicationContext())) {
             initStageD();
         } else {
-            popupInternet();
+            Toast.makeText(getApplicationContext(), R.string.interface_no_connection, Toast.LENGTH_SHORT).show();
+            initStageE(false);
         }
     }
 
@@ -101,24 +101,27 @@ public class SplashActivity extends Activity {
             linkFetcher = new LinkFetcher(getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), new LinkFetcher.OnFinish() {
                 @Override
                 public void onLinkFetch(final String link) {
-                    StringBuilder fileName = new StringBuilder();
-                    fileName.append(getResources().getString(R.string.schedule_file_name));
-                    fileName.append(".");
-                    fileName.append(link.split("\\.")[link.split("\\.").length - 1]);
+                    if (link != null) {
+                        StringBuilder fileName = new StringBuilder();
+                        fileName.append(getResources().getString(R.string.schedule_file_name));
+                        fileName.append(".");
+                        fileName.append(link.split("\\.")[link.split("\\.").length - 1]);
+                        if (!hasLink(getApplicationContext(), link)) {
+                            new Download(link, new File(getApplicationContext().getCacheDir(), fileName.toString()), new Download.Callback() {
+                                @Override
+                                public void onSuccess(File file) {
+                                    pm.getCoreManager().addSchedule(AppCore.getSchedule(file, "Daily", "Unknown", link));
+                                    initStageE(true);
+                                }
 
-                    if (!hasLink(getApplicationContext(), link)) {
-                        new Download(link, new File(getApplicationContext().getCacheDir(), fileName.toString()), new Download.Callback() {
-                            @Override
-                            public void onSuccess(File file) {
-                                pm.getCoreManager().addSchedule(AppCore.getSchedule(file, "Daily", "Unknown", link));
-                                initStageE(true);
-                            }
-
-                            @Override
-                            public void onFailure(Exception e) {
-                                initStageC();
-                            }
-                        }).execute();
+                                @Override
+                                public void onFailure(Exception e) {
+                                    initStageC();
+                                }
+                            }).execute();
+                        } else {
+                            initStageE(false);
+                        }
                     } else {
                         initStageE(false);
                     }
@@ -147,25 +150,6 @@ public class SplashActivity extends Activity {
         } else {
             Center.enter(this, TutorialActivity.class);
         }
-    }
-
-    private void popupInternet() {
-        AlertDialog.Builder pop = new AlertDialog.Builder(this);
-        pop.setCancelable(true);
-        pop.setMessage(R.string.interface_no_connection);
-        pop.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                initStageC();
-            }
-        });
-        pop.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                initStageC();
-            }
-        });
-        pop.show();
     }
 
     @Override
