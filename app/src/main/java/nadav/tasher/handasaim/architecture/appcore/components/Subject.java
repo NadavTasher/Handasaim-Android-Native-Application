@@ -18,6 +18,13 @@ public class Subject {
         parseDescription();
     }
 
+    public Subject(Classroom classroom, int schoolHour, String name, ArrayList<String> teacherNames) {
+        this.schoolHour = schoolHour;
+        this.classroom = classroom;
+        this.subjectName = name;
+        this.teacherStrings = teacherNames;
+    }
+
     private void parseDescription() {
         this.subjectName = description.split("\\r?\\n")[0];
         this.subjectName = this.subjectName.replaceAll(",", "/");

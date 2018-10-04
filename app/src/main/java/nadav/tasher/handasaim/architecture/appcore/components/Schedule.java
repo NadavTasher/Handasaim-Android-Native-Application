@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import nadav.tasher.handasaim.architecture.appcore.AppCore;
+
 public class Schedule {
 
     public static final int TYPE_REGULAR = 0;
@@ -20,6 +22,9 @@ public class Schedule {
     public static final String PARAMETER_SUBJECTS = "subjects";
     public static final String PARAMETER_DESCRIPTION = "description";
     public static final String PARAMETER_HOUR = "hour";
+    public static final String PARAMETER_START_TIME = "start_minute";
+    public static final String PARAMETER_END_TIME = "end_minute";
+    public static final String PARAMETER_TEACHERS = "teachers";
 
     private ArrayList<Classroom> classrooms;
     private ArrayList<Teacher> teachers;
@@ -67,6 +72,48 @@ public class Schedule {
     }
 
     public JSONObject toJSON() {
+        JSONObject scheduleJSON = new JSONObject();
+        try {
+            scheduleJSON.put(PARAMETER_TYPE, type);
+            scheduleJSON.put(PARAMETER_DAY, day);
+            scheduleJSON.put(PARAMETER_NAME, name);
+            scheduleJSON.put(PARAMETER_DATE, date);
+            scheduleJSON.put(PARAMETER_ORIGIN, origin);
+            JSONArray messagesJSON = new JSONArray();
+            for (String m : messages) {
+                messagesJSON.put(m);
+            }
+            JSONArray classroomsJSON = new JSONArray();
+            for (Classroom c : classrooms) {
+                JSONObject classroomJSON = new JSONObject();
+                classroomJSON.put(PARAMETER_NAME, c.getName());
+                JSONArray subjectsJSON = new JSONArray();
+                for (Subject s : c.getSubjects()) {
+                    JSONObject subjectJSON = new JSONObject();
+                    subjectJSON.put(PARAMETER_NAME, s.getName());
+                    subjectJSON.put(PARAMETER_HOUR, s.getSchoolHour());
+                    subjectJSON.put(PARAMETER_START_TIME, AppCore.getSchool().getStartingMinute(s.getSchoolHour()));
+                    subjectJSON.put(PARAMETER_END_TIME, AppCore.getSchool().getEndingMinute(s.getSchoolHour()));
+                    JSONArray teacherNamesJSON = new JSONArray();
+                    for (Teacher t : s.getTeachers()) {
+                        teacherNamesJSON.put(t.getName());
+                    }
+                    subjectJSON.put(PARAMETER_TEACHERS, teachers);
+                    subjectsJSON.put(subjectJSON);
+                }
+                classroomJSON.put(PARAMETER_SUBJECTS, subjectsJSON);
+                classroomsJSON.put(classroomJSON);
+            }
+            scheduleJSON.put(PARAMETER_CLASSROOMS, classroomsJSON);
+            scheduleJSON.put(PARAMETER_MESSAGES, messagesJSON);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return scheduleJSON;
+    }
+
+    public JSONObject toAppCoreJSON() {
         JSONObject scheduleJSON = new JSONObject();
         try {
             scheduleJSON.put(PARAMETER_TYPE, type);
@@ -134,6 +181,46 @@ public class Schedule {
         }
 
         public static Builder fromJSON(JSONObject object) {
+            Builder builder;
+            try {
+                int type = object.getInt(PARAMETER_TYPE);
+                String day = object.getString(PARAMETER_DAY);
+                String origin = object.getString(PARAMETER_ORIGIN);
+                String date = object.getString(PARAMETER_DATE);
+                String name = object.getString(PARAMETER_NAME);
+                JSONArray messages = object.getJSONArray(PARAMETER_MESSAGES);
+                JSONArray classrooms = object.getJSONArray(PARAMETER_CLASSROOMS);
+                builder = new Builder(type);
+                for (int m = 0; m < messages.length(); m++) {
+                    builder.addMessage(messages.getString(m));
+                }
+                for (int c = 0; c < classrooms.length(); c++) {
+                    JSONObject classroomJSON = classrooms.getJSONObject(c);
+                    Classroom classroom = new Classroom(classroomJSON.getString(PARAMETER_NAME));
+                    JSONArray subjectsJSON = classroomJSON.getJSONArray(PARAMETER_SUBJECTS);
+                    for (int s = 0; s < subjectsJSON.length(); s++) {
+                        JSONObject subjectJSON = subjectsJSON.getJSONObject(s);
+                        JSONArray teacherNamesJSON = subjectJSON.getJSONArray(PARAMETER_TEACHERS);
+                        ArrayList<String> teacherNames = new ArrayList<>();
+                        for (int n = 0; n < teacherNamesJSON.length(); n++) {
+                            teacherNames.add(teacherNamesJSON.getString(n));
+                        }
+                        classroom.addSubject(new Subject(classroom, subjectJSON.getInt(PARAMETER_HOUR), subjectJSON.getString(PARAMETER_NAME), teacherNames));
+                    }
+                    builder.addClassroom(classroom);
+                }
+                builder.setDate(date);
+                builder.setOrigin(origin);
+                builder.setDay(day);
+                builder.setName(name);
+            } catch (Exception e) {
+                e.printStackTrace();
+                builder = new Builder(TYPE_REGULAR);
+            }
+            return builder;
+        }
+
+        public static Builder fromAppCoreJSON(JSONObject object) {
             Builder builder;
             try {
                 int type = object.getInt(PARAMETER_TYPE);
