@@ -98,7 +98,7 @@ public class Schedule {
                     for (Teacher t : s.getTeachers()) {
                         teacherNamesJSON.put(t.getName());
                     }
-                    subjectJSON.put(PARAMETER_TEACHERS, teachers);
+                    subjectJSON.put(PARAMETER_TEACHERS, teacherNamesJSON);
                     subjectsJSON.put(subjectJSON);
                 }
                 classroomJSON.put(PARAMETER_SUBJECTS, subjectsJSON);
