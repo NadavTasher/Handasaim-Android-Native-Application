@@ -18,6 +18,7 @@ public class Schedule {
     public static final String PARAMETER_ORIGIN = "origin";
     public static final String PARAMETER_TYPE = "type";
     public static final String PARAMETER_MESSAGES = "messages";
+    public static final String PARAMETER_GRADE = "grade";
     public static final String PARAMETER_CLASSROOMS = "classrooms";
     public static final String PARAMETER_SUBJECTS = "subjects";
     public static final String PARAMETER_DESCRIPTION = "description";
@@ -87,6 +88,7 @@ public class Schedule {
             for (Classroom c : classrooms) {
                 JSONObject classroomJSON = new JSONObject();
                 classroomJSON.put(PARAMETER_NAME, c.getName());
+                classroomJSON.put(PARAMETER_GRADE, c.getGrade());
                 JSONArray subjectsJSON = new JSONArray();
                 for (Subject s : c.getSubjects()) {
                     JSONObject subjectJSON = new JSONObject();
