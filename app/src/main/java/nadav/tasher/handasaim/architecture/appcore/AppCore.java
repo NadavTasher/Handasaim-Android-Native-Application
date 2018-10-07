@@ -15,6 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFSimpleShape;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -166,7 +167,20 @@ public class AppCore {
         return readCell(s.getRow(0).getCell(0));
     }
 
-    public static Schedule getSchedule(File excel) {
+    public static Schedule getSchedule(File anyfile) {
+        if (anyfile.getName().endsWith(".xlsx") || anyfile.getName().endsWith(".xls")) {
+            return getScheduleFromExcel(anyfile);
+        } else if (anyfile.getName().endsWith(".json")) {
+            // TODO read file
+            return Schedule.Builder.fromJSON(new JSONObject()).build();
+        } else if (anyfile.getName().endsWith(".appcore")) {
+            //TODO read appcore
+            return Schedule.Builder.fromAppCoreJSON(new JSONObject()).build();
+        }
+        return new Schedule.Builder(Schedule.TYPE_REGULAR).build();
+    }
+
+    private static Schedule getScheduleFromExcel(File excel) {
         Schedule.Builder mBuilder = new Schedule.Builder(Schedule.TYPE_REGULAR);
         Sheet sheet = getSheet(excel);
         if (sheet != null) {
@@ -177,8 +191,8 @@ public class AppCore {
         return mBuilder.build();
     }
 
-    public static Schedule getSchedule(File excel, String name, String date, String origin) {
-        Schedule.Builder builder = Schedule.Builder.fromSchedule(getSchedule(excel));
+    public static Schedule getSchedule(File anyfile, String name, String date, String origin) {
+        Schedule.Builder builder = Schedule.Builder.fromSchedule(getSchedule(anyfile));
         builder.setName(name);
         builder.setOrigin(origin);
         builder.setDate(date);

@@ -98,7 +98,7 @@ public class SplashActivity extends Activity {
 //        Log.i("Window Focus", String.valueOf(hasWindowFocus()));
         if (linkFetcher == null && hasWindowFocus()) {
 //            Log.i("StageD", "Here");
-            linkFetcher = new LinkFetcher(getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), new LinkFetcher.OnFinish() {
+            linkFetcher = new LinkFetcher(getString(R.string.provider_internal_schedule_page), getResources().getString(R.string.provider_internal_schedule_page_fallback), getResources().getString(R.string.provider_internal_github_fallback), new LinkFetcher.OnFinish() {
                 @Override
                 public void onLinkFetch(final String link) {
                     if (link != null) {
@@ -107,6 +107,7 @@ public class SplashActivity extends Activity {
                         fileName.append(".");
                         fileName.append(link.split("\\.")[link.split("\\.").length - 1]);
                         if (!hasLink(getApplicationContext(), link)) {
+                            // TODO create new downloader that supports http & https
                             new Download(link, new File(getApplicationContext().getCacheDir(), fileName.toString()), new Download.Callback() {
                                 @Override
                                 public void onSuccess(File file) {

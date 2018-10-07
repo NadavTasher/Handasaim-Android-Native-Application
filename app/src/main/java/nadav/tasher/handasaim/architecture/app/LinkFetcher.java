@@ -10,12 +10,13 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 public class LinkFetcher extends AsyncTask<String, String, String> {
-    private String schedulePage, homePage;
+    private String schedulePage, homePage, github;
     private OnFinish onFinish;
 
-    public LinkFetcher(String schedulePage, String homePage, OnFinish onFinish) {
+    public LinkFetcher(String schedulePage, String homePage, String github, OnFinish onFinish) {
         this.schedulePage = schedulePage;
         this.homePage = homePage;
+        this.github = github;
         this.onFinish = onFinish;
     }
 
@@ -25,12 +26,14 @@ public class LinkFetcher extends AsyncTask<String, String, String> {
 //        file = "http://nockio.com/other/archives/handasaim/schedulearchives/mod.xls";
         try {
             // Main Search At Schedule Page
-            Document document = Jsoup.connect(schedulePage).get();
-            Elements elements = document.select("a");
-            for (int i = 0; (i < elements.size() && file == null); i++) {
-                String attribute = elements.get(i).attr("href");
-                if (attribute.endsWith(".xls") || attribute.endsWith(".xlsx")) {
-                    file = attribute;
+            if (file == null) {
+                Document document = Jsoup.connect(schedulePage).get();
+                Elements elements = document.select("a");
+                for (int i = 0; (i < elements.size() && file == null); i++) {
+                    String attribute = elements.get(i).attr("href");
+                    if (attribute.endsWith(".xls") || attribute.endsWith(".xlsx")) {
+                        file = attribute;
+                    }
                 }
             }
             // Fallback Search At Home Page
@@ -45,6 +48,9 @@ public class LinkFetcher extends AsyncTask<String, String, String> {
                     }
                 }
             }
+            // GitHub Fallback
+            if (file == null) file = github;
+
         } catch (IOException e) {
             e.printStackTrace();
         }
