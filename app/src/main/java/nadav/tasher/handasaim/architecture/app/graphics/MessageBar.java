@@ -113,10 +113,10 @@ public class MessageBar extends LinearLayout {
                                 }
                             }, 3000);
                         } else if (messages.size() == 1) {
-                            if (messages.size() > currentIndex) {
+                            if (messages.size() > currentIndex && !message.getText().toString().equals(messages.get(currentIndex))) {
                                 message.setText(messages.get(currentIndex));
+                                appear();
                             }
-                            appear();
                         }
                     }
                 });

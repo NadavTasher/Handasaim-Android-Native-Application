@@ -138,6 +138,7 @@ public class SplashActivity extends Activity {
     }
 
     private void initStageE(boolean newSchedule) {
+        newSchedule = true;
         if (!pm.getUserManager().get(R.string.preferences_user_launch_first, true)) {
             if (newSchedule) {
                 if (pm.getKeyManager().isKeyLoaded(R.string.preferences_keys_type_news)) {

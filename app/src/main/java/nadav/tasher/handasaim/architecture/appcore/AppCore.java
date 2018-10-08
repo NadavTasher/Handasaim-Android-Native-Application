@@ -16,11 +16,15 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFSimpleShape;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import nadav.tasher.handasaim.architecture.appcore.components.Classroom;
 import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
@@ -29,14 +33,14 @@ import nadav.tasher.handasaim.architecture.appcore.components.Subject;
 
 public class AppCore {
 
-    public static double APPCORE_VERSION = 1.9;
+    public static double APPCORE_VERSION = 2.0;
 
     /*
         Note That XSSF Resemmbles XLSX,
         While HSSF Resembles XLS.
         XSSF Is The Newer Format.
 
-        Since 1.8, AppCore is ONLY for essentials (e.g. reading excel, returning a school)
+        Since 1.8, AppCore is ONLY for essentials (e.g. reading excel, returning a school, fetching a link)
      */
 
     private static int startReadingRow(Sheet s) {
@@ -197,6 +201,49 @@ public class AppCore {
         builder.setOrigin(origin);
         builder.setDate(date);
         return builder.build();
+    }
+
+    public static String getLink(String schedulePage, String homePage, String githubFallback) {
+        String file = null;
+        if (file == null) {
+            try {
+                // Main Search At Schedule Page
+                Document document = Jsoup.connect(schedulePage).get();
+                Elements elements = document.select("a");
+                for (int i = 0; (i < elements.size() && file == null); i++) {
+                    String attribute = elements.get(i).attr("href");
+                    if (attribute.endsWith(".xls") || attribute.endsWith(".xlsx")) {
+                        file = attribute;
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (file == null) {
+            try {
+                // Fallback Search At Home Page
+                Document documentFallback = Jsoup.connect(homePage).get();
+                Elements elementsFallback = documentFallback.select("a");
+                for (int i = 0; (i < elementsFallback.size() && file == null); i++) {
+                    String attribute = elementsFallback.get(i).attr("href");
+                    //                    Log.i("LinkFallback",attribute);
+                    if ((attribute.endsWith(".xls") || attribute.endsWith(".xlsx")) && Pattern.compile("(/.[^a-z]+\\..+)$").matcher(attribute).find()) {
+                        file = attribute;
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        // GitHub Fallback
+        if (file == null) {
+            file = githubFallback;
+        }
+        // Return Link
+        return file;
     }
 
     public static School getSchool() {

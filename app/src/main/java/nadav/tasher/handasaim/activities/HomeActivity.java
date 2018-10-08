@@ -184,8 +184,10 @@ public class HomeActivity extends Activity {
                 setCornerColor(mAppView.getScrolly());
                 messageBar.setTextColor(theme.textColor);
                 messageBar.setTextSize(theme.textSize);
+
                 mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(theme.menuColor, 48, 10));
-                mAppView.getDrawer().getDrawerView().setPadding(0, drawerPadding, 0, drawerPadding);
+                mAppView.getDrawer().setPadding(drawerPadding, drawerPadding, drawerPadding, drawerPadding);
+//                mAppView.getDrawer().getDrawerView().setPadding(0, drawerPadding, 0, drawerPadding);
                 if (theme.showMessages && schedule.getMessages().size() != 0) {
                     messageBar.setVisibility(View.VISIBLE);
                 } else {
@@ -890,8 +892,8 @@ public class HomeActivity extends Activity {
         menu.addView(timetraverIcon);
         menu.addView(settingsIcon);
         menu.setPadding(10, 10, 10, 10);
-        menu.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, size + menu.getPaddingBottom() + menu.getPaddingTop()));
-        menuDrawer.setLayoutParams(new LinearLayout.LayoutParams(Device.screenX(getApplicationContext()), size + menu.getPaddingBottom() + menu.getPaddingTop()));
+        menu.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        menuDrawer.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         menuDrawer.addView(menu);
         return menuDrawer;
     }

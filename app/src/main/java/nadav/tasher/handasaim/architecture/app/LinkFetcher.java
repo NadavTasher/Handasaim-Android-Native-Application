@@ -2,12 +2,7 @@ package nadav.tasher.handasaim.architecture.app;
 
 import android.os.AsyncTask;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
-import java.util.regex.Pattern;
+import nadav.tasher.handasaim.architecture.appcore.AppCore;
 
 public class LinkFetcher extends AsyncTask<String, String, String> {
     private String schedulePage, homePage, github;
@@ -22,39 +17,7 @@ public class LinkFetcher extends AsyncTask<String, String, String> {
 
     @Override
     protected String doInBackground(String... strings) {
-        String file = null;
-//        file = "http://nockio.com/other/archives/handasaim/schedulearchives/mod.xls";
-        try {
-            // Main Search At Schedule Page
-            if (file == null) {
-                Document document = Jsoup.connect(schedulePage).get();
-                Elements elements = document.select("a");
-                for (int i = 0; (i < elements.size() && file == null); i++) {
-                    String attribute = elements.get(i).attr("href");
-                    if (attribute.endsWith(".xls") || attribute.endsWith(".xlsx")) {
-                        file = attribute;
-                    }
-                }
-            }
-            // Fallback Search At Home Page
-            if (file == null) {
-                Document documentFallback = Jsoup.connect(homePage).get();
-                Elements elementsFallback = documentFallback.select("a");
-                for (int i = 0; (i < elementsFallback.size() && file == null); i++) {
-                    String attribute = elementsFallback.get(i).attr("href");
-                    //                    Log.i("LinkFallback",attribute);
-                    if ((attribute.endsWith(".xls") || attribute.endsWith(".xlsx")) && Pattern.compile("(/.[^a-z]+\\..+)$").matcher(attribute).find()) {
-                        file = attribute;
-                    }
-                }
-            }
-            // GitHub Fallback
-            if (file == null) file = github;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return file;
+        return AppCore.getLink(schedulePage, homePage, github);
     }
 
     @Override

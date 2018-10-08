@@ -6,10 +6,10 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -28,9 +28,6 @@ import nadav.tasher.lightool.info.Device;
 
 public class NewsActivity extends Activity {
 
-    private static final int waitTime = 10;
-    private boolean started = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,15 +45,38 @@ public class NewsActivity extends Activity {
     }
 
     private void go() {
-        getWindow().setNavigationBarColor(Center.getColorTop(getApplicationContext()));
         getWindow().setStatusBarColor(Center.getColorTop(getApplicationContext()));
+        getWindow().setNavigationBarColor(Center.getColorBottom(getApplicationContext()));
         // Setup ScrollView
         ScrollView scrollView = new ScrollView(getApplicationContext());
-        scrollView.setBackgroundColor(Center.getColorTop(getApplicationContext()));
-        // Setup LinearLayout
+        // Setup LinearLayouts
         final LinearLayout fullScreen = new LinearLayout(getApplicationContext());
         fullScreen.setOrientation(LinearLayout.VERTICAL);
         fullScreen.setGravity(Gravity.CENTER);
+        fullScreen.setBackground(Center.getGradient(getApplicationContext()));
+        final LinearLayout newsLayout = new LinearLayout(getApplicationContext());
+        newsLayout.setOrientation(LinearLayout.VERTICAL);
+        newsLayout.setGravity(Gravity.CENTER);
+        final LinearLayout bottomNavigation = new LinearLayout(getApplicationContext());
+        bottomNavigation.setOrientation(LinearLayout.HORIZONTAL);
+        bottomNavigation.setGravity(Gravity.CENTER);
+        bottomNavigation.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 9));
+        // Setup SKIP Button
+        Button skipButton = new Button(getApplicationContext());
+        skipButton.setText(R.string.interface_skip);
+        skipButton.setTextSize(Center.getFontSize(getApplicationContext()));
+        skipButton.setTypeface(Center.getTypeface(getApplicationContext()));
+        skipButton.setTextColor(Center.getTextColor(getApplicationContext()));
+        skipButton.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10));
+        skipButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Center.enter(NewsActivity.this, HomeActivity.class);
+            }
+        });
+        skipButton.setPadding(20, 20, 20, 20);
+        skipButton.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        bottomNavigation.addView(skipButton);
         // Setup EasterEgg
         TextView mEggTop = getText(getResources().getString(R.string.interface_did_you_know), 1);
         mEggTop.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 8));
@@ -88,30 +108,18 @@ public class NewsActivity extends Activity {
                     mArticleView.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10));
                     mArticleView.setTop(title);
                     mArticleView.setBottom(button);
-                    fullScreen.addView(mArticleView);
+                    newsLayout.addView(mArticleView);
                 }
             }
 
             @Override
             public void onFail() {
-                if (!started) {
-                    started = true;
-                    Center.enter(NewsActivity.this, HomeActivity.class);
-                }
             }
         }).execute();
-        scrollView.addView(fullScreen);
-        setContentView(scrollView);
-        Handler mHandler = new Handler();
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!started) {
-                    started = true;
-                    Center.enter(NewsActivity.this, HomeActivity.class);
-                }
-            }
-        }, 1000 * waitTime);
+        scrollView.addView(newsLayout);
+        fullScreen.addView(scrollView);
+        fullScreen.addView(bottomNavigation);
+        setContentView(fullScreen);
     }
 
     private RatioView getText(String text, double ratio) {
