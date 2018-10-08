@@ -97,8 +97,8 @@ public class Schedule {
                     subjectJSON.put(PARAMETER_START_TIME, AppCore.getSchool().getStartingMinute(s.getSchoolHour()));
                     subjectJSON.put(PARAMETER_END_TIME, AppCore.getSchool().getEndingMinute(s.getSchoolHour()));
                     JSONArray teacherNamesJSON = new JSONArray();
-                    for (Teacher t : s.getTeachers()) {
-                        teacherNamesJSON.put(t.getName());
+                    for (String t : s.getTeacherNames()) {
+                        teacherNamesJSON.put(t);
                     }
                     subjectJSON.put(PARAMETER_TEACHERS, teacherNamesJSON);
                     subjectsJSON.put(subjectJSON);
