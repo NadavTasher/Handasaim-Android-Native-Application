@@ -23,6 +23,8 @@ import org.jsoup.select.Elements;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -43,13 +45,17 @@ public class AppCore {
         Since 1.8, AppCore is ONLY for essentials (e.g. reading excel, returning a school, fetching a link)
      */
 
-    private static int startReadingRow(Sheet s) {
-        Cell secondCell = s.getRow(0).getCell(1);
+    private static int getReadingRow(Sheet sheet) {
+        Cell secondCell = sheet.getRow(0).getCell(1);
         if (!readCell(secondCell).isEmpty()) {
             return 0;
         } else {
             return 1;
         }
+    }
+
+    private static int getReadingColumn(Sheet sheet) {
+        return 1;
     }
 
     private static void parseMessages(Schedule.Builder builder, Sheet sheet) {
@@ -147,18 +153,24 @@ public class AppCore {
 
     private static void parseClassrooms(Schedule.Builder builder, Sheet sheet) {
         try {
-            int startReadingRow = startReadingRow(sheet);
+            int readingRow = getReadingRow(sheet);
+            int readingColumn = getReadingColumn(sheet);
             int rows = sheet.getLastRowNum();
-            int cols = sheet.getRow(startReadingRow).getLastCellNum();
-            for (int c = 1; c < cols; c++) {
-                String name = readCell(sheet.getRow(startReadingRow).getCell(c)).split(" ")[0];
-                Classroom classroom = new Classroom(name);
-                int readStart = startReadingRow + 1;
-                for (int r = readStart; r < rows; r++) {
+            int columns = sheet.getRow(readingRow).getLastCellNum();
+            for (int c = readingColumn; c < columns; c++) {
+                Classroom.Builder classroom = new Classroom.Builder();
+                classroom.setName(readCell(sheet.getRow(readingRow).getCell(c)).split(" ")[0]);
+                int startRow = readingRow + 1;
+                for (int r = startRow; r < rows; r++) {
                     Row row = sheet.getRow(r);
                     String description = readCell(row.getCell(c));
-                    if (!description.isEmpty())
-                        classroom.addSubject(new Subject(classroom, r - readStart, description));
+                    if (!description.isEmpty()) {
+                        Subject.Builder subject = new Subject.Builder();
+                        subject.setName(description.split("\\r?\\n")[0].replaceAll(",", "/"));
+                        subject.setNames(new ArrayList<>(Arrays.asList(description.substring(description.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(","))));
+                        subject.setHour(r - startRow);
+                        classroom.addSubject(subject);
+                    }
                 }
                 builder.addClassroom(classroom);
             }
@@ -177,15 +189,12 @@ public class AppCore {
         } else if (anyfile.getName().endsWith(".json")) {
             // TODO read file
             return Schedule.Builder.fromJSON(new JSONObject()).build();
-        } else if (anyfile.getName().endsWith(".appcore")) {
-            //TODO read appcore
-            return Schedule.Builder.fromAppCoreJSON(new JSONObject()).build();
         }
-        return new Schedule.Builder(Schedule.TYPE_REGULAR).build();
+        return new Schedule.Builder().build();
     }
 
     private static Schedule getScheduleFromExcel(File excel) {
-        Schedule.Builder mBuilder = new Schedule.Builder(Schedule.TYPE_REGULAR);
+        Schedule.Builder mBuilder = new Schedule.Builder();
         Sheet sheet = getSheet(excel);
         if (sheet != null) {
             parseClassrooms(mBuilder, sheet);

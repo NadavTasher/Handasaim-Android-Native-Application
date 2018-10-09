@@ -914,7 +914,7 @@ public class HomeActivity extends Activity {
     private String classroomToString(Classroom classroom) {
         StringBuilder export = new StringBuilder();
         for (Subject subject : classroom.getSubjects()) {
-            String text = subject.getSchoolHour() + ". " + subject.getName();
+            String text = subject.getHour() + ". " + subject.getName();
             if (subject.getName() != null && !subject.getName().isEmpty()) {
                 export.append(text).append("\n");
             }
@@ -926,8 +926,8 @@ public class HomeActivity extends Activity {
         ArrayList<LessonView> views = new ArrayList<>();
         for (Subject s : classroom.getSubjects()) {
             if (s.getName() != null && !s.getName().isEmpty()) {
-                if (AppCore.getSchool().getBreakLength(s.getSchoolHour() - 1, s.getSchoolHour()) > 0) {
-                    final LessonView breakView = new LessonView(getApplicationContext(), LessonView.MARK_TYPE_NORMAL, "הפסקה", generateBreakTime(s.getSchoolHour() - 1, s.getSchoolHour()), new ArrayList<String>());
+                if (AppCore.getSchool().getBreakLength(s.getHour() - 1, s.getHour()) > 0) {
+                    final LessonView breakView = new LessonView(getApplicationContext(), LessonView.MARK_TYPE_NORMAL, "הפסקה", generateBreakTime(s.getHour() - 1, s.getHour()), new ArrayList<String>());
                     if (theme.getLast().showBreaks) {
                         breakView.setVisibility(View.VISIBLE);
                     } else {
@@ -946,11 +946,11 @@ public class HomeActivity extends Activity {
                     }));
                     views.add(breakView);
                 }
-                boolean prehourMarkEnabled = (s.getSchoolHour() == 0 && pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour)));
+                boolean prehourMarkEnabled = (s.getHour() == 0 && pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour)));
                 int currentMinute = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) * 60 + Calendar.getInstance().get(Calendar.MINUTE);
-                boolean currentHour = (currentMinute >= AppCore.getSchool().getStartingMinute(s.getSchoolHour()) && currentMinute < AppCore.getSchool().getEndingMinute(s.getSchoolHour()));
+                boolean currentHour = (currentMinute >= AppCore.getSchool().getStartingMinute(s.getHour()) && currentMinute < AppCore.getSchool().getEndingMinute(s.getHour()));
                 int markType = (currentHour) ? (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_PRESSED : LessonView.MARK_TYPE_PRESSED : (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_NORMAL : LessonView.MARK_TYPE_NORMAL;
-                LessonView subject = new LessonView(getApplicationContext(), markType, s.getSchoolHour() + ". " + s.getName(), generateTime(s.getSchoolHour()), s.getTeacherNames());
+                LessonView subject = new LessonView(getApplicationContext(), markType, s.getHour() + ". " + s.getName(), generateTime(s.getHour()), s.getTeacherNames());
                 views.add(subject);
             }
         }
@@ -965,7 +965,7 @@ public class HomeActivity extends Activity {
             String subjectName = "";
             ArrayList<Classroom> classrooms = new ArrayList<>();
             for (int s = 0; s < teaching.size(); s++) {
-                if (teaching.get(s).getSchoolHour() == h) {
+                if (teaching.get(s).getHour() == h) {
                     subjectName = teaching.get(s).getName();
                     classrooms.add(teaching.get(s).getClassroom());
                 }

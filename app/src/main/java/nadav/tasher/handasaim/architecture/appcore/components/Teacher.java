@@ -3,37 +3,56 @@ package nadav.tasher.handasaim.architecture.appcore.components;
 import java.util.ArrayList;
 
 public class Teacher {
-    private ArrayList<Subject> subjects=new ArrayList<>();
-    private ArrayList<String> names=new ArrayList<>();
+    private ArrayList<Subject> subjects = new ArrayList<>();
+    private String name = "";
 
-    public Teacher(){}
-
-    public void addSubject(Subject subject){
-        subjects.add(subject);
+    private Teacher() {
     }
 
     public ArrayList<Subject> getSubjects() {
         return subjects;
     }
 
-    public void addName(String name){
-        names.add(name);
+    public String getName() {
+        return name;
     }
 
-    public ArrayList<String> getNames() {
-        return names;
-    }
-
-    public String getName(){
-        if(names.size()>0) {
-            int indexOfLongest = 0;
-            for (int name = 0; name < names.size(); name++) {
-                if (names.get(name).length() > names.get(indexOfLongest).length()) {
-                    indexOfLongest = name;
-                }
-            }
-            return names.get(indexOfLongest);
+    private void setName(String name) {
+        if (name.length() > this.name.length()) {
+            this.name = name;
         }
-        return "Unknown Name";
+    }
+
+    private void addSubject(Subject subject) {
+        subjects.add(subject);
+    }
+
+    public static class Builder {
+        private Teacher teacher = new Teacher();
+
+        public Builder() {
+        }
+
+        public String getName() {
+            return teacher.getName();
+        }
+
+        public Builder setName(String name) {
+            teacher.setName(name);
+            return this;
+        }
+
+        public Builder addSubject(Subject.Builder subject) {
+            teacher.addSubject(subject.build());
+            return this;
+        }
+
+        public ArrayList<Subject> getSubjects() {
+            return teacher.getSubjects();
+        }
+
+        public Teacher build() {
+            return teacher;
+        }
     }
 }
