@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="preferences_user">user_v6</string>
-    <string name="preferences_core">core_v7</string>
+    <string name="preferences_core">core_v8</string>
     <string name="preferences_keys">keys_v1</string>
     <string name="preferences_user_launch_first">firstLaunch</string>
     <string name="preferences_user_color_top">colorTop</string>

@@ -236,7 +236,7 @@ public class PreferenceManager {
         public Schedule getSchedule(int index) {
             try {
                 JSONArray schedules = new JSONArray(super.get(R.string.preferences_core_json_array, new JSONArray().toString()));
-                return (index < schedules.length()) ? Schedule.Builder.fromAppCoreJSON(schedules.getJSONObject(index)).build() : null;
+                return (index < schedules.length()) ? Schedule.Builder.fromJSON(schedules.getJSONObject(index)).build() : null;
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
@@ -248,7 +248,7 @@ public class PreferenceManager {
                 ArrayList<Schedule> schedules = new ArrayList<>();
                 JSONArray schedulesJSON = new JSONArray(super.get(R.string.preferences_core_json_array, new JSONArray().toString()));
                 for (int i = 0; i < schedulesJSON.length(); i++) {
-                    schedules.add(Schedule.Builder.fromAppCoreJSON(schedulesJSON.getJSONObject(i)).build());
+                    schedules.add(Schedule.Builder.fromJSON(schedulesJSON.getJSONObject(i)).build());
                 }
                 return schedules;
             } catch (Exception e) {
@@ -261,7 +261,7 @@ public class PreferenceManager {
             try {
                 JSONArray schedules = new JSONArray(super.get(R.string.preferences_core_json_array, new JSONArray().toString()));
                 JSONArray newSchedules = new JSONArray();
-                newSchedules.put(schedule.toAppCoreJSON());
+                newSchedules.put(schedule.toJSON());
                 for (int i = 0; i < schedules.length(); i++) {
                     newSchedules.put(schedules.get(i));
                 }

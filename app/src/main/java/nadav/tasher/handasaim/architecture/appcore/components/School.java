@@ -16,7 +16,7 @@ public class School {
     }
 
     public int getStartingMinute(Subject subject) {
-        return getStartingMinute(subject.getSchoolHour());
+        return getStartingMinute(subject.getHour());
     }
 
     public int getStartingMinute(int hour) {
@@ -24,7 +24,7 @@ public class School {
     }
 
     public int getEndingMinute(Subject subject) {
-        return getEndingMinute(subject.getSchoolHour());
+        return getEndingMinute(subject.getHour());
     }
 
     public int getEndingMinute(int hour) {

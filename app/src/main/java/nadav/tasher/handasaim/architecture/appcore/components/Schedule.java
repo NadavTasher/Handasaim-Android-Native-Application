@@ -56,6 +56,10 @@ public class Schedule {
         return origin;
     }
 
+    private void removeAllTeachers() {
+        teachers.clear();
+    }
+
     private void setOrigin(String origin) {
         this.origin = origin;
     }
@@ -204,6 +208,9 @@ public class Schedule {
                     }
                 }
             }
+            schedule.removeAllTeachers();
+            for (Teacher.Builder teacherBuilder : allTeachers)
+                schedule.addTeacher(teacherBuilder.build());
         }
 
         public Schedule build() {
