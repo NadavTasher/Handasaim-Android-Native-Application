@@ -21,10 +21,41 @@ public class Classroom {
     private int grade = UNKNOWN_GRADE;
     private ArrayList<Subject> subjects = new ArrayList<>();
 
-    private Classroom() {
+    public Classroom() {
     }
 
-    private void addSubject(Subject subject) {
+    public static int getGrade(String name) {
+        if (name.startsWith("ט")) {
+            return NINTH_GRADE;
+        } else if (name.startsWith("י")) {
+            if (name.contains("א")) {
+                return ELEVENTH_GRADE;
+            } else if (name.contains("ב")) {
+                return TWELVETH_GRADE;
+            }
+            return TENTH_GRADE;
+        } else {
+            return UNKNOWN_GRADE;
+        }
+    }
+
+    public static Classroom fromJSON(JSONObject json) {
+        Classroom classroom = new Classroom();
+        try {
+            classroom.setName(json.getString(PARAMETER_NAME));
+            JSONArray subjectsJSON = json.getJSONArray(PARAMETER_SUBJECTS);
+            for (int s = 0; s < subjectsJSON.length(); s++) {
+                Subject subject = Subject.fromJSON(subjectsJSON.getJSONObject(s));
+                subject.setClassroom(classroom);
+                classroom.addSubject(subject);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return classroom;
+    }
+
+    public void addSubject(Subject subject) {
         subjects.add(subject);
     }
 
@@ -32,8 +63,9 @@ public class Classroom {
         return name;
     }
 
-    private void setName(String name) {
+    public void setName(String name) {
         this.name = name;
+        setGrade(getGrade(name));
     }
 
     public ArrayList<Subject> getSubjects() {
@@ -44,7 +76,7 @@ public class Classroom {
         return grade;
     }
 
-    private void setGrade(int grade) {
+    public void setGrade(int grade) {
         this.grade = grade;
     }
 
@@ -62,60 +94,5 @@ public class Classroom {
             e.printStackTrace();
         }
         return classroomJSON;
-    }
-
-    public static class Builder {
-        private Classroom classroom = new Classroom();
-
-        public Builder() {
-        }
-
-        public static int getGrade(String name) {
-            if (name.startsWith("ט")) {
-                return NINTH_GRADE;
-            } else if (name.startsWith("י")) {
-                if (name.contains("א")) {
-                    return ELEVENTH_GRADE;
-                } else if (name.contains("ב")) {
-                    return TWELVETH_GRADE;
-                }
-                return TENTH_GRADE;
-            } else {
-                return UNKNOWN_GRADE;
-            }
-        }
-
-        public static Builder fromJSON(JSONObject json) {
-            Builder builder = new Builder();
-            try {
-                builder.setName(json.getString(PARAMETER_NAME));
-                JSONArray subjectsJSON = json.getJSONArray(PARAMETER_SUBJECTS);
-                for (int s = 0; s < subjectsJSON.length(); s++) {
-                    Subject.Builder subject = Subject.Builder.fromJSON(subjectsJSON.getJSONObject(s));
-                    subject.setClassroom(builder);
-                    builder.addSubject(subject);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return builder;
-        }
-
-        public void addSubject(Subject.Builder subject) {
-            classroom.addSubject(subject.build());
-        }
-
-        public void setGrade(int grade) {
-            classroom.setGrade(grade);
-        }
-
-        public void setName(String name) {
-            classroom.setName(name);
-            setGrade(getGrade(name));
-        }
-
-        public Classroom build() {
-            return classroom;
-        }
     }
 }

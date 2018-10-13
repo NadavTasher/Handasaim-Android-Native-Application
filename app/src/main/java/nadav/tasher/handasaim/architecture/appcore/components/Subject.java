@@ -15,27 +15,46 @@ import static nadav.tasher.handasaim.architecture.appcore.components.Schedule.PA
 
 public class Subject {
     private int hour;
-    private String name = "??";
+    private String name = "?";
     private ArrayList<Teacher> teachers = new ArrayList<>();
     private Classroom classroom;
 
-    private Subject() {
+    public Subject() {
+    }
+
+    public static Subject fromJSON(JSONObject json) {
+        Subject subject = new Subject();
+        try {
+            subject.setName(json.getString(PARAMETER_NAME));
+            subject.setHour(json.getInt(PARAMETER_HOUR));
+            JSONArray teacherNamesJSON = json.getJSONArray(PARAMETER_TEACHERS);
+            ArrayList<String> teacherNames = new ArrayList<>();
+            for (int n = 0; n < teacherNamesJSON.length(); n++) {
+                teacherNames.add(teacherNamesJSON.getString(n));
+            }
+            subject.setNames(teacherNames);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return subject;
     }
 
     public int getHour() {
         return hour;
     }
 
-    private void setHour(int hour) {
+    public Subject setHour(int hour) {
         this.hour = hour;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    private void setName(String name) {
+    public Subject setName(String name) {
         this.name = name;
+        return this;
     }
 
     public ArrayList<Teacher> getTeachers() {
@@ -50,20 +69,30 @@ public class Subject {
         return names;
     }
 
-    private void removeAllTeachers() {
-        teachers.clear();
+    public Subject setNames(ArrayList<String> names) {
+        for (String name : names) {
+            addTeacher(new Teacher().setName(name).addSubject(this));
+        }
+        return this;
     }
 
-    private void addTeacher(Teacher teacher) {
+    public Subject removeAllTeachers() {
+        teachers.clear();
+        return this;
+    }
+
+    public Subject addTeacher(Teacher teacher) {
         teachers.add(teacher);
+        return this;
     }
 
     public Classroom getClassroom() {
         return classroom;
     }
 
-    private void setClassroom(Classroom classroom) {
+    public Subject setClassroom(Classroom classroom) {
         this.classroom = classroom;
+        return this;
     }
 
     public JSONObject toJSON() {
@@ -82,88 +111,5 @@ public class Subject {
             e.printStackTrace();
         }
         return subjectJSON;
-    }
-
-    public static class Builder {
-        private Subject subject = new Subject();
-
-
-        public Builder() {
-        }
-
-        public static Builder fromSubject(Subject subject) {
-            Builder builder = new Builder();
-            builder.subject = subject;
-            return builder;
-        }
-
-        public static Builder fromJSON(JSONObject json) {
-            Builder builder = new Builder();
-            try {
-                builder.setName(json.getString(PARAMETER_NAME));
-                builder.setHour(json.getInt(PARAMETER_HOUR));
-                JSONArray teacherNamesJSON = json.getJSONArray(PARAMETER_TEACHERS);
-                ArrayList<String> teacherNames = new ArrayList<>();
-                for (int n = 0; n < teacherNamesJSON.length(); n++) {
-                    teacherNames.add(teacherNamesJSON.getString(n));
-                }
-                builder.setNames(teacherNames);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return builder;
-        }
-
-        public String getName() {
-            return subject.getName();
-        }
-
-        public Builder setName(String name) {
-            subject.setName(name);
-            return this;
-        }
-
-        public int getHour() {
-            return subject.getHour();
-        }
-
-        public Builder setHour(int hour) {
-            subject.setHour(hour);
-            return this;
-        }
-
-        public Builder setNames(ArrayList<String> names) {
-            for (String name : names) {
-                addTeacher(new Teacher.Builder().setName(name).addSubject(this));
-            }
-            return this;
-        }
-
-        public Builder addTeacher(Teacher.Builder teacher) {
-            subject.addTeacher(teacher.build());
-            return this;
-        }
-
-        public Builder removeAllTeachers() {
-            subject.removeAllTeachers();
-            return this;
-        }
-
-        public ArrayList<Teacher> getTeachers() {
-            return subject.getTeachers();
-        }
-
-        public Classroom getClassroom() {
-            return subject.getClassroom();
-        }
-
-        public Builder setClassroom(Classroom.Builder classroom) {
-            subject.setClassroom(classroom.build());
-            return this;
-        }
-
-        public Subject build() {
-            return subject;
-        }
     }
 }
