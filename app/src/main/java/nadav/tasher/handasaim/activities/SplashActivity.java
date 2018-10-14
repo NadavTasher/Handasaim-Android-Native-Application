@@ -19,6 +19,7 @@ import nadav.tasher.handasaim.architecture.app.Download;
 import nadav.tasher.handasaim.architecture.app.LinkFetcher;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
 import nadav.tasher.handasaim.architecture.appcore.AppCore;
+import nadav.tasher.handasaim.architecture.appcore.components.Schedule;
 import nadav.tasher.lightool.graphics.ColorFadeAnimation;
 import nadav.tasher.lightool.info.Device;
 
@@ -111,7 +112,8 @@ public class SplashActivity extends Activity {
                             new Download(link, new File(getApplicationContext().getCacheDir(), fileName.toString()), new Download.Callback() {
                                 @Override
                                 public void onSuccess(File file) {
-                                    pm.getCoreManager().addSchedule(AppCore.getSchedule(file, "Daily", "Unknown", link));
+                                    Schedule schedule = AppCore.getSchedule(file, link);
+                                    pm.getCoreManager().addSchedule(schedule);
                                     initStageE(true);
                                 }
 

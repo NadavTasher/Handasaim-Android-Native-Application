@@ -35,7 +35,7 @@ import nadav.tasher.handasaim.architecture.appcore.components.Subject;
 
 public class AppCore {
 
-    public static double APPCORE_VERSION = 2.0;
+    public static double APPCORE_VERSION = 2.1;
 
     /*
         Note That XSSF Resemmbles XLSX,
@@ -158,14 +158,14 @@ public class AppCore {
             int rows = sheet.getLastRowNum();
             int columns = sheet.getRow(readingRow).getLastCellNum();
             for (int c = readingColumn; c < columns; c++) {
-                Classroom.Builder classroom = new Classroom.Builder();
+                Classroom classroom = new Classroom();
                 classroom.setName(readCell(sheet.getRow(readingRow).getCell(c)).split(" ")[0]);
                 int startRow = readingRow + 1;
                 for (int r = startRow; r < rows; r++) {
                     Row row = sheet.getRow(r);
                     String description = readCell(row.getCell(c));
                     if (!description.isEmpty()) {
-                        Subject.Builder subject = new Subject.Builder();
+                        Subject subject = new Subject();
                         subject.setName(description.split("\\r?\\n")[0].replaceAll(",", "/"));
                         subject.setNames(new ArrayList<>(Arrays.asList(description.substring(description.indexOf("\n") + 1).trim().split("\\r?\\n")[0].split(","))));
                         subject.setHour(r - startRow);
@@ -183,17 +183,27 @@ public class AppCore {
         return readCell(s.getRow(0).getCell(0));
     }
 
-    public static Schedule getSchedule(File anyfile) {
+    public static Schedule getSchedule(File anyfile, String link) {
+        Schedule schedule = new Schedule.Builder().build();
         if (anyfile.getName().endsWith(".xlsx") || anyfile.getName().endsWith(".xls")) {
-            return getScheduleFromExcel(anyfile);
+            schedule = getScheduleFromExcel(anyfile, link);
         } else if (anyfile.getName().endsWith(".json")) {
-            // TODO read file
-            return Schedule.Builder.fromJSON(new JSONObject()).build();
+            try {
+                StringBuilder stringBuilder = new StringBuilder();
+                FileInputStream inputStream = new FileInputStream(anyfile);
+                int charInt;
+                while ((charInt = inputStream.read()) != -1) {
+                    stringBuilder.append((char) charInt);
+                }
+                schedule = Schedule.Builder.fromJSON(new JSONObject(stringBuilder.toString())).build();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        return new Schedule.Builder().build();
+        return schedule;
     }
 
-    private static Schedule getScheduleFromExcel(File excel) {
+    private static Schedule getScheduleFromExcel(File excel, String link) {
         Schedule.Builder mBuilder = new Schedule.Builder();
         Sheet sheet = getSheet(excel);
         if (sheet != null) {
@@ -201,34 +211,26 @@ public class AppCore {
             parseMessages(mBuilder, sheet);
             mBuilder.setDay(getDay(sheet));
         }
+        mBuilder.setOrigin(link);
+        mBuilder.setName(link.replaceAll("((.+)(://)|(/(.+|)))", ""));
         return mBuilder.build();
-    }
-
-    public static Schedule getSchedule(File anyfile, String name, String date, String origin) {
-        Schedule.Builder builder = Schedule.Builder.fromSchedule(getSchedule(anyfile));
-        builder.setName(name);
-        builder.setOrigin(origin);
-        builder.setDate(date);
-        return builder.build();
     }
 
     public static String getLink(String schedulePage, String homePage, String githubFallback) {
         String file = null;
-        if (file == null) {
-            try {
-                // Main Search At Schedule Page
-                Document document = Jsoup.connect(schedulePage).get();
-                Elements elements = document.select("a");
-                for (int i = 0; (i < elements.size() && file == null); i++) {
-                    String attribute = elements.get(i).attr("href");
-                    if (attribute.endsWith(".xls") || attribute.endsWith(".xlsx")) {
-                        file = attribute;
-                    }
+        try {
+            // Main Search At Schedule Page
+            Document document = Jsoup.connect(schedulePage).get();
+            Elements elements = document.select("a");
+            for (int i = 0; (i < elements.size() && file == null); i++) {
+                String attribute = elements.get(i).attr("href");
+                if (attribute.endsWith(".xls") || attribute.endsWith(".xlsx")) {
+                    file = attribute;
                 }
-
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         if (file == null) {
             try {

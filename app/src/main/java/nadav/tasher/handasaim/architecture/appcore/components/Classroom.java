@@ -15,7 +15,7 @@ public class Classroom {
     public static final int NINTH_GRADE = 9;
     public static final int TENTH_GRADE = 10;
     public static final int ELEVENTH_GRADE = 11;
-    public static final int TWELVETH_GRADE = 12;
+    public static final int TWELFTH_GRADE = 12;
 
     private String name = "";
     private int grade = UNKNOWN_GRADE;
@@ -24,14 +24,14 @@ public class Classroom {
     public Classroom() {
     }
 
-    public static int getGrade(String name) {
+    private static int getGrade(String name) {
         if (name.startsWith("ט")) {
             return NINTH_GRADE;
         } else if (name.startsWith("י")) {
             if (name.contains("א")) {
                 return ELEVENTH_GRADE;
             } else if (name.contains("ב")) {
-                return TWELVETH_GRADE;
+                return TWELFTH_GRADE;
             }
             return TENTH_GRADE;
         } else {
@@ -76,7 +76,7 @@ public class Classroom {
         return grade;
     }
 
-    public void setGrade(int grade) {
+    private void setGrade(int grade) {
         this.grade = grade;
     }
 

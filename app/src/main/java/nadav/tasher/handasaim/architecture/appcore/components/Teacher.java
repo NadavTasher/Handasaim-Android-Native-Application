@@ -6,7 +6,7 @@ public class Teacher {
     private ArrayList<Subject> subjects = new ArrayList<>();
     private String name = "";
 
-    public Teacher() {
+    Teacher() {
     }
 
     public ArrayList<Subject> getSubjects() {
@@ -17,15 +17,13 @@ public class Teacher {
         return name;
     }
 
-    public Teacher setName(String name) {
+    public void setName(String name) {
         if (name.length() > this.name.length()) {
             this.name = name;
         }
-        return this;
     }
 
-    public Teacher addSubject(Subject subject) {
+    public void addSubject(Subject subject) {
         subjects.add(subject);
-        return this;
     }
 }

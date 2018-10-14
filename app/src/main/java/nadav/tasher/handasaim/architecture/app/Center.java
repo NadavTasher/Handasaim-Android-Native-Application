@@ -152,7 +152,7 @@ public class Center {
                     return "י'";
                 case Classroom.ELEVENTH_GRADE:
                     return "יא'";
-                case Classroom.TWELVETH_GRADE:
+                case Classroom.TWELFTH_GRADE:
                     return "יב'";
             }
             StringBuilder allGrades = new StringBuilder();

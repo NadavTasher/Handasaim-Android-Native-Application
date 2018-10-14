@@ -43,9 +43,8 @@ public class Subject {
         return hour;
     }
 
-    public Subject setHour(int hour) {
+    public void setHour(int hour) {
         this.hour = hour;
-        return this;
     }
 
     public String getName() {
@@ -69,30 +68,29 @@ public class Subject {
         return names;
     }
 
-    public Subject setNames(ArrayList<String> names) {
+    public void setNames(ArrayList<String> names) {
         for (String name : names) {
-            addTeacher(new Teacher().setName(name).addSubject(this));
+            Teacher teacher = new Teacher();
+            teacher.setName(name);
+            teacher.addSubject(this);
+            addTeacher(teacher);
         }
-        return this;
     }
 
-    public Subject removeAllTeachers() {
+    public void removeAllTeachers() {
         teachers.clear();
-        return this;
     }
 
-    public Subject addTeacher(Teacher teacher) {
+    public void addTeacher(Teacher teacher) {
         teachers.add(teacher);
-        return this;
     }
 
     public Classroom getClassroom() {
         return classroom;
     }
 
-    public Subject setClassroom(Classroom classroom) {
+    public void setClassroom(Classroom classroom) {
         this.classroom = classroom;
-        return this;
     }
 
     public JSONObject toJSON() {
