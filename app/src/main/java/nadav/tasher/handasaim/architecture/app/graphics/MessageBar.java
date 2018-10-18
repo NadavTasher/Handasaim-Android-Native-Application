@@ -23,7 +23,6 @@ public class MessageBar extends LinearLayout {
     private RatioView message;
     private int currentIndex = 0;
     private Timer timer;
-    private OnMessage onMessage;
     private Activity a;
 
     public MessageBar(Activity context) {
@@ -42,16 +41,6 @@ public class MessageBar extends LinearLayout {
         message.setPadding(20, 0, 20, 0);
         message.setSingleLine();
         message.setTypeface(Center.getTypeface(getContext()));
-        message.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (onMessage != null) {
-                    String text = null;
-                    if (messages != null && messages.size() > 0) text = messages.get(currentIndex);
-                    onMessage.onMessage(text, currentIndex);
-                }
-            }
-        });
         addView(message);
         make();
     }
@@ -59,10 +48,6 @@ public class MessageBar extends LinearLayout {
     public void setMessages(ArrayList<String> messages) {
         this.messages = messages;
         currentIndex = 0;
-    }
-
-    public void setOnMessage(OnMessage onMessage) {
-        this.onMessage = onMessage;
     }
 
     public void setTextColor(int color) {
@@ -126,9 +111,5 @@ public class MessageBar extends LinearLayout {
 
     public void stop() {
         timer.cancel();
-    }
-
-    public interface OnMessage {
-        void onMessage(String message, int index);
     }
 }

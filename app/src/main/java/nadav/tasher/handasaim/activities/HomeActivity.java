@@ -150,25 +150,6 @@ public class HomeActivity extends Activity {
         scheduleLayout.setPadding(10, 10, 10, 10);
         messageBar = new MessageBar(this);
         messageBar.setMessages(schedule.getMessages());
-        messageBar.setOnMessage(new MessageBar.OnMessage() {
-            @Override
-            public void onMessage(String message, int index) {
-                ScrollView scrollView = new ScrollView(getApplicationContext());
-                scrollView.setFillViewport(true);
-                scrollView.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
-                scrollView.setVerticalScrollBarEnabled(false);
-                RatioView messageView = new RatioView(getApplicationContext(), 0.8);
-                messageView.setPadding(20, 20, 20, 20);
-                messageView.setTypeface(Center.getTypeface(getApplicationContext()));
-                messageView.setTextSize(theme.getLast().textSize);
-                messageView.setTextColor(theme.getLast().textColor);
-                messageView.setGravity(Gravity.CENTER);
-                messageView.setText(message);
-                messageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                scrollView.addView(messageView);
-                openDrawer(scrollView);
-            }
-        });
         scheduleLayout.addView(messageBar);
         lessonViewHolder = new LinearLayout(getApplicationContext());
         lessonViewHolder.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
