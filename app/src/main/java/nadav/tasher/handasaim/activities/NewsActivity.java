@@ -49,6 +49,7 @@ public class NewsActivity extends Activity {
         getWindow().setNavigationBarColor(Center.getColorBottom(getApplicationContext()));
         // Setup ScrollView
         ScrollView scrollView = new ScrollView(getApplicationContext());
+        scrollView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.7)));
         // Setup LinearLayouts
         final LinearLayout fullScreen = new LinearLayout(getApplicationContext());
         fullScreen.setOrientation(LinearLayout.VERTICAL);
@@ -63,6 +64,7 @@ public class NewsActivity extends Activity {
         bottomNavigation.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 9));
         // Setup SKIP Button
         Button skipButton = new Button(getApplicationContext());
+        skipButton.setAllCaps(false);
         skipButton.setText(R.string.interface_skip);
         skipButton.setTextSize(Center.getFontSize(getApplicationContext()));
         skipButton.setTypeface(Center.getTypeface(getApplicationContext()));
@@ -81,13 +83,11 @@ public class NewsActivity extends Activity {
         TextView mEggTop = getText(getResources().getString(R.string.interface_did_you_know), 1);
         mEggTop.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 8));
         final TextView mEggBottom = getText(Egg.dispenseEgg(Egg.TYPE_FACT), 0.9);
-
         mEggBottom.setPadding(0, 30, 0, 30);
         final ExpandingView mEggView = new ExpandingView(getApplicationContext());
         mEggView.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10));
         mEggView.setTop(mEggTop);
         mEggView.setBottom(mEggBottom);
-
         fullScreen.addView(mEggView);
         new NewsFetcher(getString(R.string.provider_internal_news), new NewsFetcher.OnFinish() {
             @Override

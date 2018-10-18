@@ -233,6 +233,17 @@ public class PreferenceManager {
             }
         }
 
+        public void renewSchedule(Schedule toRenew) {
+            ArrayList<Schedule> schedules = getSchedules();
+            boolean found = false;
+            for (int i = 0; i < schedules.size() && !found; i++) {
+                if (schedules.get(i).getOrigin().equals(toRenew.getOrigin())) {
+                    renewSchedule(i);
+                    found = true;
+                }
+            }
+        }
+
         public Schedule getSchedule(int index) {
             try {
                 JSONArray schedules = new JSONArray(super.get(R.string.preferences_core_json_array, new JSONArray().toString()));

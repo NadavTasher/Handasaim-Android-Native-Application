@@ -108,12 +108,16 @@ public class SplashActivity extends Activity {
                         fileName.append(".");
                         fileName.append(link.split("\\.")[link.split("\\.").length - 1]);
                         if (!hasLink(getApplicationContext(), link)) {
-                            // TODO create new downloader that supports http & https
                             new Download(link, new File(getApplicationContext().getCacheDir(), fileName.toString()), new Download.Callback() {
                                 @Override
                                 public void onSuccess(File file) {
                                     Schedule schedule = AppCore.getSchedule(file, link);
-                                    pm.getCoreManager().addSchedule(schedule);
+                                    boolean hasOrigin = hasLink(getApplicationContext(), schedule.getOrigin());
+                                    if (!hasOrigin) {
+                                        pm.getCoreManager().addSchedule(schedule);
+                                    } else {
+                                        pm.getCoreManager().renewSchedule(schedule);
+                                    }
                                     initStageE(true);
                                 }
 
@@ -140,7 +144,6 @@ public class SplashActivity extends Activity {
     }
 
     private void initStageE(boolean newSchedule) {
-        newSchedule = true;
         if (!pm.getUserManager().get(R.string.preferences_user_launch_first, true)) {
             if (newSchedule) {
                 if (pm.getKeyManager().isKeyLoaded(R.string.preferences_keys_type_news)) {
