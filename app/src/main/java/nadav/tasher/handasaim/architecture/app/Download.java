@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import java.io.File;
 import java.io.FileOutputStream;
 
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -25,7 +24,12 @@ public class Download extends AsyncTask<String, String, Boolean> {
     @Override
     protected Boolean doInBackground(String... strings) {
         try {
-            Response response = new OkHttpClient().newCall(new Request.Builder().url(source).build()).execute();
+            Response response;
+            if (source.startsWith("http://")) {
+                response = Center.getHttpClient().newCall(new Request.Builder().url(source).build()).execute();
+            } else {
+                response = Center.getHttpsClient().newCall(new Request.Builder().url(source).build()).execute();
+            }
             if (response.code() != 200) {
                 exception = new Exception("The server responded with " + response.code());
                 if (response.body() != null) {

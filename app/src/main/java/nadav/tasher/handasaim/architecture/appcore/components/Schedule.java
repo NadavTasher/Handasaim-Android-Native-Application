@@ -138,24 +138,33 @@ public class Schedule {
             return builder;
         }
 
-        public void addMessage(String message) {
+        public Builder addMessage(String message) {
             schedule.addMessage(message);
+            return this;
         }
 
-        public void addClassroom(Classroom classroom) {
+        public Builder addClassroom(Classroom classroom) {
             schedule.addClassroom(classroom);
+            return this;
+
         }
 
-        public void setName(String name) {
+        public Builder setName(String name) {
             schedule.setName(name);
+            return this;
+
         }
 
-        public void setOrigin(String origin) {
+        public Builder setOrigin(String origin) {
             schedule.setOrigin(origin);
+            return this;
+
         }
 
-        public void setDay(String day) {
+        public Builder setDay(String day) {
             schedule.setDay(day);
+            return this;
+
         }
 
         private void assembleTeachers() {

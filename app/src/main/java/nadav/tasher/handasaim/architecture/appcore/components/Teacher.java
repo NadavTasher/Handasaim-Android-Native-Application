@@ -18,7 +18,7 @@ public class Teacher {
     }
 
     public void setName(String name) {
-        if (name.length() > this.name.length()) {
+        if (name.length() > this.name.length() && name.startsWith(this.name)) {
             this.name = name;
         }
     }

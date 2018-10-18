@@ -20,8 +20,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -190,10 +192,11 @@ public class AppCore {
         } else if (anyfile.getName().endsWith(".json")) {
             try {
                 StringBuilder stringBuilder = new StringBuilder();
-                FileInputStream inputStream = new FileInputStream(anyfile);
-                int charInt;
-                while ((charInt = inputStream.read()) != -1) {
-                    stringBuilder.append((char) charInt);
+                BufferedReader reader = new BufferedReader(new FileReader(anyfile));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                    stringBuilder.append('\n');
                 }
                 schedule = Schedule.Builder.fromJSON(new JSONObject(stringBuilder.toString())).build();
             } catch (Exception e) {

@@ -74,8 +74,15 @@ public class Center {
     }
 
     public static void request(Request request, Callback callback) {
-        OkHttpClient client = new OkHttpClient.Builder().connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS)).build();
-        client.newCall(request).enqueue(callback);
+        getHttpsClient().newCall(request).enqueue(callback);
+    }
+
+    public static OkHttpClient getHttpsClient() {
+        return new OkHttpClient.Builder().connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS)).build();
+    }
+
+    public static OkHttpClient getHttpClient() {
+        return new OkHttpClient();
     }
 
     public static int getFontSize(Context c) {

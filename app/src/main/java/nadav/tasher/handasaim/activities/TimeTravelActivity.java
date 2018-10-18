@@ -80,7 +80,7 @@ public class TimeTravelActivity extends Activity {
     }
 
     private ExpandingView getTimeTraver(Schedule schedule, final int index) {
-        TextView title = getText(((index == 0) ? "Latest" : schedule.getName()) + " (" + schedule.getDay() + ")", 1);
+        TextView title = getText(schedule.getDay(), 1);
         title.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 10));
         TextView button = getText(getResources().getString(R.string.interface_time_travel_button), 0.8);
         button.setBackground(Utils.getCoaster(Center.getColorBottom(getApplicationContext()), 20, 20));
