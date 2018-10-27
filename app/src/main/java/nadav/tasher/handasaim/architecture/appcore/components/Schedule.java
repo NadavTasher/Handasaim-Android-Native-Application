@@ -173,23 +173,28 @@ public class Schedule {
                 for (Subject s : c.getSubjects()) {
                     ArrayList<Teacher> newTeachers = new ArrayList<>();
                     for (Teacher currentTeacher : s.getTeachers()) {
-                        boolean found = false;
-                        for (Teacher teacher : allTeachers) {
-                            if (teacher.getName().contains(currentTeacher.getName()) || currentTeacher.getName().contains(teacher.getName())) {
-                                // Merge
-                                teacher.addSubject(s);
-                                teacher.setName(currentTeacher.getName());
-                                newTeachers.add(teacher);
-                                found = true;
-                                break;
+                        if (!currentTeacher.getName().isEmpty()) {
+                            boolean found = false;
+                            for (Teacher teacher : allTeachers) {
+                                if (teacher.getName().contains(currentTeacher.getName()) || currentTeacher.getName().contains(teacher.getName())) {
+                                    if (teacher != currentTeacher) {
+                                        // Merge
+                                        teacher.addSubject(s);
+                                        teacher.setName(currentTeacher.getName());
+                                    }
+                                    newTeachers.add(teacher);
+                                    found = true;
+                                    break;
+                                }
                             }
-                        }
-                        if (!found) {
-                            // Create new teacher
-                            Teacher teacher = new Teacher();
-                            teacher.setName(currentTeacher.getName());
-                            teacher.addSubject(s);
-                            allTeachers.add(teacher);
+                            if (!found) {
+                                // Create new teacher
+                                Teacher teacher = new Teacher();
+                                teacher.setName(currentTeacher.getName());
+                                teacher.addSubject(s);
+                                newTeachers.add(teacher);
+                                allTeachers.add(teacher);
+                            }
                         }
                     }
                     if (newTeachers.size() > 0) {

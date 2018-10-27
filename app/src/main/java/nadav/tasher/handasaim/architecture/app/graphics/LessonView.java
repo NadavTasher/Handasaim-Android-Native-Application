@@ -25,8 +25,8 @@ public class LessonView extends FrameLayout {
     public static final int MARK_TYPE_SPECIAL_PRESSED = 3;
     static final String rtlMark = "\u200F";
     private String topText, timeText;
-    private int markType = MARK_TYPE_NORMAL;
-    private ArrayList<String> bottomTexts = new ArrayList<>();
+    private int markType;
+    private ArrayList<String> bottomTexts;
     private ArrayList<RatioView> texts = new ArrayList<>();
 
     public LessonView(Context context, int markType, String topText, String timeText, ArrayList<String> bottomTexts) {
