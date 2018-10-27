@@ -77,8 +77,8 @@ public class LessonView extends FrameLayout {
         // Continue setup
         topView.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
         timeView.setGravity(Gravity.CENTER);
-        topView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 10));
-        timeView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 11, 1));
+        topView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 12));
+        timeView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 13, 1));
         // Bottom setup
         LinearLayout bottomLayout = new LinearLayout(getContext());
         bottomLayout.setGravity(Gravity.CENTER);

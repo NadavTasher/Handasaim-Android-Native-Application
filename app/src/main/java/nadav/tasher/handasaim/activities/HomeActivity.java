@@ -41,8 +41,11 @@ import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
 import nadav.tasher.lightool.parts.Tower;
 
+import static nadav.tasher.handasaim.architecture.app.Center.currentMinute;
 import static nadav.tasher.handasaim.architecture.app.Center.generateBreakTime;
 import static nadav.tasher.handasaim.architecture.app.Center.generateTime;
+import static nadav.tasher.handasaim.architecture.app.Center.inRange;
+import static nadav.tasher.handasaim.architecture.app.Center.passedPercent;
 
 public class HomeActivity extends Activity {
     private Tower<Theme> theme = new Tower<>();
@@ -927,11 +930,14 @@ public class HomeActivity extends Activity {
                     }));
                     views.add(breakView);
                 }
+                String name = s.getName();
                 boolean prehourMarkEnabled = (s.getHour() == 0 && pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour)));
-                int currentMinute = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) * 60 + Calendar.getInstance().get(Calendar.MINUTE);
-                boolean currentHour = (currentMinute >= AppCore.getSchool().getStartingMinute(s.getHour()) && currentMinute < AppCore.getSchool().getEndingMinute(s.getHour()));
+                boolean currentHour = inRange(currentMinute(), AppCore.getSchool().getStartingMinute(s), AppCore.getSchool().getEndingMinute(s));
+                if (currentHour) name += " (" + passedPercent(s.getHour()) + "%)";
+
+
                 int markType = (currentHour) ? (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_PRESSED : LessonView.MARK_TYPE_PRESSED : (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_NORMAL : LessonView.MARK_TYPE_NORMAL;
-                LessonView subject = new LessonView(getApplicationContext(), markType, s.getHour() + ". " + s.getName(), generateTime(s.getHour()), s.getTeacherNames());
+                LessonView subject = new LessonView(getApplicationContext(), markType, s.getHour() + ". " + name, generateTime(s.getHour()), s.getTeacherNames());
                 views.add(subject);
             }
         }

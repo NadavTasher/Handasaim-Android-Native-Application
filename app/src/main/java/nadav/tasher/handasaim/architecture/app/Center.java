@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
@@ -130,7 +131,25 @@ public class Center {
     }
 
     public static String generateTime(int hour) {
-        return minuteToTime(AppCore.getSchool().getStartingMinute(hour)) + " - " + minuteToTime(AppCore.getSchool().getEndingMinute(hour));
+        int startingMinute = AppCore.getSchool().getStartingMinute(hour);
+        int endingMinute = AppCore.getSchool().getEndingMinute(hour);
+        return minuteToTime(startingMinute) + " - " + minuteToTime(endingMinute);
+    }
+
+    public static int passedPercent(int hour) {
+        double startingMinute = AppCore.getSchool().getStartingMinute(hour);
+        double endingMinute = AppCore.getSchool().getEndingMinute(hour);
+        double current = currentMinute();
+        return (int) ((current - startingMinute) / (endingMinute - startingMinute) * 100);
+    }
+
+    public static boolean inRange(int value, int min, int max) {
+        return value >= min && value < max;
+    }
+
+    public static int currentMinute() {
+        Calendar calendar = Calendar.getInstance();
+        return calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
     }
 
     public static String trimName(String name) {
