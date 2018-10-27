@@ -87,6 +87,7 @@ public class LessonView extends FrameLayout {
         bottomLayout.addView(getTexts(bottomTexts));
         bottomLayout.addView(timeView);
         ExpandingView ev = new ExpandingView(getContext());
+        ev.setDuration(200);
         ev.setBackground(initBackground());
         ev.setPadding(20, 25);
         ev.setTop(topView);

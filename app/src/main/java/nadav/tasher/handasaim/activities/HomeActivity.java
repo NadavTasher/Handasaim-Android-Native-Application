@@ -121,6 +121,7 @@ public class HomeActivity extends Activity {
         refreshTheme();
         mAppView = new AppView(this);
         mAppView.setDrawNavigation(false);
+        mAppView.getDrawer().setAnimationTime(200);
         info = new Corner(getApplicationContext(), (int) (Device.screenX(getApplicationContext()) / 4.5), Color.TRANSPARENT);
         info.addOnState(new Corner.OnState() {
             @Override
@@ -690,6 +691,7 @@ public class HomeActivity extends Activity {
             cls.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    mAppView.getDrawer().close();
                     setStudentMode(cr);
                 }
             });
@@ -934,8 +936,6 @@ public class HomeActivity extends Activity {
                 boolean prehourMarkEnabled = (s.getHour() == 0 && pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour)));
                 boolean currentHour = inRange(currentMinute(), AppCore.getSchool().getStartingMinute(s), AppCore.getSchool().getEndingMinute(s));
                 if (currentHour) name += " (" + passedPercent(s.getHour()) + "%)";
-
-
                 int markType = (currentHour) ? (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_PRESSED : LessonView.MARK_TYPE_PRESSED : (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_NORMAL : LessonView.MARK_TYPE_NORMAL;
                 LessonView subject = new LessonView(getApplicationContext(), markType, s.getHour() + ". " + name, generateTime(s.getHour()), s.getTeacherNames());
                 views.add(subject);

@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion '28.0.1'
+    buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "nadav.tasher.handasaim"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 69
-        versionName '6.9'
+        versionCode 70
+        versionName '7.0'
         multiDexEnabled true
     }
     buildTypes {

@@ -290,8 +290,8 @@ public class PreferenceManager {
             try {
                 JSONArray schedules = new JSONArray(super.get(R.string.preferences_core_json_array, new JSONArray().toString()));
                 // Keep the first schedule
-                for (int i = 1; i < schedules.length(); i++) {
-                    schedules.remove(i);
+                while (schedules.length() > 1) {
+                    schedules.remove(1);
                 }
                 super.set(R.string.preferences_core_json_array, schedules.toString());
             } catch (Exception e) {
