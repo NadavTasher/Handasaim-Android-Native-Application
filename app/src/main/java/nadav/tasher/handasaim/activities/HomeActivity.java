@@ -169,7 +169,6 @@ public class HomeActivity extends Activity {
                 setCornerColor(mAppView.getScrolly());
                 messageBar.setTextColor(theme.textColor);
                 messageBar.setTextSize(theme.textSize);
-
                 mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(theme.menuColor, 48, 10));
                 mAppView.getDrawer().setPadding(drawerPadding, drawerPadding, drawerPadding, drawerPadding);
 //                mAppView.getDrawer().getDrawerView().setPadding(0, drawerPadding, 0, drawerPadding);
@@ -1001,12 +1000,5 @@ public class HomeActivity extends Activity {
         } else {
             finish();
         }
-    }
-
-    private class Theme {
-        private int textSize, textColor;
-        private int colorTop, colorBottom, colorMix;
-        private int menuColor;
-        private boolean showBreaks, showMessages;
     }
 }

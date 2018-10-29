@@ -1,11 +1,13 @@
 package nadav.tasher.handasaim.architecture.app.graphics;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -14,6 +16,9 @@ import java.util.ArrayList;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
+import nadav.tasher.handasaim.architecture.app.Theme;
+import nadav.tasher.handasaim.architecture.appcore.AppCore;
+import nadav.tasher.handasaim.architecture.appcore.components.Subject;
 import nadav.tasher.lightool.graphics.views.ExpandingView;
 import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.info.Device;
@@ -23,53 +28,71 @@ public class LessonView extends FrameLayout {
     public static final int MARK_TYPE_PRESSED = 1;
     public static final int MARK_TYPE_SPECIAL_NORMAL = 2;
     public static final int MARK_TYPE_SPECIAL_PRESSED = 3;
-    static final String rtlMark = "\u200F";
-    private String topText, timeText;
+    private Activity activity;
+    private RatioView topView, timeView;
     private int markType;
     private ArrayList<String> bottomTexts;
     private ArrayList<RatioView> texts = new ArrayList<>();
+    private Subject subject;
+    private Theme currentTheme;
+    private BroadcastReceiver timeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && intent.getAction() != null && intent.getAction().equals(Intent.ACTION_TIME_TICK)) {
+                refreshTopText();
+            }
+        }
+    };
 
-    public LessonView(Context context, int markType, String topText, String timeText, ArrayList<String> bottomTexts) {
-        super(context);
-        this.markType = markType;
-        this.topText = topText;
-        this.timeText = timeText;
-        this.bottomTexts = bottomTexts;
+    public LessonView(Activity activity, Subject subject, Theme theme) {
+        super(activity);
+        this.activity = activity;
+        this.subject = subject;
+        this.currentTheme = theme;
         init();
     }
 
-    private ArrayList<String> rtl(ArrayList<String> input) {
-        ArrayList<String> output = new ArrayList<>();
-        for (String s : input) {
-            output.add(rtlMark + s);
+    public LessonView(Activity activity, int breakHour, Theme theme) {
+        super(activity);
+        this.activity = activity;
+        this.currentTheme = theme;
+    }
+
+    private void refreshTopText() {
+        String topText = subject.getName();
+        if (currentTheme.showRemainingTime) {
+            topText += AppCore.Utils.DIVIDER;
+            topText += AppCore.getSchool().getEndingMinute(subject) - AppCore.getSchool().getStartingMinute(subject) - (AppCore.getSchool().getEndingMinute(subject) - Center.currentMinute());
+            topText += getContext().getResources().getString(R.string.interface_minutes);
         }
-        return output;
+        topView.setText(topText);
     }
 
     private Drawable initBackground() {
         int markID = R.color.coaster_bright;
-        switch (markType) {
-            case MARK_TYPE_NORMAL:
-                markID = R.color.coaster_bright;
-                break;
-            case MARK_TYPE_PRESSED:
-                markID = R.color.coaster_bright;
-                break;
-            case MARK_TYPE_SPECIAL_NORMAL:
-                markID = R.color.coaster_special_bright;
-                break;
-            case MARK_TYPE_SPECIAL_PRESSED:
-                markID = R.color.coaster_special_dark;
-                break;
-        }
+        if (Center.inRange(Center.currentMinute(), AppCore.getSchool().getStartingMinute(subject), AppCore.getSchool().getEndingMinute(subject)))
+            switch (markType) {
+                case MARK_TYPE_NORMAL:
+                    markID = R.color.coaster_bright;
+                    break;
+                case MARK_TYPE_PRESSED:
+                    markID = R.color.coaster_bright;
+                    break;
+                case MARK_TYPE_SPECIAL_NORMAL:
+                    markID = R.color.coaster_special_bright;
+                    break;
+                case MARK_TYPE_SPECIAL_PRESSED:
+                    markID = R.color.coaster_special_dark;
+                    break;
+            }
         return Utils.getCoaster(getContext().getResources().getColor(markID), 32, 5);
     }
 
     private void init() {
         setLayoutDirection(LAYOUT_DIRECTION_RTL);
         // Setup text view
-        RatioView topView = getText(topText, 1);
-        RatioView timeView = getText(timeText, 0.8);
+        topView = getText(1);
+        timeView = getText(Center.generateTime(subject.getHour()), 0.8);
         topView.setPadding(20, 0, 20, 0);
         timeView.setTextDirection(TEXT_DIRECTION_LTR);
         texts.add(topView);
@@ -95,21 +118,13 @@ public class LessonView extends FrameLayout {
         addView(ev);
     }
 
-    public void setTextColor(int color) {
-        for (int t = 0; t < texts.size(); t++) {
-            RatioView current = texts.get(t);
-            current.setTextColor(color);
-        }
+    public void setTheme(Theme theme) {
+        this.currentTheme = theme;
+        for (RatioView text : texts) text.setTextColor(theme.textColor);
+        for (RatioView text : texts) text.setTextSize(theme.textSize);
     }
 
-    public void setTextSize(int size) {
-        for (int t = 0; t < texts.size(); t++) {
-            RatioView current = texts.get(t);
-            current.setTextSize(size);
-        }
-    }
-
-    private View getTexts(ArrayList<String> strings) {
+    private LinearLayout getTexts(ArrayList<String> strings) {
         LinearLayout textsLayout = new LinearLayout(getContext());
         textsLayout.setGravity(Gravity.CENTER);
         textsLayout.setOrientation(LinearLayout.VERTICAL);
@@ -129,6 +144,16 @@ public class LessonView extends FrameLayout {
     private RatioView getText(String text, final double textSizeRatio) {
         RatioView tv = new RatioView(getContext(), textSizeRatio);
         tv.setText(text);
+        tv.setTextSize(Center.getFontSize(getContext()));
+        tv.setTypeface(Center.getTypeface(getContext()));
+        tv.setTextColor(Center.getTextColor(getContext()));
+        tv.setTextDirection(TEXT_DIRECTION_RTL);
+        tv.setSingleLine(true);
+        return tv;
+    }
+
+    private RatioView getText(final double textSizeRatio) {
+        RatioView tv = new RatioView(getContext(), textSizeRatio);
         tv.setTextSize(Center.getFontSize(getContext()));
         tv.setTypeface(Center.getTypeface(getContext()));
         tv.setTextColor(Center.getTextColor(getContext()));

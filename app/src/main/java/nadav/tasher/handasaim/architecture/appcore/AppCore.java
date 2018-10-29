@@ -108,7 +108,7 @@ public class AppCore {
 
     public static class Utils {
 
-        private static final String divider = " · ";
+        public static final String DIVIDER = " · ";
 
         public static String trim(String[] parts) {
             ArrayList<String> names = new ArrayList<>();
@@ -135,7 +135,7 @@ public class AppCore {
             StringBuilder adder = new StringBuilder();
             for (String name : names) {
                 if (adder.length() > 0) {
-                    adder.append(divider);
+                    adder.append(DIVIDER);
                 }
                 adder.append(name);
             }
