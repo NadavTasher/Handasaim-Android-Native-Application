@@ -20,11 +20,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import nadav.tasher.handasaim.R;
 import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.handasaim.architecture.app.PreferenceManager;
+import nadav.tasher.handasaim.architecture.app.Theme;
 import nadav.tasher.handasaim.architecture.app.graphics.LessonView;
 import nadav.tasher.handasaim.architecture.app.graphics.MessageBar;
 import nadav.tasher.handasaim.architecture.app.graphics.RatioView;
@@ -40,12 +40,6 @@ import nadav.tasher.lightool.graphics.views.appview.navigation.corner.Corner;
 import nadav.tasher.lightool.info.Device;
 import nadav.tasher.lightool.parts.Peer;
 import nadav.tasher.lightool.parts.Tower;
-
-import static nadav.tasher.handasaim.architecture.app.Center.currentMinute;
-import static nadav.tasher.handasaim.architecture.app.Center.generateBreakTime;
-import static nadav.tasher.handasaim.architecture.app.Center.generateTime;
-import static nadav.tasher.handasaim.architecture.app.Center.inRange;
-import static nadav.tasher.handasaim.architecture.app.Center.passedPercent;
 
 public class HomeActivity extends Activity {
     private Tower<Theme> theme = new Tower<>();
@@ -308,10 +302,8 @@ public class HomeActivity extends Activity {
         theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
             @Override
             public boolean onPeer(Theme theme) {
-                for (int l = 0; l < lessonViews.size(); l++) {
-                    LessonView lessonView = lessonViews.get(l);
-                    lessonView.setTextColor(theme.textColor);
-                    lessonView.setTextSize(theme.textSize);
+                for (LessonView l : lessonViews) {
+                    l.setTheme(theme);
                 }
                 return false;
             }
@@ -912,7 +904,7 @@ public class HomeActivity extends Activity {
         for (Subject s : classroom.getSubjects()) {
             if (s.getName() != null && !s.getName().isEmpty()) {
                 if (AppCore.getSchool().getBreakLength(s.getHour() - 1, s.getHour()) > 0) {
-                    final LessonView breakView = new LessonView(getApplicationContext(), LessonView.MARK_TYPE_NORMAL, "הפסקה", generateBreakTime(s.getHour() - 1, s.getHour()), new ArrayList<String>());
+                    final LessonView breakView = new LessonView(this, theme.getLast(), s.getHour());
                     if (theme.getLast().showBreaks) {
                         breakView.setVisibility(View.VISIBLE);
                     } else {
@@ -931,13 +923,7 @@ public class HomeActivity extends Activity {
                     }));
                     views.add(breakView);
                 }
-                String name = s.getName();
-                boolean prehourMarkEnabled = (s.getHour() == 0 && pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour)));
-                boolean currentHour = inRange(currentMinute(), AppCore.getSchool().getStartingMinute(s), AppCore.getSchool().getEndingMinute(s));
-                if (currentHour) name += " (" + passedPercent(s.getHour()) + "%)";
-                int markType = (currentHour) ? (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_PRESSED : LessonView.MARK_TYPE_PRESSED : (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_NORMAL : LessonView.MARK_TYPE_NORMAL;
-                LessonView subject = new LessonView(getApplicationContext(), markType, s.getHour() + ". " + name, generateTime(s.getHour()), s.getTeacherNames());
-                views.add(subject);
+                views.add(new LessonView(this, theme.getLast(), s));
             }
         }
         return views;
@@ -963,7 +949,7 @@ public class HomeActivity extends Activity {
             }
             if (!classrooms.isEmpty()) {
                 if (AppCore.getSchool().getBreakLength(h - 1, h) > 0) {
-                    final LessonView breakView = new LessonView(getApplicationContext(), LessonView.MARK_TYPE_NORMAL, "הפסקה", generateBreakTime(h - 1, h), new ArrayList<String>());
+                    final LessonView breakView = new LessonView(this, theme.getLast(), s.getHour());
                     if (theme.getLast().showBreaks) {
                         breakView.setVisibility(View.VISIBLE);
                     } else {
@@ -982,12 +968,8 @@ public class HomeActivity extends Activity {
                     }));
                     views.add(breakView);
                 }
-                boolean prehourMarkEnabled = (h == 0 && pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour)));
-                int currentMinute = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) * 60 + Calendar.getInstance().get(Calendar.MINUTE);
-                boolean currentHour = (currentMinute >= AppCore.getSchool().getStartingMinute(h) && currentMinute < AppCore.getSchool().getEndingMinute(h));
-                int markType = (currentHour) ? (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_PRESSED : LessonView.MARK_TYPE_PRESSED : (prehourMarkEnabled) ? LessonView.MARK_TYPE_SPECIAL_NORMAL : LessonView.MARK_TYPE_NORMAL;
-                LessonView subject = new LessonView(getApplicationContext(), markType, h + ". " + subjectName + " (" + grades + ")", generateTime(h), classroomNames);
-                views.add(subject);
+//                LessonView subject = new LessonView(getApplicationContext(), markType, h + ". " + subjectName + " (" + grades + ")", generateTime(h), classroomNames);
+                views.add(new LessonView(this, theme.getLast(), ));
             }
         }
         return views;

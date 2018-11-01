@@ -6,6 +6,7 @@
     <string name="interface_skip">Skip</string>
     <string name="interface_finish">Finish</string>
     <string name="interface_minutes">דק\'</string>
+    <string name="interface_break">הפסקה</string>
     <string name="interface_loading">Loading…</string>
     <string name="interface_did_you_know">Did You Know?</string>
     <string name="interface_open_in_browser">Open Link</string>
