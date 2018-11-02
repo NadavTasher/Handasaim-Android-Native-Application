@@ -28,22 +28,22 @@ public class LessonView extends ExpandingView {
     private RatioView topView, timeView;
     private ArrayList<RatioView> texts = new ArrayList<>();
     private Subject subject;
-    private ArrayList<Subject> teacherSubjects;
+    private ArrayList<Subject> subjects;
     private int breakHour = -1;
     private Theme currentTheme;
-    private BroadcastReceiver timeReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent != null && intent.getAction() != null && intent.getAction().equals(Intent.ACTION_TIME_TICK)) {
-                refreshTopText();
-            }
-        }
-    };
 
     public LessonView(Activity activity, Theme theme, Subject subject) {
         super(activity);
         this.activity = activity;
         this.subject = subject;
+        this.currentTheme = theme;
+        init();
+    }
+
+    public LessonView(Activity activity, Theme theme, ArrayList<Subject> subjects) {
+        super(activity);
+        this.activity = activity;
+        this.subjects = subjects;
         this.currentTheme = theme;
         init();
     }
@@ -58,30 +58,31 @@ public class LessonView extends ExpandingView {
 
     private void refreshTopText() {
         String topText = subject.getHour() + ". " + subject.getName();
-        if (currentTheme.showRemainingTime) {
+        if (currentTheme.showRemainingTime && Center.inRange(Center.currentMinute(), AppCore.getSchool().getStartingMinute(subject), AppCore.getSchool().getEndingMinute(subject))) {
             topText += AppCore.Utils.DIVIDER;
-            topText += AppCore.getSchool().getEndingMinute(subject) - AppCore.getSchool().getStartingMinute(subject) - (AppCore.getSchool().getEndingMinute(subject) - Center.currentMinute());
-            topText += getContext().getResources().getString(R.string.interface_minutes);
+            topText += (AppCore.getSchool().getEndingMinute(subject) - Center.currentMinute());
+            topText += " ";
+            topText += getContext().getResources().getString(R.string.interface_minutes_short);
         }
         topView.setText(topText);
     }
 
     private Drawable initBackground() {
-        int markID;
-        boolean currentLesson = Center.inRange(Center.currentMinute(), AppCore.getSchool().getStartingMinute(subject), AppCore.getSchool().getEndingMinute(subject));
-        if (currentTheme.markPrehours && subject.getHour() == 0) {
-            if (currentLesson) {
-                markID = R.color.coaster_special_dark;
-            } else {
-                markID = R.color.coaster_special_bright;
-            }
-        } else {
-            if (currentLesson) {
-                markID = R.color.coaster_dark;
-            } else {
-                markID = R.color.coaster_bright;
-            }
-        }
+        int markID = R.color.coaster_dark;
+//        boolean currentLesson = Center.inRange(Center.currentMinute(), AppCore.getSchool().getStartingMinute(subject), AppCore.getSchool().getEndingMinute(subject));
+//        if (currentTheme.markPrehours && subject.getHour() == 0) {
+//            if (currentLesson) {
+//                markID = R.color.coaster_special_dark;
+//            } else {
+//                markID = R.color.coaster_special_bright;
+//            }
+//        } else {
+//            if (currentLesson) {
+//                markID = R.color.coaster_dark;
+//            } else {
+//                markID = R.color.coaster_bright;
+//            }
+//        }
         return Utils.getCoaster(getContext().getResources().getColor(markID), 32, 5);
     }
 
@@ -93,16 +94,37 @@ public class LessonView extends ExpandingView {
         setLayoutDirection(LAYOUT_DIRECTION_RTL);
         if (subject != null) {
             // Register receiver
-            getContext().registerReceiver(timeReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
+            getContext().registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    refreshTopText();
+                }
+            }, new IntentFilter(Intent.ACTION_TIME_TICK));
             // Setup text view
             topView = getText(1);
             timeView = getText(Center.generateTime(subject.getHour()), 0.8);
+            refreshTopText();
             // Bottom setup
             bottomLayout.addView(getTexts(subject.getTeacherNames()));
         } else {
-            if (teacherSubjects != null) {
+            if (subjects != null) {
+                if (!subjects.isEmpty()) {
+                    topView = getText(subjects.get(0).getName(), 1);
+                    timeView = getText(Center.generateTime(subjects.get(0).getHour()), 0.8);
+                    ArrayList<String> names = new ArrayList<>();
+                    for (Subject subject : subjects) {
+                        names.add(subject.getClassroom().getName());
+                    }
+                    bottomLayout.addView(getTexts(names));
+                } else {
+                    topView = getText("?", 1);
+                    timeView = getText("?", 0.8);
+                    bottomLayout.addView(getTexts(new ArrayList<String>()));
+                }
             } else {
-                RatioView minutesView = getText(AppCore.getSchool().getBreakLength(breakHour - 1, breakHour) + " " + getContext().getResources().getString(R.string.interface_minutes), 0.8);
+                RatioView minutesView = getText(AppCore.getSchool().getBreakLength(breakHour - 1, breakHour) + " " + getContext().getResources().getString(R.string.interface_minutes_long), 0.8);
+                minutesView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+                minutesView.setGravity(Gravity.CENTER);
                 texts.add(minutesView);
                 topView = getText(getContext().getResources().getString(R.string.interface_break), 1);
                 timeView = getText(Center.generateBreakTime(breakHour - 1, breakHour), 0.8);

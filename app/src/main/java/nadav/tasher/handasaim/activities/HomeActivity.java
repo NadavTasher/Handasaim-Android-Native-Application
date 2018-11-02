@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,16 +78,7 @@ public class HomeActivity extends Activity {
     }
 
     private void refreshTheme() {
-        Theme currentTheme = new Theme();
-        currentTheme.textColor = pm.getUserManager().get(R.string.preferences_user_color_text, getResources().getColor(R.color.default_text));
-        currentTheme.textSize = pm.getUserManager().get(R.string.preferences_user_size_text, getResources().getInteger(R.integer.default_font));
-        currentTheme.showMessages = pm.getUserManager().get(R.string.preferences_user_display_messages, getResources().getBoolean(R.bool.default_display_messages));
-        currentTheme.showBreaks = pm.getUserManager().get(R.string.preferences_user_display_breaks, getResources().getBoolean(R.bool.default_display_breaks));
-        currentTheme.menuColor = pm.getUserManager().get(R.string.preferences_user_color_menu, getResources().getColor(R.color.default_menu));
-        currentTheme.colorTop = pm.getUserManager().get(R.string.preferences_user_color_top, getResources().getColor(R.color.default_top));
-        currentTheme.colorBottom = pm.getUserManager().get(R.string.preferences_user_color_bottom, getResources().getColor(R.color.default_bottom));
-        currentTheme.colorMix = generateCombinedColor(currentTheme.colorTop, currentTheme.colorBottom);
-        theme.tell(currentTheme);
+        theme.tell(Center.getTheme(getApplicationContext()));
 //        Log.i("ColorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
 //        Log.i("ColorB", String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
 //        Log.i("ColorMenu", String.format("#%06X", (0xFFFFFF & currentTheme.menuColor)));
@@ -113,6 +105,7 @@ public class HomeActivity extends Activity {
 
     private void loadUI() {
         refreshTheme();
+        Log.i("Theme", theme.getLast().toString());
         mAppView = new AppView(this);
         mAppView.setDrawNavigation(false);
         mAppView.getDrawer().setAnimationTime(200);
@@ -308,8 +301,8 @@ public class HomeActivity extends Activity {
                 return false;
             }
         }));
-        for (int l = 0; l < lessonViews.size(); l++) {
-            lessonViewHolder.addView(lessonViews.get(l));
+        for (LessonView l : lessonViews) {
+            lessonViewHolder.addView(l);
         }
     }
 
@@ -336,17 +329,6 @@ public class HomeActivity extends Activity {
         v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         double percent = ((double) v.getMeasuredHeight() + 2 * (double) drawerPadding) / ((double) Device.screenY(getApplicationContext()));
         mAppView.getDrawer().open(((percent) > 0.7) ? 0.7 : percent);
-    }
-
-    private int generateCombinedColor(int colorTop, int colorBottom) {
-        int redA = Color.red(colorTop);
-        int greenA = Color.green(colorTop);
-        int blueA = Color.blue(colorTop);
-        int redB = Color.red(colorBottom);
-        int greenB = Color.green(colorBottom);
-        int blueB = Color.blue(colorBottom);
-        int combineRed = redA - (redA - redB) / 2, combineGreen = greenA - (greenA - greenB) / 2, combineBlue = blueA - (blueA - blueB) / 2;
-        return Color.rgb(combineRed, combineGreen, combineBlue);
     }
 
     private Classroom getFavoriteClassroom() {
@@ -472,13 +454,15 @@ public class HomeActivity extends Activity {
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         settings.setPadding(20, 20, 20, 20);
-        final Switch cornerLocation = new Switch(getApplicationContext()), markPrehourSwitch = new Switch(getApplicationContext()), displayMessagesSwitch = new Switch(getApplicationContext()), displayBreaksSwitch = new Switch(getApplicationContext());
+        final Switch cornerLocation = new Switch(getApplicationContext()), displayRemainingTime = new Switch(getApplicationContext()), markPrehourSwitch = new Switch(getApplicationContext()), displayMessagesSwitch = new Switch(getApplicationContext()), displayBreaksSwitch = new Switch(getApplicationContext());
         markPrehourSwitch.setText(R.string.interface_settings_mark_prehour);
         displayMessagesSwitch.setText(R.string.interface_settings_messages);
         displayBreaksSwitch.setText(R.string.interface_settings_breaks);
+        displayRemainingTime.setText(R.string.interface_settings_remaining_time);
         markPrehourSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_mark_prehour, getResources().getBoolean(R.bool.default_mark_prehour)));
         displayMessagesSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_messages, getResources().getBoolean(R.bool.default_display_messages)));
         displayBreaksSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_breaks, getResources().getBoolean(R.bool.default_display_messages)));
+        displayRemainingTime.setChecked(pm.getUserManager().get(R.string.preferences_user_display_remaining_time, getResources().getBoolean(R.bool.default_display_remaining_time)));
         cornerLocation.setChecked(pm.getUserManager().get(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_right)).equals(getResources().getString(R.string.corner_location_right)));
         displayBreaksSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         cornerLocation.setTypeface(Center.getTypeface(getApplicationContext()));
@@ -502,6 +486,13 @@ public class HomeActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 pm.getUserManager().set(R.string.preferences_user_display_messages, isChecked);
+                refreshTheme();
+            }
+        });
+        displayRemainingTime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                pm.getUserManager().set(R.string.preferences_user_display_remaining_time, isChecked);
                 refreshTheme();
             }
         });
@@ -615,8 +606,10 @@ public class HomeActivity extends Activity {
                 explainTextSize.setTextSize((float) (theme.textSize / 1.5));
                 explainColorMenu.setTextSize((float) (theme.textSize / 1.5));
                 markPrehourSwitch.setTextSize((float) (theme.textSize / 1.5));
+                displayRemainingTime.setTextSize((float) (theme.textSize / 1.5));
                 displayBreaksSwitch.setTextColor(theme.textColor);
                 displayMessagesSwitch.setTextColor(theme.textColor);
+                displayRemainingTime.setTextColor(theme.textColor);
                 markPrehourSwitch.setTextColor(theme.textColor);
                 cornerLocation.setTextColor(theme.textColor);
                 explainColorA.setTextColor(theme.textColor);
@@ -931,25 +924,16 @@ public class HomeActivity extends Activity {
 
     private ArrayList<LessonView> scheduleForTeacher(final Teacher teacher) {
         ArrayList<LessonView> views = new ArrayList<>();
-        ArrayList<Subject> teaching = teacher.getSubjects();
         for (int h = 0; h <= 12; h++) {
-            String grades;
-            String subjectName = "";
-            ArrayList<Classroom> classrooms = new ArrayList<>();
-            for (int s = 0; s < teaching.size(); s++) {
-                if (teaching.get(s).getHour() == h) {
-                    subjectName = teaching.get(s).getName();
-                    classrooms.add(teaching.get(s).getClassroom());
+            ArrayList<Subject> subjects = new ArrayList<>();
+            for (Subject subject : teacher.getSubjects()) {
+                if (subject.getHour() == h) {
+                    subjects.add(subject);
                 }
             }
-            grades = Center.getGrades(classrooms);
-            ArrayList<String> classroomNames = new ArrayList<>();
-            for (Classroom c : classrooms) {
-                classroomNames.add(c.getName());
-            }
-            if (!classrooms.isEmpty()) {
+            if (!subjects.isEmpty()) {
                 if (AppCore.getSchool().getBreakLength(h - 1, h) > 0) {
-                    final LessonView breakView = new LessonView(this, theme.getLast(), s.getHour());
+                    final LessonView breakView = new LessonView(this, theme.getLast(), h);
                     if (theme.getLast().showBreaks) {
                         breakView.setVisibility(View.VISIBLE);
                     } else {
@@ -969,7 +953,7 @@ public class HomeActivity extends Activity {
                     views.add(breakView);
                 }
 //                LessonView subject = new LessonView(getApplicationContext(), markType, h + ". " + subjectName + " (" + grades + ")", generateTime(h), classroomNames);
-                views.add(new LessonView(this, theme.getLast(), ));
+                views.add(new LessonView(this, theme.getLast(), subjects));
             }
         }
         return views;

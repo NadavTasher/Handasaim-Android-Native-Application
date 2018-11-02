@@ -114,7 +114,7 @@ public class AppCore {
             ArrayList<String> names = new ArrayList<>();
             for (String name : parts) {
                 if (match(name, "מתמטיקה") && name.contains("טכ")) {
-                    names.add("טכניונית");
+                    names.add("טכ'");
                 } else if (match(name, "פיסיקה") && name.contains("מע")) {
                     names.add("מעבדה");
                 } else if (name.contains("ביואינפ")) {

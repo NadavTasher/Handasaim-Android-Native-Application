@@ -6,7 +6,7 @@ public class Teacher {
     private ArrayList<Subject> subjects = new ArrayList<>();
     private String name = "";
 
-    Teacher() {
+    public Teacher() {
     }
 
     public ArrayList<Subject> getSubjects() {

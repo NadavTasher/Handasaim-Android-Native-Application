@@ -24,7 +24,7 @@ public class Schedule {
     private ArrayList<String> messages = new ArrayList<>();
     private String name = "Generic Schedule", origin = "Unknown Origin", day = "?";
 
-    private Schedule() {
+    public Schedule() {
     }
 
     public String getName() {

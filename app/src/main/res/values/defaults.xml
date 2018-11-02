@@ -2,6 +2,7 @@
 <resources>
     <bool name="default_display_messages">true</bool>
     <bool name="default_display_breaks">true</bool>
+    <bool name="default_display_remaining_time">true</bool>
     <bool name="default_mark_prehour">true</bool>
     <color name="default_menu">#808080</color>
     <color name="default_top">#00827E</color>

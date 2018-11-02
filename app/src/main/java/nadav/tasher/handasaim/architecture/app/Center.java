@@ -74,6 +74,21 @@ public class Center {
         }
     }
 
+    public static Theme getTheme(Context context) {
+        PreferenceManager pm = new PreferenceManager(context);
+        Theme currentTheme = new Theme();
+        currentTheme.textColor = pm.getUserManager().get(R.string.preferences_user_color_text, context.getResources().getColor(R.color.default_text));
+        currentTheme.textSize = pm.getUserManager().get(R.string.preferences_user_size_text, context.getResources().getInteger(R.integer.default_font));
+        currentTheme.showMessages = pm.getUserManager().get(R.string.preferences_user_display_messages, context.getResources().getBoolean(R.bool.default_display_messages));
+        currentTheme.showBreaks = pm.getUserManager().get(R.string.preferences_user_display_breaks, context.getResources().getBoolean(R.bool.default_display_breaks));
+        currentTheme.showRemainingTime = pm.getUserManager().get(R.string.preferences_user_display_remaining_time, context.getResources().getBoolean(R.bool.default_display_remaining_time));
+        currentTheme.menuColor = pm.getUserManager().get(R.string.preferences_user_color_menu, context.getResources().getColor(R.color.default_menu));
+        currentTheme.colorTop = pm.getUserManager().get(R.string.preferences_user_color_top, context.getResources().getColor(R.color.default_top));
+        currentTheme.colorBottom = pm.getUserManager().get(R.string.preferences_user_color_bottom, context.getResources().getColor(R.color.default_bottom));
+        currentTheme.colorMix = Center.getCombinedColor(context);
+        return currentTheme;
+    }
+
     public static void request(Request request, Callback callback) {
         getHttpsClient().newCall(request).enqueue(callback);
     }
