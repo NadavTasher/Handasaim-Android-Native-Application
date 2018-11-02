@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.InputFilter;
@@ -207,10 +206,6 @@ public class Center {
         }
     }
 
-    public static Typeface getTypeface(Context c) {
-        return Typeface.createFromAsset(c.getAssets(), c.getResources().getString(R.string.font_name));
-    }
-
     public static LinearLayout getCodeEntering(final Activity context) {
         final PreferenceManager pm = new PreferenceManager(context);
         LinearLayout layout = new LinearLayout(context);
@@ -219,7 +214,6 @@ public class Center {
         layout.setPadding(40, 40, 40, 40);
         RatioView codeTitle = new RatioView(context, 1);
         codeTitle.setText(R.string.interface_codes_title);
-        codeTitle.setTypeface(getTypeface(context));
         codeTitle.setTextSize(getFontSize(context));
         codeTitle.setGravity(Gravity.CENTER);
         codeTitle.setTextColor(getTextColor(context));
@@ -235,7 +229,6 @@ public class Center {
         keyHolder.addView(key);
         RatioView installCode = new RatioView(context, 0.66);
         installCode.setText(R.string.interface_codes_install);
-        installCode.setTypeface(getTypeface(context));
         installCode.setTextSize(getFontSize(context));
         installCode.setGravity(Gravity.CENTER);
         installCode.setTextColor(getTextColor(context));

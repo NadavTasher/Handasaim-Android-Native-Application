@@ -26,7 +26,7 @@
     <string name="interface_corner_choose_left">Left Corner</string>
     <string name="interface_corner_choose_right">Right Corner</string>
     <string name="interface_settings_messages">Display Messages</string>
-    <string name="interface_settings_remaining_time">Display Messages</string>
+    <string name="interface_settings_remaining_time">Display Remaining Time</string>
     <string name="interface_settings_choose_color_top">Choose Top Color:</string>
     <string name="interface_settings_choose_color_bottom">Choose Bottom Color:</string>
     <string name="interface_settings_choose_color_text">Choose Text Color:</string>

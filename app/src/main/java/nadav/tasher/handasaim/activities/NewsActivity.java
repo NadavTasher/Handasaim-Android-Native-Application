@@ -67,7 +67,6 @@ public class NewsActivity extends Activity {
         skipButton.setAllCaps(false);
         skipButton.setText(R.string.interface_skip);
         skipButton.setTextSize(Center.getFontSize(getApplicationContext()));
-        skipButton.setTypeface(Center.getTypeface(getApplicationContext()));
         skipButton.setTextColor(Center.getTextColor(getApplicationContext()));
         skipButton.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10));
         skipButton.setOnClickListener(new View.OnClickListener() {
@@ -124,7 +123,6 @@ public class NewsActivity extends Activity {
 
     private RatioView getText(String text, double ratio) {
         RatioView mRatio = new RatioView(getApplicationContext(), ratio);
-        mRatio.setTypeface(Center.getTypeface(getApplicationContext()));
         mRatio.setTextColor(Center.getTextColor(getApplicationContext()));
         mRatio.setTextSize(Center.getFontSize(getApplicationContext()));
         mRatio.setGravity(Gravity.CENTER);

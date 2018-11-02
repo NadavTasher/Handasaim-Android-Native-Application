@@ -73,8 +73,6 @@ public class TutorialActivity extends Activity {
         next.setBackground(null);
         back.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         next.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
-        back.setTypeface(Center.getTypeface(getApplicationContext()));
-        next.setTypeface(Center.getTypeface(getApplicationContext()));
         back.setText(R.string.interface_back);
         next.setText(R.string.interface_next);
         buttonLayout.addView(back);
@@ -88,13 +86,11 @@ public class TutorialActivity extends Activity {
     private void initScreen1() {
         TextView welcomeTitle = new TextView(getApplicationContext());
         welcomeTitle.setText(R.string.interface_tutorial_welcome);
-        welcomeTitle.setTypeface(Center.getTypeface(getApplicationContext()));
         welcomeTitle.setTextSize(Center.getFontSize(getApplicationContext()));
         welcomeTitle.setGravity(Gravity.CENTER);
         welcomeTitle.setTextColor(Center.getTextColor(getApplicationContext()));
         TextView explainationMessage = new TextView(getApplicationContext());
         explainationMessage.setText(R.string.interface_tutorial_explanation);
-        explainationMessage.setTypeface(Center.getTypeface(getApplicationContext()));
         explainationMessage.setTextSize((float) (Center.getFontSize(getApplicationContext()) / 1.5));
         explainationMessage.setGravity(Gravity.CENTER);
         explainationMessage.setTextColor(Center.getTextColor(getApplicationContext()));
@@ -118,7 +114,6 @@ public class TutorialActivity extends Activity {
     private void initScreen2() {
         TextView explanationLessonView = new TextView(getApplicationContext());
         explanationLessonView.setText(R.string.interface_tutorial_lessonview_explanation);
-        explanationLessonView.setTypeface(Center.getTypeface(getApplicationContext()));
         explanationLessonView.setTextSize((float) (Center.getFontSize(getApplicationContext()) / 1.5));
         explanationLessonView.setGravity(Gravity.CENTER);
         explanationLessonView.setTextColor(Center.getTextColor(getApplicationContext()));
@@ -158,7 +153,6 @@ public class TutorialActivity extends Activity {
     private void initScreen3() {
         TextView explanationCorner = new TextView(getApplicationContext());
         explanationCorner.setText(R.string.interface_tutorial_corner_explanation);
-        explanationCorner.setTypeface(Center.getTypeface(getApplicationContext()));
         explanationCorner.setTextSize((float) (Center.getFontSize(getApplicationContext()) / 1.5));
         explanationCorner.setGravity(Gravity.CENTER);
         explanationCorner.setTextColor(Center.getTextColor(getApplicationContext()));
@@ -177,12 +171,10 @@ public class TutorialActivity extends Activity {
         name.setText(R.string.interface_tutorial_corner_example_top);
         name.setTextColor(Center.getTextColor(getApplicationContext()));
         name.setTextSize(Center.getFontSize(getApplicationContext()));
-        name.setTypeface(Center.getTypeface(getApplicationContext()));
         name.setGravity(Gravity.CENTER);
         day.setText(R.string.interface_tutorial_corner_example_bottom);
         day.setTextColor(Center.getTextColor(getApplicationContext()));
         day.setTextSize(Center.getFontSize(getApplicationContext()));
-        day.setTypeface(Center.getTypeface(getApplicationContext()));
         day.setGravity(Gravity.CENTER);
         infoText.addView(name);
         infoText.addView(day);
@@ -190,13 +182,11 @@ public class TutorialActivity extends Activity {
         // Corner Setup
         TextView explanationCornerLocation = new TextView(getApplicationContext());
         explanationCornerLocation.setText(R.string.interface_tutorial_corner_choose_location);
-        explanationCornerLocation.setTypeface(Center.getTypeface(getApplicationContext()));
         explanationCornerLocation.setTextSize((float) (Center.getFontSize(getApplicationContext()) / 1.5));
         explanationCornerLocation.setGravity(Gravity.CENTER);
         explanationCornerLocation.setTextColor(Center.getTextColor(getApplicationContext()));
         explanationCornerLocation.setPadding(0, 40, 0, 40);
         Switch cornerLocation = new Switch(getApplicationContext());
-        cornerLocation.setTypeface(Center.getTypeface(getApplicationContext()));
         cornerLocation.setTextSize((float) (Center.getFontSize(getApplicationContext()) / 1.5));
         //        cornerLocation.setGravity(Gravity.CENTER);
         cornerLocation.setLayoutParams(new LinearLayout.LayoutParams((int) (Device.screenX(getApplicationContext()) / 1.5), ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -248,13 +238,11 @@ public class TutorialActivity extends Activity {
         next.setText(R.string.interface_finish);
         TextView doneTitle = new TextView(getApplicationContext());
         doneTitle.setText(R.string.interface_tutorial_title_done);
-        doneTitle.setTypeface(Center.getTypeface(getApplicationContext()));
         doneTitle.setTextSize(Center.getFontSize(getApplicationContext()));
         doneTitle.setGravity(Gravity.CENTER);
         doneTitle.setTextColor(Center.getTextColor(getApplicationContext()));
         TextView explanationDone = new TextView(getApplicationContext());
         explanationDone.setText(R.string.interface_tutorial_explanation_done);
-        explanationDone.setTypeface(Center.getTypeface(getApplicationContext()));
         explanationDone.setTextSize((float) (Center.getFontSize(getApplicationContext()) / 1.5));
         explanationDone.setGravity(Gravity.CENTER);
         explanationDone.setTextColor(Center.getTextColor(getApplicationContext()));
@@ -264,7 +252,6 @@ public class TutorialActivity extends Activity {
         enterCodes.setText(R.string.interface_enter_codes);
         enterCodes.setAllCaps(false);
         enterCodes.setLayoutParams(new LinearLayout.LayoutParams((int) (Device.screenX(getApplicationContext()) / 1.5), ViewGroup.LayoutParams.WRAP_CONTENT));
-        enterCodes.setTypeface(Center.getTypeface(getApplicationContext()));
         enterCodes.setTextSize((float) (Center.getFontSize(getApplicationContext()) / 1.6));
         enterCodes.setGravity(Gravity.CENTER);
         enterCodes.setTextColor(Center.getTextColor(getApplicationContext()));

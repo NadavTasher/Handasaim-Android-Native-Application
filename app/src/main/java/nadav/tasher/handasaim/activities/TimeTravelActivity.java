@@ -71,7 +71,6 @@ public class TimeTravelActivity extends Activity {
 
     private RatioView getText(String text, double ratio) {
         RatioView mRatio = new RatioView(getApplicationContext(), ratio);
-        mRatio.setTypeface(Center.getTypeface(getApplicationContext()));
         mRatio.setTextColor(Center.getTextColor(getApplicationContext()));
         mRatio.setTextSize(Center.getFontSize(getApplicationContext()));
         mRatio.setGravity(Gravity.CENTER);

@@ -12,7 +12,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import nadav.tasher.handasaim.R;
-import nadav.tasher.handasaim.architecture.app.Center;
 import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.info.Device;
 
@@ -39,7 +38,6 @@ public class MessageBar extends LinearLayout {
         message = new RatioView(getContext(), 0.65);
 //        message.setPadding(20, 0, 20, 0);
         message.setSingleLine();
-        message.setTypeface(Center.getTypeface(getContext()));
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {

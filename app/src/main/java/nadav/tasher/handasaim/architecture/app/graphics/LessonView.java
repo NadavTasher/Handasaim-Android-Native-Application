@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -68,21 +67,35 @@ public class LessonView extends ExpandingView {
     }
 
     private Drawable initBackground() {
-        int markID = R.color.coaster_dark;
-//        boolean currentLesson = Center.inRange(Center.currentMinute(), AppCore.getSchool().getStartingMinute(subject), AppCore.getSchool().getEndingMinute(subject));
-//        if (currentTheme.markPrehours && subject.getHour() == 0) {
-//            if (currentLesson) {
-//                markID = R.color.coaster_special_dark;
-//            } else {
-//                markID = R.color.coaster_special_bright;
-//            }
-//        } else {
-//            if (currentLesson) {
-//                markID = R.color.coaster_dark;
-//            } else {
-//                markID = R.color.coaster_bright;
-//            }
-//        }
+        int markID = R.color.coaster_bright;
+        boolean currentLesson = false;
+        boolean markSpecial = false;
+        if (subject != null) {
+            currentLesson = Center.inRange(Center.currentMinute(), AppCore.getSchool().getStartingMinute(subject), AppCore.getSchool().getEndingMinute(subject));
+            markSpecial = currentTheme.markPrehours && subject.getHour() == 0;
+        } else {
+            if (subjects != null) {
+                if (!subjects.isEmpty()) {
+                    currentLesson = Center.inRange(Center.currentMinute(), AppCore.getSchool().getStartingMinute(subjects.get(0)), AppCore.getSchool().getEndingMinute(subjects.get(0)));
+                    markSpecial = currentTheme.markPrehours && subjects.get(0).getHour() == 0;
+                }
+            } else {
+                currentLesson = Center.inRange(Center.currentMinute(), AppCore.getSchool().);
+            }
+        }
+        if (markSpecial) {
+            if (currentLesson) {
+                markID = R.color.coaster_special_dark;
+            } else {
+                markID = R.color.coaster_special_bright;
+            }
+        } else {
+            if (currentLesson) {
+                markID = R.color.coaster_dark;
+            } else {
+                markID = R.color.coaster_bright;
+            }
+        }
         return Utils.getCoaster(getContext().getResources().getColor(markID), 32, 5);
     }
 
@@ -93,18 +106,15 @@ public class LessonView extends ExpandingView {
         bottomLayout.setLayoutDirection(LAYOUT_DIRECTION_RTL);
         setLayoutDirection(LAYOUT_DIRECTION_RTL);
         if (subject != null) {
-            // Register receiver
             getContext().registerReceiver(new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     refreshTopText();
                 }
             }, new IntentFilter(Intent.ACTION_TIME_TICK));
-            // Setup text view
             topView = getText(1);
             timeView = getText(Center.generateTime(subject.getHour()), 0.8);
             refreshTopText();
-            // Bottom setup
             bottomLayout.addView(getTexts(subject.getTeacherNames()));
         } else {
             if (subjects != null) {
@@ -140,19 +150,11 @@ public class LessonView extends ExpandingView {
         texts.add(topView);
         texts.add(timeView);
         bottomLayout.addView(timeView);
-        // Expanding View
         setDuration(200);
         setBackground(initBackground());
         setPadding(20, 25);
         setTop(topView);
         setBottom(bottomLayout);
-//        ExpandingView ev = new ExpandingView(getContext());
-//        ev.setDuration(200);
-//        ev.setBackground(initBackground());
-//        ev.setPadding(20, 25);
-//        ev.setTop(topView);
-//        ev.setBottom(bottomLayout);
-//        addView(ev);
     }
 
     public void setTheme(Theme theme) {
@@ -170,7 +172,6 @@ public class LessonView extends ExpandingView {
             RatioView text = getText(teacher, 0.8);
             text.setGravity(Gravity.CENTER);
             text.setEllipsize(TextUtils.TruncateAt.END);
-            text.setTypeface(Center.getTypeface(getContext()), Typeface.ITALIC);
             text.setPadding(30, 0, 30, 0);
             texts.add(text);
             textsLayout.addView(text);
@@ -182,7 +183,6 @@ public class LessonView extends ExpandingView {
         RatioView tv = new RatioView(getContext(), textSizeRatio);
         tv.setText(text);
         tv.setTextSize(Center.getFontSize(getContext()));
-        tv.setTypeface(Center.getTypeface(getContext()));
         tv.setTextColor(Center.getTextColor(getContext()));
         tv.setTextDirection(TEXT_DIRECTION_RTL);
         tv.setSingleLine(true);
@@ -192,7 +192,6 @@ public class LessonView extends ExpandingView {
     private RatioView getText(final double textSizeRatio) {
         RatioView tv = new RatioView(getContext(), textSizeRatio);
         tv.setTextSize(Center.getFontSize(getContext()));
-        tv.setTypeface(Center.getTypeface(getContext()));
         tv.setTextColor(Center.getTextColor(getContext()));
         tv.setTextDirection(TEXT_DIRECTION_RTL);
         tv.setSingleLine(true);

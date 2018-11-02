@@ -228,12 +228,10 @@ public class HomeActivity extends Activity {
         name.setText(c.getName());
         name.setTextColor(theme.getLast().textColor);
         name.setTextSize(theme.getLast().textSize);
-        name.setTypeface(Center.getTypeface(getApplicationContext()));
         name.setGravity(Gravity.CENTER);
         day.setText(schedule.getDay());
         day.setTextColor(theme.getLast().textColor);
         day.setTextSize(theme.getLast().textSize);
-        day.setTypeface(Center.getTypeface(getApplicationContext()));
         day.setGravity(Gravity.CENTER);
         infoText.addView(name);
         infoText.addView(day);
@@ -266,12 +264,10 @@ public class HomeActivity extends Activity {
         name.setText(Center.trimName(t.getName().split("\\s")[0]));
         name.setTextColor(theme.getLast().textColor);
         name.setTextSize(theme.getLast().textSize);
-        name.setTypeface(Center.getTypeface(getApplicationContext()));
         name.setGravity(Gravity.CENTER);
         day.setText(schedule.getDay());
         day.setTextColor(theme.getLast().textColor);
         day.setTextSize(theme.getLast().textSize);
-        day.setTypeface(Center.getTypeface(getApplicationContext()));
         day.setGravity(Gravity.CENTER);
         infoText.addView(name);
         infoText.addView(day);
@@ -382,7 +378,6 @@ public class HomeActivity extends Activity {
         final Switch shareMessageSwitch = new Switch(getApplicationContext());
         shareMessageSwitch.setPadding(10, 0, 10, 0);
         shareMessageSwitch.setText(R.string.interface_share_messages);
-        shareMessageSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         shareMessageSwitch.setTextSize((int) (double) (theme.getLast().textSize * 0.8));
         shareMessageSwitch.setTextColor(theme.getLast().textColor);
         shareMessageSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
@@ -390,7 +385,6 @@ public class HomeActivity extends Activity {
         final Switch shareGradeSwitch = new Switch(getApplicationContext());
         shareGradeSwitch.setPadding(10, 0, 10, 0);
         shareGradeSwitch.setText(R.string.interface_share_grade);
-        shareGradeSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         shareGradeSwitch.setTextSize((int) (double) (theme.getLast().textSize * 0.8));
         shareGradeSwitch.setTextColor(theme.getLast().textColor);
         shareGradeSwitch.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
@@ -399,7 +393,6 @@ public class HomeActivity extends Activity {
         shareB.setBackground(Utils.getCoaster(theme.getLast().colorMix, 16, 10));
         shareB.setTextColor(theme.getLast().textColor);
         shareB.setTextSize((int) (double) (theme.getLast().textSize * 0.7));
-        shareB.setTypeface(Center.getTypeface(getApplicationContext()));
         shareB.setAllCaps(false);
         shareB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -448,7 +441,7 @@ public class HomeActivity extends Activity {
 
     private ScrollView assembleSettings() {
         ScrollView sv = new ScrollView(getApplicationContext());
-        sv.setPadding(10, 10, 10, 10);
+//        sv.setPadding(10, 10, 10, 10);
         LinearLayout settings = new LinearLayout(getApplicationContext());
         settings.setOrientation(LinearLayout.VERTICAL);
         settings.setGravity(Gravity.START);
@@ -464,9 +457,6 @@ public class HomeActivity extends Activity {
         displayBreaksSwitch.setChecked(pm.getUserManager().get(R.string.preferences_user_display_breaks, getResources().getBoolean(R.bool.default_display_messages)));
         displayRemainingTime.setChecked(pm.getUserManager().get(R.string.preferences_user_display_remaining_time, getResources().getBoolean(R.bool.default_display_remaining_time)));
         cornerLocation.setChecked(pm.getUserManager().get(R.string.preferences_user_corner_location, getResources().getString(R.string.corner_location_right)).equals(getResources().getString(R.string.corner_location_right)));
-        displayBreaksSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
-        cornerLocation.setTypeface(Center.getTypeface(getApplicationContext()));
-        displayMessagesSwitch.setTypeface(Center.getTypeface(getApplicationContext()));
         markPrehourSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -516,23 +506,18 @@ public class HomeActivity extends Activity {
         });
         final TextView explainTextSize = new TextView(getApplicationContext());
         explainTextSize.setText(R.string.interface_settings_choose_size_text);
-        explainTextSize.setTypeface(Center.getTypeface(getApplicationContext()));
         explainTextSize.setGravity(Gravity.CENTER);
         final TextView explainTextColor = new TextView(getApplicationContext());
         explainTextColor.setText(R.string.interface_settings_choose_color_text);
-        explainTextColor.setTypeface(Center.getTypeface(getApplicationContext()));
         explainTextColor.setGravity(Gravity.CENTER);
         final TextView explainColorA = new TextView(getApplicationContext());
         explainColorA.setText(R.string.interface_settings_choose_color_top);
-        explainColorA.setTypeface(Center.getTypeface(getApplicationContext()));
         explainColorA.setGravity(Gravity.CENTER);
         final TextView explainColorB = new TextView(getApplicationContext());
         explainColorB.setText(R.string.interface_settings_choose_color_bottom);
-        explainColorB.setTypeface(Center.getTypeface(getApplicationContext()));
         explainColorB.setGravity(Gravity.CENTER);
         final TextView explainColorMenu = new TextView(getApplicationContext());
         explainColorMenu.setText(R.string.interface_settings_choose_color_menu);
-        explainColorMenu.setTypeface(Center.getTypeface(getApplicationContext()));
         explainColorMenu.setGravity(Gravity.CENTER);
         SeekBar fontSizeSeekBar = new SeekBar(getApplicationContext());
         fontSizeSeekBar.setMax(70);
@@ -590,10 +575,10 @@ public class HomeActivity extends Activity {
                 refreshTheme();
             }
         });
-        textColorPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 15));
-        colorTopPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 15));
-        colorBottomPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 15));
-        menuColorPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 15));
+        textColorPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 25));
+        colorTopPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 25));
+        colorBottomPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 25));
+        menuColorPicker.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 25));
         theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
             @Override
             public boolean onPeer(Theme theme) {
@@ -622,6 +607,7 @@ public class HomeActivity extends Activity {
         }));
         settings.addView(displayMessagesSwitch);
         settings.addView(displayBreaksSwitch);
+        settings.addView(displayRemainingTime);
         settings.addView(markPrehourSwitch);
         settings.addView(cornerLocation);
         settings.addView(explainTextSize);
@@ -667,7 +653,6 @@ public class HomeActivity extends Activity {
             final Button cls = new Button(getApplicationContext());
             cls.setGravity(Gravity.CENTER);
             cls.setText(cr.getName());
-            cls.setTypeface(Center.getTypeface(getApplicationContext()));
             cls.setTextColor(theme.getLast().textColor);
             cls.setBackground(Utils.getCoaster(theme.getLast().colorMix, 20, 5));
             cls.setTextSize(theme.getLast().textSize);
@@ -682,7 +667,6 @@ public class HomeActivity extends Activity {
             theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
                 @Override
                 public boolean onPeer(Theme theme) {
-                    cls.setTypeface(Center.getTypeface(getApplicationContext()));
                     cls.setTextColor(theme.textColor);
                     cls.setBackground(Utils.getCoaster(theme.colorMix, 20, 5));
                     cls.setTextSize(theme.textSize);
@@ -713,7 +697,6 @@ public class HomeActivity extends Activity {
                 cls.setTextColor(theme.getLast().textColor);
                 cls.setBackground(Utils.getCoaster(theme.getLast().colorMix, 20, 5));
                 cls.setPadding(10, 0, 10, 0);
-                cls.setTypeface(Center.getTypeface(getApplicationContext()));
                 cls.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (Device.screenY(getApplicationContext()) / 12)));
                 teachersv.addView(cls);
                 cls.setOnClickListener(new View.OnClickListener() {
@@ -725,7 +708,6 @@ public class HomeActivity extends Activity {
                 theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
                     @Override
                     public boolean onPeer(Theme theme) {
-                        cls.setTypeface(Center.getTypeface(getApplicationContext()));
                         cls.setTextColor(theme.textColor);
                         cls.setBackground(Utils.getCoaster(theme.colorMix, 20, 5));
                         cls.setTextSize(theme.textSize);
@@ -775,17 +757,14 @@ public class HomeActivity extends Activity {
                 "AppCore v" +
                 AppCore.APPCORE_VERSION;
         message.setText(messageText);
-        title.setTypeface(Center.getTypeface(getApplicationContext()));
         title.setTextSize(theme.getLast().textSize);
         title.setTextColor(theme.getLast().textColor);
         title.setGravity(Gravity.CENTER);
         title.setPadding(0, 30, 0, 30);
-        message.setTypeface(Center.getTypeface(getApplicationContext()));
         message.setTextSize(theme.getLast().textSize);
         message.setTextColor(theme.getLast().textColor);
         message.setGravity(Gravity.CENTER);
         message.setPadding(0, 30, 0, 30);
-        enterCodes.setTypeface(Center.getTypeface(getApplicationContext()));
         enterCodes.setTextSize(theme.getLast().textSize);
         enterCodes.setTextColor(theme.getLast().textColor);
         enterCodes.setGravity(Gravity.CENTER);
