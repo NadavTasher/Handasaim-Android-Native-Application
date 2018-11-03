@@ -1,9 +1,6 @@
 package nadav.tasher.handasaim.architecture.app.graphics;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -30,7 +27,6 @@ public class LessonView extends ExpandingView {
     private ArrayList<Subject> subjects;
     private Subject subject;
     private Theme currentTheme;
-    private BroadcastReceiver refreshReceiver;
     private int breakHour = -1;
 
 
@@ -190,25 +186,12 @@ public class LessonView extends ExpandingView {
         setTop(topView);
         setBottom(bottomLayout);
         refresh();
-        refreshReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                refresh();
-            }
-        };
-        getContext().registerReceiver(refreshReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
     }
 
     public void setTheme(Theme theme) {
         this.currentTheme = theme;
         for (RatioView text : texts) text.setTextColor(theme.textColor);
         for (RatioView text : texts) text.setTextSize(theme.textSize);
-    }
-
-    public void kill() {
-        if (refreshReceiver != null) {
-            getContext().unregisterReceiver(refreshReceiver);
-        }
     }
 
     private LinearLayout getTexts(ArrayList<String> strings) {

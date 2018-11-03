@@ -1,7 +1,10 @@
 package nadav.tasher.handasaim.activities;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -44,6 +47,8 @@ import nadav.tasher.lightool.parts.Tower;
 
 public class HomeActivity extends Activity {
     private Tower<Theme> theme = new Tower<>();
+    private ArrayList<LessonView> lessonViews;
+    private BroadcastReceiver timeTick;
     private Classroom currentClass;
     private Corner info;
     private MessageBar messageBar;
@@ -168,10 +173,23 @@ public class HomeActivity extends Activity {
             }
         }));
         refreshCorner();
+        loadReceiver();
         loadDrawers();
         loadContent();
         setContentView(mAppView);
         refreshTheme();
+    }
+
+    private void loadReceiver() {
+        timeTick = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (lessonViews != null) {
+                    for (LessonView l : lessonViews) l.refresh();
+                }
+            }
+        };
+        registerReceiver(timeTick, new IntentFilter(Intent.ACTION_TIME_TICK));
     }
 
     private void loadContent() {
@@ -288,6 +306,7 @@ public class HomeActivity extends Activity {
 
     private void displayLessonViews(final ArrayList<LessonView> lessonViews) {
         lessonViewHolder.removeAllViews();
+        this.lessonViews = lessonViews;
         theme.addPeer(new Peer<>(new Peer.OnPeer<Theme>() {
             @Override
             public boolean onPeer(Theme theme) {
@@ -933,6 +952,14 @@ public class HomeActivity extends Activity {
             }
         }
         return views;
+    }
+
+    @Override
+    public void onDestroy() {
+        if (timeTick != null) {
+            unregisterReceiver(timeTick);
+        }
+        super.onDestroy();
     }
 
     @Override
