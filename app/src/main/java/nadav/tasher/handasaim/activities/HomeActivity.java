@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,9 +83,6 @@ public class HomeActivity extends Activity {
 
     private void refreshTheme() {
         theme.tell(Center.getTheme(getApplicationContext()));
-//        Log.i("ColorA", String.format("#%06X", (0xFFFFFF & currentTheme.colorTop)));
-//        Log.i("ColorB", String.format("#%06X", (0xFFFFFF & currentTheme.colorBottom)));
-//        Log.i("ColorMenu", String.format("#%06X", (0xFFFFFF & currentTheme.menuColor)));
     }
 
     private void refreshCorner() {
@@ -110,7 +106,7 @@ public class HomeActivity extends Activity {
 
     private void loadUI() {
         refreshTheme();
-        Log.i("Theme", String.format("#%06X", (0xFFFFFF & theme.getLast().colorBottom)));
+//        Log.i("Theme", String.format("#%06X", (0xFFFFFF & theme.getLast().colorTop)));
         mAppView = new AppView(this);
         mAppView.setDrawNavigation(false);
         mAppView.getDrawer().setAnimationTime(200);

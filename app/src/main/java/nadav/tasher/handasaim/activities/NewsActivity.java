@@ -49,7 +49,7 @@ public class NewsActivity extends Activity {
         getWindow().setNavigationBarColor(Center.getColorBottom(getApplicationContext()));
         // Setup ScrollView
         ScrollView scrollView = new ScrollView(getApplicationContext());
-        scrollView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.7)));
+        scrollView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Device.screenY(getApplicationContext()) * 0.85)));
         // Setup LinearLayouts
         final LinearLayout fullScreen = new LinearLayout(getApplicationContext());
         fullScreen.setOrientation(LinearLayout.VERTICAL);
@@ -61,7 +61,7 @@ public class NewsActivity extends Activity {
         final LinearLayout bottomNavigation = new LinearLayout(getApplicationContext());
         bottomNavigation.setOrientation(LinearLayout.HORIZONTAL);
         bottomNavigation.setGravity(Gravity.CENTER);
-        bottomNavigation.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 9));
+        bottomNavigation.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 12));
         // Setup SKIP Button
         Button skipButton = new Button(getApplicationContext());
         skipButton.setAllCaps(false);
@@ -80,22 +80,21 @@ public class NewsActivity extends Activity {
         bottomNavigation.addView(skipButton);
         // Setup EasterEgg
         TextView mEggTop = getText(getResources().getString(R.string.interface_did_you_know), 1);
-        mEggTop.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 8));
-        final TextView mEggBottom = getText(Egg.dispenseEgg(Egg.TYPE_FACT), 0.9);
+        mEggTop.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 12));
+        final TextView mEggBottom = getText(Egg.dispenseEgg(Egg.TYPE_FACT), 0.7);
         mEggBottom.setPadding(0, 30, 0, 30);
         final ExpandingView mEggView = new ExpandingView(getApplicationContext());
         mEggView.setBackground(Utils.getCoaster(getResources().getColor(R.color.coaster_bright), 32, 10));
         mEggView.setTop(mEggTop);
         mEggView.setBottom(mEggBottom);
-        fullScreen.addView(mEggView);
+        newsLayout.addView(mEggView);
         new NewsFetcher(getString(R.string.provider_internal_news), new NewsFetcher.OnFinish() {
             @Override
             public void onNewsFetch(ArrayList<NewsFetcher.Article> articles) {
                 for (final NewsFetcher.Article article : articles) {
-                    TextView title = getText(article.getTitle(), 1);
-                    title.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 8));
-                    TextView button = getText(getResources().getString(R.string.interface_open_in_browser), 0.8);
-                    button.setBackground(Utils.getCoaster(Center.getColorBottom(getApplicationContext()), 20, 20));
+                    TextView title = getText(article.getTitle(), 0.8);
+                    title.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getApplicationContext()) / 12));
+                    TextView button = getText(getResources().getString(R.string.interface_open_in_browser), 0.7);
                     button.setPadding(50, 50, 50, 50);
                     button.setOnClickListener(new View.OnClickListener() {
                         @Override

@@ -5,8 +5,8 @@
     <bool name="default_display_remaining_time">true</bool>
     <bool name="default_mark_prehour">true</bool>
     <color name="default_menu">#000000</color>
-    <color name="default_top">#00827E</color>
-    <color name="default_bottom">#966A6A</color>
+    <color name="default_top">#000060</color>
+    <color name="default_bottom">#00926E</color>
     <color name="default_text">#FFFFFF</color>
     <integer name="default_font">30</integer>
 </resources>

@@ -60,7 +60,6 @@ public class AppCore {
         return schedule;
     }
 
-
     public static String getLink(String schedulePage, String homePage, String githubFallback) {
         String file = null;
         try {
