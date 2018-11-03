@@ -6,11 +6,14 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.text.InputFilter;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -258,6 +261,15 @@ public class Center {
         layout.addView(keyHolder);
         layout.addView(installCode);
         return layout;
+    }
+
+    public static Drawable getCurrentMark(Context context, ImageView imageView) {
+        Utils.measure(imageView);
+        ShapeDrawable shapeDrawable = new ShapeDrawable(new OvalShape());
+        shapeDrawable.setIntrinsicHeight(imageView.getMeasuredHeight());
+        shapeDrawable.setIntrinsicWidth(imageView.getMeasuredWidth());
+        shapeDrawable.getPaint().setColor(context.getResources().getColor(R.color.current_mark));
+        return shapeDrawable;
     }
 
     public static Drawable getGradient(Context c) {

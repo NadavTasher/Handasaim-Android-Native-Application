@@ -14,6 +14,7 @@
     <color name="coaster_dark">#222222</color>
     <color name="coaster_special_bright">#B74949</color>
     <color name="coaster_special_dark">#803232</color>
+    <color name="current_mark">#5566bb</color>
     <integer name="ping_timeout">5000</integer>
     <integer name="max_storage_schedule">6</integer>
 </resources>

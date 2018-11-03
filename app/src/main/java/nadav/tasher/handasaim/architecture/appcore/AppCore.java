@@ -37,7 +37,7 @@ import nadav.tasher.handasaim.architecture.appcore.components.Subject;
 
 public class AppCore {
 
-    public static double APPCORE_VERSION = 2.2;
+    public static double APPCORE_VERSION = 2.3;
 
     public static Schedule getSchedule(File anyfile, String link) {
         Schedule schedule = new Schedule.Builder().build();

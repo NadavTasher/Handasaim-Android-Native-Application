@@ -293,6 +293,7 @@ public class HomeActivity extends Activity {
             public boolean onPeer(Theme theme) {
                 for (LessonView l : lessonViews) {
                     l.setTheme(theme);
+                    l.refresh();
                 }
                 return false;
             }

@@ -8,6 +8,8 @@ import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -22,7 +24,8 @@ import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.info.Device;
 
 public class LessonView extends ExpandingView {
-    private RatioView topView, timeView;
+    private RatioView topText;
+    private ImageView currentMark;
     private ArrayList<RatioView> texts = new ArrayList<>();
     private ArrayList<Subject> subjects;
     private Subject subject;
@@ -51,80 +54,115 @@ public class LessonView extends ExpandingView {
         init();
     }
 
-    private void refreshTopText() {
-        String topText = subject.getHour() + ". " + subject.getName();
-        if (currentTheme.showRemainingTime && Center.inRange(Center.currentMinute(), AppCore.getSchool().getStartingMinute(subject), AppCore.getSchool().getEndingMinute(subject))) {
-            topText += AppCore.Utils.DIVIDER;
-            topText += (AppCore.getSchool().getEndingMinute(subject) - Center.currentMinute());
-            topText += " ";
-            topText += getContext().getResources().getString(R.string.interface_minutes_short);
+    public void refresh() {
+        String text = "";
+        if (subject != null) {
+            text = subject.getHour() + ". " + subject.getName();
+            if (currentTheme.showRemainingTime && Center.inRange(Center.currentMinute(), AppCore.getSchool().getStartingMinute(subject), AppCore.getSchool().getEndingMinute(subject))) {
+                text += AppCore.Utils.DIVIDER;
+                text += (AppCore.getSchool().getEndingMinute(subject) - Center.currentMinute());
+                text += " ";
+                text += getContext().getResources().getString(R.string.interface_minutes_short);
+            }
+        } else {
+            if (subjects != null) {
+                if (!subjects.isEmpty()) {
+                    text = subjects.get(0).getHour() + ". " + subjects.get(0).getName();
+                    if (currentTheme.showRemainingTime && Center.inRange(Center.currentMinute(), AppCore.getSchool().getEndingMinute(breakHour - 1), AppCore.getSchool().getStartingMinute(breakHour))) {
+                        text += AppCore.Utils.DIVIDER;
+                        text += (AppCore.getSchool().getEndingMinute(subjects.get(0)) - Center.currentMinute());
+                        text += " ";
+                        text += getContext().getResources().getString(R.string.interface_minutes_short);
+                    }
+                }
+            } else {
+                text = getContext().getResources().getString(R.string.interface_break);
+                if (currentTheme.showRemainingTime && Center.inRange(Center.currentMinute(), AppCore.getSchool().getEndingMinute(breakHour - 1), AppCore.getSchool().getStartingMinute(breakHour))) {
+                    text += AppCore.Utils.DIVIDER;
+                    text += (AppCore.getSchool().getStartingMinute(breakHour) - Center.currentMinute());
+                    text += " ";
+                    text += getContext().getResources().getString(R.string.interface_minutes_short);
+                }
+            }
         }
-        topView.setText(topText);
+        topText.setText(text);
+        refreshCurrent();
     }
 
-    private Drawable initBackground() {
-        int markID = R.color.coaster_bright;
+    private void refreshCurrent() {
         boolean currentLesson = false;
-        boolean markSpecial = false;
         if (subject != null) {
             currentLesson = Center.inRange(Center.currentMinute(), AppCore.getSchool().getStartingMinute(subject), AppCore.getSchool().getEndingMinute(subject));
-            markSpecial = currentTheme.markPrehours && subject.getHour() == 0;
         } else {
             if (subjects != null) {
                 if (!subjects.isEmpty()) {
                     currentLesson = Center.inRange(Center.currentMinute(), AppCore.getSchool().getStartingMinute(subjects.get(0)), AppCore.getSchool().getEndingMinute(subjects.get(0)));
-                    markSpecial = currentTheme.markPrehours && subjects.get(0).getHour() == 0;
                 }
             } else {
                 currentLesson = Center.inRange(Center.currentMinute(), AppCore.getSchool().getEndingMinute(breakHour - 1), AppCore.getSchool().getStartingMinute(breakHour));
             }
         }
-        if (markSpecial) {
-            if (currentLesson) {
-                markID = R.color.coaster_special_dark;
-            } else {
-                markID = R.color.coaster_special_bright;
-            }
+        if (currentLesson) {
+            currentMark.setImageDrawable(Center.getCurrentMark(getContext(), currentMark));
         } else {
-            if (currentLesson) {
-                markID = R.color.coaster_dark;
+            currentMark.setImageDrawable(null);
+        }
+    }
+
+    private Drawable initBackground() {
+        int markID;
+        boolean markSpecial = false;
+        if (subject != null) {
+            markSpecial = currentTheme.markPrehours && subject.getHour() == 0;
+        } else {
+            if (subjects != null) {
+                if (!subjects.isEmpty()) {
+                    markSpecial = currentTheme.markPrehours && subjects.get(0).getHour() == 0;
+                }
             } else {
-                markID = R.color.coaster_bright;
+                markSpecial = false;
             }
+        }
+        if (markSpecial) {
+            markID = R.color.coaster_special_bright;
+        } else {
+            markID = R.color.coaster_bright;
         }
         return Utils.getCoaster(getContext().getResources().getColor(markID), 32, 5);
     }
 
     private void init() {
+        topText = getText(1);
         LinearLayout bottomLayout = new LinearLayout(getContext());
         bottomLayout.setGravity(Gravity.CENTER);
         bottomLayout.setOrientation(LinearLayout.HORIZONTAL);
         bottomLayout.setLayoutDirection(LAYOUT_DIRECTION_RTL);
         setLayoutDirection(LAYOUT_DIRECTION_RTL);
+        FrameLayout topView = new FrameLayout(getContext());
+        topView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 12));
+        LinearLayout currentMarkHolder = new LinearLayout(getContext());
+        currentMarkHolder.setGravity(Gravity.END | Gravity.TOP);
+        currentMarkHolder.setPadding(10, 10, 10, 10);
+        currentMark = new ImageView(getContext());
+        currentMark.setLayoutParams(new LinearLayout.LayoutParams(Device.screenY(getContext()) / 60, Device.screenY(getContext()) / 60));
+        currentMarkHolder.addView(currentMark);
+        topView.addView(topText);
+        topView.addView(currentMarkHolder);
+        RatioView timeText;
         if (subject != null) {
-            getContext().registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    refreshTopText();
-                }
-            }, new IntentFilter(Intent.ACTION_TIME_TICK));
-            topView = getText(1);
-            timeView = getText(Center.generateTime(subject.getHour()), 0.8);
-            refreshTopText();
+            timeText = getText(Center.generateTime(subject.getHour()), 0.8);
             bottomLayout.addView(getTexts(subject.getTeacherNames()));
         } else {
             if (subjects != null) {
                 if (!subjects.isEmpty()) {
-                    topView = getText(subjects.get(0).getName(), 1);
-                    timeView = getText(Center.generateTime(subjects.get(0).getHour()), 0.8);
+                    timeText = getText(Center.generateTime(subjects.get(0).getHour()), 0.8);
                     ArrayList<String> names = new ArrayList<>();
                     for (Subject subject : subjects) {
                         names.add(subject.getClassroom().getName());
                     }
                     bottomLayout.addView(getTexts(names));
                 } else {
-                    topView = getText("?", 1);
-                    timeView = getText("?", 0.8);
+                    timeText = getText(0.8);
                     bottomLayout.addView(getTexts(new ArrayList<String>()));
                 }
             } else {
@@ -132,25 +170,31 @@ public class LessonView extends ExpandingView {
                 minutesView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 1));
                 minutesView.setGravity(Gravity.CENTER);
                 texts.add(minutesView);
-                topView = getText(getContext().getResources().getString(R.string.interface_break), 1);
-                timeView = getText(Center.generateBreakTime(breakHour - 1, breakHour), 0.8);
+                timeText = getText(Center.generateBreakTime(breakHour - 1, breakHour), 0.8);
                 bottomLayout.addView(minutesView);
             }
         }
-        topView.setPadding(20, 0, 20, 0);
-        timeView.setTextDirection(TEXT_DIRECTION_LTR);
-        topView.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-        timeView.setGravity(Gravity.CENTER);
-        topView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 12));
-        timeView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 13, 1));
-        texts.add(topView);
-        texts.add(timeView);
-        bottomLayout.addView(timeView);
+        timeText.setTextDirection(TEXT_DIRECTION_LTR);
+        timeText.setGravity(Gravity.CENTER);
+        timeText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Device.screenY(getContext()) / 13, 1));
+        bottomLayout.addView(timeText);
+        texts.add(timeText);
+        topText.setPadding(20, 0, 20, 0);
+        topText.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+        topText.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        texts.add(topText);
         setDuration(200);
         setBackground(initBackground());
         setPadding(20, 25);
         setTop(topView);
         setBottom(bottomLayout);
+        refresh();
+        getContext().registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                refresh();
+            }
+        }, new IntentFilter(Intent.ACTION_TIME_TICK));
     }
 
     public void setTheme(Theme theme) {
