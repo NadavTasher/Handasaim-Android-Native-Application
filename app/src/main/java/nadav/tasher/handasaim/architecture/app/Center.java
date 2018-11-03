@@ -81,6 +81,7 @@ public class Center {
         currentTheme.showMessages = pm.getUserManager().get(R.string.preferences_user_display_messages, context.getResources().getBoolean(R.bool.default_display_messages));
         currentTheme.showBreaks = pm.getUserManager().get(R.string.preferences_user_display_breaks, context.getResources().getBoolean(R.bool.default_display_breaks));
         currentTheme.showRemainingTime = pm.getUserManager().get(R.string.preferences_user_display_remaining_time, context.getResources().getBoolean(R.bool.default_display_remaining_time));
+        currentTheme.markPrehours = pm.getUserManager().get(R.string.preferences_user_mark_prehour, context.getResources().getBoolean(R.bool.default_mark_prehour));
         currentTheme.menuColor = pm.getUserManager().get(R.string.preferences_user_color_menu, context.getResources().getColor(R.color.default_menu));
         currentTheme.colorTop = pm.getUserManager().get(R.string.preferences_user_color_top, context.getResources().getColor(R.color.default_top));
         currentTheme.colorBottom = pm.getUserManager().get(R.string.preferences_user_color_bottom, context.getResources().getColor(R.color.default_bottom));

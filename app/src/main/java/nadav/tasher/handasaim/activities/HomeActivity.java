@@ -158,7 +158,7 @@ public class HomeActivity extends Activity {
                 messageBar.setTextSize(theme.textSize);
                 mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(theme.menuColor, 48, 10));
                 mAppView.getDrawer().setPadding(drawerPadding, drawerPadding, drawerPadding, drawerPadding);
-//                mAppView.getDrawer().getDrawerView().setPadding(0, drawerPadding, 0, drawerPadding);
+                mAppView.getDrawer().getDrawerView().setPadding(drawerPadding, drawerPadding, drawerPadding, drawerPadding);
                 if (theme.showMessages && schedule.getMessages().size() != 0) {
                     messageBar.setVisibility(View.VISIBLE);
                 } else {
@@ -374,7 +374,6 @@ public class HomeActivity extends Activity {
         LinearLayout shareView = new LinearLayout(getApplicationContext());
         shareView.setGravity(Gravity.CENTER);
         shareView.setOrientation(LinearLayout.VERTICAL);
-        shareView.setPadding(20, 20, 20, 20);
         final Switch shareMessageSwitch = new Switch(getApplicationContext());
         shareMessageSwitch.setPadding(10, 0, 10, 0);
         shareMessageSwitch.setText(R.string.interface_share_messages);
@@ -441,12 +440,10 @@ public class HomeActivity extends Activity {
 
     private ScrollView assembleSettings() {
         ScrollView sv = new ScrollView(getApplicationContext());
-//        sv.setPadding(10, 10, 10, 10);
         LinearLayout settings = new LinearLayout(getApplicationContext());
         settings.setOrientation(LinearLayout.VERTICAL);
         settings.setGravity(Gravity.START);
         settings.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        settings.setPadding(20, 20, 20, 20);
         final Switch cornerLocation = new Switch(getApplicationContext()), displayRemainingTime = new Switch(getApplicationContext()), markPrehourSwitch = new Switch(getApplicationContext()), displayMessagesSwitch = new Switch(getApplicationContext()), displayBreaksSwitch = new Switch(getApplicationContext());
         markPrehourSwitch.setText(R.string.interface_settings_mark_prehour);
         displayMessagesSwitch.setText(R.string.interface_settings_messages);
@@ -629,7 +626,6 @@ public class HomeActivity extends Activity {
         LinearLayout all = new LinearLayout(getApplicationContext());
         all.setOrientation(LinearLayout.VERTICAL);
         all.setGravity(Gravity.CENTER);
-        all.setPadding(20, 0, 20, 0);
         LinearLayout students = new LinearLayout(getApplicationContext());
         students.setPadding(10, 10, 10, 10);
         students.setOrientation(LinearLayout.VERTICAL);
@@ -742,7 +738,6 @@ public class HomeActivity extends Activity {
         LinearLayout aboutView = new LinearLayout(getApplicationContext());
         aboutView.setGravity(Gravity.CENTER);
         aboutView.setOrientation(LinearLayout.VERTICAL);
-        aboutView.setPadding(20, 20, 20, 20);
         RatioView title = new RatioView(getApplicationContext(), 0.9);
         RatioView message = new RatioView(getApplicationContext(), 0.7);
         RatioView enterCodes = new RatioView(getApplicationContext(), 0.7);

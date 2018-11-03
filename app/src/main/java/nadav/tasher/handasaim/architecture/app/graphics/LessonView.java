@@ -1,6 +1,5 @@
 package nadav.tasher.handasaim.architecture.app.graphics;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,33 +22,30 @@ import nadav.tasher.lightool.graphics.views.Utils;
 import nadav.tasher.lightool.info.Device;
 
 public class LessonView extends ExpandingView {
-    private Activity activity;
     private RatioView topView, timeView;
     private ArrayList<RatioView> texts = new ArrayList<>();
-    private Subject subject;
     private ArrayList<Subject> subjects;
-    private int breakHour = -1;
+    private Subject subject;
     private Theme currentTheme;
+    private int breakHour = -1;
 
-    public LessonView(Activity activity, Theme theme, Subject subject) {
-        super(activity);
-        this.activity = activity;
+
+    public LessonView(Context context, Theme theme, Subject subject) {
+        super(context);
         this.subject = subject;
         this.currentTheme = theme;
         init();
     }
 
-    public LessonView(Activity activity, Theme theme, ArrayList<Subject> subjects) {
-        super(activity);
-        this.activity = activity;
+    public LessonView(Context context, Theme theme, ArrayList<Subject> subjects) {
+        super(context);
         this.subjects = subjects;
         this.currentTheme = theme;
         init();
     }
 
-    public LessonView(Activity activity, Theme theme, int breakHour) {
-        super(activity);
-        this.activity = activity;
+    public LessonView(Context context, Theme theme, int breakHour) {
+        super(context);
         this.currentTheme = theme;
         this.breakHour = breakHour;
         init();
@@ -80,7 +76,7 @@ public class LessonView extends ExpandingView {
                     markSpecial = currentTheme.markPrehours && subjects.get(0).getHour() == 0;
                 }
             } else {
-                currentLesson = Center.inRange(Center.currentMinute(), AppCore.getSchool().);
+                currentLesson = Center.inRange(Center.currentMinute(), AppCore.getSchool().getEndingMinute(breakHour - 1), AppCore.getSchool().getStartingMinute(breakHour));
             }
         }
         if (markSpecial) {

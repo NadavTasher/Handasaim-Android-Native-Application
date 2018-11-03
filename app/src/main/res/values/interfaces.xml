@@ -38,7 +38,7 @@
     <string name="interface_tutorial_welcome">Welcome.</string>
     <string name="interface_tutorial_explanation">This tutorial will brief you through the app.\nIt will show you some features and let you set some settings.\nClick \'Next\' to continue.</string>
     <string name="interface_tutorial_lessonview_explanation">This how a lesson in the schedule looks like.\nBy default, its collapsed, so the information you are presented with is just the lesson\'s name.\nYou can expand it by touching it, to reveal more information.</string>
-    <string name="interface_tutorial_lessonview_example_top">מתמתיקה</string>
+    <string name="interface_tutorial_lessonview_example_top">מתמטיקה</string>
     <string name="interface_tutorial_lessonview_example_bottom1">דלית</string>
     <string name="interface_tutorial_lessonview_example_bottom2">מאיה</string>
     <string name="interface_tutorial_corner_explanation">This is the menu button.\nIt is located in one of the bottom corners of the screen.\nThe button opens and closes the top menu.</string>
