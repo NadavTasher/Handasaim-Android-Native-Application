@@ -133,6 +133,10 @@ public class Center {
         return Color.rgb(combineRed, combineGreen, combineBlue);
     }
 
+    public static int alpha(int color, int alpha) {
+        return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
+    }
+
     public static String minuteToTime(int minute) {
         int hours = minute / 60;
         int minutes = minute % 60;

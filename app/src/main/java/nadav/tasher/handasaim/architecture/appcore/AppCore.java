@@ -117,8 +117,8 @@ public class AppCore {
                     names.add("טכ'");
                 } else if (match(name, "פיסיקה") && name.contains("מע")) {
                     names.add("מעבדה");
-                } else if (name.contains("ביואינפ")) {
-                    names.add("ביואינפ");
+                } else if (name.contains("ביואינ")) {
+                    names.add("ביואינ");
                 } else {
                     names.add(name);
                 }

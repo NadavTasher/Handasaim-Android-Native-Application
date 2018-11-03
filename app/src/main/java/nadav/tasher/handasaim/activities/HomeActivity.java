@@ -105,7 +105,7 @@ public class HomeActivity extends Activity {
 
     private void loadUI() {
         refreshTheme();
-        Log.i("Theme", theme.getLast().toString());
+        Log.i("Theme", String.format("#%06X", (0xFFFFFF & theme.getLast().colorBottom)));
         mAppView = new AppView(this);
         mAppView.setDrawNavigation(false);
         mAppView.getDrawer().setAnimationTime(200);
@@ -156,7 +156,7 @@ public class HomeActivity extends Activity {
                 setCornerColor(mAppView.getScrolly());
                 messageBar.setTextColor(theme.textColor);
                 messageBar.setTextSize(theme.textSize);
-                mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(theme.menuColor, 48, 10));
+                mAppView.getDrawer().getDrawerView().setBackground(Utils.getCoaster(Center.alpha(theme.menuColor, 200), 48, 10));
                 mAppView.getDrawer().setPadding(drawerPadding, drawerPadding, drawerPadding, drawerPadding);
                 mAppView.getDrawer().getDrawerView().setPadding(drawerPadding, drawerPadding, drawerPadding, drawerPadding);
                 if (theme.showMessages && schedule.getMessages().size() != 0) {
@@ -399,22 +399,23 @@ public class HomeActivity extends Activity {
             public void onClick(View v) {
                 StringBuilder message = new StringBuilder();
                 if (shareGradeSwitch.isChecked()) {
-                    message.append("יום").append(" ").append(schedule.getDay()).append(":").append("\n").append("\n");
+                    message.append("יום").append(" ").append(schedule.getDay()).append(":");
                     int grade = currentClass.getGrade();
                     for (Classroom classroom : schedule.getClassrooms()) {
                         if (classroom.getGrade() == grade) {
-                            message.append(classroom.getName()).append(":").append("\n");
-                            message.append(classroomToString(classroom)).append("\n");
+                            message.append("\n\n");
+                            message.append(classroom.getName()).append(":");
+                            message.append(classroomToString(classroom));
                         }
                     }
                 } else {
-                    message.append(currentClass.getName()).append(" (").append(schedule.getDay()).append(")").append("\n");
-                    message.append(classroomToString(currentClass)).append("\n");
+                    message.append(currentClass.getName()).append(" (").append(schedule.getDay()).append(")");
+                    message.append(classroomToString(currentClass));
                 }
                 if (shareMessageSwitch.isChecked()) {
-                    message.append("הודעות:\n");
+                    message.append("הודעות:\n\n");
                     for (int i = 0; i < schedule.getMessages().size(); i++) {
-                        message.append(i + 1).append(". ").append(schedule.getMessages().get(i)).append("\n");
+                        message.append("\n").append(i + 1).append(". ").append(schedule.getMessages().get(i));
                     }
                 }
                 Center.share(getApplicationContext(), message.toString());
@@ -861,7 +862,7 @@ public class HomeActivity extends Activity {
         for (Subject subject : classroom.getSubjects()) {
             String text = subject.getHour() + ". " + subject.getName();
             if (subject.getName() != null && !subject.getName().isEmpty()) {
-                export.append(text).append("\n");
+                export.append("\n").append(text);
             }
         }
         return export.toString();
